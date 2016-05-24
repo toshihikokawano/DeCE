@@ -1,0 +1,118 @@
+DeCE : The Descriptive Correction of ENDF-6 Format Code
+
+   Language C++
+   Author   Kawano, T.
+   Version  1.2 (Adularia 2015/9)
+
+DeCE is a C++ program to manipulate ENDF-6 formatted file interactively,
+inspired by the CRECTJ6 code by T. Nakagawa of JAEA (JAERI-DATA/CODE
+99-041). DeCE has several features that help ENDF-6 formatting work;
+(1) facilitates all ENDF-6 data file manipulations, for example, add
+two data sections, renormalize data, add/delete data point, (2)
+convert model calculation results into ENDF-6 format, (3) reconstruct
+pointwise cross sections from resonance parameters, (4) convert ENDF-6
+formatted data file into more human friendly format.
+
+
+History:
+
+   beta  (Talc)       : Dec. 2009   original development version
+         (Gypsum)     : Mar. 2010   FILE 3 completed version
+         (Calcite)    : Mar. 2010   structure re-organized, FILE 4 completed
+         (Fluorite)   : Mar. 2010   GFR module imported, cross section from resonances
+   pre1  (Apatite)    : Sep. 2010   FILE 6 improved version
+   1.0.0 (Apatite)    : Oct. 2010   public release version
+   1.1.0 (Turquoise)  : Dec. 2010   data tabulation enhanced version
+   1.1.1              : Aug. 2011   AUTOMAKE version
+   1.1.2              : Sep. 2012   minor revision
+   1.1.3              : Sep. 2013   gamma-ray data tabulation
+   1.1.4              : Jul. 2014   Legendre coefficients from resonances
+   1.2.0 (Adularia)   : Sep. 2015   resonance reconstruction, and more upgrades
+
+Files:
+    source/
+      [Main Program]
+        constant.h        physical constatns definition
+        dece.h            prototype definition of main modules
+        decetable.h       prototype definition of functions in decetable sources
+        terminate.h       code emergency stop
+        dece.cpp          main program
+        deceangdist.cpp   make MF4 from data, calculate Legendre coefficients
+        dececalc.cpp      add/sub/mul/div operation of TAB1 type sections
+        dececopy.cpp      scan the ENDF file, copy section to memory
+        deceheader.cpp    manipulate header part in MF1
+        decemisc.cpp      some mathematical functions
+        decemod6.cpp      manipulate sections in MF6
+        deceoutput.cpp    output whole ENDF data, renumbered, make new dictionary
+        decepoint.cpp     manipulate one-point data
+        deceprocpoit.cpp  create point-wise cross sections in MF3
+        deceread.cpp      read external file and make a section in MF3
+        decetable.cpp     output human readable table from ENDF data
+        decetable1.cpp        part of decetable, for MF1
+        decetable2.cpp        part of decetable, for MF2
+        decetable3.cpp        part of decetable, for MF3
+        decetable4.cpp        part of decetable, for MF4
+        decetable5.cpp        part of decetable, for MF5
+        decetable6.cpp        part of decetable, for MF6
+        decetable8.cpp        part of decetable, for MF8
+        decetable9.cpp        part of decetable, for MF9
+        decetable10.cpp       part of decetable, for MF10
+        decetable12.cpp       part of decetable, for MF12
+        decetable13.cpp       part of decetable, for MF13
+        decetable15.cpp       part of decetable, for MF15
+        decetable33.cpp       part of decetable, for MF33
+        decexml.cpp       output data in XML format
+
+      [ENDF-6 Formatted File I/O]
+        endflib.h         ENDFlib class definition
+        endfio.cpp        read/write interface to ENDF data section
+        endflib.cpp       ENDF-6 HEAD, CONT, LIST, TAB1, TAB2
+
+      [Input Line Interpreter]
+        command.h         Class Cline, and prototype definition 
+        command.cpp       input command analyzer
+
+      [Reconstruct Poinwise Cross Section from Resonances]
+        gfr.h             prototype definition of GFR
+        gfr.cpp           calculate cross section from resonances
+        gfrcross.cpp      main calculation part
+        gfrcs1.cpp        SLBW / MLBW
+        gfrcs3.cpp        Reich-Moore
+        gfrcs7.cpp        R-matrix limited
+        gfrcsurr.cpp      unresolved resonance region
+        gfrenergy.cpp     auto energy grid
+        gfrformula.cpp    resonance formulae
+        gfrlegcoef.cpp    Legendre expansion coefficients
+
+      [Miscellaneous Functions]
+        decemisc.h
+        decemisc.cpp
+        coupling.h        angular momentum couplings (from CoH3)
+        coupling.cpp
+
+      [Mass Table]
+        masstable.h
+        masstable_ripl2.h
+        masstable_ripl3.h
+        masstable_audi2011.h
+        masstable.cpp
+
+      [Least-Squares Module]
+        polysq.h
+        polycalc.cpp
+        polymain.cpp
+        polysq.cpp
+
+   tools/
+        decemf4.cpp:  elastic scattering angular distribution section in ENDF-6
+        decemf5.cpp:  make energy spectrum section in ENDF-6
+        decemf6.cpp:  convert ECLIPSE(CoH) DDX output into ENDF-6
+        decemf12.cpp: convert ECLIPSE(CoH) discrete level output into ENDF-6
+        decemacs.cpp: calculate Maxwellian average cross section
+
+   example/
+        example1.cpp: read/write ENDF-6 using endflib
+        example2.cpp: onvert private date into ENDF-6 using endflib
+ 
+   manual/
+        dece manual in HTML
