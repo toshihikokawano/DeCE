@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: operation (1) </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="input.html">   [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="ope2.html">    [NEXT] </a>
+<hr>
+
+<h1><a name="general">General Command</a></h1>
+
+<h2><a name="tpid">tpid (change Tape ID)</a></h2>
+
+<pre id="syn">
+   tpid "Any String Here"
+</pre>
+
+<p><tt>tpid</tt> changes the Tape ID, which appears at the top
+of ENDF-6 file. The ID string must be quoted by a double-quotation.
+The length of Tape ID must be less than 66 characters. If a given
+string is longer than 66, it will be truncated.</p>
+
+<p>A new Tape ID will be written on an output ENDF-6 file, and
+therefore, this operation does not affect if the output file is not
+specified.</p>
+
+
+<h2><a name="index">index (print MF/MT numbers)</a></h2>
+
+<pre id="syn">
+   index
+</pre>
+
+<p>Dece scans the entire ENDF-6 file, and print out the 
+<tt>MF/MT</tt> numbers for the sections given in the file.
+This operation is used for browsing the file only. </p>
+
+<pre>
+index
+</pre>
+<pre id="dat">
+MF   1
+ 451 452 455 456 458
+MF   2
+ 151
+MF   3
+   1   2   3   4  16  17  18  19  20  21  37  38  51  52  53  54  55  56  57  58
+  59  60  61  62  63  64  65  66  67  68  69  70  71  72  73  74  75  76  77  78
+  79  80  81  82  83  84  85  86  87  88  89  90  91 102
+MF   4
+   2  18  51  52  53  54  55  56  57  58  59  60  61  62  63  64  65  66  67  68
+  69  70  71  72  73  74  75  76  77  78  79  80  81  82  83  84  85  86  87  88
+  89  90
+MF   5
+  18 455
+MF   6
+  16  17  37  91
+</pre>
+
+<p>In this example, the file contains five <tt>MT</tt> sections in <tt>MF=1</tt>,
+one resonance section in  <tt>MF=2</tt>, etc.</p>
+
+
+<h2><a name="end">end / quit / exit </a></h2>
+
+<pre id="syn">
+   end
+   quit
+   exit
+</pre>
+
+<p> Three operations are the same - quit the code. </p>
+
+
+<h1><a name="section">Section Manipulation </a></h1>
+
+
+<h2><a name="extract">extract (print section in ENDF-6 format) </a></h2>
+
+<pre id="syn">
+   extract <i>MFnumber</i> <i>MTnumber</i>
+</pre>
+
+<p> Print a given MF/MT section from the ENDF-6 file.
+The output format is in the ENDF-6 format.</p>
+
+<pre>
+extract 1 455
+</pre>
+<pre id="dat">
+ 9.223800+4 2.360058+2          0          2          0          09237 1455    1
+ 0.000000+0 0.000000+0          0          0          6          09237 1455    2
+ 1.249423-2 3.025520-2 1.159376-1 3.414764-1 1.318630+0 9.979027+09237 1455    3
+ 0.000000+0 0.000000+0          0          0          1          49237 1455    4
+          4          2                                            9237 1455    5
+ 1.000000-5 4.400000-2 4.000000+6 4.400000-2 9.000000+6 2.600000-29237 1455    6
+ 3.000000+7 2.600000-2                                            9237 1455    7
+                                                                  9237 1  099999
+</pre>
+
+
+<h2><a name="table">table (print section in table format) </a></h2>
+
+<pre id="syn">
+   table <i>MFnumber</i> <i>MTnumber</i>
+</pre>
+
+<p> Same as <tt>extract</tt>, but the output data are converted
+into a more friendly table format.</p>
+
+<pre>
+table 2 151
+</pre>
+<pre id="dat">
+# MAT: 2328   MF: 2 MT:151   ZA: 23 -  51   NRS:  64   L: 0
+# E             J    G(neutron)    G(gamma)      G(fissionA)   G(fissionB)
+ -1.760000e+04  4.0  6.500000e+03  1.500000e+00  0.000000e+00  0.000000e+00
+ -6.000000e+03  3.0  4.845000e+02  1.450000e+00  0.000000e+00  0.000000e+00
+  4.167000e+03  4.0  5.169800e+02  1.100000e+00  0.000000e+00  0.000000e+00
+  6.839000e+03  3.0  1.163420e+03  1.800000e+00  0.000000e+00  0.000000e+00
+... (snip) ...
+</pre>
+
+
+
+<h2><a name="delete">delete (delete section) </a></h2>
+
+<pre id="syn">
+   delete <i>MFnumber</i> <i>MTnumber</i>
+</pre>
+
+<p>This operation removes the MF=<i>MFnumber</i> and MT=<i>MTnumber</i>
+section. </p>
+
+
+
+<h2><a name="multidelete">multidelete (delete multiple sections)</a></h2>
+
+<pre id="syn">
+   multidelete  <i>MFnumber</i> <i>MTstart</i> <i>MTlast</i>
+</pre>
+
+<p>All the sections from <i>MTstart</i> to <i>MTlast</i> are 
+removed.</p>
+
+
+
+<h2><a name="duplicate">duplicate (copy section) </a></h2>
+
+<pre id="syn">
+   duplicate <i>MFnumber</i> <i>MTsrc</i> <i>MTdist</i>
+</pre>
+
+<p>Copy data in the section of MF/MT = <i>MFnumber</i>
+/ <i>MTsrc</i> into MF/MT = <i>MFnumber</i>
+/ <i>MTdest</i>. The MF number of the source and destination
+sections are the same, and hence given one time.</p>
+
+<p>The copied section will be created if it does not exist on a memory,
+or replaced by the source section data if exist. The new section
+will be on a memory, unless <tt>extract, table</tt> operations are
+performed after <tt>duplicate</tt>.</p>
+
+
+
+<h2><a name="calc">calc (calculate from two sections) </a></h2>
+
+<pre id="syn">
+   calc <i>MTdest</i> = <i>MTsrc1</i> + <i>MTsrc2</i>
+   calc <i>MTdest</i> = <i>MTsrc1</i> - <i>MTsrc2</i>
+   calc <i>MTdest</i> = <i>MTsrc1</i> * <i>MTsrc2</i>
+   calc <i>MTdest</i> = <i>MTsrc1</i> / <i>MTsrc2</i>
+   calc <i>MTdest</i> = <i>MTsrc1</i> : <i>MTsrc2</i>
+</pre>
+
+<p>This operation calculate the sum (+), difference (-), product (*),
+and quotient (/) of two MT sections, and store the results in the
+MT=<i>MTdest</i> section.  The MF in this case should be
+always 3 (cross section).  When MF=3, MT=<i>MTdest</i>
+exists, the data are replaced by the calculated numbers The
+calculation is done on a memory, and no output is made by this
+operation. To print out the calculated results, <tt>extract,
+table</tt> operations should be used after this operation.</p>
+
+<p>The operand ":" is a special case. All the sections with the MT
+numbers of <i>MTsrc1</i> <= MT <= <i>MTsrc2</i> are summed.</p>
+
+<pre>
+calc 3 = 16 + 22
+extract 3 3 
+</pre>
+<pre id="dat">
+ 2.305100+4 5.050630+1          0          0          0          02328 3  3    1
+-1.029420+7-1.029420+7          0          0          1         202328 3  3    2
+         20          2                                            2328 3  3    3
+ 1.049800+7 0.000000+0 1.127000+7 1.70166-10 1.150000+7 1.700940-22328 3  3    4
+ 1.200000+7 9.660930-2 1.250000+7 2.103090-1 1.300000+7 3.352050-12328 3  3    5
+ 1.350000+7 4.609190-1 1.400000+7 5.657576-1 1.450000+7 6.451083-12328 3  3    6
+ 1.500000+7 7.031257-1 1.550000+7 7.443779-1 1.600000+7 7.719527-12328 3  3    7
+ 1.650000+7 7.909129-1 1.700000+7 8.034029-1 1.750000+7 8.130949-12328 3  3    8
+ 1.800000+7 8.171865-1 1.850000+7 8.223242-1 1.900000+7 8.235371-12328 3  3    9
+ 1.950000+7 8.251250-1 2.000000+7 8.246378-1                      2328 3  3   10
+                                                                  2328 3  099999
+</pre>
+
+<p>In this example, two sections - (n,2n) and (n,n alpha) cross
+sections - are added, and the results are stored in MT=3. The
+Q-value is taken from the (n,n alpha) section, because the threshold
+energy of this reaction is lower than that of (n,2n).</p>
+
+<p>Note that the selection of Q-value is still ambiguous. DeCE may 
+confuse in some cases.</p>
+
+
+<h2><a name="make4">make4 (create MF/MT=3/4 section) </a></h2>
+
+<pre id="syn">
+   make4
+</pre>
+
+<p> This operation creates MF/MT=3/4, which is the
+total inelastic scattering cross sections. This is equivalent to</p>
+
+<pre>
+   calc 4 = 51:91
+</pre>
+
+
+<hr>
+<a href="input.html">   [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="ope2.html">    [NEXT] </a>
+</body>
+</html>

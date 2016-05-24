@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: operation (2) </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="ope1.html">    [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="ope3.html">    [NEXT] </a>
+<hr>
+
+<h1>Create ENDF-6 Data From File</h1>
+
+<h2><a name="read">read (read cross sections from file)</a></h2>
+
+<pre id="syn">
+   read  <i>MFnumber</i> <i>MTnumber</i> "file_name" [<i>offset</i>]
+</pre>
+
+<p>DeCE can read cross section data from an external data file,
+and store the data into the specified MF,MT section.
+In the current version, the MF number should be 3, so that
+only cross section data can be read.</p>
+
+<p>The data in the external data file are in the table format, like</p>
+<pre id="dat">
+# Energy      Total        Capture
+ 1.000000e-03 3.518258e+04 7.921335e+03
+ 2.000000e-03 2.643521e+04 4.590701e+03
+ 5.000000e-03 1.870179e+04 2.295811e+03
+ 1.000000e-02 1.479458e+04 1.437977e+03
+ 2.000000e-02 1.201587e+04 9.583236e+02
+ 5.000000e-02 9.506811e+03 5.829248e+02
+ 1.000000e-01 8.172826e+03 3.250598e+02
+ 1.500000e-01 7.532394e+03 2.282769e+02
+ ...(snip)...
+ 8.000000e-01 4.944550e+03 4.656816e+01
+ 9.000000e-01 4.735559e+03 3.920111e+01
+ 1.000000e+00 4.550877e+03 3.409828e+01
+</pre>
+<p>where the energies are in MeV, and the cross sections in milli-barns.
+When <i>offset</i> is not given, DeCE reads the first column as the energy,
+and the second column as the cross section. In the case of <i>offset=2</i>,
+the third column data are copied.</p> 
+
+
+<p>Often the energy range given in the file does not match the ENDF-6
+file. For example, the lower region may overlap with the resonance
+range where the cross sections in MF=3 should be zero (or
+background cross sections are given). DeCE tries to adjust the energy
+boundary at the upper side of the resonance region.</p>
+
+<pre>
+read 3 102 "cross_section.dat" 2
+extract 3 102
+</pre>
+
+<pre id="dat">
+ 3.307500+4 7.427800+1          0          0          0          03325 3102    1
+ 7.329602+6 7.329602+6          0          0          1         173325 3102    2
+         17          2                                            3325 3102    3
+ 1.000000-5 0.000000+0 2.530000-2 0.000000+0 1.000000+5 0.000000+03325 3102    4
+ 1.000000+5 3.250598-1 1.500000+5 2.282769-1 2.000000+5 1.837162-13325 3102    5
+ 2.500000+5 1.579787-1 3.000000+5 1.379774-1 3.500000+5 1.251382-13325 3102    6
+ 4.000000+5 1.150729-1 4.500000+5 1.024055-1 5.000000+5 9.270790-23325 3102    7
+ 6.000000+5 7.293613-2 7.000000+5 5.763219-2 8.000000+5 4.656816-23325 3102    8
+ 9.000000+5 3.920111-2 1.000000+6 3.409828-2                      3325 3102    9
+                                                                  3325 3  099999
+</pre>
+
+<p>In this case, the resonance region goes up to 100 keV, and therefore
+the data below 100 keV are skipped.</p>
+
+
+<h2><a name="multiread">multiread (read multiple cross section data from file)</a></h2>
+
+<pre id="syn">
+   multiread  <i>MFnumber</i> <i>MTstart</i> <i>MTlast</i> "file_name"
+</pre>
+
+<p>DeCE reads all MT numbers from <i>MTstart</i> to <i>MTlast</i> from
+the same data file "file_name". Since an offset is not given in this
+operation, DeCE assumes that the data file includes the reactions
+in the following column order - Energy, Total, Elastic, Non-elastic,
+Capture, Inelastic, (x,p),  (x,alpha), (x,2n), (x,np), (x,n alpha),
+(x,3n), (x,4n), (x,d), (x,nd), Fission.</p>
+
+
+
+<h2><a name="angdist">angdist (read scattering angular distribution data from file)</a></h2>
+
+<pre id="syn">
+   angdist  <i>MFnumber</i> <i>MTnumber</i> "file_name"
+</pre>
+
+<p>DeCE creates scattering angular distribution data in MF=4, MT=2,
+51, 52 ...  The MF number should be 4. The data file may contain
+either the differential cross sections or the Legendre expansion
+coefficients, which is indicated by the keyword in the data file
+(<tt>Angdist</tt> or <tt>Legcoef</tt>).</p>
+
+<p>The format for the differential angular distribution data 
+is as follows.</p>
+
+<pre id="dat">
+# 1.00000e-06    Angdist   1.986060e-01 2.646580e-01 2.795430e-01
+ 1.000000e+00 1.970282e+04 0.000000e+00 0.000000e+00 0.000000e+00
+ 2.000000e+00 1.970282e+04 0.000000e+00 0.000000e+00 0.000000e+00
+ ... (snip) ...
+ 1.790000e+02 1.970283e+04 0.000000e+00 0.000000e+00 0.000000e+00
+ 1.800000e+02 1.970283e+04 0.000000e+00 0.000000e+00 0.000000e+00
+# 1.00000e-05   Angdist    1.986060e-01 2.646580e-01 2.795430e-01
+ 1.000000e+00 1.238493e+04 0.000000e+00 0.000000e+00 0.000000e+00
+ 2.000000e+00 1.238493e+04 0.000000e+00 0.000000e+00 0.000000e+00
+ ... (snip) ...
+</pre>
+
+<p>In the first line, the neutron incident energy, the keyword of
+<tt> Angist </tt>, the first level excitation energy, the second
+level, etc, are given. The differential cross sections are given at
+180 angular points at every 1 degree. These blocks are repeated for
+all incident energies.</p>
+
+<p>When Legendre coefficients are given, the keyword
+is <tt>Legcoef</tt>, and 50 expansion coefficients are given.</p>
+
+<pre id="dat">
+# 1.00000e-06   Legcoef    1.986060e-01 2.646580e-01 2.795430e-01
+            0 1.918427e+04 0.000000e+00 0.000000e+00 0.000000e+00
+            1 3.227445e-08 0.000000e+00 0.000000e+00 0.000000e+00
+ ... (snip) ...
+           49 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00
+# 2.00000e+00   Legcoef    1.986060e-01 2.646580e-01 2.795430e-01
+            0 1.428037e+01 3.152489e+00 5.780398e+00 8.986116e+00
+            1 4.024690e+00 4.341183e-01 1.150535e+00 7.207134e-01
+            2 8.009362e-01-4.895771e-03 1.493828e-01-3.589658e-02
+ ... (snip) ...
+</pre>
+
+<p>The angular data points and the maximum Legendre coefficients
+to be read by DeCE are defined in <tt>deceangdist.cpp</tt></p>
+
+
+
+<h2><a name="multiangdist">multiangdist (read multiple angular distribution data from file)</a></h2>
+
+<pre id="syn">
+   multiangdist  <i>MFnumber</i> <i>MTstart</i> <i>MTlast</i> "file_name"
+</pre>
+
+<p>DeCE reads angular distribution data in the specified data file,
+ranging from <i>MTstart</i> to <i>MTlast</i>.</p>
+
+
+<h2><a name="libread">libread (read a section from another file)</a></h2>
+
+<pre id="syn">
+   libread  <i>MFnumber</i> <i>MTnumber</i> "file_name"
+</pre>
+
+<p>DeCE reads a specified MF/MT section from another ENDF-6 file, and
+replace by that, or creates a new section if it does not exist.  The
+external file can be a full ENDF-6 file, or just a section.</p>
+
+<p>When the ZA and AWR parameters in the external file are different
+from the current data, DeCE replace them by the current ones, but
+only in the HEAD section.</p>
+
+
+<h2><a name="multilibread">multilibread (read multiple sections from another file)</a></h2>
+
+<pre id="syn">
+   multilibread  <i>MFnumber</i> <i>MTstart</i> <i>MTlast</i> "file_name"
+</pre>
+
+<p>Repeat <tt>libread</tt> for the range of MT numbers.</p>
+
+
+<hr>
+<a href="ope1.html">    [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="ope3.html">    [NEXT] </a>
+</body>
+</html>

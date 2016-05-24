@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title> DeCE: tutorial </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="index.html">    [INDEX]  </a>
+<hr>
+
+<h1> Quick Tutorial </h1>
+<h2><a name="textsection"> Edit Comment Section </a></h2>
+
+<p>One of the most cumbersome things for editing an ENDF-6 format file
+is to modify the comment section (MF=1, MT=451). DeCE was designed to
+perform this very easily. Suppose we added some lines in the comment section
+like this:</p>
+
+<pre id="dat">
+ 3.307500+4 7.427800+1          1          0          0          03325 1451    1
+ 0.000000+0 0.000000+0          0          0          0          63325 1451    2
+ 1.000000+0 2.000000+7          0          0         10          73325 1451    3
+ 0.000000+0 0.000000+0          0          0        <span style="color:red;">299</span>        2803325 1451    4
+ 33-As- 75 LANL       EVAL-MAR10 T.Kawano                         3325 1451    5
+                      DIST-MAR10                                  3325 1451    6
+----ENDF/B-VII        MATERIAL 3325                               3325 1451    7
+-----INCIDENT NEUTRON DATA                                        3325 1451    8
+------ENDF-6 FORMAT                                               3325 1451    9
+                                                                  3325 1451   10
+****************
+
+<span style="color:red;">This is a test file</span>
+
+================================================================= 3325 1451   11
+Evaluation Summary                                                3325 1451   12
+                                        T. Kawano (LANL) Mar 2010 3325 1451   13
+                                                                  3325 1451   14
+Cross sections updated based on CoH3[Ka10] calculations.          3325 1451   15
+</pre>
+<pre id="dat">
+*************************** DICTIONARY ***************************3325 1451  303
+                                1        451        <span style="color:red;">583</span>          03325 1451  304
+</pre>
+
+<p>Between the line number 10 and 11, new 4 new lines are added. There
+is no MAT/MF/MT numbers in these new lines. The total number of the
+comment section, which was 299 given at the forth line, but now should
+be 304, because we added 4 lines. In addition, the total number of
+lines for the MF=451 section in the dictionary must be fixed too. DeCE
+modifies these numbers automatically.</p>
+
+<p>When we are editing a file ENDF.DAT, a new file ENDF.NEW
+can be created with the DeCE code as following.</p>
+<pre id="dat">
+  % dece -o ENDF.NEW ENDF.DAT
+  <span style="color:red;">quit</span>
+</pre>
+
+<p>Since DeCE will be in the interactive mode when invoked, you need
+to type <tt>quit</tt> to start creating the new file.  Instead of
+typing <tt>quit</tt>, DeCE accepts the <i>-q</i> option, which tells
+DeCE to quit immediately.</p>
+
+<p>In the new file ENDF.NEW, the number of total lines for the comment
+section is properly fixed, and new line numbers are given. </p>
+
+<pre id="dat">
+ 3.307500+4 7.427800+1          1          0          0          03325 1451    1
+ 0.000000+0 0.000000+0          0          0          0          63325 1451    2
+ 1.000000+0 2.000000+7          0          0         10          73325 1451    3
+ 0.000000+0 0.000000+0          0          0        <span style="color:red;">303</span>        2803325 1451    4
+ 33-As- 75 LANL       EVAL-MAR10 T.Kawano                         3325 1451    5
+                      DIST-MAR10                                  3325 1451    6
+----ENDF/B-VII        MATERIAL 3325                               3325 1451    7
+-----INCIDENT NEUTRON DATA                                        3325 1451    8
+------ENDF-6 FORMAT                                               3325 1451    9
+                                                                  3325 1451   10
+****************                                                  3325 1451   11
+                                                                  <span style="color:red;">3325 1451   12</span>
+This is a test file                                               <span style="color:red;">3325 1451   13</span>
+                                                                  <span style="color:red;">3325 1451   14</span>
+================================================================= 3325 1451   15
+Evaluation Summary                                                3325 1451   16
+                                        T. Kawano (LANL) Mar 2010 3325 1451   17
+                                                                  3325 1451   18
+Cross sections updated based on CoH3[Ka10] calculations.          3325 1451   19
+</pre>
+<pre id="dat">
+*************************** DICTIONARY ***************************3325 1451  307
+                                1        451        <span style="color:red;">587</span>          03325 1451  308
+</pre>
+
+
+<h2><a name="tabulation"> Tabulate Data </a></h2>
+
+<p>DeCE can convert ENDF-6 formatted data into a usual table
+format. This can be done with the command line options <i>-f MF</i>
+and
+<i>-t MT</i>, where MF and MT are the MF/MT numbers to be processed.</p>
+
+<p>For example, to extract the (n,2n) cross sections, MF is 3 (file number),
+and MT is 16 (reaction number).</p>
+
+<pre id="dat">
+ % dece -f3 -t16 ENDF.DAT
+#    [ 3325 :  3 :  16 ]    33 -  75
+# Cross section
+#           QM -1.024325e+07  mass difference Q-value
+#           QI -1.024325e+07  reaction Q-value
+#           NR             1  number of interpolation range
+#           NP            17  lin-lin  interpolation
+  1.038116e+07  0.000000e+00
+  1.050000e+07  4.433555e-04
+  1.100000e+07  5.322542e-02
+  1.150000e+07  2.434272e-01
+  1.200000e+07  4.474358e-01
+  1.250000e+07  6.361240e-01
+  ...           ...
+</pre>
+
+<p>In this case, DeCE won't be in the interactive mode, but will exit 
+after the data are tabulated.</p>
+
+<p>The data tabulation function of DeCE has not been completed. Some
+sections, such as thermal scattering, cannot be processed.</p>
+
+
+<h2><a name="interactive"> Interactive Editing </a></h2>
+
+<p>In the interactive mode, DeCE accepts many commands to manipulate
+numerical data in the file. Often the command is followed by the MF/MT
+numbers to specify which section will be targeted.</p>
+
+<p>As an easiest example, the <tt>extract</tt> command copies one
+section from the file. First, DeCE is ran in a normal way, then type
+this command with the section MF/MT numbers.</p>
+
+
+<pre id="dat">
+ % dece ENDF.DAT
+<span style="color:red;">extract 12 51</span>
+ 3.307500+4 7.427800+1          2          1          2          0332512 51    1
+ 1.986060+5 0.000000+0          0          0          2          1332512 51    2
+ 0.000000+0 1.000000+0                                            332512 51    3
+                                                                  332512  099999
+<span style="color:red;">quit</span>
+</pre>
+
+<p>Since DeCE is still in the interactive mode, type <tt>quit</tt> to stop
+the program.</p>
+
+<p>When your operation is more complicated, it is better to put all
+the commands in a file, then run DeCE by giving these commands from
+the file as a usual UNIX manner. The next example creates a new section
+MF/MT=3/5 as the sum of some of other partial cross sections.</p>
+
+<p>First we prepare a new file input.dat, containing the following lines.</p>
+
+<pre>
+calc 5 = 1 + 2
+calc 5 = 5 + 4
+calc 5 = 5 + 16
+calc 5 = 5 + 102
+extract 3 5
+quit
+</pre>
+
+<p>The first line means, MF/MT=3/5 is first constructed as the sum of
+total (MT = 1) and elastic (MT = 2) cross sections. Then the other
+sections, MF = 4 (inelastic), 16 (2n reaction), and 102 (capture) are
+added to MF = 5. </p>
+
+<p> The input file is now given to DeCE.</p>
+
+<pre id="dat">
+ % dece ENDF.DAT < input.dat
+ 3.307500+4 7.427800+1          0          0          0          03325 3  5    1
+ 7.329602+6 7.329602+6          0          0          1         953325 3  5    2
+         95          2                                            3325 3  5    3
+ 1.000000-5 0.000000+0 2.530000-2 0.000000+0 1.000000+5 0.000000+03325 3  5    4
+ 1.000000+5 1.748307+1 1.500000+5 1.604954+1 2.000000+5 1.512379+13325 3  5    5
+ 2.012798+5 1.510618+1 2.500000+5 1.443547+1 2.682211+5 1.422633+13325 3  5    6
+....
+</pre>
+
+<p>When <i>-o</i> option is given, DeCE writes the new section to the file,
+together with all other sections. This is the most convenient to re-adjust
+the elastic scattering cross sections (MT = 2), by subtracting all the
+partial cross sections from the total cross section. The instruction can be
+as following.</p>
+
+<pre>
+make4
+calc 3 = 4 + 16
+calc 3 = 3 + 17
+calc 3 = 3 + 22
+calc 3 = 3 + 28
+calc 3 = 3 + 102
+calc 3 = 3 + 103
+calc 3 = 3 + 107
+calc 2 = 1 - 3
+calc 1 = 2 + 3
+delete 3 3
+quit
+</pre>
+
+<pre id="dat">
+ % dece ENDF.DAT -o ENDF.NEW < input.dat
+</pre>
+
+<p>Firstly the non-elastic cross sections are calculated by adding all
+the partial cross sections (this depends on which sections are given
+in the input ENDF-6 file), then the elastic cross sections are
+calculated by subtracting the non-elastic from the total (<tt> calc 2
+= 1-3</tt>). Finally the total cross section is again reconstructed by
+adding the elastic and non-elastic cross sections. This final step
+ensures that the section for total cross section (MT = 1) contains all
+the energy points appeared in the file.</p>
+
+
+<hr>
+<a href="index.html">    [INDEX]  </a>
+</body>
+</html>

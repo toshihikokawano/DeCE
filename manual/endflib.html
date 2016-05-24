@@ -1,0 +1,347 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: ENDFlib </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="class.html">   [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="endfio.html">  [NEXT] </a>
+<hr>
+
+<h1>C++ Interface to ENDF-6 Format</h1>
+
+<p>The ENDF-6 format, originally designed as card images, 
+is suitable for READ/WRITE statements of FORTRAN, but this is very
+tricky for the other computer languages. Using the classes defined in the
+<a href="class.html">previous section</a>, functions
+in <tt>endflib.cpp</tt> facilitate access to the ENDF-6 data.</p>
+
+<p>These functions are now used in <tt>endfio.cpp</tt> to read/write
+data in ENDF-6 format. As you can see in this file, efforts to access 
+ENDF-6 files can be minimized by using this interface.</p>
+
+
+<h1><a name="endflib">Data Block Structure</a></h1>
+
+<p>Functions in <tt>endflib.cpp</tt> provide direct access to each
+section in a given ENDF-6 file. Two cases are considered in the
+library. The first one is to read the entire file first, and keep this
+information in an object of the ENDFDict class.  The second one is to
+locate the section at each time and retrieve data in there.</p>
+
+<p>A function <tt>ENDFScanLibrary()</tt> reads all the file,
+and creates index data arrays. <tt>ENDFSeekHead()</tt> moves a file
+pointer to the beginning of the section to be read. This function is
+called just before data in a specified MF/MT section is read, and copy
+HEAD into the member variable of the object.</p>
+
+<p>The structure for a data block is categorized as follows.</p>
+
+<ul>
+<li> CONT only
+<li> LIST
+<li> TAB1
+<li> TAB2 in LIST type
+<li> TAB2 in TAB1 type
+<li> TAB2 in TAB2 type
+</ul>
+
+<p>LIST, TAB1, and TAB2 have CONT records too. One MF/MT section can
+have several data blocks that have different structures as above
+defined. Often the number of total data blocks is given in the HEAD
+record as the number of subsections. But it depends on how the MF/MT
+section is stored in a file.</p>
+
+<p>In DeCE, an index number is given to these "subsections." For
+example, if there are three subsections in a given MF/MT section, an
+index of 0 - 2 is given to each data block. </p>
+
+<p id="box">      HEAD </p>
+<p id="box">  (0) CONT </p>
+<p id="box">  (1) LIST </p>
+<p id="box">  (2) TAB1 </p>
+
+<p>A two dimensional data block is stored in TAB2. TAB2 starts with
+its own CONT, then it contains several data blocks in either LIST,
+TAB1, or TAB2 type. When a TAB2 data block has 10 TAB1 sub-blocks
+inside, there will be 11 CONTs, one for TAB2, and 10 for TAB1s. 
+Different indices are given to all 11 CONTs.</p>
+
+
+<p>The functions below are designed to read/write these
+data structure easily. These functions return the CONT record
+of main data block. </p>
+
+
+<h2><a name="cont"> CONT </a></h2>
+<p>DeCE has functions to read/write these data structures. The
+simplest one is to read one CONT record, which
+is <tt>ENDFReadCONT()</tt>. </p>
+
+<pre id="prg">
+  Record ENDFReadCONT(ifstream *fp, ENDF *lib)
+  {
+    int idx = lib->getPOS();
+    lib->rdata[idx] = ENDFNextCONT(fp);
+
+    lib->iptr[idx+1] = lib->iptr[idx];
+    lib->xptr[idx+1] = lib->xptr[idx];
+    lib->inclPOS();
+
+    return(lib->rdata[idx]);
+  }
+</pre>
+
+<p>The member function <tt>getPOS()</tt> returns an index of data block
+currently DeCE is accessing. <tt>ENDFNextCONT()</tt> reads a CONT
+record, and store it in <tt>rdara[idx]</tt>. Since there is no
+numerical data in this case, we copy the integer / floating point data
+block pointers to the next index <tt>idx+1</tt>, and increment the
+index by <tt>inclPOS()</tt>.</p>
+
+
+<p>The function <tt>ENDFWriteCONT()</tt> writes the CONT record.
+<tt>ENDFWriteRecord()</tt> prints the six member variables in an
+appropriate format (2E11.4,4I11), and the function
+<tt>ENDFPrintRight()</tt> outputs MAT/MF/MT triplet on the right-side
+of the data, together with a current line number.</p>
+
+
+<pre id="prg">
+  Record ENDFWriteCONT(ENDF *lib)
+  {
+    int idx = lib->getPOS();
+    Record cont = lib->rdata[idx];
+
+    ENDFWriteRecord(&cont);
+    ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
+    lib->inclPOS();
+
+    return(cont);
+  }
+</pre>
+
+
+<h2><a name="list"> LIST </a></h2>
+
+<p>The LIST type is used for one dimensional data, or many 
+floating point numbers are "packed" into a 1-dim data block.
+An example is resonance parameters.</p>
+
+<pre id="dat">
+ 7.427800+1 0.000000+0          1          0         30          5
+ 2.232000+3 2.000000+0 3.226000-1 4.600000-3 3.180000-1 0.000000+0
+ 2.403000+3 0.000000+0 3.376000-1 1.960000-2 3.180000-1 0.000000+0
+ 3.782000+3 3.000000+0 3.242860-1 6.286000-3 3.180000-1 0.000000+0
+ 4.444000+3 1.000000+0 4.616100-1 1.436100-1 3.180000-1 0.000000+0
+ 6.509000+3 3.000000+0 3.271430-1 9.143000-3 3.180000-1 0.000000+0
+</pre>
+
+<p>The total number of elements in this block is given in N1 in CONT,
+which is 30. To read this type of data, first, the CONT record is
+stored at the current index, then extract NC=N1 in the CONT. A
+function <tt>ENDFReadArray()</tt> reads in these 30 elements in a
+2-dim array in the range of <tt>xtpr[idx][0]</tt>
+to <tt>xtpr[idx][NC]</tt>. </p>
+
+
+<pre id="prg">
+  Record ENDFReadLIST(ifstream *fp, ENDF *lib)
+  {
+    int idx = lib->getPOS();
+    lib->rdata[idx] = ENDFNextCONT(fp);
+    int nc = lib->rdata[idx].n1;
+
+    ENDFReadArray(fp, 0, nc, lib->xptr[idx]);
+
+    lib->iptr[idx+1] = lib->iptr[idx];
+    lib->xptr[idx+1] = lib->xptr[idx] + nc;
+    lib->inclPOS();
+
+    return(lib->rdata[idx]);
+  }
+</pre>
+
+<p>Since there is no integer data, we copy the integer pointer
+from the current position to the next, while the floating point
+pointer is incremented by NC.</p>
+
+
+<p>The function <tt>ENDFWriteLIST()</tt>  writes the LIST type data,
+which calls <tt>ENDFWriteCONT()</tt> to process the CONT part. 
+<tt>ENDFWriteArray()</tt> is for printing 1-dim data block,
+as opposed to <tt>ENDFReadArray()</tt>. </p>
+
+<pre id="prg">
+  Record ENDFWriteLIST(ENDF *lib)
+  {
+    int idx = lib->getPOS();
+    int np  = lib->rdata[idx].n1;
+
+    Record cont = ENDFWriteCONT(lib);
+    ENDFWriteArray(lib,np,lib->xptr[idx]);
+
+    return(cont);
+  }
+</pre>
+
+
+
+<h2><a name="tab1"> TAB1 </a></h2>
+
+<p>The most common data type in ENDF-6 is TAB1, as this is used for
+one dimensional (X,Y) data, such as cross sections. This data block
+includes both integer numbers (for the interpolation scheme) and
+floating point numbers (for the real data).</p>
+
+<pre id="dat">
+-7.974759+6-7.974759+6          0          0          1         21
+         21          2
+ 8.083572+6 0.000000+0 8.500000+6 4.524451-2 9.000000+6 2.132569-1
+ 9.500000+6 4.293442-1 1.000000+7 6.338089-1 1.050000+7 7.925570-1
+ 1.100000+7 9.335607-1 1.150000+7 1.021327+0 1.200000+7 1.093898+0
+ 1.250000+7 1.138270+0 1.300000+7 1.169914+0 1.350000+7 1.183722+0
+ 1.400000+7 1.191966+0 1.450000+7 1.190746+0 1.500000+7 1.187835+0
+ 1.550000+7 1.179886+0 1.600000+7 1.170892+0 1.700000+7 1.147395+0
+ 1.800000+7 1.122044+0 1.900000+7 1.085239+0 2.000000+7 1.034586+0
+</pre>
+
+<p>The CONT record has two numbers, NR=1 and NP=21, which are the
+number of pairs of integer data and floating point data, respectively.
+The actual numbers are the double of these numbers, 2 and 42.</p>
+
+<p>In <tt>ENDFReadTAB1()</tt>, <tt>ENDFReadArray()</tt> is called
+twice. Firstly, the integer data are read in <tt>iptr</tt>, and then
+the floating point data are read in <tt>xptr</tt>.  These pointers are
+incremented by the number of data points.</p>
+
+<pre id="prg">
+  Record ENDFReadTAB1(ifstream *fp, ENDF *lib)
+  {
+    int idx = lib->getPOS();
+
+    lib->rdata[idx] = ENDFNextCONT(fp);
+    int nr = 2*lib->rdata[idx].n1;
+    int np = 2*lib->rdata[idx].n2;
+
+    ENDFReadArray(fp, 0, nr, lib->iptr[idx]);
+    ENDFReadArray(fp, 0, np, lib->xptr[idx]);
+
+    lib->iptr[idx+1] = lib->iptr[idx] + nr;
+    lib->xptr[idx+1] = lib->xptr[idx] + np;
+    lib->inclPOS();
+
+    return(lib->rdata[idx]);
+  }
+</pre>
+
+<pre id="prg">
+  Record ENDFWriteTAB1(ENDF *lib)
+  {
+    int idx = lib->getPOS();
+    int nr  = lib->rdata[idx].n1;
+    int np  = lib->rdata[idx].n2;
+
+    Record cont = ENDFWriteCONT(lib);
+    ENDFWriteArray(lib,2*nr,lib->iptr[idx]);
+    ENDFWriteArray(lib,2*np,lib->xptr[idx]);
+
+    return(cont);
+  }
+</pre>
+
+
+<h2><a name="tab2"> TAB2 </a></h2>
+
+<p>TAB2 is for 2-dim data, and three are three different types of
+TAB2, depending on the type of data sub-block inside TAB2.  When the
+sub-block is LIST, <tt>ENDFReadTAB2()</tt>
+and <tt>ENDFWriteTAB2()</tt> are used.  In the case of TAB1, we
+prepared <tt>ENDFReadTAB21()</tt> and <tt>ENDFWriteTAB21()</tt>.  And
+finally if TAB2 contains another TAB2, which is seldom used, we
+have <tt>ENDFReadTAB22()</tt> and <tt>ENDFWriteTAB22()</tt>.</p>
+
+<p>TAB2 in the LIST version is often adopted for the scattering
+angular distribution, MF/MT=4/2, in Legendre coefficients.</p>
+
+<pre id="dat">
+ 0.000000+0 0.000000+0          0          0          1          4
+          4          2
+ 0.000000+0 1.000000-5          0          0          2          0
+ 0.000000+0 0.000000+0                                            
+ 0.000000+0 1.000000+4          0          0          4          0
+ 4.911430-4 1.127210-3 1.079660-8 1.44448-10                      
+ 0.000000+0 1.000000+5          0          0          6          0
+ 3.182500-2 1.174540-2 1.392510-5 2.019760-6-6.397040-9 2.098340-9
+ 0.000000+0 2.000000+7          0          0         20          0
+ 7.653380-1 6.408540-1 5.518710-1 4.986690-1 4.262560-1 3.528730-1
+ 2.718340-1 2.014330-1 1.476700-1 1.171760-1 9.367900-2 5.710360-2
+ 3.424170-2 1.020650-2 3.070320-3 9.374050-4 2.748810-4 7.694020-5
+ 1.774320-5 2.819990-6
+</pre>
+
+<p>The first CONT is for the outer loop - incident neutron energies,
+where the number of LISTs is given in NP = N2. The next line is 
+for interpolation, just the same as TAB1.</p>
+
+<p>The inner loop is for the Legendre order, and the maximum order
+at each incident energy is given at NC = N1. Although TAB2 data are
+two dimensional, DeCE packs all the numbers in 1-dim mode, and 
+remembers locations with which each sub-block starts.</p>
+
+<pre id="prg">
+  Record ENDFReadTAB2(ifstream *fp, ENDF *lib)
+  {
+    int idx = lib->getPOS();
+
+    lib->rdata[idx] = ENDFNextCONT(fp);
+    int nr = lib->rdata[idx].n1;
+    int np = lib->rdata[idx].n2;
+
+    ENDFReadArray(fp, 0, 2*nr, lib->iptr[idx]);
+
+    lib->iptr[idx+1] = lib->iptr[idx] + 2*nr;
+    lib->xptr[idx+1] = lib->xptr[idx];
+    lib->inclPOS();
+
+    for(int i=0 ; ii&#60;np ; i++) ENDFReadLIST(fp, lib);
+
+    return(lib->rdata[idx]);
+  }
+</pre>
+
+
+<pre id="prg">
+  Record ENDFWriteTAB2(ENDF *lib)
+  {
+    int idx = lib->getPOS();
+    int nr  = lib->rdata[idx].n1;
+    int np  = lib->rdata[idx].n2;
+
+    Record cont = ENDFWriteCONT(lib);
+    ENDFWriteArray(lib,2*nr,lib->iptr[idx]);
+
+    for(int n=0 ; ni&#60;np ; n++)  ENDFWriteLIST(lib);
+
+    return(cont);
+  }
+</pre>
+
+
+<tt>ENDFReadTAB21()</tt>, <tt>ENDFWriteTAB21()</tt>, 
+<tt>ENDFReadTAB22()</tt>,  and <tt>ENDFWriteTAB22()</tt>
+are similar to those above, but they have different functions,
+<tt>ENDFReadTAB1()</tt> etc.</p>
+
+
+
+<hr>
+<a href="class.html">   [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="endfio.html">  [NEXT] </a>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: operation (3) </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="ope2.html">    [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="class.html">   [NEXT] </a>
+<hr>
+
+<h1>Data Point Manipulation</h1>
+
+<h2><a name="addpont">addpoint (add one data point)</a></h2>
+
+<pre id="syn">
+   addpoint  <i>MFnumber</i> <i>MTnumber</i> <i>X-data</i> <i>Y-data</i>
+</pre>
+
+<p>This operation insert a new data point (X-data,Y-data) in the
+<i>MFnumber</i> <i>MTnumber</i> section. The position of the new 
+data is automatically determined. If the energy of <i>X-data</i>
+already exists in the section, the new point will be after that point.
+The next example adds one data point at 22 MeV.</p>
+
+<pre>
+addpoint 3 16 2.2e+7 0.9         
+extract 3 16
+</pre>
+
+<pre id="dat">
+ 2.305100+4 5.050630+1          0          0          0          02328 3 16    1
+-1.105120+7-1.105120+7          0          0          1         202328 3 16    2
+         20          2                                            2328 3 16    3
+ 1.127000+7 0.000000+0 1.150000+7 1.700940-2 1.200000+7 9.660930-22328 3 16    4
+ 1.250000+7 2.103090-1 1.300000+7 3.352050-1 1.350000+7 4.609190-12328 3 16    5
+ 1.400000+7 5.657570-1 1.450000+7 6.451030-1 1.500000+7 7.030940-12328 3 16    6
+ 1.550000+7 7.442450-1 1.600000+7 7.715590-1 1.650000+7 7.898000-12328 3 16    7
+ 1.700000+7 8.010300-1 1.750000+7 8.086610-1 1.800000+7 8.097980-12328 3 16    8
+ 1.850000+7 8.112170-1 1.900000+7 8.083990-1 1.950000+7 8.056360-12328 3 16    9
+ 2.000000+7 8.009020-1 2.200000+7 9.000000-1                      2328 3 16   10
+                                                                  2328 3  099999
+</pre>
+
+
+<h2><a name="delpont">delpoint (delete one data point, multiple points)</a></h2>
+
+<pre id="syn">
+   delpoint  <i>MFnumber</i> <i>MTnumber</i> <i>X-data</i>
+   delpoint  <i>MFnumber</i> <i>MTnumber</i> <i>X-min</i> <i>X-max</i>
+</pre>
+
+<p>The data point at E=<i>X-data</i> in
+the <i>MFnumber</i> <i>MTnumber</i> section is deleted. When there are
+more than two points whose energy is the same, this operation works on
+the first one.</p>
+
+
+<p>The second syntax is to remove several points. All the points
+between two given <i>X-data</i> are removed.</p>
+
+
+
+<h2><a name="factor">factor (multiply data point by a factor)</a></h2>
+
+<pre id="syn">
+   factor <i>MFnumber</i> <i>MTnumber</i> <i>Factor</i> [<i>X-min</i> <i>X-max</i>]
+</pre>
+
+<p>The multiplication factor <i>Factor</i> is applied to the 
+data points in the [<i>X-min</i>,<i>X-max</i>] range. If the energy
+range is not given, all the data are multiplied by the factor. </p>
+
+
+<h2><a name="noramlize">normalize (normalize data)</a></h2>
+
+<pre id="syn">
+   normalize <i>MFnumber</i> <i>MTnumber</i> <i>X-data</i> <i>Y-data</i> [<i>X-min</i> <i>X-max</i>]
+</pre>
+
+<p>This operation first calculate a renormalization factor
+at <i>X-data</i> such that the Y-value to be <i>Y-data</i>, then apply
+the factor to the all data. When the range [<i>X-min</i>,<i>X-max</i>]
+is given, normalization is performed within the energy range.</p>
+
+<p>In the following example, the cross section data are renormalized
+to 1.0 at 17MeV.</p>
+
+<pre>
+normalize 3 16 1.7e+7 1
+extract 3 16
+</pre>
+
+<pre id="dat">
+ 2.305100+4 5.050630+1          0          0          0          02328 3 16    1
+-1.105120+7-1.105120+7          0          0          1         192328 3 16    2
+         19          2                                            2328 3 16    3
+ 1.127000+7 0.000000+0 1.150000+7 2.123441-2 1.200000+7 1.206063-12328 3 16    4
+ 1.250000+7 2.625482-1 1.300000+7 4.184675-1 1.350000+7 5.754079-12328 3 16    5
+ 1.400000+7 7.062869-1 1.450000+7 8.053419-1 1.500000+7 8.777374-12328 3 16    6
+ 1.550000+7 9.291100-1 1.600000+7 9.632086-1 1.650000+7 9.859806-12328 3 16    7
+ 1.700000+7 1.000000+0 1.750000+7 1.009526+0 1.800000+7 1.010946+02328 3 16    8
+ 1.850000+7 1.012717+0 1.900000+7 1.009199+0 1.950000+7 1.005750+02328 3 16    9
+ 2.000000+7 9.998402-1                                            2328 3 16   10
+                                                                  2328 3  099999
+</pre>
+
+
+<h2><a name="applyfunc">applyfunc (multiply data point by a function)</a></h2>
+
+<pre id="syn">
+   applyfunc1 <i>MFnumber</i> <i>MTnumber</i> <i>p1</i> <i>p2</i> <i>p3</i>
+   applyfunc2 <i>MFnumber</i> <i>MTnumber</i> <i>p1</i> <i>p2</i> <i>p3</i>
+</pre>
+
+<p>This is similar to <tt>factor</tt>, but the multiplication
+factor <i>Factor</i> is calculated internally, so that the excitation
+function may vary smoothly. Two functional forms are currently
+implemented in DeCE, the first one is the Fermi function and the
+second one is the Gaussian.</p>
+
+<p>For the Fermi function, the factor is calculated as
+<pre id="prg">
+   f = p1/( 1.0+ exp( (x-p2)/p3 ) ) + 1.0;
+</pre>
+<p>and for the Gaussian case,</p>
+<pre id="prg">
+   f = p1*exp( -(x-p2)*(x-p2)/p3 )  + 1.0;
+</pre>
+<p>where the <i>p1</i> parameter is in barns, and the <i>p2</i>
+and <i>p3</i> are in MeV. The data range cannot be supplied. The
+functions will applied to all the data points. </p>
+
+
+<h2><a name="changeint">changeint (change interpolation law in MF=3)</a></h2>
+
+<pre id="syn">
+   changeint <i>MTnumber</i> <i>Range</i> <i>Point Number</i> <i>INT-law</i>
+</pre>
+
+<p><tt>changeint</tt> modifies an interpolation law of TAB1 record in
+MF=3. The three parameters are the energy range, the index of the energy point,
+and the interpolation law. if a negative <i>Point Number</i> is given,
+it will be substituted by the end point.</p>
+
+
+<h1><a name="MF6"> Miscellaneous MF6 Operations </a></h1>
+
+<h2><a name="boundcorrect"> boundcorrect (fix boundary energy) </a></h2>
+
+<pre id="syn">
+   boundcorrect <i>MTnumber</i>
+</pre>
+
+<p>This fixes the energy boundary in MF=6 into the value given
+in MF=3.</p>
+
+
+<h2><a name="duplicatepoint"> duplicatepoint (repeat the highest point data) </a></h2>
+
+<pre id="syn">
+   duplicatepoint <i>MTnumber</i> <i>X-data</i>
+</pre>
+
+<p>The last data block given in MF=6 is copied, and set that point
+energy to <i>X-data</i>. This is an easy way to extend the MF=6 data
+that are given up to 20 MeV, in the higher energy region, such as 150
+MeV. </p>
+
+
+<h1><a name="gfr">Resonance Range </a></h1>
+
+<h2><a name="reconstruct">reconstruct (cross section from resonance parameters)</a></h2>
+
+<pre id="syn">
+   reconstruct <i>X-min</i> <i>X-max</i> <i>delta-X</i>
+   reconstruct <i>X</i>
+   reconstruct
+</pre>
+
+<p>DeCE has a capability to reconstruct cross sections from
+resolved resonance parameters, though the resonance formulae
+are limited to Multi-Level Breit-Wigner, or Reich-Moore. 
+<i>X-min</i> is the lowest energy, <i>X-max</i> is the highest
+energy, and <i>delta-X</i> is the energ increment.</p>
+
+<p>As in the second syntax, if <i>delta-X</i> is not given, 
+cross section at a given energy is calculated. </p>
+
+<p>When no argument is provided, DeCE determine the energy
+grid automatically, and gives the cross sections in the
+resonance region.</p>
+
+<pre>
+reconstruct 1 10 1
+</pre>
+
+<pre id="dat">
+# Energy[eV]  Total[b]     Elastic[b]   Capture[b]   Fission[b]
+ 1.000000e+00 5.615689e+00 4.836800e+00 7.788892e-01 0.000000e+00
+ 2.000000e+00 5.388448e+00 4.837591e+00 5.508570e-01 0.000000e+00
+ 3.000000e+00 5.288238e+00 4.838384e+00 4.498540e-01 0.000000e+00
+ 4.000000e+00 5.228833e+00 4.839177e+00 3.896552e-01 0.000000e+00
+ 5.000000e+00 5.188553e+00 4.839971e+00 3.485812e-01 0.000000e+00
+ 6.000000e+00 5.159033e+00 4.840766e+00 3.182671e-01 0.000000e+00
+ 7.000000e+00 5.136273e+00 4.841561e+00 2.947113e-01 0.000000e+00
+ 8.000000e+00 5.118084e+00 4.842357e+00 2.757271e-01 0.000000e+00
+ 9.000000e+00 5.103159e+00 4.843154e+00 2.600050e-01 0.000000e+00
+ 1.000000e+01 5.090658e+00 4.843951e+00 2.467071e-01 0.000000e+00
+</pre>
+
+
+<h2><a name="reconangdist">reconangdist (angular distribution from resonance parameters)</a></h2>
+
+<pre id="syn">
+   reconangdist <i>X-min</i> <i>X-max</i> <i>delta-X</i>
+</pre>
+
+<p>Elastic scattering angular distributions for given energy points
+are calculated from the resonance parameters. This functionality
+is not fully functional.</p>
+
+
+<h2><a name="smoothangdist">smoothangdist (energy averaged Legendre coefficients from resonance parameters)</a></h2>
+
+<pre id="syn">
+   smoothangdist <i>width</i>
+</pre>
+
+<p>Produce smoothed (energy-averaged) Legendre coefficients for elastic
+scattering. The Legendre coefficients are calculated from the resolved 
+resonance parameters at equi-distant energy points, then smoothed
+by a Gaussian weighting function, with the width of <i>width</i>.</p>
+
+
+<hr>
+<a href="ope2.html">    [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="class.html">   [NEXT] </a>
+</body>
+</html>

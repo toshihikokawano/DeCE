@@ -1,0 +1,261 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title> DeCE The Descriptive Correction of ENDF-6 Format Code  </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<h1><a name = "top"> The Descriptive Correction of ENDF-6 Format Code </a><br/>
+     DeCE (Adularia) Manual </h1>
+
+<p style="text-align:center;">
+<img src="DeCE.png" width="340" height="320" alt="DeCE Logo" title="DeCE" style="margin-top:20px;margin-bottom:20px;padding:0px;"/>
+</p>
+
+<p style="text-align:center;"> Sept. 14 (2015) </p>
+<p style="text-align:right;"> Kawano Toshihiko </p>
+<p style="text-align:right;"> Los Alamos National Laboratory </p>
+
+<h2> Table of Contents </h2>
+
+<ul>
+<li> <a href="tutorial.html">
+     Quick Tutorial </a>
+<li> <a href="#general">
+     Introduction </a>
+    <ul>
+    <li> <a href="#general">
+         General Information </a>
+    <li> <a href="#history">
+         History </a>
+    </ul>
+<li> <a href="#install">
+     Install </a>
+<li> <a href="usage.html">
+     How to Run the Code </a>
+    <ul>
+    <li> <a href="usage.html#option">
+         Command-Line Options </a>
+    <li> <a href="usage.html#more">
+         More Options </a>
+    </ul>
+<li> <a href="input.html">
+     Input Data Format Description </a>
+    <ul>
+    <li> <a href="input.html#general">
+         General Rules </a>
+    <li> <a href="input.html#example">
+         Examples</a>
+        <ul>
+        <li> <a href="input.html#example1">
+             Renumber, reformat ENDF-6 file</a>
+        <li> <a href="input.html#example2">
+             Read one section from ENDF-6 file</a>
+        <li> <a href="input.html#example3">
+             Sum rule, recalculate elastic scattering </a>
+        </ul>
+    </ul>
+<li> <a href="ope1.html">
+     Individual Operation Description </a>
+    <ul>
+    <li> <a href="ope1.html#general">
+         General Command </a>
+        <ul>
+        <li> <a href="ope1.html#tpid">
+             tpid (change Tape ID) </a>
+        <li> <a href="ope1.html#index">
+             index (print MF/MT numbers)</a>
+        <li> <a href="ope1.html#end">
+             end / quit / exit</a>
+        </ul>
+    <li> <a href="ope1.html#section">
+         Section Manipulation </a>
+        <ul>
+        <li> <a href="ope1.html#extract">
+             extract (print section in ENDF-6 format)</a>
+        <li> <a href="ope1.html#table">
+             table (print section in table format)</a>
+        <li> <a href="ope1.html#delete">
+             delete (delete section)</a>
+        <li> <a href="ope1.html#multidelete">
+             multidelete (delete multiple sections)</a>
+        <li> <a href="ope1.html#duplicate">
+             duplicate (copy section)</a>
+        <li> <a href="ope1.html#calc">
+             calc (calculate from two sections)</a>
+        <li> <a href="ope1.html#make4">
+             make4 (create MF/MT=3/4 section)</a>
+        </ul>
+    <li> <a href="ope2.html">
+         Create ENDF-6 Data From File </a>
+        <ul>
+        <li> <a href="ope2.html#read">
+             read (read cross sections from file) </a>
+        <li> <a href="ope2.html#multiread">
+             multiread (read multiple cross section data from file)</a>
+        <li> <a href="ope2.html#angdist">
+             angdist (read scattering angular distribution data from file)</a>
+        <li> <a href="ope2.html#multiangdist">
+             multiangdist (read multiple angular distribution data from file)</a>
+        <li> <a href="ope2.html#libread">
+             libread (read a section from another file)</a>
+        <li> <a href="ope2.html#multilibread">
+             multilibread (read multiple sections from another file)</a>
+        </ul>
+    <li> <a href="ope3.html">
+         Data Point Manipulation </a>
+        <ul>
+        <li> <a href="ope3.html#addpoint">
+             addpoint (add one data point) </a>
+        <li> <a href="ope3.html#delpoint">
+             delpoint (delete one data point, or multiple points) </a>
+        <li> <a href="ope3.html#factor">
+             factor (multiply data point by a factor)</a>
+        <li> <a href="ope3.html#applyfunc">
+             applyfunc (multiply data point by a function)</a>
+        <li> <a href="ope3.html#noramlize">
+             normalize (normalize data)</a>
+        <li> <a href="ope3.html#changeint">
+             changeint (modify interpolation law)</a>
+        </ul>
+    <li> <a href="ope3.html#MF6">
+         Miscellaneous MF6 Operations
+        <ul>
+        <li> <a href="ope3.html#boundcorrect">
+             boundcorrect (fix boundary energy) </a>
+        <li> <a href="ope3.html#duplicatepoint">
+             duplicatepoint (repeat the highest point data) </a>
+        </ul>
+    <li> <a href="ope3.html#gfr">
+         Resonance Range  </a>
+        <ul>
+        <li> <a href="ope3.html#reconstruct">
+             reconstruct (cross section from resonance parameters)</a>
+        <li> <a href="ope3.html#reconangdist">
+             reconangdist (angular distribution from resonance parameters)</a>
+        <li> <a href="ope3.html#smoothangdist">
+             smoothangdist (energy averaged Legendre coefficients from resonance parameters)</a>
+        </ul>
+    </ul>
+<li><a href="class.html">
+    ENDF Class Library
+    <ul>
+    <li> <a href="class.html#record">
+         Record Class</a>
+    <li> <a href="class.html#endf">
+         ENDF Class</a>
+    <li> <a href="class.html#endfdict">
+         ENDFDict Class</a>
+    </ul>
+<li><a href="endflib.html">
+    C++ Interface to ENDF-6 Format
+    <ul>
+    <li> <a href="endflib.html#endflib">
+         Data Block Structure</a>
+        <ul>
+        <li> <a href="endflib.html#cont">
+             CONT </a>
+        <li> <a href="endflib.html#list">
+             LIST </a>
+        <li> <a href="endflib.html#tab1">
+             TAB1 </a>
+        <li> <a href="endflib.html#tab2">
+             TAB2 </a>
+        </ul>
+    <li> <a href="endfio.html">
+         ENDF-6 Data Read/Write</a>
+    </ul>
+</ul>
+
+<hr>
+<a href="#top">    [TOP]  </a>
+
+<h1> Introduction </h1>
+<h2><a name="general"> General Information </a></h2>
+
+<img src="program.png" width="320" height="240" alt="desktop" title="desktop" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;float:right;"/>
+
+<p>DeCE is an ENDF-6 formatted file manipulation program, similar to
+STANEF by C.L. Dunford et al. (BNL), or FIXUP in PREPRO by D.E. Cullen
+(IAEA), but probably the closest to CRECTJ6 by T. Nakagawa (JAEA), as
+the calculations are performed interactively.</p>
+
+<p>In this manual, the word <tt>ENDF-6 file</tt> is often used.  This
+does not refer to a particular name of libraries, like ENDF/B-VI, but
+a data file which is in the ENDF-6 format in general.</p>
+
+<p>In a general case, one data file can contain more than one
+materials, each of the materials specified by some different MAT numbers. 
+However, DeCE assumes that an input ENDF-6 file includes only
+one MAT number.</p>
+
+
+<p>DeCE does the following things. Here the word "section" means a
+data block specified by a combination of MF and MT numbers. </p>
+
+<ul>
+  <li> extract one section from a file, and display it
+  <li> calculate add/sub/etc of two sections
+  <li> manipulate a data-point in a section (replace, scaling, delete)
+  <li> read data in an external file, and convert them into ENDF-6
+  <li> reconstruct pointwise cross sections from resonance parameters
+  <li> renumber all the sections, make a new dictionary, 
+       update <tt>NWD</tt> and <tt>NXC</tt>, 
+       then write the entire data on a new file.
+</ul> 
+
+<p>DeCE is written in C++, and it has classes, ENDF and ENDFDict,
+which provide interface to the ENDF-6 specified data structure. The
+ENDF class is so general that it can be used in other user utility
+programs. This package contains some examples to use the ENDF
+class.</p>
+
+
+
+<h2><a name="history"> History </a></h2>
+
+<p>Starting in Dec. 2009, DeCE still has a short history in
+development. Some of major updates have a code name like, Talc,
+Gypsum, and Calcite. They are known to as "the Mohs scale of mineral
+hardness." The code was originally developed as <tt>E-Type</tt>, which
+was a converter program from the Hauser-Feshbach model code output
+into the ENDF-6 format, first appeared in Summer 2009.  This was totally
+superseded by DeCE.  The current version, built in Sept. 2015, is
+Adularia.</p>
+
+<p>All versions up to DeCE (Fluorite) were just for the author's
+private use. Apatite is the first version of outside release (yet
+limited to the lab internal use). This version comes with some
+documents. Turquoise is a stable version of Apatite, including many
+bug fixes. Adularia, which was built in 2015, has several upgrades in
+the resonance region.</p>
+
+<hr>
+<a href="#top">    [TOP]  </a>
+
+<h1><a name="install"> Install </a></h1>
+
+<p>DeCE includes very generic Makefiles under each sub-directory.
+To compile all the sources you need a standard C++ compiler. GCC (GNU
+C++, g++ is recommended). The distribution package has been tested
+only on Linux (Fedora) and Mac (OSX), but this should work on the
+other platforms.</p>
+
+<p>To install the package, extract all the source files in an archive by </p>
+
+<pre> % tar zxvf dece.tar.gz</pre>
+
+<p>Enter the directory <tt>dece/source</tt>, and type </p>
+
+<pre> % make </pre>
+
+<p>and then copy the executable, dece, to anywhere your binaries 
+usually live.</p>
+
+<hr>
+<a href="#top">    [TOP]  </a>
+<hr>
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: input </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="usage.html">   [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="ope1.html">    [NEXT] </a>
+<hr>
+
+<h1>Input Data Format Description</h1>
+
+<h2><a name="general">General Rules</a></h2>
+
+<p>DeCE processes given commands one-line by one-line. Each
+line contains an operation keyword first, then some optional 
+letters or numbers follow depending on the operation.</p>
+
+<p>DeCE ignores blank lines. "#" can be used for a comment line.</p>
+
+<p>The operation keywords are case-insensitive. DeCE recognizes
+the following keywords.</p>
+
+<dl>
+   <dt><b>tpid         :</b> <dd> put a new Tape ID </dd>
+   <dt><b>index        :</b> <dd> print section index </dd>
+   <dt><b>end / quit / exit </b> <dd> quit the code </dd>
+   <dt><b>extract      :</b> <dd> extract a specified section and print</dd>
+   <dt><b>table        :</b> <dd> same as extract, but data in a table format </dd>
+   <dt><b>delete       :</b> <dd> delete a section </dd>
+   <dt><b>multidelete  :</b> <dd> delete several sections in a given range </dd>
+   <dt><b>duplicate    :</b> <dd> copy a section </dd>
+   <dt><b>calc         :</b> <dd> calculate sum etc. of two sections </dd>
+   <dt><b>make4        :</b> <dd> make the MF3 MT4 section from other inelastic scattering sections in MF51 - MF91 </dd>
+   <dt><b>read         :</b> <dd> read cross sections in an external file </dd>
+   <dt><b>multiread    :</b> <dd> same as "read" but for many MT numbers at one time </dd>
+   <dt><b>angdist      :</b> <dd> read scattering angular distributions in an external file </dd>
+   <dt><b>multiangdist :</b> <dd> same as "angdist" but for many MT numbers </dd>
+   <dt><b>libread      :</b> <dd> read a section from another ENDF-6 file </dd>
+   <dt><b>addpoint     :</b> <dd> add one data point in a section </dd>
+   <dt><b>delpoint     :</b> <dd> delete one data point from a section </dd>
+   <dt><b>factor       :</b> <dd> multiply data by a given factor </dd>
+   <dt><b>normalize    :</b> <dd> renormalize data to a given factor </dd>
+   <dt><b>reconstruct  :</b> <dd> calculate cross sections from resonance parameters </dd>
+</dl>
+
+<p>These operations fall into the following categories.</p>
+
+<ul>
+<li> control the entire process (<tt>end,index</tt>),
+     manipulate a ENDF-6 tape (<tt>tpid</tt>).
+<li> print a section in ENDF-6 data (<tt>extract,table</tt>)
+<li> manipulate a section in a file (<tt>calc, addpoint</tt> etc)
+<li> read external data, and make a new section (<tt>read,angdist</tt>)
+<li> other helper command (<tt>reconstruct,make4</tt>)
+</ul>
+
+<p>When DeCE detects an operation that DeCE cannot understand, the
+code stops immediately. This is because ENDF-6 formatting process
+should be so careful that any errors in the input data must be
+eliminated.</p>
+
+
+<h2><a name="example"> Examples</a></h2>
+
+<h3><a name="example1"> Renumber, reformat ENDF-6 file </a></h3>
+
+<p>The simplest usage of DeCE is just to renumber the ENDF-6 formatted
+file. No command other than <tt> quit </tt> is needed. However,
+the option <tt>-o</tt> has to be specified.</p>
+<pre>
+ % dece <i> ENDF_in.DAT </i> -o <i> ENDF_out.DAT </i>
+ % quit
+</pre>
+
+<p>DeCE reads the entire <i>ENDF_in.DAT</i> file, then
+calculates <tt>NWD</tt>and <tt>NXC</tt> (number of lines in the comment
+and dictionary part), make a new dictionary, renumber all the section,
+and write the result on the file <i>ENDF_out.DAT</i>.</p>
+
+<p>In this case, the file <i>ENDF_in.DAT</i> can be incomplete, which
+means, the <tt>NWD</tt>and <tt>NXC</tt> numbers and the dictionary can
+be inconsistent with the actual numbers. DeCE does not trust those
+data in the input ENDF-6 file, but scans the whole file to determine
+the correct values.</p>
+
+<p>Note that the line-number in DeCE starts with one, not zero.</p>
+
+<p>To modify a Tape ID, use the <tt> tpid </tt> operation. 
+It might be convenient to use a separate data file in this case.
+When an input file contains the following two lines;</p>
+<pre id="dat">
+tpid "As 75 ENDF/B-VII.0 + CoH3 calculation"
+quit
+</pre>
+
+<pre>
+ % dece <i> ENDF_in.DAT </i>  -o <i> ENDF_out.DAT </i> < input.dat</i>
+</pre>
+
+<p>then the top part of the output ENDF-6 file becomes </p>
+
+<pre id="dat">
+As 75 ENDF/B-VII.0 + CoH3 calculation                                0 0  0
+ 3.307500+4 7.427800+1          1          0          0          03325 1451    1
+ 0.000000+0 0.000000+0          0          0          0          63325 1451    2
+ 1.000000+0 2.000000+7          0          0         10          73325 1451    3
+ 0.000000+0 0.000000+0          0          0        263        4623325 1451    4
+</pre>
+
+
+
+<h3><a name="example2"> Read one section from ENDF-6 file </a></h3>
+
+<p>A useful function of DeCE is to extract a section in an 
+ENDF-6 file, and convert it into a table format. There are two
+ways to do this. The first one is to give a <tt>MF</tt> and <tt>MT</tt>
+numbers as <a href="usage.html#option">command line options</a>. </p>
+
+<p>Another way is to use the <tt>extract</tt> or <tt>table</tt>
+operation. Here we have a file that contains three lines:</p>
+
+<pre id="dat">
+extract 3 22
+table 3 22
+quit
+</pre>
+
+<p>then feed this file to DeCE, one gets;</p>
+
+<pre>
+ % dece <i> ENDF_in.DAT </i>  < input.dat</i>
+</pre>
+
+<pre id="dat">
+ 3.307400+4 7.328890+1          0          0          0          03322 3 22    1
+-4.380000+6-4.380000+6          0          0          1         143322 3 22    2
+         14          2                                            3322 3 22    3
+ 4.439760+6 0.000000+0 7.000000+6 0.000000+0 8.000000+6 2.722850-93322 3 22    4
+ 9.000000+6 2.148920-8 1.000000+7 2.998550-6 1.100000+7 5.546240-53322 3 22    5
+ 1.200000+7 4.000550-4 1.300000+7 2.103910-3 1.400000+7 6.563180-33322 3 22    6
+ 1.500000+7 1.435070-2 1.600000+7 2.380840-2 1.800000+7 4.308410-23322 3 22    7
+ 1.900000+7 5.158810-2 2.000000+7 5.909400-2                      3322 3 22    8
+                                                                  3322 3  099999
+# MAT: 3322   MF: 3 MT: 22   ZA: 33 -  74
+# NR:  1  C1: -4.380000e+06  C2: -4.380000e+06
+# IR:  1  NP: 14 INT: lin-lin
+  4.439760e+06  0.000000e+00
+  7.000000e+06  0.000000e+00
+  8.000000e+06  2.722850e-09
+  9.000000e+06  2.148920e-08
+  1.000000e+07  2.998550e-06
+  1.100000e+07  5.546240e-05
+  1.200000e+07  4.000550e-04
+  1.300000e+07  2.103910e-03
+  1.400000e+07  6.563180e-03
+  1.500000e+07  1.435070e-02
+  1.600000e+07  2.380840e-02
+  1.800000e+07  4.308410e-02
+  1.900000e+07  5.158810e-02
+  2.000000e+07  5.909400e-02
+</pre>
+
+<p>The first block is a dead-copy of the section <tt>MF=3, MT=22</tt>,
+and the next block, starting with <tt># MAT</tt> line, is the result
+of <tt>table</tt> operation, where the (X,Y) data are converted into
+two column table.</p>
+
+
+
+<h3><a name="example3"> Sum rule, recalculate elastic scattering </a></h3>
+
+<p>An important rule of ENDF-6 is that the total cross section should
+equal to the sum of all partial cross sections. This is often
+satisfied by subtracting the sum of of partial cross sections from the
+total cross section.  This can be done very easily with DeCE.</p>
+
+<pre id="dat">
+make4
+calc 3 = 4+16
+calc 3 = 3+22
+calc 3 = 3+28
+calc 3 = 3+32
+calc 3 = 3+102
+calc 3 = 3+103
+calc 3 = 3+104
+calc 3 = 3+105
+calc 3 = 3+106
+calc 3 = 3+107
+calc 3 = 3+111
+calc 3 = 3+112
+calc 2 = 1-3
+calc 1 = 2+3
+delete 3 3
+quit
+</pre>
+
+<pre>
+ % dece <i> ENDF_in.DAT </i>  -o <i> ENDF_out.DAT </i> < input.dat</i>
+</pre>
+
+<p>The first line of the input data, <tt>make4</tt> is to make recalculate
+MF/MT=3/4, which is the total inelastic scattering cross section. Usually
+this section is already given, so that this is not needed. The following 
+<tt>calc</tt> operations make a temporary section MF/MT=3/3 that contains
+the sum of partial cross sections.</p>
+
+<p>We first make the elastic scattering MT=2 by subtracting MT=3 from
+the total (<tt>calc 2 = 1 -3</tt>), then the total is reconstructed
+again (<tt>calc 1 = 2 + 3</tt>), which can make sure that the MT=1
+section includes all the energy points appeared in the whole ENDF-6
+file.</p>
+
+<p>The original <i>ENDF_in.DAT</i> may have the MT=2 section too. 
+If you want to see how much the new elastic cross sections 
+are changed from the original data, you can take a ratio of the
+old section to the recalculated section.</p>
+
+<pre id="dat">
+make4
+calc 3 = 4+16
+calc 3 = 3+22
+...(snip)...
+calc 3 = 3+112
+calc 4 = 1-3
+calc 5 = 2/4
+extract 3 5
+quit
+</pre>
+
+
+<pre id="dat">
+ 2.305100+4 5.050630+1          0          0          0          02328 3  5    1
+ 0.000000+0 0.000000+0          0          0          1      117512328 3  5    2
+      11751          2                                            2328 3  5    3
+ 1.000000-5 0.000000+0 2.530000-2 0.000000+0 1.000000+5 0.000000+02328 3  5    4
+ 1.000000+5 1.000000+0 1.001200+5 1.000000+0 1.002900+5 1.000000+02328 3  5    5
+ 1.004700+5 1.000001+0 1.006400+5 1.000002+0 1.008100+5 1.000002+02328 3  5    6
+ 1.009900+5 1.000002+0 1.011600+5 1.000003+0 1.013400+5 1.000002+02328 3  5    7
+ 1.015100+5 1.000004+0 1.016900+5 1.000002+0 1.018700+5 1.000004+02328 3  5    8
+ 1.020400+5 1.000003+0 1.022200+5 1.000004+0 1.024000+5 1.000005+02328 3  5    9
+ 1.025700+5 1.000005+0 1.027500+5 1.000006+0 1.029300+5 1.000006+02328 3  5   10
+ ...(snip)...
+</pre>
+
+<p>There are tiny differences at the last digit (10<sup>-6</sup>),
+which could be just a numerical noise.</p>
+
+<hr>
+<a href="usage.html">   [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="ope1.html">    [NEXT] </a>
+</body>
+</html>

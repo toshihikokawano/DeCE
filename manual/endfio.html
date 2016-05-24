@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: ENDFio </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="endflib.html"> [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<hr>
+
+<h1>ENDF-6 Data Read/Write</h1>
+
+<p><tt>endfio.cpp</tt> contains functions to read/write MF/MT sections
+in an ENDF-6 formatted file, which comprise of the functions
+in <tt>endflib.cpp</tt>.  The data structure shown in
+the <a href="endflib.html">previous section</a> is very basic, and the
+real data given in files are complicated combinations of these data
+blocks, depending on a type of data (cross sections, scattering
+angular distributions, energy distributions, etc.)  Due to the
+complexity of the ENDF-6 format, the current version of DeCE cannot
+handle all the data structure defined in the ENDF-6 manual.</p>
+
+<p>The simplest example is given below. This is to read the MF=3
+section for a given MT number.</p>
+
+<pre id="prg">
+  int ENDFReadMF3(ifstream *fp, ENDF *lib, int mt)
+  {
+    if( (ENDFSeekHead(fp,lib,3,mt))< 0 ) return(-1);
+
+    lib->resetPOS();
+    ENDFReadTAB1(fp,lib);
+
+    return(lib->getPOS());
+  }
+</pre>
+
+<p>First, DeCE searches for the starting line of that section
+with <tt>ENDFSeekHead()</tt> and reads its HEAD, then reset index. The
+main part is simply read by <tt>ENDFReadTAB1()</tt>. </p>
+
+<p>Writing an MF=3 section is much easier. There are only three lines
+to do this - write HEAD, TAB1, and SEND (section end).</p>
+
+<pre id="prg">
+  void ENDFWriteMF3(ENDF *lib)
+  {
+    ENDFWriteHEAD(lib);
+    ENDFWriteTAB1(lib);
+    ENDFWriteSEND(lib);
+  }
+</pre>
+
+
+<p>This is the basic procedure to read/write a section in the ENDF-6
+file. However, the order of data blocks are often controlled by a
+member variable in a CONT record. Below an example is given to the
+case MF=1, in which the format of delayed / prompt number of neutrons
+is different - coefficients of a polynomial function are given, or
+data are tabulated. In the case of delayed neutron, decay constants
+of precursors are given first.</p>
+
+
+<pre id="prg">
+  int ENDFReadMF1(ifstream *fp, ENDF *lib, int mt)
+  {
+    if( (ENDFSeekHead(fp,lib,1,mt))< 0 ) return(-1);
+
+    lib->resetPOS();
+    Record head = lib->getENDFhead();
+    int    lnu  = head.l2;
+
+    if(mt == 455){                         // delayed neutron
+      ENDFReadLIST(fp,lib);                   // decay constants
+      if(lnu==1) ENDFReadLIST(fp,lib);        // polynomial
+      else       ENDFReadTAB1(fp,lib);        // tabulated
+    }
+    else if( (mt == 452) || (mt == 456) ){ //prompt or total
+      if(lnu==1) ENDFReadLIST(fp,lib);
+      else       ENDFReadTAB1(fp,lib);
+    }
+
+    return(lib->getPOS());
+  }
+</pre>
+
+
+<p>In the current version of DeCE, <tt>ENDFReadMF<i>n</i>()</tt> and 
+<tt>ENDFWriteMf<i>n</i>()</tt>, where <i>n</i> is 1, 2, 3, 4, 5, 6, 8,
+9, 10, 12, 13, 14, 15 and 33, are provided. As mentioned above, there
+are some missing data structures in these functions. </p>
+
+
+<hr>
+<a href="endflib.html"> [BACK] </a>
+<a href="index.html">    [UP]  </a>
+</body>
+</html>

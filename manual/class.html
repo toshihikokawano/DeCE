@@ -1,0 +1,273 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: class </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="ope3.html">    [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="endflib.html"> [NEXT] </a>
+<hr>
+
+<h1>ENDF Class Library</h1>
+
+<p>The <tt>ENDFlib</tt> library of DeCE is written in an objective
+oriented manner, which provide an easy access to the ENDF-6 format
+files. There are three important classes defined
+in <tt>endflib.h</tt>. The first class is Record that is used
+for the HEAD and CONT records defined in ENDF-6. The
+second one is the main <tt>ENDF</tt> class, in which numerical data in
+a specific MT/MT section are stored. The last one is the dictionary
+class, <tt>ENDFDict</tt>. The dictionary class is used for controlling
+individual section in the ENDF-6 file to be processed, making a new
+dictionary section, and overall information of the file. </p>
+
+<h2><a name="record">Record Class</a></h2>
+
+<p>A record in ENDF-6 is a card image that has six data fields - two
+floating point data and four integers. Following ENDF-6 definition,
+DeCE defines this data structure as:</p>
+
+<pre id="dat">
+  class Record{
+   public:
+     double    c1;
+     double    c2;
+     int       l1;
+     int       l2;
+     int       n1;
+     int       n2;
+  };
+</pre>
+
+<p>The record-type data are used for the HEAD line in each
+MF/MT section, or the CONT (control) line that precedes a
+data block.  Note that one data block may contain more than
+one CONT, depending on the MT/MT data structure.</p>
+
+<p>All the member variables in the Record class are defined as public,
+and they will be zero-initialized by a constructor when no data are
+provided.</p>
+
+<p>There is a member function <tt>setRecord()</tt> that set all six
+variables at one time.
+
+<pre id="prg">
+  void setRecord(double a, double b, int c, int d, int e, int f){
+      c1 = a;
+      c2 = b;
+      l1 = c;
+      l2 = d;
+      n1 = e;
+      n2 = f;
+  }
+</pre>
+
+
+
+<h2><a name="endf">ENDF Class</a></h2>
+
+<p>This class is to store entire data in one MF/MT section, so that
+each MF/MT section in DeCE is represented by this object. The class 
+is defined as follows:</p>
+
+<pre id="prg">
+  class ENDF{
+   private:
+     int       mat    ;     // ENDF MAT number
+     int       mf     ;     // ENDF MF number
+     int       mt     ;     // ENDF MT number
+     Record    head   ;     // Head Record
+     DataSize  size   ;     // ENDF data size
+     int       pos    ;     // pointer to current block
+     int       ni     ;     // current number of integer data
+     int       nx     ;     // current number of double data
+   public:
+     int       *idata ;     // integer data
+     double    *xdata ;     // floating point data
+     int      **iptr  ;     // int pointer for the 2-dim array
+     double   **xptr  ;     // double pointer for the 2-dim array
+     Record    *rdata ;     // pointer for 2-dim data CONT
+  };
+</pre>
+
+<p>The MAT/MF/MT triplet, which is an ID of this section, is kept
+in private. The HEAD record is also private. The
+DataSize is the size of this object specified by S, M, or L.</p>
+
+
+<p>The three integers, <tt>pos, ni</tt>, and <tt>nx</tt>, are hidden
+variables in the class, required a method to store integer/floating
+point data on memory, explained below. <tt>pos</tt> is a pointer to
+the data block currently the program is accessing, <tt>ni</tt>
+and <tt>nx</tt> are the counters of integer or floating point data
+elements currently stored in the data array. They are used for
+monitoring the total number of data points
+in <tt>endflib.cpp</tt>.</p>
+
+
+<p>The numerical data are stored in this object in a one-dimensional
+mode. There are three types of data stored; integer, double, and Record.
+The integer and double data are also accessed as a two-dimensional
+array. For example;</p>
+<pre>
+ N1     N2     N3     N4     N5     N6      ...    N10    N11    N11
+(0,0)  (0,1)  (0,2)  (0,3)  (1,0)  (1,1)  ...     (2,0)  (2,1)  (2,2)
+</pre>
+<p>There are twelve numbers ( = <tt>ni</tt>) in the integer
+array <tt>idata</tt>, and the same are accessed by a 2dim array
+pointer <tt>iptr</tt>, like <tt>itpr[0][2]</tt>=N3,
+<tt>iptr[2][2]</tt>=N11.  The pointer <tt>itpr[0]</tt> contains
+the address of <tt>idata[0]</tt>.</p>
+
+<p>The first index, 0, 1, and 2, is common to all the double and
+Recode arrays <tt>xptr</tt> and <tt>rdata</tt>, which means that
+an <tt>i</tt>-th data block has three relevant data
+sets <tt>iptr[i]</tt>, <tt>xptr[i]</tt>, and <tt>rdata[i]</tt>.
+Sometimes there is no corresponding int/double data block for a
+given <tt>i</tt>.</p>
+
+
+<p>The MAT/MF/MT triplet as well as the HEAD record can be
+accessed by member functions. The <tt>setENDFhead()</tt> function
+resets all the counters <tt>pos, ni</tt> and <tt>nx</tt>. This is
+function should be called first, when a new section is created.</p>
+
+<pre id="prg">
+  void   setENDFmat(int n){    mat = n;    }
+  void   setENDFmf (int n){    mf  = n;    }
+  void   setENDFmt (int n){    mt  = n;    }
+
+  int    getENDFmat()     {    return mat; }
+  int    getENDFmf ()     {    return mf;  }
+  int    getENDFmt ()     {    return mt;  }
+
+  void   setENDFhead(double c1, double c2, int l1, int l2, int n1, int n2){
+    head.setRecord(c1,c2,l1,l2,n1,n2);
+    pos = ni = nx = 0;
+  }
+  void   setENDFhead(Record r){
+    head = r;
+  }
+
+  Record getENDFhead(){
+    return head;
+  }
+</pre>
+
+
+
+<h2><a name="endfdict">ENDFDict Class</a></h2>
+
+<pre id="prg">
+  class ENDFDict{
+   public:
+    int       mat     ;     // ENDF MAT number
+    int       sec     ;     // number of sections
+    int       *mf     ;     // ENDF MF number
+    int       *mt     ;     // ENDF MT number
+    int       *nc     ;     // Line count
+    int       *mod    ;     // MOD number
+    int       *id     ;     // ID for ENDF data on memory
+    char      tpid[67];     // Tape ID 
+    Record    head    ;     // Tape HEAD Record
+    Record    cont[3] ;     // CONT Records
+  };
+</pre>
+
+<p>An object of ENDFDict class contains MAT number <tt>mat</tt>, Tape
+ID <tt>tpid</tt>, Tape header part (one HEAD and three
+CONTs) <tt>head, cont</tt>, total number of sections <tt>sec</tt>, and
+integer data arrays for each section <tt> mf, mt, nc, mod</tt>,
+and <tt>id</tt>. <tt>nc</tt> is the number of lines (in card image).
+The array <tt>id</tt> has special meanings, as given below.</p>
+
+<p>In DeCE, one object is assigned to each section of an ENDF-6 file.
+For example, when sections are given in
+<pre id="prg">
+  ENDF lib[0]; // comment section       MF=1, MT=451
+  ENDF lib[1]; // resonance parameters  MF=2, MT=151
+  ENDF lib[2]; // total cross section   MF=3, MT=1
+  ENDF lib[3]; // elastic cross section MF=3, MT=2
+  ENDF lib[4]; // capture cross section MF=3, MT=102
+               // elastic, no data      MF=4, MT=2
+               // spectrum, no data     MF=6, MT=102
+</pre>
+<p><tt>sec</tt> is 7, and 5 sections out of 7 have real data on
+memory. The rest of two sections are in the dictionary, but DeCE
+has not allocated memory to store these sections. DeCE gives
+-1 to their <tt>id</tt>s.  
+
+the arrays of <tt> mf, mt</tt>,
+and <tt>id</tt> may contain,</p>
+<pre id="dat">
+ index   MF     MT    ID
+   0      1    451     0
+   1      2    151     1
+   2      3      1     2
+   3      3      2     3
+   4      3    102     4
+   5      4      2    -1
+   6      6    102    -1
+</pre>
+
+<p>When one section is deleted, DeCE keeps this section on memory, but
+set <tt>id</tt> = -2. Now we delete MF/MT=3/2 and 4/2, and add a new
+section MF/MT=3/3 to which memory is allocated. <tt>sec</tt> becomes
+8. The index for the new section will be 7, and the <tt>id</tt> is
+5.</p>
+<pre id="prg">
+  ENDF lib[5]; // nonelastic cross section MF=3, MT=3
+</pre>
+
+<pre id="dat">
+ index   MF     MT    ID
+   0      1    451     0
+   1      2    151     1
+   2      3      1     2
+   3      3      2    -2
+   4      3    102     4
+   5      4      2    -2
+   6      6    102    -1
+   7      3      3     5
+</pre>
+
+<p>Finally DeCE prints out sections whose <tt>id</tt> are positive,
+in the ascending order of MF and MT.</p>
+
+<p>Two member functions, <tt>scanDisc()</tt> and <tt>getID()</tt>,
+give status of each data block.</p>
+
+<pre id="prg">
+  int scanDict(int n1, int n2){
+    int k = -1;
+    for(int i=0 ; i&#60;sec ; i++){
+      if( (mf[i]==n1) &#38;&#38; (mt[i]==n2) ){ k = i; break; }
+    }
+    return(k);
+  }
+  int getID(int n1, int n2){
+    int k = -1;
+    for(int i=0 ; i&#60;sec ; i++){
+      if( (mf[i]==n1) &#38;&#38; (mt[i]==n2) ){ k = id[i]; break; }
+    }
+    return(k);
+  }
+</pre>
+
+<p><tt>scanDict()</tt> looks up a given MF/MT in the dictionary, and
+if that section is found, it returns its index, otherwise -1. In the
+case of example above, <tt>scanDict(3,3)</tt> gives 7. </p>
+
+<p><tt>getID()</tt> is similar to <tt>scanDict()</tt>, but it returns
+the <tt>id</tt> of given section. <tt>scanDict(3,3)</tt> is 5.</p>
+
+<hr>
+<a href="ope3.html">    [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="endflib.html"> [NEXT] </a>
+</body>
+</html>
