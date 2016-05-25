@@ -17,7 +17,7 @@ using namespace std;
 #include "command.h"
 #include "terminate.h"
 
-static string version  = "1.2.1 Adularia (May 2015)";
+static string version  = "1.2.1 Adularia (May 2016)";
 static bool   verbflag = false;
 static bool   justquit = false;
 
