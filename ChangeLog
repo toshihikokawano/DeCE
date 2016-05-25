@@ -1,0 +1,289 @@
+2015-09-28  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfr.cpp (gfrAngDistSmooth): update
+	smoothing algorithm changed
+
+2015-09-22  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrcsurr.cpp (gfrUFindRange): bug gix
+	index but at the highest bin
+
+2015-09-19  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dece.cpp (DeceBanner): update
+	* tools/decemf4.cpp: new file
+	create MF4 MT2 from DeCE smoothangdist/reconangdist output.
+
+2015-09-18  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfr.cpp (gfrAngDistSmooth): new function
+	average scattering Legendre coefficients generated from resonances
+
+2015-09-17  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrcsurr.cpp: updated
+	* source/gfr.cpp (gfrPtCross): updated
+	add unresolved resonance calculation
+
+	* source/deceprocpoint.cpp: new file
+	create pointwise cross sections, and store in temporal MTs
+
+2015-09-13  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrenergy.cpp: new file
+	determine energy grid for resonance reconstruction
+
+2015-09-12  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfr.cpp (gfrBackGround): new function
+	get background cross section in MF3
+
+	* source/decepoint.cpp (delpoint): new function
+	multi-point delete
+
+2015-04-27  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (readCSdata): modified
+	adjusted ofset values to a new CoH output file
+
+	* source/endflib.cpp (ENDFMergeXdata): modified
+	check if the highest energies in two libs
+
+2015-01-23  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/coupling.cpp: replaced
+	copied from CoH3
+
+2014-07-22  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrcross.cpp (gfrLegendreCoefficient): new function
+	* source/gfr.cpp (gfrAngDist): new function
+	calculate angular distribution from resonances
+
+	* source/endflib.cpp (ENDFInterpolation): modified
+	add an extra argument of idx
+
+	* source/dececalc.cpp (DeceCalc452): new function
+	create total nu-bar in MF1 MT452
+
+	* source/dece.cpp (DeceMain): modified
+	changeqval and nutotal added
+	
+	* source/decepoint.cpp (DeceChangeQvalue): new function
+	to change Q-value manually
+
+2013-09-15  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable12.cpp: new file
+	* source/decetable13.cpp: new file
+	* source/decetable15.cpp: new file
+	* source/decetable.cpp (DeceTable): modified
+	gamma production and spectrum, generate tables
+
+2013-05-18  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* souce/dece.cpp: modified
+	version error fixed
+
+2012-10-25  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dece.cpp (DeceMain): modified
+	new operation, fixawr
+
+	* source/deceoutput.cpp (DeceRenumber): modified
+	keep modified HEAD in a temporal file
+
+	* source/deceheader.cpp: new file
+	calculate AWR from nuclear mass table, and replace it
+	in the HEAD record in MF1
+
+2012-09-15  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/masstable.cpp (qvalue): modified
+	require projectile ZA
+
+	* source/decemod6.cpp (DeceGenProdCS): new function
+	make a production cross section in MF3 from MF6 MT5
+
+2012-09-04  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFMF2boundary): new function
+	this function was moved from dece.cpp to the library
+
+	* tools/decemf6.cpp: modified
+	generate MF=6 data for charged particles (no neutron)
+
+	* source/endflib.h (ENDF): modified
+	a new method, copyENDF() added, to make a dead copy of the ENDF object
+
+	* source/decemod6.cpp: new file
+	miscellaneous MF=6 manipluations, such as boundary correction,
+	duplicate the last point in TAB2
+
+	* source/deceangdist.cpp (storeMF6): new function
+	store angular distribution in MF-6, and two body recoil is given
+
+2012-08-21  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decepoint.cpp (DeceChangeInt): new function
+	modify interpolation laws manually
+
+2011-11-25  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable8.cpp (DeceTableMF8MT454): bug fixed
+	interpretation of I for the first section
+
+2011-09-02  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable6.cpp (DeceTableMF6): modified
+	for law7 case, remove "np", as the same name appear outside the loop
+
+2011-09-01  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* README (DeCE): ver.1.1.1
+	new package, same as turquoise, but Automake used
+
+2010-12-17  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* manual/tutorial.html: new file
+	new TAG, turquoise, for ver.1.1
+
+2010-12-15  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endfio.cpp (ENDFReadMF1): modified
+	MT=460 added
+	
+	* source/endfio.cpp (ENDFReadMF2): modified
+	better resonance parameter handling, still no Adler-Adler.
+
+2010-12-14  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dece.cpp (main): modified
+	new command line option -q added
+	DeCE will quit just after it reads the input ENDF file
+
+2010-12-13  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable8.cpp: modified
+	functions to tabulate MF454, 457, and 459 added
+
+2010-12-02  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* coupling.cpp: new file
+	* coupling.h: new file
+	copied from CoH3.1
+
+	* gfrcross.cpp (gfrLegendreCoefficient): new function
+	* gfr.cpp (gfrPtCross): modified
+	calculate Legendre coefficients from resonance parameters
+
+2010-11-29  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endfio.cpp (ENDFReadMF32): new function
+	read/write MF32, limited to some resonance formulas
+
+	* source/decetable9.cpp: new file
+	* source/decetable8.cpp: new file
+	tabulate MF8 and MF9 data
+	fission product yield has not been implemented
+
+2010-11-24  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable10.cpp: new file
+	tabulate MF10 data
+
+2010-11-21  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/decemf12.cpp: new file
+	generate MF12 and MF14 from ECLIPSE output
+
+2010-11-20  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decepoint.cpp (DeceApplyFunc): new function
+	apply two functional forms to the cross section,
+	Fermi function or Gaussian
+	New commands, applyfunc1 and applyfunc2 added
+
+2010-10-31  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endfio.cpp (ENDFReadMF4): modified
+	LVT=1 case added to read old format data
+
+2010-10-17  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable.cpp: modified
+	since this file became big, it was splitted into decetable1 - 6
+
+	* source/decetable1.cpp: new
+	* source/decetable2.cpp: new
+	* source/decetable3.cpp: new
+	* source/decetable4.cpp: new
+	* source/decetable5.cpp: new
+	* source/decetable6.cpp: new
+	* source/decetable33.cpp: new
+
+2010-10-08  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endfio.cpp: modified
+	new functions for read/write MF33
+	bugs in MF9 and MF13 fixed
+
+	* source/decetable.cpp (DeceTableMF33): new function
+	tabulate covariance data in MF33, still limited.
+
+	* tools/decemf5.cpp: new file
+	tool to read tabulated fission spectra, and convert
+	them into the ENDF-6 formatted data
+	
+
+2010-10-07  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable.cpp (DeceTableMF5): modified
+	tabulation of MF5 energy spectrum for LF=1 case completed
+
+	* source/dece.h: modified
+	ENERGY_UNIT and CROSS_SECTION_UNIT defined
+
+	* source/endflib.h (ENDFDict): modified
+	a new member function, setEboundary() added
+
+	* source/dece.cpp (DeceEboundaryMF2): name changed
+	this function was in endfio.cpp, but moved into dece.cpp
+
+2010-10-05  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dececopy.cpp (DeceLibRead): new function
+	copy a section from another data file, and merge
+	commannd "libread" added to dece.cpp
+
+	* source/endfio.cpp: new functions
+	ENDFRead/WriteMF8, 9, 10, 13, 15
+
+	* source/endflib.cpp (ENDFExtract): name changed
+	old ENDFcopy, new ENDFExtract
+
+2010-10-03  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable.cpp (DeceDataPoint): new function
+	* source/dece.cpp: command line option modified
+	calcualte interpolated point at a given energy
+	
+
+2010-10-01  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* manual/index.html: class library document added
+	* manual/class.html: new file
+	* manual/endflib.html: new file
+	* manual/endfio.html: new file
+
+2010-09-28  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endfio.cpp: (ENDFReadMF4,ENDFWriteMF4): 
+	LTT=2,3 case added
+	
+
+2010-09-27  KAWANO Toshihiko  <kawano@lanl.gov>
+	DeCE ver. Apatite, released
+	
+	* source/dece.cpp (DeceBanner): banner added to -h option
+
