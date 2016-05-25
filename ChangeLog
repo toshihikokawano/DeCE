@@ -1,3 +1,12 @@
+2016-05-24  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dece.cpp: modified
+	svn keyword, $Id$, removed from all files
+	files exported to git
+	version 1.2.1
+	
+	* source/decexml.cpp: removed
+
 2015-09-28  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/gfr.cpp (gfrAngDistSmooth): update
