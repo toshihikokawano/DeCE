@@ -88,7 +88,7 @@ int decetable4LEG(ENDF *lib, int da, int idx)
       }
     }else{
       cout << "#           NL" << setw(14) << nl << endl;
-      cout << "# Leg. Order    Coefficient" << endl;
+      cout << "# Energy       Leg. Order    Coefficient" << endl;
       outVal(e); outVal(0); outVal(1.0); cout << endl;
       for(int j=0 ; j<nl ; j++){
         outVal(e);
