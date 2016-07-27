@@ -1,3 +1,8 @@
+2016-07-27  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* .gitignore: modified
+	some automatically generated files were removed from git tree
+
 2016-05-24  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/dece.cpp: modified
