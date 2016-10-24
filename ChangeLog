@@ -1,3 +1,18 @@
+2016-10-23  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (DeceRead): modified
+	when there is no adding data point, remove temporal section
+
+	* tools/decemf6.cpp (mf6spec): bug fixed
+	bug in the zero spectrum case fixed
+
+	* source/deceread.cpp (DeceRead): modified
+	* source/endflib.h (ENDFDict): modified
+	* source/endflib.cpp (ENDFMF2boundary): modified
+	resonance boundary for LSSF=1 case modified
+	new variable emaxRe in ENDFDict defined
+	
+
 2016-07-27  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* .gitignore: modified

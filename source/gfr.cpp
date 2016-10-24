@@ -251,7 +251,7 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 /**********************************************************/
 void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
 {
-  const int npoint =  40;
+  const int npoint = 100;
   const int ndiv   = 100;
   const int wf     =   1;
   System sys;
