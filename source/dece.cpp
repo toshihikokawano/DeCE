@@ -202,7 +202,7 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
     }
 
     /*** FUNC1, FUNC2: multiply by a factor that is calculated with a function */
-    else if(ope == "applyfunc1" || ope == "applyfunc2"){
+    else if(ope == "applyfunc1" || ope == "applyfunc2" || ope == "applyfunc3"){
       DeceCheckMT(cmd.mt);
       DeceApplyFunc(dict,lib,cmd.mf,cmd.mt,cmd.opt1,cmd.x,cmd.y,cmd.xmin);
     }

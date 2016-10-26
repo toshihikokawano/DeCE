@@ -297,13 +297,15 @@ void mf6spec(int nelab, int pid, double emin, ENDF *lib)
 
   /*** for each incident energy */
   for(int i=0 ; i<nelab ; i++){
+
     if(elab[i] >= emin){
       nd = (pid == 0) ? ng[i] : 0;
       na = nl[pid][i] - 1;
       np = ns[pid][i] + nd;
       nw = (na+2)*np;
 
-      /*** skip this energy if zero-sum for a1 */
+      /*** skip this energy if zero-sum for a1
+           except for the last energy point */
       kx = 0;
       double sum = 0.0;
       for(int k=0 ; k<np ; k++){
@@ -312,7 +314,7 @@ void mf6spec(int nelab, int pid, double emin, ENDF *lib)
           kx++;
         }
       }
-      if(sum == 0.0){
+      if((sum == 0.0) && (i != nelab-1)){
         ne --;
         continue;
       }

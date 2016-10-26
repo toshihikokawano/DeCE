@@ -172,6 +172,7 @@ int geneADdata(int mt, int ne, double eth, double *en, double *x, double **y, do
   lg[idx][0] = 0.0;
   lg[idx][1] = 0.0;  idx++;
 
+  int mmax = 0;
   for(int i=0 ; i<ne ; i++){
 
     /*** copy data if larger than Eth */
@@ -193,7 +194,7 @@ int geneADdata(int mt, int ne, double eth, double *en, double *x, double **y, do
       }
     }
 
-    if(m<=1){
+    if(m <= 1){
       cont[idx].setRecord(0.0,en[i],0,0,2,0);
       lg[idx][0] = 0.0;
       lg[idx][1] = 0.0;
@@ -208,13 +209,30 @@ int geneADdata(int mt, int ne, double eth, double *en, double *x, double **y, do
         lg[idx][1] = 0.0;
       }
       else{
-        cont[idx].setRecord(0.0,en[i],0,0,m-1,0);
-        for(int i=1 ; i<=m ; i++){
-          p = a[i]/((2*i+1)*a[0]);
-          lg[idx][i-1] = (fabs(p) > eps2) ? p : 0.0;
+        if(m >= mmax){
+          cont[idx].setRecord(0.0,en[i],0,0,m-1,0);
+          for(int i=1 ; i<=m ; i++){
+            p = a[i]/((2*i+1)*a[0]);
+            lg[idx][i-1] = (fabs(p) > eps2) ? p : 0.0;
+          }
+        }
+        else{
+          cont[idx].setRecord(0.0,en[i],0,0,mmax-1,0);
+          for(int i=1 ; i<=mmax ; i++){
+            if(i <= m){
+              p = a[i]/((2*i+1)*a[0]);
+              lg[idx][i-1] = (fabs(p) > eps2) ? p : 0.0;
+            }
+            else{
+              lg[idx][i-1] = 0.0;
+            }
+          }
         }
       }
     }
+    /*** save the largest L */
+    if(m >= mmax) mmax = m;
+
     idx++;
   }
 /*

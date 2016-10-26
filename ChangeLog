@@ -1,3 +1,8 @@
+2016-09-22  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* tools/decemf6.cpp (mf6spec): bug fixed
+	special case, when all spectra are zero, add dummy point at the highest energy
+
 2016-07-27  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* .gitignore: modified

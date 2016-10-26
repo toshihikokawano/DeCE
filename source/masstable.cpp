@@ -10,10 +10,11 @@ using namespace std;
 #include "terminate.h"
 #include "masstable.h"
 
-//#include "masstable_aw95.h"      // Audi Wapstra 1995 table
-//#include "masstable_ripl2.h"     // AW95 + FRDM95 from RIPL2
-//#include "masstable_ripl3.h"     // AW03 + FRDM95 from RIPL3
-#include "masstable_audi2011.h"    // AW11 + FRDM95 from RIPL3
+//#include "masstable_aw95.h"              // Audi Wapstra 1995 table
+//#include "masstable_ripl2.h"             // AW95 + FRDM95 from RIPL2
+//#include "masstable_ripl3.h"             // AW03 + FRDM95 from RIPL3
+//#include "masstable_audi2011.h"          // AW11 + FRDM95 from RIPL3
+#include "masstable_audi2012_frdm2012.h"   // AW12 + FRDM2012
 
 double mass_excess(int z, int a)
 {

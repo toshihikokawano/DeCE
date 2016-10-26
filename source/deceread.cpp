@@ -32,8 +32,8 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
   int      nc = 0, np = 0;
   double   *cx, *cy, *xdat, elev, qm = 0.0, qi = 0.0, et = 0.0;
 
-  if((mf!=1) && (mf!=3)) return;
-  if(mt<=0 || mt>=1000) return;
+  if((mf != 1) && (mf != 3)) return;
+  if((mt <= 0) || (mt >= 1000)) return;
 
   /*** allocate data array and open data file */
   cx   = new double [MAX_DBLDATA];
@@ -48,11 +48,13 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
 
   /*** in the case of cross sections in MF3 */
   if(mf == 3){
-    if( (51<=mt && mt <=91) || (600<=mt) )
+    if( (51<=mt && mt <=91) || (600<=mt) ){
       nc = readISdata(datafile,ofset,mt,cx,cy,&elev);
-    else
+    }
+    else{
       nc = readCSdata(datafile,ofset,mt,cx,cy);
-    if(nc==0) TerminateCode("no data to be added from a file for MT = ",mt);
+    }
+    if(nc == 0) TerminateCode("no data to be added from a file for MT = ",mt);
 
     /*** find Q-values */
     /*** for MT=4, there is no way to get QI */

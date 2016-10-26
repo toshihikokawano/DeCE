@@ -214,9 +214,11 @@ void DeceApplyFunc(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
     double f = 1.0;
 
     /*** Fermi function */
-    if(kind == 1)     f = p1/( 1.0+ exp( (x-p2)/p3 ) ) + 1.0;
+    if(kind == 1)      f = p1/( 1.0+ exp( (x-p2)/p3 ) ) + 1.0;
     /*** Gaussian */
-    else if(kind ==2) f = p1*exp( -(x-p2)*(x-p2)/p3 )  + 1.0;
+    else if(kind == 2) f = p1*exp( -(x-p2)*(x-p2)/p3 )  + 1.0;
+    /*** reversed Fermi function */
+    else if(kind == 3) f = p1/( 1.0+ exp(-(x-p2)/p3 ) ) + 1.0;
 
     lib[k0]->xdata[2*ip+1] *= f;
   }

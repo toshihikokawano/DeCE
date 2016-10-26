@@ -101,7 +101,7 @@ string CmdExtractArgument(void)
     cmd.xmin  =      getval(d1);
     cmd.xmax  =      getval(d1);
   }
-  else if(ope == "applyfunc1" || ope == "applyfunc2"){
+  else if(ope == "applyfunc1" || ope == "applyfunc2" || ope == "applyfunc3"){
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
     cmd.x     =      getval(d1);
@@ -109,6 +109,7 @@ string CmdExtractArgument(void)
     cmd.xmin  =      getval(d1);
     if(     ope == "applyfunc1") cmd.opt1 = 1;
     else if(ope == "applyfunc2") cmd.opt1 = 2;
+    else if(ope == "applyfunc3") cmd.opt1 = 3;
   }
   else if(ope == "multidelete"){
     cmd.mf    = (int)getval(d1);
