@@ -48,24 +48,47 @@ void DeceTableMF5(ENDF *lib)
         cout << endl;
       }
     }
-    else if(lf == 12){
-      int ne = lib->rdata[idx++].n2;
-      for(int i=0 ; i<ne ; i++){
-        double e  = lib->rdata[idx].c2;
-        int    nf = lib->rdata[idx].n2;
-
-        cout << "#            E"; outVal(e); cout << endl;
-        cout << "#           NF" << setw(14) << nf << endl;
-        for(int j=0 ; j<nf ; j++){
-          outVal(lib->xptr[idx][2*j  ]);
-          outVal(lib->xptr[idx][2*j+1]);
-          cout << endl;
-        }
-        idx++;
-
-        cout << endl;
+    else if((lf == 5) || (lf == 11)){
+      int ne1 = lib->rdata[idx].n2;
+      cout << "#           NE" << setw(14) << ne1 << endl;
+      for(int i=0 ; i<ne1 ; i++){
+        outVal(lib->xptr[idx][2*i  ]);
+        outVal(lib->xptr[idx][2*i+1]);
         cout << endl;
       }
+      idx++;
+
+      cout << endl;
+      cout << endl;
+
+      int ne2 = lib->rdata[idx].n2;
+      cout << "#           NE" << setw(14) << ne2 << endl;
+      for(int i=0 ; i<ne2 ; i++){
+        outVal(lib->xptr[idx][2*i  ]);
+        outVal(lib->xptr[idx][2*i+1]);
+        cout << endl;
+      }
+      idx++;
+
+      cout << endl;
+      cout << endl;
+    }
+    else if((lf == 7) || (lf == 9) || (lf == 12)){
+      int ne = lib->rdata[idx].n2;
+      cout << "#           NE" << setw(14) << ne << endl;
+      if(lf == 12){
+        cout << "#          EFL"; outVal(lib->rdata[idx].c1); cout << endl;
+        cout << "#          EFH"; outVal(lib->rdata[idx].c2); cout << endl;
+      }
+      for(int i=0 ; i<ne ; i++){
+        outVal(lib->xptr[idx][2*i  ]);
+        outVal(lib->xptr[idx][2*i+1]);
+        cout << endl;
+      }
+      idx++;
+
+      cout << endl;
+      cout << endl;
     }
     else WarningMessage("table command cannot process MF = 5, LF = ",lf);
   }
