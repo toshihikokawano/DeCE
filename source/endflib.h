@@ -246,12 +246,14 @@ class ENDFDict{
   double    emax    ;     // highest energy in the file
   double    emaxRR  ;     // energy boundary of resolved resonance region
   double    emaxUR  ;     // energy boundary of unresolved resonance region
+  double    emaxRe  ;     // either emaxRR or emaxUR depending on LSSF flag
   ENDFDict(){
     mat    = 0;
     sec    = 0;
     emax   = 0.0;
     emaxRR = 0.0;
     emaxUR = 0.0;
+    emaxRe = 0.0;
     mf     = new int [MAX_SECTION];
     mt     = new int [MAX_SECTION];
     nc     = new int [MAX_SECTION];
@@ -315,9 +317,10 @@ class ENDFDict{
     if(0 <= i && i < sec) mt[i] = t;
   }
   /*** save boundary energies of resolved and unresolved resonance regions */
-  void setEboundary(double e1, double e2){
+  void setEboundary(double e1, double e2, double e3){
     emaxRR = e1;
     emaxUR = e2;
+    emaxRe = e3;
     emax   = cont[1].c2;
   }
   /*** check if fissile */

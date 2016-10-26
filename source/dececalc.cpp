@@ -2,7 +2,9 @@
 /**     DeCE CALC                                                            **/
 /******************************************************************************/
 
+#include <string>
 #include <iostream>
+#include <sstream>
 #include <cmath>
 
 using namespace std;
@@ -25,46 +27,59 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
   int k2 = dict->getID(3,mtsrc2);
   int mf = 3;
 
-  if(k1<0) TerminateCode("MT number not found",mtsrc1);
-  if(k2<0) TerminateCode("MT number not found",mtsrc2);
-
-  /*** deterimine Q-value */
-  double qm = 0.0, qi = 0.0;
-  if(mtdest >=4 ){
-    int    kq = qselect(k1,k2,lib[k1]->rdata[0].c1+lib[k1]->rdata[0].c2,
-                               lib[k2]->rdata[0].c1+lib[k2]->rdata[0].c2);
-    qm = lib[kq]->rdata[0].c1;
-    qi = lib[kq]->rdata[0].c2;
+  if((k1 < 0) && (k2 < 0)){
+    ostringstream os;
+    os << "both source MT numbers " << mtsrc1 << " and " << mtsrc2 << " not found";
+    TerminateCode(os.str());
   }
 
-  /*** copy SRC1 to DEST */
-  copysection(lib[k1],lib[k0]);
+  /*** copy src1 to dest */
+  if(k2 < 0){
+    copysection(lib[k1],lib[k0]);
+  }
+  /*** copy src2 to dest */
+  else if(k1 < 0){
+    copysection(lib[k2],lib[k0]);
+  }
+  else{
+    /*** deterimine Q-value */
+    double qm = 0.0, qi = 0.0;
+    if(mtdest >=4 ){
+      int    kq = qselect(k1,k2,lib[k1]->rdata[0].c1+lib[k1]->rdata[0].c2,
+                                lib[k2]->rdata[0].c1+lib[k2]->rdata[0].c2);
+      qm = lib[kq]->rdata[0].c1;
+      qi = lib[kq]->rdata[0].c2;
+    }
 
-  /*** add all MTs in the range to DEST */
-  if(op == ':'){
-    for(int i=0 ; i<dict->sec ; i++){
-      if( (dict->mf[i]==mf) && (dict->mt[i]>=mtsrc1+1 && dict->mt[i]<=mtsrc2) ){
-        k2 = dict->getID(3,dict->mt[i]);
-        if(k2<0) continue;
-        addsection('+',lib[k2],lib[k0]);
+    /*** copy SRC1 to DEST */
+    copysection(lib[k1],lib[k0]);
+
+    /*** add all MTs in the range to DEST */
+    if(op == ':'){
+      for(int i=0 ; i<dict->sec ; i++){
+        if( (dict->mf[i]==mf) && (dict->mt[i]>=mtsrc1+1 && dict->mt[i]<=mtsrc2) ){
+          k2 = dict->getID(3,dict->mt[i]);
+          if(k2<0) continue;
+          addsection('+',lib[k2],lib[k0]);
+        }
       }
     }
+    /*** add SRC2 to DEST */
+    else addsection(op,lib[k2],lib[k0]);
+
+    Record r  = lib[k0]->rdata[0];
+    int    np = r.n2;
+    int    nc = np/3 + 4;  if(np%3==0 && np!=0) nc--;
+
+    dict->nc[k0] = nc;
+
+    lib[k0]->setENDFmf(mf);
+    lib[k0]->setENDFmt(mtdest);
+
+    /*** restore Q values */
+    lib[k0]->rdata[0].c1 = qm;
+    lib[k0]->rdata[0].c2 = qi;
   }
-  /*** add SRC2 to DEST */
-  else addsection(op,lib[k2],lib[k0]);
-
-  Record r  = lib[k0]->rdata[0];
-  int    np = r.n2;
-  int    nc = np/3 + 4;  if(np%3==0 && np!=0) nc--;
-
-  dict->nc[k0] = nc;
-
-  lib[k0]->setENDFmf(mf);
-  lib[k0]->setENDFmt(mtdest);
-
-  /*** restore Q values */
-  lib[k0]->rdata[0].c1 = qm;
-  lib[k0]->rdata[0].c2 = qi;
 
   /*** write section to temp File */
   //  ENDFWriteHEAD(lib[k0]);

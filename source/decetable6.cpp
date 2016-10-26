@@ -33,7 +33,7 @@ void DeceTableMF6(ENDF *lib3, ENDF *lib6)
     int    law  = cont.l2;
     int    np   = cont.n2;
  
-    cout << "#          ZAP"; outVal(zap); cout << endl;
+    cout << "#          ZAP" << setw(14) << zap << endl;
     cout << "#          LIP" << setw(14) << lip << "  product modifier" << endl;
     cout << "#          LAW" << setw(14) << law << "  distribution law" << endl;
     cout << "#           NP" << setw(14) << np  << "  yield energy points" << endl;

@@ -256,7 +256,7 @@ int DeceTableMF2URR(ENDF *lib, int idx)
     cout << "# E             D             G(other)      G(neutron)";
     cout << "    G(gamma)      G(fission)" << endl;
 
-    for(int i=1 ; i<ne ; i++){
+    for(int i=1 ; i<=ne ; i++){
       int j = 6*i;
       outVal(lib->xptr[idx][j  ]);
       outVal(lib->xptr[idx][j+1]);

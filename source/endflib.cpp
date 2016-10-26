@@ -1040,6 +1040,7 @@ void ENDFMF2boundary(ENDFDict *dict, ENDF *lib)
   double emaxRR = 0.0, emaxUR = 0.0;
   int    idx = 0;
   int    ner = lib->rdata[idx++].n1;
+  bool   ssf = false;
 
   for(int i=0 ; i<ner ; i++){
     double eh   = lib->rdata[idx  ].c2;
@@ -1050,11 +1051,12 @@ void ENDFMF2boundary(ENDFDict *dict, ENDF *lib)
     int    lssf = lib->rdata[idx  ].l1;
     int    nls  = lib->rdata[idx++].n1;
 
+    if((lru == 2) && (lssf == 1)) ssf = true;
 
     if( lru == 1 ){
       if(eh > emaxRR) emaxRR = eh;
     }
-    else if( (lru == 2) && (lssf == 0) ){
+    else if(lru == 2){
       if(eh > emaxUR) emaxUR = eh;
     }
 
@@ -1075,7 +1077,19 @@ void ENDFMF2boundary(ENDFDict *dict, ENDF *lib)
     }
   }
 
-  dict->setEboundary(emaxRR,emaxUR);
+  /*** actual highest resonance range */
+  double emaxRe = 0.0;
+
+  /*** when not URR is given */
+  if(emaxUR == 0.0) emaxRe = emaxRR;
+  /*** when URR exists */
+  else{
+    if(ssf) emaxRe = emaxRR;  // if LSSF flag is on, take the RRR boundary
+    else    emaxRe = emaxUR;  // otherwise URR high-side
+  }
+
+
+  dict->setEboundary(emaxRR,emaxUR,emaxRe);
 }
 
 

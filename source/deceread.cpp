@@ -77,16 +77,16 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     /*** check resonance boundary */
     if(mflag){
       double ebtest = findBoundary(lib);
-      if(ebtest < dict->emaxRR && ebtest != 1.0e-05){
-        cerr << "maybe background cross sections given for MT = "<< mt << " at E1 = " << dict->emaxRR;
+      if(ebtest < dict->emaxRe && ebtest != 1.0e-05){
+        cerr << "maybe background cross sections given for MT = "<< mt << " at E1 = " << dict->emaxRe;
         cerr << "  E2 = " << ebtest << endl;
       }
     }
 
     /*** generate floating point data */
     np = nc;
-    if(mflag) np = mergeCSdata(nc,cx,cy,dict->emaxRR,xdat,lib->xptr[0]);
-    else      np = geneCSdata(nc,cx,cy,et,dict->emaxRR,xdat);
+    if(mflag) np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->xptr[0]);
+    else      np = geneCSdata(nc,cx,cy,et,dict->emaxRe,xdat);
   }
   /*** for number of prompt/delayed neutrons, MT=455, 456 */
   else{
@@ -132,11 +132,16 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     idat[1] = 2;
   }
 
-  ENDFPackTAB1(cont,idat,xdat,lib);
-
-  //  ENDFWriteHEAD(lib);
-  //  ENDFWriteTAB1(lib);
-  //  ENDFWriteSEND(lib);
+  if(np <= 1){
+    /*** nothing to be added */
+    DeceDelete(dict,mf,mt);
+  }
+  else{
+    ENDFPackTAB1(cont,idat,xdat,lib);
+    //  ENDFWriteHEAD(lib);
+    //  ENDFWriteTAB1(lib);
+    //  ENDFWriteSEND(lib);
+  }
 
   /*** Clean all */
   delete [] cx;

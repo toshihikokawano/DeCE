@@ -89,8 +89,13 @@ int main(int argc, char *argv[])
     cerr << "ENDF file cannot open" << endl;
     exit(-1);
   }
-  ENDFReadMF3(&fpin,&lib,mt);
+  int icond = ENDFReadMF3(&fpin,&lib,mt);
   fpin.close();
+  if(icond < 0){
+    cerr << "MT number not given in MF3 for " << mt << endl;
+    exit(-1);
+  }
+
   mat = lib.getENDFmat();
 
   /*** open ECLIPSE file */
@@ -310,7 +315,9 @@ void mf6spec(int nelab, int pid, double emin, ENDF *lib)
       double sum = 0.0;
       for(int k=0 ; k<np ; k++){
         for(int l=0 ; l<=nl[pid][i] ; l++){
-          if(l == 1) sum += spc[pid][i][kx];
+          if(l == 1){
+            sum += spc[pid][i][kx];
+          }
           kx++;
         }
       }
