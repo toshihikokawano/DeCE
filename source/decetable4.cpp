@@ -75,7 +75,7 @@ int decetable4LEG(ENDF *lib, int da, int idx)
       int np = 180/da;
       if( (180%da) == 0 ) np++;
       cout << "#           NP" << setw(14) << np << endl;
-      cout << "# angle         probability" << endl;
+      cout << "# energy        angle         probability" << endl;
       for(int t=0 ; t<=180 ; t+=da){
         double f=0.5;
         for(int j=0 ; j<nl ; j++){
@@ -124,8 +124,9 @@ int decetable4TAB(ENDF *lib, int idx)
 
     cout << "#            E"; outVal(e); cout << endl;
     cout << "#           NP" << setw(14) << np << endl;
-    cout << "# angle         probability" << endl;
+    cout << "# energy        angle         probability" << endl;
     for(int j=0 ; j<np ; j++){
+      outVal(e);
       outVal(acos(lib->xptr[idx][2*j])/PI * 180.0);
       outVal(lib->xptr[idx][2*j+1]);
       cout << endl;
