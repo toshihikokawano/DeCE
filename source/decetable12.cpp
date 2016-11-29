@@ -27,7 +27,14 @@ void DeceTableMF12(ENDF *lib)
   if(l0 == 1){
     int    nk   = head.n1;   // number of subsections
     cout << "#           NK" << setw(14) << nk << "  number of subsections" << endl;
-    for(int n=0 ; n<nk ; n++){
+
+    int n0 = 0;
+    if(nk > 1){
+      ENDFPrint1Dim(lib,n0);
+      n0 = 1;
+    }
+
+    for(int n=n0 ; n<nk+n0 ; n++){
       Record cont = lib->rdata[n];
       double eg   = cont.c1;
       double es   = cont.c2;
@@ -36,8 +43,14 @@ void DeceTableMF12(ENDF *lib)
 
       cout << "#           LP" << setw(14) << lp << "  0: origin unknown, 1: nonprimary photon, 2: primary photons" << endl;
       cout << "#           LF" << setw(14) << lf << "  1: tabulated in File 15, 2: discrete photons" << endl;
-      cout << "#           EG"; outVal(eg); cout << "  photon energy" << endl;
-      cout << "#           ES"; outVal(es); cout << "  level energy from which the photon originates" << endl;
+      if(eg == 0.0){
+        cout << "#           EG"; outVal(eg); cout << "  continuous photon energy distribution" << endl;
+      }
+      else{
+        cout << "#           EG"; outVal(eg); cout << "  photon energy" << endl;
+        cout << "#           ES"; outVal(es); cout << "  level energy from which the photon originates" << endl;
+      }
+
 
       ENDFPrint1Dim(lib,n);
     }

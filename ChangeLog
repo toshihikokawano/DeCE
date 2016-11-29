@@ -1,3 +1,8 @@
+2016-11-29  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/decetable12.cpp (DeceTableMF12): bug fixed
+	total photon yield printing part was missing
+
 2016-09-22  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* tools/decemf6.cpp (mf6spec): bug fixed
