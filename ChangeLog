@@ -1,3 +1,11 @@
+2016-12-04  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrcs1.cpp: updated
+	gcc4 hack, cstdlib.h added
+
+	* source/Makefile.am (dece_SOURCES): bug fixed
+	add missing file
+
 2016-11-29  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/decetable12.cpp (DeceTableMF12): bug fixed
