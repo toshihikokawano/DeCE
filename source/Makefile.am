@@ -53,6 +53,7 @@ dece_SOURCES = \
 	gfr.h \
 	masstable.h \
 	masstable_audi2011.h \
+	masstable_audi2012_frdm2012.h \
 	masstable_ripl2.h \
 	masstable_ripl3.h \
 	matrix.h \

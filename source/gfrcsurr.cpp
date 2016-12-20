@@ -4,6 +4,7 @@
 
 #include <complex>
 #include <iostream>
+#include <cstdlib>
 #include <iomanip>
 
 using namespace std;
