@@ -1,3 +1,9 @@
+2016-12-20  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/decetable14.cpp: new file
+	qucik made for tabulating MF14
+	LTT =2 case not tested yet
+
 2016-11-29  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/decetable12.cpp (DeceTableMF12): bug fixed

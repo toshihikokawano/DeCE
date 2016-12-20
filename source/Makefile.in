@@ -106,15 +106,16 @@ am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) dece.$(OBJEXT) \
 	deceprocpoint.$(OBJEXT) deceread.$(OBJEXT) decetable.$(OBJEXT) \
 	decetable1.$(OBJEXT) decetable10.$(OBJEXT) \
 	decetable12.$(OBJEXT) decetable13.$(OBJEXT) \
-	decetable15.$(OBJEXT) decetable2.$(OBJEXT) \
-	decetable3.$(OBJEXT) decetable33.$(OBJEXT) \
-	decetable4.$(OBJEXT) decetable5.$(OBJEXT) decetable6.$(OBJEXT) \
-	decetable8.$(OBJEXT) decetable9.$(OBJEXT) endfio.$(OBJEXT) \
-	endflib.$(OBJEXT) gfr.$(OBJEXT) gfrcross.$(OBJEXT) \
-	gfrcs1.$(OBJEXT) gfrcs3.$(OBJEXT) gfrcs7.$(OBJEXT) \
-	gfrcsurr.$(OBJEXT) gfrenergy.$(OBJEXT) gfrformula.$(OBJEXT) \
-	gfrlegcoef.$(OBJEXT) masstable.$(OBJEXT) matrix.$(OBJEXT) \
-	polycalc.$(OBJEXT) polysq.$(OBJEXT)
+	decetable14.$(OBJEXT) decetable15.$(OBJEXT) \
+	decetable2.$(OBJEXT) decetable3.$(OBJEXT) \
+	decetable33.$(OBJEXT) decetable4.$(OBJEXT) \
+	decetable5.$(OBJEXT) decetable6.$(OBJEXT) decetable8.$(OBJEXT) \
+	decetable9.$(OBJEXT) endfio.$(OBJEXT) endflib.$(OBJEXT) \
+	gfr.$(OBJEXT) gfrcross.$(OBJEXT) gfrcs1.$(OBJEXT) \
+	gfrcs3.$(OBJEXT) gfrcs7.$(OBJEXT) gfrcsurr.$(OBJEXT) \
+	gfrenergy.$(OBJEXT) gfrformula.$(OBJEXT) gfrlegcoef.$(OBJEXT) \
+	masstable.$(OBJEXT) matrix.$(OBJEXT) polycalc.$(OBJEXT) \
+	polysq.$(OBJEXT)
 dece_OBJECTS = $(am_dece_OBJECTS)
 dece_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -296,6 +297,7 @@ dece_SOURCES = \
 	decetable10.cpp \
 	decetable12.cpp \
 	decetable13.cpp \
+	decetable14.cpp \
 	decetable15.cpp \
 	decetable2.cpp \
 	decetable3.cpp \
@@ -443,6 +445,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable10.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable12.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable13.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable14.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable15.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable3.Po@am__quote@

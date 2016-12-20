@@ -18,6 +18,7 @@ dece_SOURCES = \
 	decetable10.cpp \
 	decetable12.cpp \
 	decetable13.cpp \
+	decetable14.cpp \
 	decetable15.cpp \
 	decetable2.cpp \
 	decetable3.cpp \
