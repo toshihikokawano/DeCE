@@ -21,7 +21,7 @@ static int    mergeCSdata   (int, double *, double *, double, double *, double *
 static double findBoundary  (ENDF *);
 static double loginterpol   (int, double, double *, double *, int *);
 
-static double eps = 1.0e-20;
+static double eps = 1.0e-30;
 
 
 /**********************************************************/
