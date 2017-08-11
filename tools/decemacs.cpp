@@ -16,6 +16,8 @@ using namespace std;
 
 const int    subdiv = 100;
 const double PI =  3.14159265358979323846;
+const double BOLTZMANN  = 8.6173324e-5;     // Boltzman Constant [eV/K]
+
 
 int main(int, char *[]);
 static double maxwell_average(int, double *, double *, double, double);
@@ -25,7 +27,8 @@ inline double maxwell        (double, double);
 int main(int argc, char *argv[])
 {
   if(argc < 2){
-    cerr << "usage: decemacs temperature(keV) PENDF_file" << endl;  exit(-1);
+    cerr << "usage: decemacs temperature(keV) PENDF_file" << endl;
+    cerr << "       decemacs -T9 (GK) PENDF_file" << endl;  exit(-1);
   }
 
   string   libname = "";
@@ -34,7 +37,12 @@ int main(int argc, char *argv[])
   double   *x,*y,t = 0.0, awr = 0.0;
   int      n = 0;
 
-  t = atof(argv[1]) * 1000.0;
+  /*** when negative temperature is given,
+       it is translated as T9 */
+  t = atof(argv[1]);
+  if(t < 0.0) t *= -BOLTZMANN * 1e+9;
+  else        t *= 1000.0;
+
   libname = argv[2];
 
   if(t == 0.0){
@@ -65,6 +73,8 @@ int main(int argc, char *argv[])
 
   double macs = maxwell_average(n,x,y,t,awr);
   cout << setprecision(5) << setiosflags(ios::scientific);
+  cout << setw(12) << t;
+  cout << setw(12) << t / BOLTZMANN * 1e-9;
   cout << setw(12) << macs * 1000.0 << endl;
 
   delete [] x;

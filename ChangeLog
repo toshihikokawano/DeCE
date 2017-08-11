@@ -1,3 +1,12 @@
+2017-08-11  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/decetable6.cpp: updated
+	main function divided into small subroutines
+	tabulation of Law7 added
+
+	* tools/decemacs.cpp (main): modified
+	T9 input allowed as a negative value in the first command line options
+
 2016-12-20  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/decetable14.cpp: new file
