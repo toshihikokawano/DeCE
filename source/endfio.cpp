@@ -169,6 +169,9 @@ int ENDFReadMF2(ifstream *fp, ENDF *lib)
     int lrf  = cont.l2;
     int nro  = cont.n1;
 
+    /*** energy dependent scattering radius */
+    if(nro == 1) ENDFReadTAB1(fp,lib);
+
     /*** Scattering radius only */
     if(lru == 0) ENDFReadCONT(fp,lib);
 
@@ -176,7 +179,6 @@ int ENDFReadMF2(ifstream *fp, ENDF *lib)
     else if (lru == 1){
       /*** SLBW, MLBW, Reich-Moore */
       if( (lrf == 1) || (lrf == 2)  || (lrf == 3) ){
-        if(nro != 0) ENDFReadTAB1(fp,lib);
         cont = ENDFReadCONT(fp,lib);
         int nls  = cont.n1;
         for(int inls=0 ; inls<nls ; inls++) ENDFReadLIST(fp,lib);
@@ -249,10 +251,11 @@ void ENDFWriteMF2(ENDF *lib)
     int lrf  = cont.l2;
     int nro  = cont.n1;
 
+    if(nro == 1) ENDFWriteTAB1(lib);
+
     if(lru == 0) ENDFWriteCONT(lib);
     else if (lru == 1){
       if( (lrf == 1) || (lrf == 2)  || (lrf == 3) ){
-        if(nro != 0) ENDFWriteTAB1(lib);
         cont = ENDFWriteCONT(lib);
         int nls  = cont.n1;
         for(int inls=0 ; inls<nls ; inls++) ENDFWriteLIST(lib);

@@ -251,8 +251,9 @@ int DeceTableMF6Law7(ENDF *lib6, int idx)
         outVal(lib6->xptr[idx][2*i2  ]);
         outVal(lib6->xptr[idx][2*i2+1]);
         cout << endl;
-      } idx++;
+      }
       cout << endl;
+      idx++;
     }
     cout << endl;
     cout << endl;

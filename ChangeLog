@@ -1,3 +1,9 @@
+2017-09-14  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/endfio.cpp (ENDFReadMF2): updated
+	* source/decetable2.cpp (DeceTableMF2AP): new function
+	energy-dependent AP for URR added
+
 2017-08-11  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/decetable6.cpp: updated
