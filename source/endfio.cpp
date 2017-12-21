@@ -540,16 +540,17 @@ int ENDFReadMF8(ifstream *fp, ENDF *lib, const int mt)
     ENDFReadLIST(fp,lib);
     ENDFReadLIST(fp,lib);
     for(int n=0 ; n<nsp ; n++){
-      Record cont = ENDFReadLIST(fp,lib);
-      int    lcon = cont.l1; // continuum flag
+      Record cont0 = ENDFReadLIST(fp,lib);
+      int    lcon  = cont0.l1; // continuum flag
 
       if( (lcon == 0) || (lcon == 2) ){
-        int  ner  = cont.n2; // total number of tabulated discrete energies
+        int  ner  = cont0.n2; // total number of tabulated discrete energies
         for(int k=0 ; k<ner ; k++) ENDFReadLIST(fp,lib);
       }
-      if( (lcon == 1) || (lcon == 2) ){
-        ENDFReadTAB1(fp,lib);
-        ENDFReadLIST(fp,lib);
+      if(lcon != 0){
+        Record cont1 = ENDFReadTAB1(fp,lib);
+        int    lcov  = cont1.l2; // covariance flag
+        if(lcov == 1) ENDFReadLIST(fp,lib);
       }
     }
   }
@@ -584,16 +585,17 @@ void ENDFWriteMF8(ENDF *lib)
     ENDFWriteLIST(lib);
     ENDFWriteLIST(lib);
     for(int n=0 ; n<nsp ; n++){
-      Record cont = ENDFWriteLIST(lib);
-      int    lcon = cont.l1; // continuum flag
+      Record cont0 = ENDFWriteLIST(lib);
+      int    lcon  = cont0.l1; // continuum flag
 
       if( (lcon == 0) || (lcon == 2) ){
-        int  ner  = cont.n2; // total number of tabulated discrete energies
+        int  ner  = cont0.n2; // total number of tabulated discrete energies
         for(int k=0 ; k<ner ; k++) ENDFWriteLIST(lib);
       }
-      if( (lcon == 1) || (lcon == 2) ){
-        ENDFWriteTAB1(lib);
-        ENDFWriteLIST(lib);
+      if(lcon != 0){
+        Record cont1 = ENDFWriteTAB1(lib);
+        int    lcov  = cont1.l2; // covariance flag
+        if(lcov == 1) ENDFWriteLIST(lib);
       }
     }
   }
@@ -1044,6 +1046,47 @@ void ENDFWriteMF33(ENDF *lib)
       ENDFWriteCONT(lib);
       ENDFWriteLIST(lib);
     }
+    for(int i=0 ; i<ni ; i++) ENDFWriteLIST(lib);
+  }
+
+  ENDFWriteSEND(lib);
+}
+
+
+/**********************************************************/
+/* MF34 :                                                 */
+/*        Covariances of Scattering Angular Distributions */
+/**********************************************************/
+int ENDFReadMF34(ifstream *fp, ENDF *lib, const int mt)
+{
+  if( (ENDFSeekHead(fp,lib,34,mt))< 0 ) return(-1);
+
+  lib->resetPOS();
+  Record head = lib->getENDFhead();
+  int    nmt1 = head.n2;  // number of subsections
+
+  for(int n=0 ; n<nmt1 ; n++){
+    ENDFReadCONT(fp,lib);
+    Record cont = ENDFReadCONT(fp,lib);
+    int ni = cont.n2;
+    for(int i=0 ; i<ni ; i++) ENDFReadLIST(fp,lib);
+  }
+
+  return(lib->getPOS());
+}
+
+
+void ENDFWriteMF34(ENDF *lib)
+{
+  ENDFWriteHEAD(lib);
+
+  Record head = lib->getENDFhead();
+  int    nmt  = head.n2;
+
+  for(int n=0 ; n<nmt ; n++){
+    ENDFWriteCONT(lib);
+    Record cont = ENDFWriteCONT(lib);
+    int ni = cont.n2;
     for(int i=0 ; i<ni ; i++) ENDFWriteLIST(lib);
   }
 

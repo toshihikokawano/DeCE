@@ -108,14 +108,14 @@ am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) dece.$(OBJEXT) \
 	decetable12.$(OBJEXT) decetable13.$(OBJEXT) \
 	decetable14.$(OBJEXT) decetable15.$(OBJEXT) \
 	decetable2.$(OBJEXT) decetable3.$(OBJEXT) \
-	decetable33.$(OBJEXT) decetable4.$(OBJEXT) \
-	decetable5.$(OBJEXT) decetable6.$(OBJEXT) decetable8.$(OBJEXT) \
-	decetable9.$(OBJEXT) endfio.$(OBJEXT) endflib.$(OBJEXT) \
-	gfr.$(OBJEXT) gfrcross.$(OBJEXT) gfrcs1.$(OBJEXT) \
-	gfrcs3.$(OBJEXT) gfrcs7.$(OBJEXT) gfrcsurr.$(OBJEXT) \
-	gfrenergy.$(OBJEXT) gfrformula.$(OBJEXT) gfrlegcoef.$(OBJEXT) \
-	masstable.$(OBJEXT) matrix.$(OBJEXT) polycalc.$(OBJEXT) \
-	polysq.$(OBJEXT)
+	decetable33.$(OBJEXT) decetable34.$(OBJEXT) \
+	decetable4.$(OBJEXT) decetable5.$(OBJEXT) decetable6.$(OBJEXT) \
+	decetable8.$(OBJEXT) decetable9.$(OBJEXT) endfio.$(OBJEXT) \
+	endflib.$(OBJEXT) gfr.$(OBJEXT) gfrcross.$(OBJEXT) \
+	gfrcs1.$(OBJEXT) gfrcs3.$(OBJEXT) gfrcs7.$(OBJEXT) \
+	gfrcsurr.$(OBJEXT) gfrenergy.$(OBJEXT) gfrformula.$(OBJEXT) \
+	gfrlegcoef.$(OBJEXT) masstable.$(OBJEXT) matrix.$(OBJEXT) \
+	polycalc.$(OBJEXT) polysq.$(OBJEXT)
 dece_OBJECTS = $(am_dece_OBJECTS)
 dece_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -302,6 +302,7 @@ dece_SOURCES = \
 	decetable2.cpp \
 	decetable3.cpp \
 	decetable33.cpp \
+	decetable34.cpp \
 	decetable4.cpp \
 	decetable5.cpp \
 	decetable6.cpp \
@@ -451,6 +452,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable33.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable34.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable4.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable5.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable6.Po@am__quote@

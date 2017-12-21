@@ -18,7 +18,7 @@ using namespace std;
 /**********************************************************/
 void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const int mt, const int d)
 {
-  if( (mf <= 5) || (mf == 8) || (mf == 10) || (mf == 12) || (mf == 13) || (mf == 14) || (mf == 15) || (mf == 31) || (mf == 33) ){
+  if( (mf <= 5) || (mf == 8) || (mf == 10) || (mf == 12) || (mf == 13) || (mf == 14) || (mf == 15) || (mf == 31) || (mf == 33) || (mf == 34)){
     int k = dict->getID(mf,mt);
 
     /*** if already in memory */
@@ -45,7 +45,7 @@ void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const in
 void DeceFileToTable(ifstream *fp, const int mf, const int mt, const int d)
 {
   /*** more sections to be added */
-  if( (1<= mf && mf<=10) || mf==12 || mf==13 || mf==14 || mf == 15 || mf==31 || mf==33){
+  if( (1<= mf && mf<=10) || mf==12 || mf==13 || mf==14 || mf == 15 || mf==31 || mf==33 || mf==34){
     ENDF lib(L);
     ENDF sup(M);
     int  c = 0;
@@ -67,6 +67,7 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt, const int d)
     case 15: c = ENDFReadMF15(fp,&lib,mt);  break;
     case 31: c = ENDFReadMF31(fp,&lib,mt);  break;
     case 33: c = ENDFReadMF33(fp,&lib,mt);  break;
+    case 34: c = ENDFReadMF34(fp,&lib,mt);  break;
     default:                                break;
     }
 
@@ -150,6 +151,7 @@ void DeceLibToTable(ENDF *lib, ENDF *sup, int d)
   case 15: DeceTableMF15(lib);    break;
   case 31:
   case 33: DeceTableMF33(lib);    break;
+  case 34: DeceTableMF34(lib);    break;
   default:                        break;
   }
 }

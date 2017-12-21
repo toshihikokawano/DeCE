@@ -23,6 +23,7 @@ dece_SOURCES = \
 	decetable2.cpp \
 	decetable3.cpp \
 	decetable33.cpp \
+	decetable34.cpp \
 	decetable4.cpp \
 	decetable5.cpp \
 	decetable6.cpp \
