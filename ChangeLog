@@ -1,3 +1,11 @@
+2017-12-24  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable34.cpp: new file
+	tabulate angular distribution covariance
+
+	* source/deceqvalue.cpp: new file
+	modify Qvalue
+
 2017-12-19  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/endfio.cpp (ENDFReadMF8): bug fixed
