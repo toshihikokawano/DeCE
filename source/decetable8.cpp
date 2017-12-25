@@ -143,17 +143,25 @@ void DeceTableMF8MT457(ENDF *lib)
       for(int k=0 ; k<ner ; k++){
         outVal(lib->rdata[idx].c1);  outVal(lib->rdata[idx].c2); cout << "   discrete energy [eV]" << endl;
 
-        cout << "# RTYP          TYPE          RI            RIS           RICC          RICK          RICL" << endl;
+        cout << "# RTYP          TYPE          RI            RIS";
+        if(styp == 0.0) cout << "          RICC          RICK          RICL";
+        cout << endl;
 
         outVal(lib->xptr[idx][ 0]); outVal(lib->xptr[idx][ 1]);
         outVal(lib->xptr[idx][ 2]); outVal(lib->xptr[idx][ 4]);
-        outVal(lib->xptr[idx][ 6]); outVal(lib->xptr[idx][ 8]); outVal(lib->xptr[idx][10]); cout << endl;
+        if(styp == 0.0){
+          outVal(lib->xptr[idx][ 6]); outVal(lib->xptr[idx][ 8]); outVal(lib->xptr[idx][10]);
+        }
+        cout << endl;
+
         cout <<"                            ";
         outVal(lib->xptr[idx][ 3]); outVal(lib->xptr[idx][ 5]);
-        outVal(lib->xptr[idx][ 7]); outVal(lib->xptr[idx][ 9]); outVal(lib->xptr[idx][11]); cout << endl;
-
-        idx++;
+        if(styp == 0.0){
+          outVal(lib->xptr[idx][ 7]); outVal(lib->xptr[idx][ 9]); outVal(lib->xptr[idx][11]);
+        }
         cout << endl;
+        cout << endl;
+        idx++;
       }
     }
 
@@ -162,6 +170,7 @@ void DeceTableMF8MT457(ENDF *lib)
       cout << "#         RTYP"; outVal(lib->rdata[idx].c1); cout << "  decay mode" << endl;
       cout << "#         LCOV" << setw(14) << lcov << "  covariance data flag" << endl;
       ENDFPrint1Dim(lib,idx);
+      idx++;
     }
   }
 }

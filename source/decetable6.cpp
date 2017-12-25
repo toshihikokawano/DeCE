@@ -241,7 +241,7 @@ int DeceTableMF6Law7(ENDF *lib6, int idx)
 
       double mu  = lib6->rdata[idx].c2;
       int    nrp = lib6->rdata[idx].n1;
-      int    nep = lib6->rdata[idx].n2; idx++;
+      int    nep = lib6->rdata[idx].n2;
 
       cout << "#          NRP" << setw(14) << nrp << "  NR for secondary energy" << endl;
       cout << "#          NEP" << setw(14) << nep << "  number of secondary energy points" << endl;
@@ -253,6 +253,7 @@ int DeceTableMF6Law7(ENDF *lib6, int idx)
         cout << endl;
       }
       cout << endl;
+      idx++;
     }
     cout << endl;
     cout << endl;

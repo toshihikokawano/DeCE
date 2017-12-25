@@ -15,6 +15,7 @@ using namespace std;
 static int DeceTableMF2RRR(ENDF *, int, int);
 static int DeceTableMF2RR7(ENDF *, int);
 static int DeceTableMF2URR(ENDF *, int);
+static int DeceTableMF2AP(ENDF *, int);
 
 
 /**********************************************************/
@@ -47,6 +48,8 @@ void DeceTableMF2(ENDF *lib)
     cout << "#          NRO" << setw(14) << nro  << "  energy dependent scattering radius" << endl;
     cout << "#         NAPS" << setw(14) << naps << "  scattering radius control" << endl;
 
+    if(nro == 1) idx = DeceTableMF2AP(lib,idx);
+
     /*** Resolved Resonance Region */
     if(lru == 1){
       if(lrf <= 3){
@@ -59,7 +62,6 @@ void DeceTableMF2(ENDF *lib)
         cout << "#           AP"; outVal(ap); cout << "  scattering radius" << endl;
         cout << "#          NLS" << setw(14) << nls << "  number of L-values" << endl;
 
-        if(nro != 0) idx++;
         for(int inls=0 ; inls<nls ; inls++){
           cout << "# L       " << setw(4) << inls << endl;
           idx = DeceTableMF2RRR(lib,lrf,idx);
@@ -273,3 +275,19 @@ int DeceTableMF2URR(ENDF *lib, int idx)
   }
   return(idx);
 }
+
+
+/**********************************************************/
+/*      Energy-Dependent Scattering Radius, AP            */
+/**********************************************************/
+int DeceTableMF2AP(ENDF *lib, int idx)
+{
+  cout << endl;
+  cout << "# Energy-dependent AP" << endl;
+  ENDFPrint1Dim(lib,idx);
+  idx++;
+
+  return(idx);
+}
+
+

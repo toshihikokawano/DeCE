@@ -22,6 +22,7 @@ void   DeceTableMF13     (ENDF *);
 void   DeceTableMF14     (ENDF *);
 void   DeceTableMF15     (ENDF *);
 void   DeceTableMF33     (ENDF *);
+void   DeceTableMF34     (ENDF *);
 
 static inline void outVal(int x)
 { cout << setw(10) << x << "    "; }
