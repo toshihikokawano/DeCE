@@ -11,6 +11,7 @@
 /stamp-h1
 /source/dece.dSYM
 /source/Makefile
+/source/Makefile.in
 /source/dece
 /tools/decemacs
 /tools/decemf12
@@ -19,5 +20,5 @@
 /tools/decemf6
 /example/example1
 /example/example2
-
+/tmp
 

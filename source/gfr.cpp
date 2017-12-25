@@ -36,12 +36,11 @@ void gfrScanThermal(ifstream *fp, ENDFDict *dict)
   if(dict->isFission()) cout <<"   Fission[b]";
   cout << endl;
 
-  cout << setprecision(6);
-  cout << setw(13) << eth;
-  cout << setw(13) << crs.total;
-  cout << setw(13) << crs.elastic;
-  cout << setw(13) << crs.capture;
-  if(dict->isFission()) cout << setw(13) << crs.fission;
+  cout << setw(14) << setprecision(7) << eth;
+  cout << setw(14) << setprecision(6) << crs.total;
+  cout << setw(14) << crs.elastic;
+  cout << setw(14) << crs.capture;
+  if(dict->isFission()) cout << setw(14) << crs.fission;
   cout << endl;
 }
 
@@ -108,8 +107,8 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
 
-  cout <<"# Energy[eV]  Total[b]     Elastic[b]   Capture[b]   Other[b]";
-  if(dict->isFission()) cout <<"   Fission[b]";
+  cout <<"# Energy[eV]   Total[b]      Elastic[b]    Capture[b]    Other[b]";
+  if(dict->isFission()) cout <<"    Fission[b]";
   cout << endl;
 
   cout.setf(ios::scientific, ios::floatfield);
@@ -129,12 +128,12 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
       crs = crs + cbg;
 
-      cout << setw(13) << elab[i];
-      cout << setw(13) << crs.total;
-      cout << setw(13) << crs.elastic;
-      cout << setw(13) << crs.capture;
-      cout << setw(13) << crs.other;
-      if(dict->isFission()) cout << setw(13) << crs.fission;
+      cout << setw(14) << setprecision(7) << elab[i];
+      cout << setw(14) << setprecision(6) << crs.total;
+      cout << setw(14) << crs.elastic;
+      cout << setw(14) << crs.capture;
+      cout << setw(14) << crs.other;
+      if(dict->isFission()) cout << setw(14) << crs.fission;
       cout << endl;
     }
 
@@ -145,12 +144,12 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       /*** unresolved resonance cross sections */
       crs = gfrCrossSection(2,elab[i],&sys,lib[kres]);
 
-      cout << setw(13) << elab[i];
-      cout << setw(13) << crs.total;
-      cout << setw(13) << crs.elastic;
-      cout << setw(13) << crs.capture;
-      cout << setw(13) << crs.other;
-      if(dict->isFission()) cout << setw(13) << crs.fission;
+      cout << setw(14) << setprecision(7) << elab[i];
+      cout << setw(14) << setprecision(6) << crs.total;
+      cout << setw(14) << crs.elastic;
+      cout << setw(14) << crs.capture;
+      cout << setw(14) << crs.other;
+      if(dict->isFission()) cout << setw(14) << crs.fission;
       cout << endl;
     }
   }
@@ -168,12 +167,12 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
         crs = crs + cbg;
       }
 
-      cout << setw(13) << elab[i];
-      cout << setw(13) << crs.total;
-      cout << setw(13) << crs.elastic;
-      cout << setw(13) << crs.capture;
-      cout << setw(13) << crs.other;
-      if(dict->isFission()) cout << setw(13) << crs.fission;
+      cout << setw(14) << setprecision(7) << elab[i];
+      cout << setw(14) << setprecision(6) << crs.total;
+      cout << setw(14) << crs.elastic;
+      cout << setw(14) << crs.capture;
+      cout << setw(14) << crs.other;
+      if(dict->isFission()) cout << setw(14) << crs.fission;
       cout << endl;
     }
   }

@@ -226,6 +226,12 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
       DeceChangeQvalue(dict,lib,cmd.mt,cmd.x,cmd.y);
     }
 
+    /*** CHECHKTHRESHOLD: check Q-vales and threshold energies in MF3 */
+    else if(ope == "checkthreshold" || "fixthreshold"){
+      bool fix = (ope == "fixthreshold") ? true : false;
+      DeceCheckEnergy(dict,lib,fix);
+    }
+
     /*** FIXAWR: fix AWR in at the top of the file */
     else if(ope == "fixawr"){
       DeceFixAWR(dict);

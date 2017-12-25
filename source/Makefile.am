@@ -12,6 +12,7 @@ dece_SOURCES = \
 	deceoutput.cpp \
 	decepoint.cpp \
 	deceprocpoint.cpp \
+	deceqvalue.cpp \
 	deceread.cpp \
 	decetable.cpp \
 	decetable1.cpp \

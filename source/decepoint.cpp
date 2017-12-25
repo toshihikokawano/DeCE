@@ -249,17 +249,3 @@ void DeceChangeInt(ENDFDict *dict, ENDF *lib[], const int mt, int range, int poi
   lib[k]->idata[(range-1)*2+1] = intlaw;
 }
 
-
-/**********************************************************/
-/*      Change Q-values in MF3                            */
-/**********************************************************/
-void DeceChangeQvalue(ENDFDict *dict, ENDF *lib[], const int mt, double qm, double qi)
-{
-  int k = dict->getID(3,mt);
-
-  if(k<0) TerminateCode("MT number not found",mt);
-
-  lib[k]->rdata[0].c1 = qm;
-  lib[k]->rdata[0].c2 = qi;
-}
-
