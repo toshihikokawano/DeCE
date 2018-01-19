@@ -654,7 +654,10 @@ void ENDFPrintRight(int mat, int mf, int mt)
 {
   cout << right;
   cout << setw(4) <<mat << setw(2) <<mf << setw(3) << mt;
-  cout << setw(5) << seqno << endl;
+#ifdef LINE_NUMBER
+  cout << setw(5) << seqno;
+#endif
+  cout << endl;
   if(seqno == 99999) seqno = 0;
   else seqno++;
 }

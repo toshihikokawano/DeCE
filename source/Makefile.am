@@ -29,6 +29,7 @@ dece_SOURCES = \
 	decetable6.cpp \
 	decetable8.cpp \
 	decetable9.cpp \
+	deceqvalue.cpp \
 	endfio.cpp \
 	endflib.cpp \
 	gfr.cpp \

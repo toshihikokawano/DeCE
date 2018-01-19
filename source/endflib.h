@@ -21,6 +21,8 @@
 #define FIELD_WIDTH            11
 #define COLUMN_NUM              6
 
+#undef LINE_NUMBER
+
 enum dataSize{S =0, M =1, L  =2};
 typedef enum dataSize DataSize;
 
