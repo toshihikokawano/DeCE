@@ -43,8 +43,8 @@ void DeceTableMF33(ENDF *lib)
         cout << "# Emin: " << e1 << "  Emax: " << e2 << "  NCI: " << nci << endl;
         cout << "# MT            Const"<< endl;
         for(int j=0; j<nci ; j++){
-          outVal(lib->xptr[idx][2*j+1]);
-          outVal(lib->xptr[idx][2*j  ]);
+          outVal((int)lib->xptr[idx][2*j+1]);
+          outVal((int)lib->xptr[idx][2*j  ]);
           cout << endl;
         }
       }
@@ -61,11 +61,11 @@ void DeceTableMF33(ENDF *lib)
       cout << "# LT: " << lt << " LB: " << lb << " NT: " << nt << " NP: " << np << endl;
       if(lb == 1 || lb == 2){
         for(int i=0; i<np-1; i++){
-          outVal(         lib->xptr[idx][2*i  ]*1e-6);
-          outVal(sqrt(abs(lib->xptr[idx][2*i+1]   )));
+          outVal(         lib->xptr[idx][2*i  ]  );
+          outVal(sqrt(abs(lib->xptr[idx][2*i+1])));
           cout << endl;
         }
-        outVal(lib->xptr[idx][2*(np-1)]*1e-6);
+        outVal(lib->xptr[idx][2*(np-1)]);
         outVal(0.0);
         cout << endl;
       }
@@ -78,7 +78,7 @@ void DeceTableMF33(ENDF *lib)
         for(int i=0; i<np-1; i++){
           int ki = i+i*(np-1)-i*(i+1)/2;
 
-          outVal(eptr[i]*1e-6);
+          outVal(eptr[i]);
           outVal(sqrt(cptr[ki]));
 
           for(int j=0; j<=i; j++){
@@ -92,7 +92,7 @@ void DeceTableMF33(ENDF *lib)
           }
           cout << endl;
         }
-        outVal(eptr[np-1]*1e-6);
+        outVal(eptr[np-1]);
         outVal(0.0);
         cout << endl;
       }
