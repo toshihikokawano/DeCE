@@ -1,3 +1,8 @@
+2018-05-02  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/endfio.cpp (ENDFReadMF2): bug fixed
+	URR for LFW=0 and LRF=1 case
+
 2018-01-18  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/decetable33.cpp (DeceTableMF33): modified

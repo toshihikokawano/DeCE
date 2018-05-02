@@ -208,7 +208,11 @@ int ENDFReadMF2(ifstream *fp, ENDF *lib)
         if(lfw == 0){
           cont = ENDFReadCONT(fp,lib);
           int nls  = cont.n1;
-          for(int inls=0 ; inls<nls ; inls++) ENDFReadLIST(fp,lib);
+          for(int inls=0 ; inls<nls ; inls++){
+            cont = ENDFReadCONT(fp,lib);
+            int njs  = cont.n2;
+            for(int injs=0 ; injs<njs ; injs++) ENDFReadLIST(fp,lib);
+          }
         }
         else{
           cont = ENDFReadLIST(fp,lib);

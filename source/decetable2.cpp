@@ -14,7 +14,9 @@ using namespace std;
 
 static int DeceTableMF2RRR(ENDF *, int, int);
 static int DeceTableMF2RR7(ENDF *, int);
-static int DeceTableMF2URR(ENDF *, int);
+static int DeceTableMF2URA(ENDF *, int);
+static int DeceTableMF2URB(ENDF *, int);
+static int DeceTableMF2URC(ENDF *, int);
 static int DeceTableMF2AP(ENDF *, int);
 
 
@@ -44,7 +46,13 @@ void DeceTableMF2(ENDF *lib)
     cout << "#           EL"; outVal(el); cout << "  lower limit of this energy range" << endl;
     cout << "#           EH"; outVal(eh); cout << "  upper limit" << endl;
     cout << "#          LRU" << setw(14) << lru  << "  0:scattering radius only, 1:RRR, 2:URR" << endl;
-    cout << "#          LRF" << setw(14) << lrf  << "  1:SLBW, 2:MLBW, 3:RM, 4:AA, 7:R-Matrix" << endl;
+
+    if(lru == 1){
+      cout << "#          LRF" << setw(14) << lrf  << "  1:SLBW, 2:MLBW, 3:RM, 4:AA, 7:R-Matrix" << endl;
+    }else{
+      cout << "#          LRF" << setw(14) << lrf  << "  1:energy independent widths exept for fission, 2: energy dependent widths" << endl;
+    }
+
     cout << "#          NRO" << setw(14) << nro  << "  energy dependent scattering radius" << endl;
     cout << "#         NAPS" << setw(14) << naps << "  scattering radius control" << endl;
 
@@ -74,25 +82,23 @@ void DeceTableMF2(ENDF *lib)
 
     /*** Unresolved Resonance Region */
     else if(lru == 2){
-      cont = lib->rdata[idx++];
+      cont = lib->rdata[idx];
       double spi  = cont.c1;
       double ap   = cont.c2;
       int    lssf = cont.l1;
-      int    nls  = cont.n1;
 
       cout << "#          SPI"; outVal(spi); cout << "  target spin" << endl;
       cout << "#           AP"; outVal(ap); cout << "  scattering radius" << endl;
-      cout << "#          NLS" << setw(14) << nls << "  number of L-values" << endl;
       cout << "#         LSSF" << setw(14) << lssf << "  FILE2 used for self-shielding only" << endl;
 
-      if(lrf != 2){
-        WarningMessage("LRF=0,1 cannot be processed");
-        return;
+      if(lrf == 1){
+        // Case A, not tested
+        if(lfw == 0) idx = DeceTableMF2URA(lib,idx);
+        // Case B
+        else         idx = DeceTableMF2URB(lib,idx);
       }
-      for(int inls=0 ; inls<nls ; inls++){
-        cout << "# L       " << setw(4) << inls << endl;
-        idx = DeceTableMF2URR(lib,idx);
-      }
+      // Case C
+      else if(lrf == 2) idx = DeceTableMF2URC(lib,idx);
     }
     else WarningMessage("this resonance parameters cannot be processed");
   }
@@ -231,47 +237,144 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
 /**********************************************************/
 /*      Unresolved Resonance Range                        */
 /**********************************************************/
-int DeceTableMF2URR(ENDF *lib, int idx)
+int DeceTableMF2URA(ENDF *lib, int idx)
 {
   Record cont = lib->rdata[idx];
-  int njs = cont.n1;
-  idx++;
 
-  cout << "#          NJS" << setw(14) << njs << "  number of J-values"<< endl;
+  int nls = cont.n1;
+  cout << "#          NLS" << setw(14) << nls << "  number of L-values" << endl;
+  idx++; 
 
-  for(int injs=0 ; injs<njs ; injs++){
-    cont = lib->rdata[idx];
-    double aj   = cont.c1;
-    int    ne   = cont.n2;
+  for(int inls=0 ; inls<nls ; inls++){
+    cout << "# L       " << setw(4) << inls << endl;
 
-    cout << "# J       "; outVal(4,1,aj); cout << endl;
-    cout << "#           NE" << setw(14) << ne-1 << "  nubmber of energy points" << endl;
-    cout << "# Deg. Freedom  other         neutron       gamma"<<endl;
-    outVal(lib->xptr[idx][0]);
-    outVal(lib->xptr[idx][1]);
-    outVal(lib->xptr[idx][2]);
-    outVal(lib->xptr[idx][3]);
-    outVal(lib->xptr[idx][4]);
-    outVal(lib->xptr[idx][5]);
-    cout << endl;
+    cont = lib->rdata[idx++];
+    int njs = cont.n2;
 
-    cout << "# E             D             G(other)      G(neutron)";
-    cout << "    G(gamma)      G(fission)" << endl;
+    cout << "#          NJS" << setw(14) << njs << "  number of J-values"<< endl;
 
-    for(int i=1 ; i<=ne ; i++){
-      int j = 6*i;
-      outVal(lib->xptr[idx][j  ]);
-      outVal(lib->xptr[idx][j+1]);
-      outVal(lib->xptr[idx][j+2]);
-      outVal(lib->xptr[idx][j+3]);
-      outVal(lib->xptr[idx][j+4]);
-      outVal(lib->xptr[idx][j+5]);
+    for(int injs=0 ; injs<njs ; injs++){
+      cont = lib->rdata[idx];
+
+      cout << "# J            D             Deg.Free(n)   G(neutron)    G(gamma)" << endl;
+      outVal(lib->xptr[idx][1]);
+      outVal(lib->xptr[idx][0]);
+      outVal(lib->xptr[idx][2]);
+      outVal(lib->xptr[idx][3]);
+      outVal(lib->xptr[idx][4]);
+      cout << endl;
+
+      cout << endl;
+      cout << endl;
+
+      idx++;
+    }
+  }
+
+  return(idx);
+}
+
+
+int DeceTableMF2URB(ENDF *lib, int idx)
+{
+  Record cont = lib->rdata[idx];
+
+  int ne  = cont.n1;
+  int nls = cont.n2;
+  cout << "#          NLS" << setw(14) << nls << "  number of L-values" << endl;
+  cout << "#           NE" << setw(14) << ne  << "  number of energy points" << endl;
+
+  int m = idx; // index for the energy array
+
+  idx++; 
+
+  for(int inls=0 ; inls<nls ; inls++){
+    cout << "# L       " << setw(4) << inls << endl;
+
+    cont = lib->rdata[idx++];
+    int njs = cont.n1;
+
+    cout << "#          NJS" << setw(14) << njs << "  number of J-values"<< endl;
+
+    for(int injs=0 ; injs<njs ; injs++){
+      cont = lib->rdata[idx];
+      double muf = (double)cont.l2;
+
+      cout << "# J            D             Deg.Free(n)   Deg.Free(f)   G(neutron)    G(gamma)" << endl;
+      outVal(lib->xptr[idx][1]);
+      outVal(lib->xptr[idx][0]);
+      outVal(lib->xptr[idx][2]);
+      outVal(muf);
+      outVal(lib->xptr[idx][3]);
+      outVal(lib->xptr[idx][4]);
+      cout << endl;
+
+      cout << "# E            G(fission)" << endl;
+      for(int i=0 ; i<ne ; i++){
+        outVal(lib->xptr[m][i]);
+        outVal(lib->xptr[idx][i+6]);
+        cout << endl;
+      }
+
+      cout << endl;
+      cout << endl;
+
+      idx++;
+    }
+  }
+
+  return(idx);
+}
+
+
+int DeceTableMF2URC(ENDF *lib, int idx)
+{
+  Record cont = lib->rdata[idx++];
+  int nls = cont.n1;
+  cout << "#          NLS" << setw(14) << nls << "  number of L-values" << endl;
+
+  for(int inls=0 ; inls<nls ; inls++){
+    cout << "# L       " << setw(4) << inls << endl;
+
+    cont = lib->rdata[idx++];
+    int njs = cont.n1;
+
+    cout << "#          NJS" << setw(14) << njs << "  number of J-values"<< endl;
+
+    for(int injs=0 ; injs<njs ; injs++){
+      cont = lib->rdata[idx];
+      double aj   = cont.c1;
+      int    ne   = cont.n2;
+
+      cout << "# J       "; outVal(4,1,aj); cout << endl;
+      cout << "#           NE" << setw(14) << ne-1 << "  nubmber of energy points" << endl;
+      cout << "# Deg. Freedom  other         neutron       gamma"<<endl;
+      outVal(lib->xptr[idx][0]);
+      outVal(lib->xptr[idx][1]);
+      outVal(lib->xptr[idx][2]);
+      outVal(lib->xptr[idx][3]);
+      outVal(lib->xptr[idx][4]);
+      outVal(lib->xptr[idx][5]);
+      cout << endl;
+
+      cout << "# E             D             G(other)      G(neutron)";
+      cout << "    G(gamma)      G(fission)" << endl;
+
+      for(int i=1 ; i<=ne ; i++){
+        int j = 6*i;
+        outVal(lib->xptr[idx][j  ]);
+        outVal(lib->xptr[idx][j+1]);
+        outVal(lib->xptr[idx][j+2]);
+        outVal(lib->xptr[idx][j+3]);
+        outVal(lib->xptr[idx][j+4]);
+        outVal(lib->xptr[idx][j+5]);
+        cout << endl;
+      }
+      idx ++;
+
+      cout << endl;
       cout << endl;
     }
-    idx ++;
-
-    cout << endl;
-    cout << endl;
   }
   return(idx);
 }
