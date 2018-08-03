@@ -8,11 +8,9 @@
 /config.log
 /config.status
 /Makefile
-/Makefile.in
 /stamp-h1
 /source/dece.dSYM
 /source/Makefile
-/source/Makefile.in
 /source/dece
 /tools/decemacs
 /tools/decemf12
