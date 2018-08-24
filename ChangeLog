@@ -1,3 +1,7 @@
+2018-08-24  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/dece.cpp (DeceMain): 
+
 2018-05-02  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/endfio.cpp (ENDFReadMF2): bug fixed

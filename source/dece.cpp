@@ -131,7 +131,7 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
     ope = CmdExtractArgument();
 
     /*** END: terminate code */
-    if(ope == "end" || ope == "quit" || ope == "exit") break;
+    if( (ope == "end") || (ope == "quit") || (ope == "exit") ) break;
 
     /*** CALC: manipulate TAB1 record */
     else if(ope == "calc"){
@@ -196,13 +196,13 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
     }
 
     /*** FACTOR, NORMALIZE: multiply by a factor */
-    else if(ope == "factor" || ope == "normalize"){
+    else if( (ope == "factor") || (ope == "normalize") ){
       DeceCheckMT(cmd.mt);
       DeceFactor(dict,lib,cmd.mf,cmd.mt,cmd.x,cmd.y,cmd.xmin,cmd.xmax);
     }
 
     /*** FUNC1, FUNC2: multiply by a factor that is calculated with a function */
-    else if(ope == "applyfunc1" || ope == "applyfunc2" || ope == "applyfunc3"){
+    else if( (ope == "applyfunc1") || (ope == "applyfunc2") || (ope == "applyfunc3") ){
       DeceCheckMT(cmd.mt);
       DeceApplyFunc(dict,lib,cmd.mf,cmd.mt,cmd.opt1,cmd.x,cmd.y,cmd.xmin);
     }
@@ -227,7 +227,7 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
     }
 
     /*** CHECHKTHRESHOLD: check Q-vales and threshold energies in MF3 */
-    else if(ope == "checkthreshold" || "fixthreshold"){
+    else if( (ope == "checkthreshold") || (ope == "fixthreshold") ){
       bool fix = (ope == "fixthreshold") ? true : false;
       DeceCheckEnergy(dict,lib,fix);
     }
