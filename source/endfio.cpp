@@ -205,16 +205,12 @@ int ENDFReadMF2(ifstream *fp, ENDF *lib)
     else if(lru == 2){
       /*** all URR parameters are energy independent */
       if(lrf == 1){
-        if(lfw == 0){
+        if(lfw == 0){ // Case A
           cont = ENDFReadCONT(fp,lib);
           int nls  = cont.n1;
-          for(int inls=0 ; inls<nls ; inls++){
-            cont = ENDFReadCONT(fp,lib);
-            int njs  = cont.n2;
-            for(int injs=0 ; injs<njs ; injs++) ENDFReadLIST(fp,lib);
-          }
+          for(int inls=0 ; inls<nls ; inls++) ENDFReadLIST(fp,lib);
         }
-        else{
+        else{ // case B
           cont = ENDFReadLIST(fp,lib);
           int nls  = cont.n2;
           for(int inls=0 ; inls<nls ; inls++){
@@ -225,7 +221,7 @@ int ENDFReadMF2(ifstream *fp, ENDF *lib)
         }
       }
       /*** all URR parameters given */
-      if(lrf == 2){
+      if(lrf == 2){ // case C
         cont = ENDFReadCONT(fp,lib);
         int nls  = cont.n1;
         for(int inls=0 ; inls<nls ; inls++){

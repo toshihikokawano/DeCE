@@ -248,27 +248,25 @@ int DeceTableMF2URA(ENDF *lib, int idx)
   for(int inls=0 ; inls<nls ; inls++){
     cout << "# L       " << setw(4) << inls << endl;
 
-    cont = lib->rdata[idx++];
+    cont = lib->rdata[idx];
     int njs = cont.n2;
 
     cout << "#          NJS" << setw(14) << njs << "  number of J-values"<< endl;
 
     for(int injs=0 ; injs<njs ; injs++){
-      cont = lib->rdata[idx];
 
       cout << "# J            D             Deg.Free(n)   G(neutron)    G(gamma)" << endl;
-      outVal(lib->xptr[idx][1]);
-      outVal(lib->xptr[idx][0]);
-      outVal(lib->xptr[idx][2]);
-      outVal(lib->xptr[idx][3]);
-      outVal(lib->xptr[idx][4]);
+      outVal(lib->xptr[idx][injs*6 + 1]);
+      outVal(lib->xptr[idx][injs*6    ]);
+      outVal(lib->xptr[idx][injs*6 + 2]);
+      outVal(lib->xptr[idx][injs*6 + 3]);
+      outVal(lib->xptr[idx][injs*6 + 4]);
       cout << endl;
 
       cout << endl;
       cout << endl;
-
-      idx++;
     }
+    idx++;
   }
 
   return(idx);

@@ -1,3 +1,9 @@
+2018-10-25  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/decetable2.cpp (DeceTableMF2URA): bug fixed
+	* source/endfio.cpp (ENDFReadMF2): bug fixed
+	URR for LFW=0 and LRF=1 case A again, tested for ENDF/B-VIII Fe58
+
 2018-08-24  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/dece.cpp (DeceMain): 
