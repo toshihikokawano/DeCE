@@ -3,8 +3,9 @@ CPPFLAGS	= -g -Wall -O4 -Wextra
 CPP		= g++
 RM      	= rm
 LIBOBJS		= endflib.o endfio.o
-PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf12.o decemacs.o deceangdist.o
-PROG		= decemf4 decemf5 decemf6 decemf12 decemacs deceangdist
+
+PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf12.o decemacs.o decephoto.o deceangdist.o
+PROG		= decemf4 decemf5 decemf6 decemf12 decemacs decephoto deceangdist
 
 all:		$(PROG)
 
@@ -26,6 +27,9 @@ decemacs:	$(LIBOBJS) decemacs.o
 deceangdist:	$(LIBOBJS) deceangdist.o
 		$(CPP) deceangdist.o $(LIBOBJS) $(LDFLAGS) -o deceangdist
 
+decephoto:	$(LIBOBJS) decephoto.o
+		$(CPP) decephoto.o $(LIBOBJS) $(LDFLAGS) -o decephoto
+
 clean:
 		$(RM) -f $(LIBOBJS) $(PRGOBJS) $(PROG)
 
@@ -35,6 +39,7 @@ decemf6.o:	../source/endflib.h
 decemf12.o:	../source/endflib.h
 decemacs.o:	../source/endflib.h
 deceangdist.o:	../source/endflib.h
+decephoto.o:	../source/endflib.h
 endflib.o:	../source/endflib.cpp ../source/endflib.h
 		$(CPP) $(CPPFLAGS) ../source/endflib.cpp -c
 endfio.o:	../source/endfio.cpp ../source/endflib.h

@@ -1,7 +1,13 @@
+<<<<<<< HEAD
 2019-01-28  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* tools/deceangdist.cpp: new file
 	tool to produce elastic angular distribution from file
+
+2018-12-09  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/decephoto.cpp: new file
+	new tool to produced photo-reaction cross section added
 
 2018-10-25  Toshihiko Kawano  <kawano@lanl.gov>
 
