@@ -71,7 +71,7 @@ int decetable4LEG(ENDF *lib, int da, int idx)
     double e  = lib->rdata[idx].c2;
     int    nl = lib->rdata[idx].n1;
 
-    if(da>0){
+    if(da > 0){
       int np = 180/da;
       if( (180%da) == 0 ) np++;
       cout << "#           NP" << setw(14) << np << endl;

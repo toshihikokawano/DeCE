@@ -15,7 +15,7 @@ using namespace std;
 
 int main(int, char *[]);
 
-static const int NEIN   = 10000; // number of incodent energies
+static const int NEIN   = 10000; // number of incident energies
 static const int LMAX   =     4; // max order of Legendre coefficients
 static const int WFIELD =    13; // data field width
 /*
