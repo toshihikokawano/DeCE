@@ -1132,7 +1132,7 @@ void ENDFPrint1Dim(ENDF *lib, const int idx)
       cout << endl;
     }
     i = lib->idata[2*ir]-1;
-    if(ir<nr-1){
+    if(ir < nr-1){
       cout << endl;
       cout << endl;
     }

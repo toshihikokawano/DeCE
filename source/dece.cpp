@@ -207,6 +207,15 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
       DeceApplyFunc(dict,lib,cmd.mf,cmd.mt,cmd.opt1,cmd.x,cmd.y,cmd.xmin);
     }
 
+    /*** READJUST: rescale individual sections in MF3 by the summed section */
+    else if(ope == "readjust"){
+      DeceCheckMT(cmd.mt);
+      int mtmp = 99;  // use MT = 99 as a temporal section
+      DeceCreateLib(dict,3,mtmp);
+      DeceReadjust(dict,lib,cmd.mt,mtmp);
+      DeceDelete(dict,3,mtmp);
+    }
+
     /*** DELETE: delete section */
     else if( (ope == "delete") || (ope == "multidelete") ){
       for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
@@ -408,7 +417,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
   DeceCheckMT(mt);
 
   /*** if already exists */
-  if( dict->getID(mf,mt)>=0 ) return;
+  if( dict->getID(mf,mt) >= 0 ) return;
 
   try{
     if(mf >= 900){

@@ -20,22 +20,22 @@ static void delpoint(ENDF *, const double);
 /**********************************************************/
 void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x, double y, string op)
 {
-  if(mf!=3) return;
+  if(mf != 3) return;
 
   int k0 = dict->getID(3,mt);
 
-  if(k0<0) TerminateCode("MT number not found",mt);
+  if(k0 < 0) TerminateCode("MT number not found",mt);
 
   Record r  = lib[k0]->rdata[0];
   int    np = r.n2;
 
   /*** insert one point */
-  if(op=="addpoint"){
+  if(op == "addpoint"){
     addpoint(lib[k0],x,y);
   }
 
   /*** remove one point */
-  else if(op=="delpoint"){
+  else if(op == "delpoint"){
 
     if(x < y){
       /*** when range of delete given */
@@ -57,7 +57,7 @@ void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x
   np = r.n2;
 
   int nc = np/3 + 4;
-  if(np%3==0 && np!=0) nc--;
+  if(np%3 == 0 && np != 0) nc--;
   dict->nc[k0] = nc;
 
   //  ENDFWriteHEAD(lib[k0]);
@@ -158,14 +158,14 @@ void delpoint(ENDF *lib, const double x)
 void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
                 double x, double y, double xmin, double xmax)
 {
-  if(mf!=3) return;
+  if(mf != 3) return;
 
   int k0 = dict->getID(3,mt);
-  if(k0<0) TerminateCode("MT number not found",mt);
+  if(k0 < 0) TerminateCode("MT number not found",mt);
 
   double f  = 0.0;
   /*** all Y data are multiplied by a factor */
-  if(x==0.0){
+  if(x == 0.0){
     f = y;
   }
   /*** renormalize all Y data at given (x,y) */
@@ -194,17 +194,18 @@ void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
   //  ENDFWriteSEND(lib[k0]);
 }
 
+
 /**********************************************************/
 /*      TAB1 Data Multiplied by a Function                */
 /**********************************************************/
 void DeceApplyFunc(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
                    int kind, double p1, double p2, double p3)
 {
-  if(p3==0) TerminateCode("P3 Parameter zero");
-  if(mf!=3) return;
+  if(p3 == 0) TerminateCode("P3 Parameter zero");
+  if(mf != 3) return;
 
   int k0 = dict->getID(3,mt);
-  if(k0<0) TerminateCode("MT number not found",mt);
+  if(k0 < 0) TerminateCode("MT number not found",mt);
 
   Record r  = lib[k0]->rdata[0];
   int    np = r.n2;
@@ -232,7 +233,7 @@ void DeceChangeInt(ENDFDict *dict, ENDF *lib[], const int mt, int range, int poi
 {
   int k = dict->getID(3,mt);
 
-  if(k<0) TerminateCode("MT number not found",mt);
+  if(k < 0) TerminateCode("MT number not found",mt);
 
   Record r  = lib[k]->rdata[0];
   int    nr = r.n1;
@@ -247,5 +248,53 @@ void DeceChangeInt(ENDFDict *dict, ENDF *lib[], const int mt, int range, int poi
 
   lib[k]->idata[(range-1)*2  ] = point;
   lib[k]->idata[(range-1)*2+1] = intlaw;
+}
+
+
+/**********************************************************/
+/*      Readjust Individual Subsection by Summed Section  */
+/**********************************************************/
+void DeceReadjust(ENDFDict *dict, ENDF *lib[], const int mt, const int mtmp)
+{
+  int k0 = dict->getID(3,mt);
+  int k1 = dict->getID(3,mtmp);
+
+  if(k0 < 0) TerminateCode("MT number not found",mt);
+
+  /*** MTs for subsections */
+  int mt0 = 0, mt1 = 0;
+  switch(mt){
+  case   4:  mt0 =  51; mt1 =  91; break;
+  case 103:  mt0 = 600; mt1 = 649; break;
+  case 104:  mt0 = 650; mt1 = 699; break;
+  case 105:  mt0 = 700; mt1 = 749; break;
+  case 106:  mt0 = 750; mt1 = 799; break;
+  case 107:  mt0 = 800; mt1 = 849; break;
+  default: break;
+  }
+  if((mt0 == 0) && (mt1 == 0)) TerminateCode("MT number not processed by READJUST",mt);
+
+  /*** sum subsections from MT0 to MT1 and store in Mtmp = 99 */
+  DeceDuplicate(dict,lib,3,mt0,mtmp);
+  DeceCalc(dict,lib,mtmp,mt0,mt1,':');
+
+  /*** apply ratio MT1 / MT0 to each subsection (MT2) */
+  for(int mt=mt0 ; mt<=mt1 ; mt++){
+    int k2 = dict->getID(3,mt);
+    if(k2 < 0) continue;
+
+    int np = lib[k2]->rdata[0].n2;
+    for(int ip=0 ; ip<np ; ip++){
+      double x = lib[k2]->xdata[2*ip  ];
+      double y = lib[k2]->xdata[2*ip+1];
+
+      double y0 = ENDFInterpolation(lib[k0],x,false,0);
+      double y1 = ENDFInterpolation(lib[k1],x,false,0);
+
+      double r  = (y0 == 0.0) ? 0.0 : y1 / y0;
+
+      lib[k2]->xdata[2*ip+1] = y * r;
+    }
+  }
 }
 

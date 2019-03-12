@@ -111,6 +111,9 @@ string CmdExtractArgument(void)
     else if(ope == "applyfunc2") cmd.opt1 = 2;
     else if(ope == "applyfunc3") cmd.opt1 = 3;
   }
+  else if(ope == "readjust"){
+    cmd.mt    = (int)getval(d1);
+  }
   else if(ope == "multidelete"){
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);

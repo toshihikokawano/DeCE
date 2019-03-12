@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <sstream>
+#include <ostream>
 #include <cmath>
 
 using namespace std;
@@ -30,7 +31,7 @@ static double eps = 1.0e-30;
 void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, int ofset, bool mflag)
 {
   int      nc = 0, np = 0;
-  double   *cx, *cy, *xdat, elev, qm = 0.0, qi = 0.0, et = 0.0;
+  double   *cx, *cy, *xdat, elev = 0.0, qm = 0.0, qi = 0.0, et = 0.0;
 
   if((mf != 1) && (mf != 3)) return;
   if((mt <= 0) || (mt >= 1000)) return;
@@ -48,13 +49,19 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
 
   /*** in the case of cross sections in MF3 */
   if(mf == 3){
-    if( (51<=mt && mt <=91) || (600<=mt) ){
+    /*** cross section to discrete levels */
+    if( (51 <= mt && mt <= 91) || (600 <= mt && mt <= 849) ){
       nc = readISdata(datafile,ofset,mt,cx,cy,&elev);
     }
+    /*** general case */
     else{
       nc = readCSdata(datafile,ofset,mt,cx,cy);
     }
-    if(nc == 0) TerminateCode("no data to be added from a file for MT = ",mt);
+    if(nc == 0){
+      ostringstream os;
+      os << "no data to be added from a file for MT = " << mt;
+      WarningMessage(os.str());
+    }
 
     /*** find Q-values */
     /*** for MT=4, there is no way to get QI */
@@ -62,24 +69,25 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     qi = qm;
     et = 0.0;
 
-    if(51<=mt && mt<=91){
+    if( (51 <= mt) && (mt <= 91) ){
       qi = elis - elev;
       et = threshold((int)za,qi);
     }
-    else if(600<=mt && mt<=849){
+    else if( (600 <= mt) && (mt <= 849) ){
       qi = qm - elev;
-      if(qi<0) et = threshold((int)za,qi);
+      if(qi < 0) et = threshold((int)za,qi);
     }
     else{
-      if(qm<0) et = threshold((int)za,qm);
+      if(qm < 0) et = threshold((int)za,qm);
     }
 
     /*** check resonance boundary */
     if(mflag){
       double ebtest = findBoundary(lib);
       if(ebtest < dict->emaxRe && ebtest != 1.0e-05){
-        cerr << "maybe background cross sections given for MT = "<< mt << " at E1 = " << dict->emaxRe;
-        cerr << "  E2 = " << ebtest << endl;
+        ostringstream os;
+        os << "maybe background cross sections given for MT = " << mt << " at E1 = " << dict->emaxRe << "  E2 = " << ebtest;
+        WarningMessage(os.str());
       }
     }
 
@@ -100,47 +108,52 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     }
   }
 
-  /*** make TAB1 */
-  Record cont;
-  int    idat[4];
+  if(np > 0){
+    /*** make TAB1 */
+    Record cont;
+    int    idat[4];
 
-  /*** Make HEAD and CONT */
-  int lnu = (mt == 3) ? 0 : 2; // tabulated nu case
-  lib->setENDFhead(za,awt,0,lnu,0,0);
-  lib->setENDFmat(mat);
-  lib->setENDFmf(mf);
-  lib->setENDFmt(mt);
+    /*** Make HEAD and CONT */
+    int lnu = (mt == 3) ? 0 : 2; // tabulated nu case
+    lib->setENDFhead(za,awt,0,lnu,0,0);
+    lib->setENDFmat(mat);
+    lib->setENDFmf(mf);
+    lib->setENDFmt(mt);
 
-  if(mflag){
-    /*** keep INT in the first range (assume there is only one INT range for the resonance)*/
-    if( lib->idata[1] != 2 ){
-      cont.setRecord(qm,qi,0,0,2,np);
-      idat[0] = lib->idata[0];
-      idat[1] = lib->idata[1];
-      idat[2] = np;
-      idat[3] = 2;
+    if(mflag){
+      /*** keep INT in the first range (assume there is only one INT range for the resonance)*/
+      if( lib->idata[1] != 2 ){
+        cont.setRecord(qm,qi,0,0,2,np);
+        idat[0] = lib->idata[0];
+        idat[1] = lib->idata[1];
+        idat[2] = np;
+        idat[3] = 2;
+      }
+      else{
+        cont.setRecord(qm,qi,0,0,1,np);
+        idat[0] = np;
+        idat[1] = 2;
+      }
     }
     else{
       cont.setRecord(qm,qi,0,0,1,np);
       idat[0] = np;
       idat[1] = 2;
     }
-  }
-  else{
-    cont.setRecord(qm,qi,0,0,1,np);
-    idat[0] = np;
-    idat[1] = 2;
-  }
 
-  if(np <= 1){
-    /*** nothing to be added */
-    DeceDelete(dict,mf,mt);
+    if(np <= 1){
+      /*** nothing to be added */
+      DeceDelete(dict,mf,mt);
+    }
+    else{
+      ENDFPackTAB1(cont,idat,xdat,lib);
+      //  ENDFWriteHEAD(lib);
+      //  ENDFWriteTAB1(lib);
+      //  ENDFWriteSEND(lib);
+    }
   }
   else{
-    ENDFPackTAB1(cont,idat,xdat,lib);
-    //  ENDFWriteHEAD(lib);
-    //  ENDFWriteTAB1(lib);
-    //  ENDFWriteSEND(lib);
+    if(!mflag) DeceDelete(dict,mf,mt);
   }
 
   /*** Clean all */
@@ -208,7 +221,7 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
     if(line[0] == '#') continue;
 
     istringstream ss(line);
-    ss >>x[nc];
+    ss >> x[nc];
     for(int i=0 ; i<ofset ; i++) ss >> y[nc];
 
     /*** in case blank line is given, skip it */
@@ -224,7 +237,7 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
 #endif
 
     nc++;
-    if(nc>=MAX_DBLDATA) TerminateCode("too many energy points");
+    if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
   }
 
   fp.close();
@@ -245,14 +258,14 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   fp.open(file);
   if(!fp) TerminateCode("cannot open data file",file);
 
-  if(ofset==0){
-    if( (51<=mt) && (mt<=91) )        ofset = mt -50+1;
-    else if( (600<=mt) && (mt<=648) ) ofset = mt-600+1;
-    else if( (650<=mt) && (mt<=698) ) ofset = mt-650+1;
-    else if( (700<=mt) && (mt<=748) ) ofset = mt-700+1;
-    else if( (750<=mt) && (mt<=798) ) ofset = mt-750+1;
-    else if( (800<=mt) && (mt<=848) ) ofset = mt-800+1;
-    else if( (mt==649) || (mt==699) || (mt==749) || (mt==799) || (mt==849) ) ofset = 42;
+  if(ofset == 0){
+    if( (51 <= mt) && (mt <= 91) )        ofset = mt -50+1;
+    else if( (600 <= mt) && (mt <= 648) ) ofset = mt-600+1;
+    else if( (650 <= mt) && (mt <= 698) ) ofset = mt-650+1;
+    else if( (700 <= mt) && (mt <= 748) ) ofset = mt-700+1;
+    else if( (750 <= mt) && (mt <= 798) ) ofset = mt-750+1;
+    else if( (800 <= mt) && (mt <= 848) ) ofset = mt-800+1;
+    else if( (mt == 649) || (mt == 699) || (mt == 749) || (mt == 799) || (mt == 849) ) ofset = 42;
   }
 
   getline(fp,line);
@@ -268,7 +281,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   int nc = 0;
   while(getline(fp,line)){
     istringstream s2(line);
-    s2 >>x[nc];
+    s2 >> x[nc];
     for(int i=0 ; i<ofset ; i++) s2 >> y[nc];
 
 #ifdef ENERGY_UNIT_MEV
@@ -279,7 +292,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
 #endif
 
     if( (mt >= 600) || (y[nc] > 0.0) ) nc++;
-    if(nc>=MAX_DBLDATA) TerminateCode("too many energy points");
+    if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
   }
 
   fp.close();
@@ -287,7 +300,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   /*** check non-zero data */
   bool zero = true;
   for(int i=0 ; i<nc ; i++){
-    if(y[i]>0.0){
+    if(y[i] > 0.0){
       zero = false;
       break;
     }
@@ -341,6 +354,8 @@ int readNUdata(char *file, int ofset, double *x, double *y)
 /**********************************************************/
 int geneCSdata(int n, double *x, double *y, double eth, double eres, double *xdat)
 {
+  if(n == 0) return 0;
+
   int i = 0;
 
   /*** for the threshold reaction */
@@ -419,6 +434,8 @@ int geneCSdata(int n, double *x, double *y, double eth, double eres, double *xda
 /**********************************************************/
 int mergeCSdata(int n, double *x, double *y, double eres, double *xdat, double *xbak)
 {
+  if(n == 0) return 0;
+
   int i = 0;
 
   /*** copy old data up to Eres */

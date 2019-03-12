@@ -47,8 +47,9 @@ void   DecePoint        (ENDFDict *, ENDF **, const int, const int, double, doub
 void   DeceFactor       (ENDFDict *, ENDF **, const int, const int, double, double, double, double);
 void   DeceApplyFunc    (ENDFDict *, ENDF **, const int, const int, int, double, double, double);
 void   DeceChangeInt    (ENDFDict *, ENDF **, const int, int, int, int);
+void   DeceReadjust     (ENDFDict *, ENDF **, const int, const int);
 
-/*** deceqvalue.coo */
+/*** deceqvalue.cpp */
 void   DeceChangeQvalue (ENDFDict *, ENDF **, const int, double, double);
 void   DeceCheckEnergy  (ENDFDict *, ENDF **, const bool);
 
