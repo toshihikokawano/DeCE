@@ -20,8 +20,8 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib[], const int mt)
   int k3 = dict->getID(3,mt);
   int k6 = dict->getID(6,mt);
 
-  if(k3<0) TerminateCode("MT number in MF3 not found",mt);
-  if(k6<0) TerminateCode("MT number in MF6 not found",mt);
+  if(k3 < 0) TerminateCode("MT number in MF3 not found",mt);
+  if(k6 < 0) TerminateCode("MT number in MF6 not found",mt);
 
   double x0   = lib[k3]->xdata[0];
   Record head = lib[k6]->getENDFhead();
@@ -55,7 +55,7 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib[], const int mt)
 void DeceDuplicatePoint(ENDFDict *dict, ENDF *lib0[], const int mt, double x)
 {
   int k = dict->getID(6,mt);
-  if(k<0) TerminateCode("MT number in MF6 not found",mt);
+  if(k < 0) TerminateCode("MT number in MF6 not found",mt);
 
   ENDF lib1(L);
   const int MAXDAT = 100;
@@ -133,7 +133,6 @@ void DeceDuplicatePoint(ENDFDict *dict, ENDF *lib0[], const int mt, double x)
 }
 
 
-
 /**********************************************************/
 /*      Generate Yield x Cross Section in MF=3            */
 /**********************************************************/
@@ -144,8 +143,8 @@ void DeceGenProdCS(ENDFDict *dict, ENDF *lib[], const int mt1, const int zap1)
   int k3 = dict->getID(3,mt0);
   int k6 = dict->getID(6,mt0);
 
-  if(k3<0) TerminateCode("MT number in MF3 not found",mt0);
-  if(k6<0) TerminateCode("MT number in MF6 not found",mt0);
+  if(k3 < 0) TerminateCode("MT number in MF3 not found",mt0);
+  if(k6 < 0) TerminateCode("MT number in MF6 not found",mt0);
 
   double *xdat;
   xdat = new double [MAX_DBLDATA];

@@ -1,12 +1,13 @@
 /******************************************************************************/
 /**                                                                          **/
 /**     DeCE : The Descriptive Correction of ENDF-6 Format Code              **/
-/**                                          1.2.1 (Adularia)  May  2016     **/
+/**                                          1.2.2 (Pyrite)  March  2019     **/
 /**                                                            T. Kawano     **/
 /**                                       Los Alamos National Laboratory     **/
 /******************************************************************************/
 
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <cstring>
 #include <unistd.h>
@@ -15,30 +16,29 @@ using namespace std;
 
 #include "dece.h"
 #include "command.h"
+#include "global.h"
 #include "terminate.h"
 
-static string version  = "1.2.1 Adularia (May 2016)";
+static string version  = "1.2.2 Pyrite (March 2019)";
 static bool   verbflag = false;
 static bool   justquit = false;
+static int    newsec   = 0;
+static ENDF   *lib[MAX_SECTION];
 
 static void DeceMain          (string, string, ENDFDict *);
 static void DeceStoreData     (ENDFDict *, ifstream *);
 static void DeceHelp          (void);
-static void DeceCreateLib     (ENDFDict *, int, int);
 static void DeceFreeMemory    (void);
 static void DeceBanner        (void);
-
 static inline void DeceReadMonitor   (int, int, int, int, int);
-static inline void DeceCheckMT       (int);
 
 
 /**********************************************************/
 /*      Global Parameters                                 */
 /**********************************************************/
-
+#define DECE_TOPLEVEL
+GlobalOption opt;
 string   tempfile = "DECETempfile.dat";
-int      newsec = 0;
-ENDF     *lib[MAX_SECTION];
 
 /*** defined in command.cpp */
 extern CLine cmd;
@@ -127,193 +127,14 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
   /*** for all operation commands */
   do{
     if( justquit ) break;
-    if( CmdFgetOneline()<0 ) break;
+    if( CmdFgetOneline() < 0 ) break;
     ope = CmdExtractArgument();
 
     /*** END: terminate code */
     if( (ope == "end") || (ope == "quit") || (ope == "exit") ) break;
 
-    /*** CALC: manipulate TAB1 record */
-    else if(ope == "calc"){
-      DeceCreateLib(dict,3,cmd.mt);
-      DeceCalc(dict,lib,cmd.mt,cmd.opt1,cmd.opt2,cmd.text[0]);
-    }
-
-    /*** MAKE4: generate / reconstruct total inelastic (abbrev. of CALC) */
-    else if(ope == "make4"){
-      DeceCreateLib(dict,3,4);
-      DeceDuplicate(dict,lib,3,51,4);
-      DeceCalc(dict,lib,4,51,91,':');
-    }
-
-    /*** DUPLICATE: copy data */
-    else if(ope == "duplicate"){
-      DeceCreateLib(dict,cmd.mf,cmd.opt1);
-      DeceDuplicate(dict,lib,cmd.mf,cmd.mt,cmd.opt1);
-    }
-
-    /*** READ: read tabulated cross section data file, and replace section */
-    else if( (ope == "read") || (ope == "multiread") || (ope == "mergeread") ){
-      for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
-        DeceCreateLib(dict,cmd.mf,mt);
-        if(ope == "mergeread")
-          DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,true);
-        else
-          DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,false);
-      }
-    }
-
-    /*** ANGDIST: read tabulated angular distribution data file */
-    else if( (ope == "angdist") || (ope == "multiangdist") ){
-      for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
-        DeceCreateLib(dict,cmd.mf,mt);
-        DeceAngdist(dict,lib,cmd.mf,mt,cmd.text,cmd.opt1);
-      }
-    }
-
-    /*** LIBREAD: read a section from another ENDF file, and replace */
-    else if( (ope == "libread") || (ope == "multilibread") ){
-      for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
-        DeceCreateLib(dict,cmd.mf,mt);
-        DeceLibRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.text);
-      }
-    }
-
-    /*** TABLE: tabulate MF3, MF4, MF6 data */
-    else if(ope == "table"){
-      DeceTable(dict,lib,&fpin,cmd.mf,cmd.mt,cmd.opt1);
-    }
-
-    /*** EXTRACT: dead copy section */
-    else if(ope == "extract" ){
-      DeceExtract(dict,lib,&fpin,cmd.mf,cmd.mt);
-    }
-
-    /*** ADDPOINT, DELPOINT: add / remove a point in TAB1 record */
-    else if( (ope == "addpoint") || (ope == "delpoint") ){
-      DeceCheckMT(cmd.mt);
-      DecePoint(dict,lib,cmd.mf,cmd.mt,cmd.x,cmd.y,ope);
-    }
-
-    /*** FACTOR, NORMALIZE: multiply by a factor */
-    else if( (ope == "factor") || (ope == "normalize") ){
-      DeceCheckMT(cmd.mt);
-      DeceFactor(dict,lib,cmd.mf,cmd.mt,cmd.x,cmd.y,cmd.xmin,cmd.xmax);
-    }
-
-    /*** FUNC1, FUNC2: multiply by a factor that is calculated with a function */
-    else if( (ope == "applyfunc1") || (ope == "applyfunc2") || (ope == "applyfunc3") ){
-      DeceCheckMT(cmd.mt);
-      DeceApplyFunc(dict,lib,cmd.mf,cmd.mt,cmd.opt1,cmd.x,cmd.y,cmd.xmin);
-    }
-
-    /*** READJUST: rescale individual sections in MF3 by the summed section */
-    else if(ope == "readjust"){
-      DeceCheckMT(cmd.mt);
-      int mtmp = 99;  // use MT = 99 as a temporal section
-      DeceCreateLib(dict,3,mtmp);
-      DeceReadjust(dict,lib,cmd.mt,mtmp);
-      DeceDelete(dict,3,mtmp);
-    }
-
-    /*** DELETE: delete section */
-    else if( (ope == "delete") || (ope == "multidelete") ){
-      for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
-        DeceDelete(dict,cmd.mf,mt);
-      }
-    }
-
-    /*** CHANGEINT: change interpolation scheme in MF3 */
-    else if(ope == "changeint"){
-      DeceCheckMT(cmd.mt);
-      DeceChangeInt(dict,lib,cmd.mt,cmd.opt1,cmd.opt2,cmd.opt3);
-    }
-
-    /*** CHANGEQVAL: change Q-vales in MF3 */
-    else if(ope == "changeqval"){
-      DeceCheckMT(cmd.mt);
-      DeceChangeQvalue(dict,lib,cmd.mt,cmd.x,cmd.y);
-    }
-
-    /*** CHECHKTHRESHOLD: check Q-vales and threshold energies in MF3 */
-    else if( (ope == "checkthreshold") || (ope == "fixthreshold") ){
-      bool fix = (ope == "fixthreshold") ? true : false;
-      DeceCheckEnergy(dict,lib,fix);
-    }
-
-    /*** FIXAWR: fix AWR in at the top of the file */
-    else if(ope == "fixawr"){
-      DeceFixAWR(dict);
-    }
-
-    /*** miscellaneous MF1 manipulations */
-    /*** NUTOTAL: generate / reconstruct total nu-bar as the sum of 455 and 456 */
-    else if(ope == "nutotal"){
-      DeceCreateLib(dict,1,452);
-      DeceCalc452(dict,lib);
-    }
-
-    /*** miscellaneous MF6 manipulations */
-    /*** BOUNDCORRECT: correct energy boundary in continuum in MF6 */
-    else if(ope == "boundcorrect"){
-      DeceCheckMT(cmd.mt);
-      DeceBoundCorrect(dict,lib,cmd.mt);
-    }
-
-    /*** DUPLICATEPOINT: duplicate the last point in MF6 */
-    else if(ope == "duplicatepoint"){
-      DeceCheckMT(cmd.mt);
-      DeceDuplicatePoint(dict,lib,cmd.mt,cmd.x);
-    }
-
-    /*** GENPROD: generate production cross section from MF6 MT5 */
-    else if(ope == "genprod"){
-      DeceCreateLib(dict,3,cmd.mt);
-      DeceGenProdCS(dict,lib,cmd.mt,cmd.opt1);
-    }
-
-    /*** resonance manipulation */
-    /*** RECONSTRUCT: reconstruct cross sections from resonances */
-    else if(ope == "reconstruct"){
-      if(dict->getID(2,151) >= 0){
-        gfrPtCross(dict,lib,cmd.xmin,cmd.xmax,cmd.x);
-      }
-    }
-
-    /*** RECONANGDIST: calculate Legendre coefficients from resonance parameters */
-    else if(ope == "reconangdist"){
-      if(dict->getID(2,151) >= 0){
-        gfrAngDist(dict,lib,cmd.xmin,cmd.xmax,cmd.x);
-      }
-    }
-
-    /*** SMOOTHANGDIST: calculate energy averaged Legendre coefficients in RRR */
-    else if(ope == "smoothangdist"){
-      if(dict->getID(2,151) >= 0){
-        gfrAngDistSmooth(dict,lib,cmd.xmin);
-      }
-    }
-
-    /*** TPID: replace TPID */
-    else if(ope == "tpid")     CmdExtractString(dict->tpid);
-
-    /*** INDEX: print section index */
-    else if(ope == "index")    DeceScan(dict);
-
-    /*** data processing */
-    /*** POINTWISE: create pointwise cross section */
-    else if(ope == "pointwise"){
-      if(dict->getID(2,151) >= 0){
-        DeceCreateLib(dict,3,901);
-        DeceCreateLib(dict,3,902);
-        DeceCreateLib(dict,3,903);
-        DeceCreateLib(dict,3,904);
-        DeceGeneratePointwise(dict,lib);
-      }
-    }
-    
-    /*** Unknown command */
-    else TerminateCode("command not found",ope);
+    /*** perform each operation */
+    else DeceOperation(dict,lib,&fpin);
 
   }while(!cin.eof());
 
@@ -378,7 +199,7 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
     ENDFRead(fp,lib[newsec],dict->mf[i],dict->mt[i]);
     if(dict->mf[i] == 2) ENDFMF2boundary(dict,lib[newsec]);
 
-    if(verbflag) DeceReadMonitor(lib[newsec]->getENDFmat(),dict->mf[i],dict->mt[i],newsec,lib[newsec]->getPOS());
+    DeceReadMonitor(lib[newsec]->getENDFmat(),dict->mf[i],dict->mt[i],newsec,lib[newsec]->getPOS());
     dict->setID(i,newsec++);
 
     if(newsec >= MAX_SECTION) TerminateCode("Too many sections",newsec);
@@ -391,19 +212,21 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
 /**********************************************************/
 void DeceReadMonitor(int mat, int mf, int mt, int sec, int n)
 {
-  cerr << " (@_@) <";
-  cerr << " MAT:" << mat;
-  cerr << " MF:" << mf;
-  cerr << " MT:" << mt;
-  cerr << " assigned for Section " << sec;
-  cerr << " sub-blocks " << n << endl;
+  ostringstream os;
+  os << " (@_@) <";
+  os << " MAT:" << mat;
+  os << " MF:" << mf;
+  os << " MT:" << mt;
+  os << " assigned for Section " << sec;
+  os << " sub-blocks " << n;
+  Notice("DeceReadMonitor",os.str());
 }
 
 
 /**********************************************************/
 /*      Check If Valid MT                                 */
 /**********************************************************/
-inline void DeceCheckMT(int mt)
+void DeceCheckMT(int mt)
 {
   if( mt <= 0 || 1000 <= mt ) TerminateCode("invalid MT number",mt);
 }
@@ -415,9 +238,14 @@ inline void DeceCheckMT(int mt)
 void DeceCreateLib(ENDFDict *dict, int mf, int mt)
 {
   DeceCheckMT(mt);
+  ostringstream os;
 
   /*** if already exists */
-  if( dict->getID(mf,mt) >= 0 ) return;
+  if( dict->getID(mf,mt) >= 0 ){
+    os << " MF" << mf << ":MT" << mt << " exists, reuse it";
+    Notice("DeceCreateLib",os.str());
+    return;
+  }
 
   try{
     if(mf >= 900){
@@ -442,12 +270,15 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
   lib[newsec]->setENDFmt(mt);
 
   int i = dict->scanDict(mf,mt);
-  if(i<0){
+  if(i < 0){
     dict->addDict(mf,mt,0,newsec);
   }
   else{
     dict->setID(i,newsec);
   }
+
+  os << " MF:" << mf << " MT:" << mt << " assinged for " << newsec;
+  Notice("DeceCreateLib",os.str());
 
   newsec++;
   if(newsec >= MAX_SECTION) TerminateCode("Too many sections");
@@ -499,23 +330,19 @@ void DeceHelp()
 /*     Warning Message                                    */
 /**********************************************************/
 void WarningMessage(string msg)
-{
-  if(verbflag) cerr << "WARNING   :" << msg << endl;
-}
+{ cerr << "WARNING   : " << msg << endl; }
 
 void WarningMessage(string msg, int n)
-{
-  if(verbflag) cerr << "WARNING   :" << msg << n << endl;
-}
+{ cerr << "WARNING   : " << msg << n << endl; }
 
 void WarningMessage(string msg, double x)
-{
-  if(verbflag) cerr << "WARNING   :" << msg << x << endl;
-}
+{ cerr << "WARNING   : " << msg << x << endl; }
 
 void WarningMessage(string msg, string x)
-{
-  if(verbflag) cerr << "WARNING   :" << msg << x << endl;
+{ cerr << "WARNING   : " << msg << x << endl; }
+
+void Notice(string module,string msg){
+  if(verbflag) cerr << "NOTICE [" << module << "] " << msg << endl;
 }
 
 
@@ -525,28 +352,28 @@ void WarningMessage(string msg, string x)
 int TerminateCode(string msg)
 {
   DeceFreeMemory();
-  cerr << "ERROR     :" << msg << endl;
+  cerr << "ERROR     : " << msg << endl;
   exit(-1);
 }
 
 int TerminateCode(string msg, int n)
 {
   DeceFreeMemory();
-  cerr << "ERROR     :" << msg << " : " << n << endl;
+  cerr << "ERROR     : " << msg << " : " << n << endl;
   exit(-1);
 }
 
 int TerminateCode(string msg, double x)
 {
   DeceFreeMemory();
-  cerr << "ERROR     :" << msg << " : " << x << endl;
+  cerr << "ERROR     : " << msg << " : " << x << endl;
   exit(-1);
 }
 
 int TerminateCode(string msg, string x)
 {
   DeceFreeMemory();
-  cerr << "ERROR     :" << msg << " : " << x << endl;
+  cerr << "ERROR     : " << msg << " : " << x << endl;
   exit(-1);
 }
 

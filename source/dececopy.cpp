@@ -16,29 +16,29 @@ using namespace std;
 /**********************************************************/
 void DeceExtract(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const int mt)
 {
-  if(mf<=0) return;
+  if(mf <= 0) return;
 
   /*** extract all MT sections in MF */
-  if(mt==0){
+  if(mt == 0){
     for(int i=0 ; i<dict->sec ; i++){
-      if(mf==dict->mf[i]){
+      if(mf == dict->mf[i]){
         /*** check if in Lib */
         int k = dict->getID(mf,dict->mt[i]);
-        if(k==-2) continue;
-        else if(k<0) ENDFExtract(fp,mf,dict->mt[i]);
-        else         ENDFWrite(lib[k]);
+        if(k == -2) continue;
+        else if(k < 0) ENDFExtract(fp,mf,dict->mt[i]);
+        else           ENDFWrite(lib[k]);
       }
     }
   }
   /*** when MF and MT specified */
   else{
     for(int i=0 ; i<dict->sec ; i++){
-      if( (mf==dict->mf[i]) && (mt==dict->mt[i]) ){
+      if( (mf == dict->mf[i]) && (mt == dict->mt[i]) ){
         /*** check if in Lib */
         int k = dict->getID(mf,mt);
-        if(k==-2) continue;
-        else if(k<0) ENDFExtract(fp,mf,dict->mt[i]);
-        else         ENDFWrite(lib[k]);
+        if(k == -2) continue;
+        else if(k < 0) ENDFExtract(fp,mf,dict->mt[i]);
+        else           ENDFWrite(lib[k]);
       }
     }
   }
@@ -76,17 +76,27 @@ void DeceLibRead(ENDFDict *dict, ENDF *lib, char *file)
 /**********************************************************/
 void DeceDelete(ENDFDict *dict, const int mf, const int mt)
 {
-  if(mf<=0) return;
+  if(mf <= 0) return;
 
   /*** mark id = -2 to be deleted */
-  if(mt==0){
+  if(mt == 0){
     for(int i=0 ; i<dict->sec ; i++){
-      if(mf==dict->mf[i]) dict->setID(i,-2);
+      if(mf == dict->mf[i]){
+        dict->setID(i,-2);
+        ostringstream os;
+        os << "MF" << mf << ":MT" << dict->mt[i] << " deleted";
+        Notice("DeceDelete",os.str());
+      }
     }
   }
   else{
     for(int i=0 ; i<dict->sec ; i++){
-      if( (mf==dict->mf[i]) && (mt==dict->mt[i]) ) dict->setID(i,-2);
+      if( (mf == dict->mf[i]) && (mt == dict->mt[i]) ){
+        dict->setID(i,-2);
+        ostringstream os;
+        os << "MF" << mf << ":MT" << mt << " deleted";
+        Notice("DeceDelete",os.str());
+      }
     }
   }
 }
@@ -109,12 +119,14 @@ void DeceScan(ENDFDict *dict)
       int c=0;
       for(int i=0 ; i<dict->sec ; i++){
         if(dict->mf[i] == mf){
-          cout << setw(4) <<  dict->mt[i];
-          if(c!=0 && (c+1)%20==0) cout << endl;
-          c++;
+          if(dict->getID(mf,dict->mt[i]) > 0){
+            cout << setw(4) << dict->mt[i];
+            if(c != 0 && (c+1)%20 == 0) cout << endl;
+            c++;
+          }
         }
       }
-      if(c%20!=0) cout << endl;
+      if(c%20 != 0) cout << endl;
     }
   }
 }

@@ -6,12 +6,13 @@
  */
 
 /**************************************/
-/*      main.cpp                      */
+/*      dece.cpp                      */
 /**************************************/
 void    WarningMessage     (std::string);
 void    WarningMessage     (std::string, int);
 void    WarningMessage     (std::string, double);
 void    WarningMessage     (std::string, std::string);
+void    Notice             (std::string, std::string);
 
 int     TerminateCode      (std::string);
 int     TerminateCode      (std::string, int);

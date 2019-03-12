@@ -12,7 +12,6 @@ using namespace std;
 #include "dece.h"
 #include "terminate.h"
 
-static void    copysection   (ENDF *, ENDF *);
 static void    addsection    (char, ENDF *, ENDF *);
 static int     qselect       (int, int, double, double);
 
@@ -35,11 +34,11 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
 
   /*** copy src1 to dest */
   if(k2 < 0){
-    copysection(lib[k1],lib[k0]);
+    ENDFLibCopy(lib[k1],lib[k0]);
   }
   /*** copy src2 to dest */
   else if(k1 < 0){
-    copysection(lib[k2],lib[k0]);
+    ENDFLibCopy(lib[k2],lib[k0]);
   }
   else{
     /*** deterimine Q-value */
@@ -52,7 +51,7 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
     }
 
     /*** copy SRC1 to DEST */
-    copysection(lib[k1],lib[k0]);
+    ENDFLibCopy(lib[k1],lib[k0]);
 
     /*** add all MTs in the range to DEST */
     if(op == ':'){
@@ -109,7 +108,7 @@ void DeceCalc452(ENDFDict *dict, ENDF *lib[])
   }
 
   /*** first, copy 456(prompt) to 452(total) */
-  copysection(lib[k2],lib[k0]);
+  ENDFLibCopy(lib[k2],lib[k0]);
 
   /*** create a temporaly MF3-like library for delayed-nu */
   ENDF lib455(M);
@@ -130,38 +129,6 @@ void DeceCalc452(ENDFDict *dict, ENDF *lib[])
 
   /*** add 455(delayed) to 452(total) */
   addsection('+',&lib455,lib[k0]);
-}
-
-
-/**********************************************************/
-/*      Duplicate Data                                    */
-/**********************************************************/
-void DeceDuplicate(ENDFDict *dict, ENDF *lib[], const int mf, const int mtsrc, const int mtdest)
-{
-  int k0 = dict->getID(mf,mtdest);
-  int k1 = dict->getID(mf,mtsrc );
-
-  if(k1<0) TerminateCode("MT number not found",mtsrc);
-
-  /*** copy SRC1 to DEST */
-  copysection(lib[k1],lib[k0]);
-}
-
-
-/**********************************************************/
-/*      Copy Data from SRC to DEST                        */
-/**********************************************************/
-void copysection(ENDF *src, ENDF *dest)
-{
-  Record head = src->getENDFhead();
-  Record cont = src->rdata[0];
-
-  dest->setENDFhead(head);
-  dest->rdata[0] = cont;
-  dest->setENDFmat( src->getENDFmat() );
-
-  for(int i=0 ; i<MAX_INTDATA ; i++) dest->idata[i] = src->idata[i];
-  for(int i=0 ; i<MAX_DBLDATA ; i++) dest->xdata[i] = src->xdata[i];
 }
 
 

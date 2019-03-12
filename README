@@ -2,7 +2,7 @@ DeCE : The Descriptive Correction of ENDF-6 Format Code
 
    Language C++
    Author   Kawano, T.
-   Version  1.2 (Adularia)
+   Version  1.2 (Pyrite)
 
 DeCE is a C++ program to manipulate ENDF-6 formatted file interactively,
 inspired by the CRECTJ6 code by T. Nakagawa of JAEA (JAERI-DATA/CODE
@@ -29,6 +29,8 @@ History:
    1.1.4              : Jul. 2014   Legendre coefficients from resonances
    1.2.0 (Adularia)   : Sep. 2015   resonance reconstruction, and more upgrades
    1.2.1              : May  2016   open source version
+   1.2.2 (Pyrite)     : Mar  2019   reorganize some files for better reading
+
 
 Files:
     source/

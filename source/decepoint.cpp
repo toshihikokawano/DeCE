@@ -275,7 +275,6 @@ void DeceReadjust(ENDFDict *dict, ENDF *lib[], const int mt, const int mtmp)
   if((mt0 == 0) && (mt1 == 0)) TerminateCode("MT number not processed by READJUST",mt);
 
   /*** sum subsections from MT0 to MT1 and store in Mtmp = 99 */
-  DeceDuplicate(dict,lib,3,mt0,mtmp);
   DeceCalc(dict,lib,mtmp,mt0,mt1,':');
 
   /*** apply ratio MT1 / MT0 to each subsection (MT2) */

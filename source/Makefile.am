@@ -9,6 +9,7 @@ dece_SOURCES = \
 	deceheader.cpp \
 	decemod6.cpp \
 	decemisc.cpp \
+	deceoperation.cpp \
 	deceoutput.cpp \
 	decepoint.cpp \
 	deceprocpoint.cpp \
@@ -53,6 +54,7 @@ dece_SOURCES = \
 	decetable.h \
 	endflib.h \
 	gfr.h \
+	global.h \
 	masstable.h \
 	masstable_audi2011.h \
 	masstable_audi2012_frdm2012.h \

@@ -10,9 +10,11 @@ using namespace std;
 #include "command.h"
 
 static double getval  (string);
+static void   gettext (string, char *);
 static int argc = 0;
 
 CLine cmd;
+string operation = "";
 
 /**********************************************************/
 /*      Skip comment-line and read 1-line                 */
@@ -22,9 +24,9 @@ int CmdFgetOneline(void)
   /*** read one line, skip comment or blank line */
   while(1){
     cin.getline(cmd.line,MAX_TEXTLENGTH-1);
-    if(cin.eof()!=0) return(-1);
-    if(cmd.line[0]=='#') continue;
-    if(strlen(cmd.line)<=1) continue;
+    if(cin.eof() !=0 ) return(-1);
+    if(cmd.line[0] == '#') continue;
+    if(strlen(cmd.line) <= 1) continue;
     break;
   }
   return(0);
@@ -121,7 +123,7 @@ string CmdExtractArgument(void)
     cmd.opt1  = (int)getval(d1);
     cmd.opt2  = (int)getval(d1);
   }
-  else if(ope == "duplicate"){
+  else if(ope == "duplicate" || ope == "copy"){
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
     cmd.opt1  = (int)getval(d1);
@@ -153,6 +155,9 @@ string CmdExtractArgument(void)
     cmd.xmax  =      getval(d1);
     cmd.x     =      getval(d1);
   }
+  else if(ope == "set" || ope == "unset"){
+    gettext(d1,cmd.text);
+  }
   else{
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
@@ -161,9 +166,9 @@ string CmdExtractArgument(void)
     cmd.opt2  = (int)getval(d1);
   }
 
+  operation = ope;
   return(ope);
 }
-
 
 
 double getval(string delim)
@@ -177,7 +182,7 @@ double getval(string delim)
 
   for(int i=0 ; i<argc ; i++) tok = strtok(NULL,delim.c_str());
 
-  if(tok!=NULL) x = atof(tok);
+  if(tok != NULL) x = atof(tok);
 
   argc ++;
 
@@ -185,8 +190,33 @@ double getval(string delim)
 }
 
 
+void gettext(string delim, char *str)
+{
+  char   work[MAX_TEXTLENGTH];
+  char   *tok = NULL;
+
+  strcpy(work,cmd.line);
+  tok = strtok(work,delim.c_str());
+
+  for(int i=0 ; i<argc ; i++) tok = strtok(NULL,delim.c_str());
+
+  if(tok != NULL) strcpy(str,tok);
+
+  argc ++;
+}
+
+
 /**********************************************************/
-/*      Extract Commna Quoted Text from Line              */
+/*      Return Command                                    */
+/**********************************************************/
+string CmdGetOperation()
+{
+  return operation;
+}
+
+
+/**********************************************************/
+/*      Extract Comma Quoted Text from Line               */
 /**********************************************************/
 void CmdExtractString(char *d)
 {
@@ -197,21 +227,21 @@ void CmdExtractString(char *d)
 
   int i0=0, i1=0;
   for(int i=0 ; i<lens ; i++){
-    if(s[i] =='"'){
+    if(s[i] == '"'){
       i0=i+1;
       break;
     }
   }
-  if(i0==0) return;
+  if(i0 == 0) return;
 
   for(int i=i0 ; i<lens ; i++){
-    if(s[i] =='"'){
+    if(s[i] == '"'){
       i1=i-1;
       break;
     }
   }
 
-  if(i1-i0+1<MAX_TEXTLENGTH){
+  if(i1-i0+1 < MAX_TEXTLENGTH){
     for(int i=i0 ; i<=i1 ; i++)  d[i-i0] = s[i];
     d[i1-i0+1] = '\0';
   }

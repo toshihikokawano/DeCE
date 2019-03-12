@@ -69,7 +69,6 @@ using namespace std;
 
 
 #include "coupling.h"
-#include "constant.h"
 
 extern  double  *fact;
 #define FOUR_PI  12.56637061435917295384
@@ -82,15 +81,22 @@ static inline bool halfint(int x){
 }
 
 static inline int max3(int a, int b, int c){
-  if(a<b) a=b; if(a<c) a=c; return(a);
+  if(a<b) a=b;
+  if(a<c) a=c;
+  return(a);
 }
 
 static inline int max4(int a, int b, int c, int d){
-  if(a<b) a=b; if(a<c) a=c; if(a<d) a=d; return(a);
+  if(a<b) a=b;
+  if(a<c) a=c;
+  if(a<d) a=d;
+  return(a);
 }
 
 static inline int min3(int a, int b, int c){
-  if(a>b) a=b; if(a>c) a=c; return(a);
+  if(a>b) a=b;
+  if(a>c) a=c;
+  return(a);
 }
 
 static double     w6j0  (int, int *);
@@ -98,7 +104,6 @@ static double     w6j1  (     int *);
 static double     cg1   (int, int, int);
 static double     cg2   (int, int, int, int, int, int, int, int);
 static double     cg3   (int, int, int, int, int, int);
-
 
 /***********************************************************/
 /*      Factorial Calc. and Store in fact[]                */

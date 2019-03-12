@@ -221,21 +221,21 @@ void DeceCheckNegativeCrossSection(ENDFDict *dict, ENDF *lib[], int *kid)
     x = lib[kid[0]]->xdata[i2];
 
     y = lib[kid[0]]->xdata[i2+1];
-    if(y <= 0.0) cerr << "zero/negative total cross section " << y << " detected at " << x << endl;
+    if(y < 0.0) cerr << "negative total cross section " << y << " detected at " << x << endl;
 
     if(dict->getID(3,2) >= 0){
       y = lib[kid[1]]->xdata[i2+1];
-      if(y <= 0.0) cerr << "zero/negative elastic cross section " << y << " detected at " << x << endl;
+      if(y < 0.0) cerr << "negative elastic cross section " << y << " detected at " << x << endl;
     }
 
     if(dict->getID(3,102) >= 0){
       y = lib[kid[2]]->xdata[i2+1];
-      if(y <= 0.0) cerr << "zero/negative capture cross section " << y << " detected at " << x << endl;
+      if(y < 0.0) cerr << "negative capture cross section " << y << " detected at " << x << endl;
     }
 
     if(dict->getID(3,18) >= 0){
       y = lib[kid[3]]->xdata[i2+1];
-      if(y <= 0.0) cerr << "zero/negative fission cross section " << y << " detected at " << x << endl;
+      if(y < 0.0) cerr << "negative fission cross section " << y << " detected at " << x << endl;
     }
   }
 }

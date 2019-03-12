@@ -90,7 +90,7 @@ void DeceDataPoint(ifstream *fp, const int mf, const int mt, const double e)
   }
 
   double y = 0.0;
-  ENDF lib(M);
+  ENDF lib(L);
   if(mf == 1){
     ENDFReadMF1(fp,&lib,mt);
     Record head = lib.getENDFhead();

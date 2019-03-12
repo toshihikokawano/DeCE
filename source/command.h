@@ -36,6 +36,7 @@ class CLine{
 };
 
 
+string   CmdGetOperation      (void);
 int      CmdFgetOneline       (void);
 string   CmdExtractArgument   (void);
 void     CmdExtractString     (char *);

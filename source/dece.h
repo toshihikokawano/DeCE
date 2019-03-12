@@ -16,18 +16,24 @@
 #define ENERGY_UNIT_MEV
 #define CROSS_SECTION_UNIT_MB
 
+/*** dece.cpp */
+void   DeceCreateLib    (ENDFDict *, int, int);
+void   DeceCheckMT      (int);
+
+/*** deceoperation.cpp */
+void   DeceOperation    (ENDFDict *, ENDF **, ifstream *);
+
 /*** decetable.cpp */
 void   DeceTable        (ENDFDict *, ENDF *[], ifstream *, const int, const int, const int);
 void   DeceFileToTable  (ifstream *, const int, const int, const int);
 void   DeceDataPoint    (ifstream *, const int, const int, const double);
 
-/*** deceangdist */
+/*** deceangdist.cpp */
 void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, int);
 
 /*** dececalc.cpp */
 void   DeceCalc         (ENDFDict *, ENDF **, const int, const int, const int, const char);
 void   DeceCalc452      (ENDFDict *dict, ENDF *lib[]);
-void   DeceDuplicate    (ENDFDict *, ENDF **, const int, const int, const int);
 
 /*** dececopy.cpp */
 void   DeceExtract      (ENDFDict *, ENDF *[], ifstream *, const int, const int);
