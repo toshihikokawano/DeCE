@@ -100,10 +100,15 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) dece.$(OBJEXT) \
-	deceangdist.$(OBJEXT) dececalc.$(OBJEXT) dececopy.$(OBJEXT) \
-	deceheader.$(OBJEXT) decemod6.$(OBJEXT) decemisc.$(OBJEXT) \
-	deceoperation.$(OBJEXT) deceoutput.$(OBJEXT) \
-	decepoint.$(OBJEXT) deceprocpoint.$(OBJEXT) deceread.$(OBJEXT) \
+	deceangdist.$(OBJEXT) deceapplyfunc.$(OBJEXT) \
+	dececalc.$(OBJEXT) decechangeint.$(OBJEXT) \
+	decedelete.$(OBJEXT) deceextract.$(OBJEXT) \
+	decefactor.$(OBJEXT) deceglobaloption.$(OBJEXT) \
+	deceheader.$(OBJEXT) decelibread.$(OBJEXT) decemisc.$(OBJEXT) \
+	decemod6.$(OBJEXT) deceoperation.$(OBJEXT) \
+	deceoutput.$(OBJEXT) decepoint.$(OBJEXT) \
+	deceprocpointwise.$(OBJEXT) deceread.$(OBJEXT) \
+	decereadjust.$(OBJEXT) decescanindex.$(OBJEXT) \
 	decetable.$(OBJEXT) decetable1.$(OBJEXT) decetable10.$(OBJEXT) \
 	decetable12.$(OBJEXT) decetable13.$(OBJEXT) \
 	decetable14.$(OBJEXT) decetable15.$(OBJEXT) \
@@ -135,12 +140,16 @@ depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
 am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coupling.Po \
 	./$(DEPDIR)/dece.Po ./$(DEPDIR)/deceangdist.Po \
-	./$(DEPDIR)/dececalc.Po ./$(DEPDIR)/dececopy.Po \
-	./$(DEPDIR)/deceheader.Po ./$(DEPDIR)/decemisc.Po \
+	./$(DEPDIR)/deceapplyfunc.Po ./$(DEPDIR)/dececalc.Po \
+	./$(DEPDIR)/decechangeint.Po ./$(DEPDIR)/decedelete.Po \
+	./$(DEPDIR)/deceextract.Po ./$(DEPDIR)/decefactor.Po \
+	./$(DEPDIR)/deceglobaloption.Po ./$(DEPDIR)/deceheader.Po \
+	./$(DEPDIR)/decelibread.Po ./$(DEPDIR)/decemisc.Po \
 	./$(DEPDIR)/decemod6.Po ./$(DEPDIR)/deceoperation.Po \
 	./$(DEPDIR)/deceoutput.Po ./$(DEPDIR)/decepoint.Po \
-	./$(DEPDIR)/deceprocpoint.Po ./$(DEPDIR)/deceqvalue.Po \
-	./$(DEPDIR)/deceread.Po ./$(DEPDIR)/decetable.Po \
+	./$(DEPDIR)/deceprocpointwise.Po ./$(DEPDIR)/deceqvalue.Po \
+	./$(DEPDIR)/deceread.Po ./$(DEPDIR)/decereadjust.Po \
+	./$(DEPDIR)/decescanindex.Po ./$(DEPDIR)/decetable.Po \
 	./$(DEPDIR)/decetable1.Po ./$(DEPDIR)/decetable10.Po \
 	./$(DEPDIR)/decetable12.Po ./$(DEPDIR)/decetable13.Po \
 	./$(DEPDIR)/decetable14.Po ./$(DEPDIR)/decetable15.Po \
@@ -306,16 +315,24 @@ dece_SOURCES = \
 	coupling.cpp \
 	dece.cpp \
 	deceangdist.cpp \
+	deceapplyfunc.cpp \
 	dececalc.cpp \
-	dececopy.cpp \
+	decechangeint.cpp \
+	decedelete.cpp \
+	deceextract.cpp \
+	decefactor.cpp \
+	deceglobaloption.cpp \
 	deceheader.cpp \
-	decemod6.cpp \
+	decelibread.cpp \
 	decemisc.cpp \
+	decemod6.cpp \
 	deceoperation.cpp \
 	deceoutput.cpp \
 	decepoint.cpp \
-	deceprocpoint.cpp \
+	deceprocpointwise.cpp \
 	deceread.cpp \
+	decereadjust.cpp \
+	decescanindex.cpp \
 	decetable.cpp \
 	decetable1.cpp \
 	decetable10.cpp \
@@ -459,17 +476,25 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coupling.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dece.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceangdist.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceapplyfunc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dececalc.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dececopy.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decechangeint.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decedelete.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceextract.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decefactor.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceglobaloption.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceheader.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decelibread.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decemisc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decemod6.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceoperation.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceoutput.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decepoint.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceprocpoint.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceprocpointwise.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceqvalue.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceread.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decereadjust.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decescanindex.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable1.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable10.Po@am__quote@ # am--include-marker
@@ -653,17 +678,25 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/coupling.Po
 	-rm -f ./$(DEPDIR)/dece.Po
 	-rm -f ./$(DEPDIR)/deceangdist.Po
+	-rm -f ./$(DEPDIR)/deceapplyfunc.Po
 	-rm -f ./$(DEPDIR)/dececalc.Po
-	-rm -f ./$(DEPDIR)/dececopy.Po
+	-rm -f ./$(DEPDIR)/decechangeint.Po
+	-rm -f ./$(DEPDIR)/decedelete.Po
+	-rm -f ./$(DEPDIR)/deceextract.Po
+	-rm -f ./$(DEPDIR)/decefactor.Po
+	-rm -f ./$(DEPDIR)/deceglobaloption.Po
 	-rm -f ./$(DEPDIR)/deceheader.Po
+	-rm -f ./$(DEPDIR)/decelibread.Po
 	-rm -f ./$(DEPDIR)/decemisc.Po
 	-rm -f ./$(DEPDIR)/decemod6.Po
 	-rm -f ./$(DEPDIR)/deceoperation.Po
 	-rm -f ./$(DEPDIR)/deceoutput.Po
 	-rm -f ./$(DEPDIR)/decepoint.Po
-	-rm -f ./$(DEPDIR)/deceprocpoint.Po
+	-rm -f ./$(DEPDIR)/deceprocpointwise.Po
 	-rm -f ./$(DEPDIR)/deceqvalue.Po
 	-rm -f ./$(DEPDIR)/deceread.Po
+	-rm -f ./$(DEPDIR)/decereadjust.Po
+	-rm -f ./$(DEPDIR)/decescanindex.Po
 	-rm -f ./$(DEPDIR)/decetable.Po
 	-rm -f ./$(DEPDIR)/decetable1.Po
 	-rm -f ./$(DEPDIR)/decetable10.Po
@@ -744,17 +777,25 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/coupling.Po
 	-rm -f ./$(DEPDIR)/dece.Po
 	-rm -f ./$(DEPDIR)/deceangdist.Po
+	-rm -f ./$(DEPDIR)/deceapplyfunc.Po
 	-rm -f ./$(DEPDIR)/dececalc.Po
-	-rm -f ./$(DEPDIR)/dececopy.Po
+	-rm -f ./$(DEPDIR)/decechangeint.Po
+	-rm -f ./$(DEPDIR)/decedelete.Po
+	-rm -f ./$(DEPDIR)/deceextract.Po
+	-rm -f ./$(DEPDIR)/decefactor.Po
+	-rm -f ./$(DEPDIR)/deceglobaloption.Po
 	-rm -f ./$(DEPDIR)/deceheader.Po
+	-rm -f ./$(DEPDIR)/decelibread.Po
 	-rm -f ./$(DEPDIR)/decemisc.Po
 	-rm -f ./$(DEPDIR)/decemod6.Po
 	-rm -f ./$(DEPDIR)/deceoperation.Po
 	-rm -f ./$(DEPDIR)/deceoutput.Po
 	-rm -f ./$(DEPDIR)/decepoint.Po
-	-rm -f ./$(DEPDIR)/deceprocpoint.Po
+	-rm -f ./$(DEPDIR)/deceprocpointwise.Po
 	-rm -f ./$(DEPDIR)/deceqvalue.Po
 	-rm -f ./$(DEPDIR)/deceread.Po
+	-rm -f ./$(DEPDIR)/decereadjust.Po
+	-rm -f ./$(DEPDIR)/decescanindex.Po
 	-rm -f ./$(DEPDIR)/decetable.Po
 	-rm -f ./$(DEPDIR)/decetable1.Po
 	-rm -f ./$(DEPDIR)/decetable10.Po

@@ -4,16 +4,24 @@ dece_SOURCES = \
 	coupling.cpp \
 	dece.cpp \
 	deceangdist.cpp \
+	deceapplyfunc.cpp \
 	dececalc.cpp \
-	dececopy.cpp \
+	decechangeint.cpp \
+	decedelete.cpp \
+	deceextract.cpp \
+	decefactor.cpp \
+	deceglobaloption.cpp \
 	deceheader.cpp \
-	decemod6.cpp \
+	decelibread.cpp \
 	decemisc.cpp \
+	decemod6.cpp \
 	deceoperation.cpp \
 	deceoutput.cpp \
 	decepoint.cpp \
-	deceprocpoint.cpp \
+	deceprocpointwise.cpp \
 	deceread.cpp \
+	decereadjust.cpp \
+	decescanindex.cpp \
 	decetable.cpp \
 	decetable1.cpp \
 	decetable10.cpp \

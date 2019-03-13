@@ -11,6 +11,7 @@
 using namespace std;
 
 #include "dece.h"
+#include "global.h"
 #include "terminate.h"
 #include "masstable.h"
 
@@ -227,20 +228,21 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
     /*** in case blank line is given, skip it */
     if(x[nc] == 0.0) continue;
 
+    /*** convert energy unit into eV */
+    x[nc] *= opt.EnergyConversion;
 
-#ifdef ENERGY_UNIT_MEV
-    x[nc] *= 1e+06;
-#endif
-
-#ifdef CROSS_SECTION_UNIT_MB
-    y[nc] *= 0.001;
-#endif
+    /*** convert cross section unit into barns */
+    y[nc] *= opt.CrossSectionConversion;
 
     nc++;
     if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
   }
 
   fp.close();
+
+  ostringstream os;
+  os << "MF3:MT" << mt << " " << nc << " points imported from " << file;
+  Notice("readCSdata",os.str());
 
   return nc;
 }
@@ -272,11 +274,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   istringstream s1(&line[1]);  // skip comment #
   for(int i=0 ; i<ofset ; i++) s1 >> eth;
 
-#ifdef ENERGY_UNIT_MEV
-  *elev = eth * 1e+6;
-#else
-  *elev = eth;
-#endif
+  *elev = eth * opt.EnergyConversion;
 
   int nc = 0;
   while(getline(fp,line)){
@@ -284,12 +282,8 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
     s2 >> x[nc];
     for(int i=0 ; i<ofset ; i++) s2 >> y[nc];
 
-#ifdef ENERGY_UNIT_MEV
-    x[nc] *= 1e+06;
-#endif
-#ifdef CROSS_SECTION_UNIT_MB
-    y[nc] *= 0.001;
-#endif
+    x[nc] *= opt.EnergyConversion;
+    y[nc] *= opt.CrossSectionConversion;
 
     if( (mt >= 600) || (y[nc] > 0.0) ) nc++;
     if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
@@ -306,6 +300,10 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
     }
   }
   if(zero) nc = 0;
+
+  ostringstream os;
+  os << "MF3:MT" << mt << " " << nc << " points imported from " << file;
+  Notice("readISdata",os.str());
 
   return nc;
 }
@@ -329,21 +327,23 @@ int readNUdata(char *file, int ofset, double *x, double *y)
     if(line[0] == '#') continue;
 
     istringstream ss(line);
-    ss >>x[nc];
+    ss >> x[nc];
     for(int i=0 ; i<ofset ; i++) ss >> y[nc];
 
     /*** in case blank line is given, skip it */
     if(x[nc] == 0.0) continue;
 
-#ifdef ENERGY_UNIT_MEV
-    x[nc] *= 1e+06;
-#endif
+    x[nc] *= opt.EnergyConversion;
 
     nc++;
-    if(nc>=MAX_DBLDATA) TerminateCode("too many energy points");
+    if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
   }
 
   fp.close();
+
+  ostringstream os;
+  os << "MF1:MT455(6) " << nc << " points imported from " << file;
+  Notice("readNUdata",os.str());
 
   return nc;
 }

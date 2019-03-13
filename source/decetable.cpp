@@ -18,24 +18,34 @@ using namespace std;
 /**********************************************************/
 void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const int mt, const int d)
 {
-  if( (mf <= 5) || (mf == 8) || (mf == 10) || (mf == 12) || (mf == 13) || (mf == 14) || (mf == 15) || (mf == 31) || (mf == 33) || (mf == 34)){
+  if( (mf <=  5) ||
+      (mf ==  8) ||
+      (mf == 10) ||
+      (mf == 12) ||
+      (mf == 13) ||
+      (mf == 14) ||
+      (mf == 15) ||
+      (mf == 31) ||
+      (mf == 33) ||
+      (mf == 34) ){
+
     int k = dict->getID(mf,mt);
 
     /*** if already in memory */
-    if(k>=0)    DeceLibToTable(lib[k],NULL,d);
+    if(k >= 0) DeceLibToTable(lib[k],NULL,d);
     /*** otherwise read a data file */
-    else if(k==-1) DeceFileToTable(fp,mf,mt,d);
+    else if(k == -1) DeceFileToTable(fp,mf,mt,d);
   }
   else if(mf == 6){
     int k3 = dict->getID(3,mt);
     int k6 = dict->getID(6,mt);
 
     /*** in memory */
-    if(k3>=0 && k6>=0) DeceTableMF6(lib[k3],lib[k6]);
+    if(k3 >= 0 && k6 >= 0) DeceTableMF6(lib[k3],lib[k6]);
     /*** from a file */
     else DeceFileToTable(fp,mf,mt,d);
   }
-  else WarningMessage("table command cannot process MF = ",mf);
+  else WarningMessage("table command cannot process MF",mf);
 }
 
 
@@ -45,7 +55,15 @@ void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const in
 void DeceFileToTable(ifstream *fp, const int mf, const int mt, const int d)
 {
   /*** more sections to be added */
-  if( (1<= mf && mf<=10) || mf==12 || mf==13 || mf==14 || mf == 15 || mf==31 || mf==33 || mf==34){
+  if( (1 <= mf && mf <= 10) ||
+      (mf == 12) ||
+      (mf == 13) ||
+      (mf == 14) ||
+      (mf == 15) ||
+      (mf == 31) ||
+      (mf == 33) ||
+      (mf == 34) ){
+
     ENDF lib(L);
     ENDF sup(M);
     int  c = 0;

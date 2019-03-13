@@ -23,6 +23,8 @@ static string line;
 static string blank = "           ";
 static int    seqno = 1;
 
+static bool   LINE_NUMBER = false;
+
 
 /**********************************************************/
 /*      Seek Head                                         */
@@ -654,13 +656,16 @@ void ENDFPrintRight(int mat, int mf, int mt)
 {
   cout << right;
   cout << setw(4) <<mat << setw(2) <<mf << setw(3) << mt;
-#ifdef LINE_NUMBER
-  cout << setw(5) << seqno;
-#endif
+
+  if(LINE_NUMBER) cout << setw(5) << seqno;
   cout << endl;
+
   if(seqno == 99999) seqno = 0;
   else seqno++;
 }
+
+void ENDFPrintLineNumber(bool x)
+{ LINE_NUMBER = x; }
 
 
 /**********************************************************/
@@ -811,7 +816,7 @@ void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
   libdst->setENDFhead( libsrc->getENDFhead() );
   libdst->setENDFmat( libsrc->getENDFmat() );
   libdst->setENDFmf( libsrc->getENDFmf() );
-  libdst->setENDFmt( libsrc->getENDFmt() );
+//libdst->setENDFmt( libsrc->getENDFmt() ); // preserve destination MT
 
   /*** check size */
   libdst->setPOS(nb);
@@ -1017,7 +1022,7 @@ int ENDFMergeXdata(ENDF *lib1, ENDF *lib2, double *z)
       z[i] = lib2->xptr[idx2][i2];
     i+=2;
 
-    if( ((i1/2+1)==n1) && ((i2/2+1)==n2) ) break;
+    if( ((i1/2+1) == n1) && ((i2/2+1) == n2) ) break;
 
     if( lib1->xptr[idx1][i1] < lib2->xptr[idx2][i2] ){
       i1+=2;
@@ -1029,7 +1034,7 @@ int ENDFMergeXdata(ENDF *lib1, ENDF *lib2, double *z)
       i1+=2;
       i2+=2;
     }
-  }while(i<MAX_DBLDATA);
+  }while(i < MAX_DBLDATA);
 
   return(i/2);
 }

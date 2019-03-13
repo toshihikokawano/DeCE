@@ -90,7 +90,7 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
     cout << "#           ND" << setw(14) << nd << "  number of discrete lines" << endl;
     cout << "#           NA" << setw(14) << na << "  number of angular parameters" << endl;
 
-    if(nd>0){
+    if(nd > 0){
       for(int i1=0 ; i1<nd ; i1++){
         outVal(lib6->xptr[idx][2*i1  ]);
         outVal(lib6->xptr[idx][2*i1+1]);

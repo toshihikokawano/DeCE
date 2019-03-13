@@ -46,13 +46,13 @@ void  DeceTableMF1MT452(ENDF *lib)
   int lnu  = head.l2;
 
   /*** given by polynomials */
-  if(lnu==1){
+  if(lnu == 1){
     int nc = lib->rdata[1].n1;
     cout << "#           NC" << setw(14) << nc << "  number of polynomial terms" << endl;
     ENDFPrintLIST(lib,0);
   }
   /*** tabulated */
-  else if(lnu==2){
+  else if(lnu == 2){
     ENDFPrint1Dim(lib,0);
   }
 }
@@ -82,13 +82,13 @@ void  DeceTableMF1MT455(ENDF *lib)
 
   /*** given by polynomials */
   cout << "# Delayed neutron yields" << endl;
-  if(lnu==1){
+  if(lnu == 1){
     int nc = lib->rdata[1].n1;
     cout << "#           NC" << setw(14) << nc << "  number of polynomial terms" << endl;
     ENDFPrintLIST(lib,1);
   }
   /*** tabulated */
-  else if(lnu==2){
+  else if(lnu == 2){
     ENDFPrint1Dim(lib,1);
   }
 }

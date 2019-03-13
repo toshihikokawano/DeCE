@@ -1,4 +1,38 @@
-<<<<<<< HEAD
+2019-03-12  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dece.cpp: updated
+	many source files were updated, and version increased to 1.2.2 Pyrite
+	all changes were made in the develop branch
+
+	* source/dece.cpp: (Notice): new method
+	debugging information printed when verbos option is provided
+	all warning messages will be printed regardless the verbos option
+
+	* source/command.cpp (gettext): new function
+	keep global option name
+
+	* source/deceoperation.cpp: new file
+	command operations moved from main
+
+	* source/global.h (class GlobalOption): new file, new class
+	define global options
+
+	* source/deceglobaloption.cpp: new file
+	setting global options, or print current setting
+
+	* source/decopy.cpp: removed, and methods moved to other files
+	* source/deceextract.cpp: new file, from dececopy
+	* source/decelibread.cpp: new file, from dececopy
+	* source/decescanindex.cpp: new file, from dececopy
+	* source/decereadjust.cpp: new file, from dececopy
+	re-adjust partial subsections, such as MT51-91 by the summed subsection (MT4)
+	
+	* source/decepoint.cpp: some methods were moved to other files
+	* source/decefactor.cpp: new file, from decepoint
+	* source/deceapplyfunc.cpp: new file, from decepoint
+
+	* source/deceprocpointwise.cpp: renamed from deceprocpoint.cpp
+
 2019-01-28  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* tools/deceangdist.cpp: new file

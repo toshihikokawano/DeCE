@@ -48,29 +48,6 @@ void DeceOutput(ifstream *fpin, ENDFDict *dict, ENDF *lib[])
 
 
 /**********************************************************/
-/*      Sort Dictionary                                   */
-/**********************************************************/
-void dictsort(ENDFDict *dict)
-{
-  for(int j=0 ; j<dict->sec ; j++){
-    int k = j;
-    for(int i=j ; i<dict->sec ; i++){
-      if( (dict->mf[i]<=dict->mf[k]) && (dict->mt[i]<dict->mt[k]) ) k = i;
-    }
-    swap(&dict->mf[j], &dict->mf[k]);
-    swap(&dict->mt[j], &dict->mt[k]);
-    swap(&dict->nc[j], &dict->nc[k]);
-    swap(&dict->id[j], &dict->id[k]);
-  }
-}
-
-inline void swap(int *a, int *b)
-{
-  int tmp = *a;  *a = *b;  *b = tmp;
-}
-
-
-/**********************************************************/
 /*      Clean-up, Renumber and Fix Dictionary             */
 /**********************************************************/
 void DeceRenumber(string fin, string fout, ENDFDict *dict)
@@ -131,6 +108,29 @@ void DeceRenumber(string fin, string fout, ENDFDict *dict)
   fpin.close();
   fpout.close();
   cout.rdbuf(save);
+}
+
+
+/**********************************************************/
+/*      Sort Dictionary                                   */
+/**********************************************************/
+void dictsort(ENDFDict *dict)
+{
+  for(int j=0 ; j<dict->sec ; j++){
+    int k = j;
+    for(int i=j ; i<dict->sec ; i++){
+      if( (dict->mf[i]<=dict->mf[k]) && (dict->mt[i]<dict->mt[k]) ) k = i;
+    }
+    swap(&dict->mf[j], &dict->mf[k]);
+    swap(&dict->mt[j], &dict->mt[k]);
+    swap(&dict->nc[j], &dict->nc[k]);
+    swap(&dict->id[j], &dict->id[k]);
+  }
+}
+
+inline void swap(int *a, int *b)
+{
+  int tmp = *a;  *a = *b;  *b = tmp;
 }
 
 

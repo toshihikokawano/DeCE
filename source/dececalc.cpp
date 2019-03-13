@@ -2,8 +2,8 @@
 /**     DeCE CALC                                                            **/
 /******************************************************************************/
 
-#include <string>
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cmath>
 
@@ -43,7 +43,7 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
   else{
     /*** deterimine Q-value */
     double qm = 0.0, qi = 0.0;
-    if(mtdest >=4 ){
+    if(mtdest >= 4){
       int    kq = qselect(k1,k2,lib[k1]->rdata[0].c1+lib[k1]->rdata[0].c2,
                                 lib[k2]->rdata[0].c1+lib[k2]->rdata[0].c2);
       qm = lib[kq]->rdata[0].c1;
@@ -56,9 +56,9 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
     /*** add all MTs in the range to DEST */
     if(op == ':'){
       for(int i=0 ; i<dict->sec ; i++){
-        if( (dict->mf[i]==mf) && (dict->mt[i]>=mtsrc1+1 && dict->mt[i]<=mtsrc2) ){
+        if( (dict->mf[i] == mf) && (dict->mt[i] >= mtsrc1+1 && dict->mt[i] <= mtsrc2) ){
           k2 = dict->getID(3,dict->mt[i]);
-          if(k2<0) continue;
+          if(k2 < 0) continue;
           addsection('+',lib[k2],lib[k0]);
         }
       }
@@ -68,7 +68,7 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
 
     Record r  = lib[k0]->rdata[0];
     int    np = r.n2;
-    int    nc = np/3 + 4;  if(np%3==0 && np!=0) nc--;
+    int    nc = np/3 + 4;  if(np%3 == 0 && np != 0) nc--;
 
     dict->nc[k0] = nc;
 
@@ -80,10 +80,9 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
     lib[k0]->rdata[0].c2 = qi;
   }
 
-  /*** write section to temp File */
-  //  ENDFWriteHEAD(lib[k0]);
-  //  ENDFWriteTAB1(lib[k0]);
-  //  ENDFWriteSEND(lib[k0]);
+//ENDFWriteHEAD(lib[k0]);
+//ENDFWriteTAB1(lib[k0]);
+//ENDFWriteSEND(lib[k0]);
 }
 
 
@@ -164,8 +163,15 @@ void addsection(char pm, ENDF *src, ENDF *dest)
     default :  break;
     }
 
-    if(z[i*2+1] < 0.0) cerr << "negative cross section " << z[i*2+1] << " detected at " << z[i*2] << " in MT = " << dest->getENDFmt() <<  endl;
-
+    if(z[i*2+1] < 0.0){
+      ostringstream os;
+      os << "MF3:MT" << dest->getENDFmt();
+      os << " negative value " << setw(13) << z[i*2+1];
+      os << " detected at "    << setw(13) << z[i*2];
+      os << " where Y1 = "     << setw(13) << y1;
+      os << " and Y2 = "       << setw(13) << y2;
+      WarningMessage(os.str());
+    }
   }
 
   Record rs = src->rdata[0];
@@ -182,12 +188,16 @@ void addsection(char pm, ENDF *src, ENDF *dest)
   rd.c2 = qis;
   dest->rdata[0] = rd;
 
-  for(int i=0 ; i<MAX_INTDATA ; i++) dest->idata[i] = 0;
-  dest->idata[0] = n;
-  dest->idata[1] = 2;
+  dest->resetPOS();
 
-  for(int i=0 ; i<MAX_DBLDATA ; i++) dest->xdata[i] = 0.0;
-  for(int i=0 ; i<n*2 ; i++) dest->xdata[i] = z[i];
+  for(int i=0 ; i<MAX_INTDATA ; i++) dest->iptr[0][i] = 0;
+  dest->iptr[0][0] = n;
+  dest->iptr[0][1] = 2;
+
+  for(int i=0 ; i<MAX_DBLDATA ; i++) dest->xptr[0][i] = 0.0;
+  for(int i=0 ; i<n*2 ; i++){
+    dest->xptr[0][i] = z[i];
+  }
 
   delete [] z;
 }

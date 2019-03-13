@@ -10,6 +10,7 @@
 using namespace std;
 
 #include "dece.h"
+#include "global.h"
 #include "terminate.h"
 #include "polysq.h"
 
@@ -35,7 +36,7 @@ void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *
   Record   *cont;
 
   if( (mf != 4) && (mf !=6 ) ) return;
-  if( !((mt==2) || (51 <= mt && mt<= 90) || (mt>=600)) ) return;
+  if( !((mt == 2) || (51 <= mt && mt <= 90) || (mt >= 600)) ) return;
 
   int k3 = dict->getID(3,mt);
   if(k3 < 0) TerminateCode("same MT must exist both in MF3 and MF4",mt);
@@ -57,10 +58,10 @@ void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *
 
   /*** read angular distribution data */
   int ne = readADdata(datafile,ofset,mt,cx,cy,en);
-  if(ne==0) TerminateCode("no data to be added from a file",datafile);
+  if(ne == 0) TerminateCode("no data to be added from a file",datafile);
 
   /*** threshold energy */
-  double eth = (mt==2) ? 1e-05 : lib[k3]->xdata[0];
+  double eth = (mt == 2) ? 1e-05 : lib[k3]->xdata[0];
 
   /*** generate floating point data */
   ne = geneADdata(mt,ne,eth,en,cx,cy,lg,cont);
@@ -102,14 +103,14 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
   fp.open(file);
   if(!fp) TerminateCode("cannot open data file",(string)file);
 
-  if(ofset==0){
-    if(mt==2) ofset = 1;
-    else if( ( 51<=mt) && (mt<= 91) ) ofset = mt- 50+1;
-    else if( (600<=mt) && (mt<=648) ) ofset = mt-600+1;
-    else if( (650<=mt) && (mt<=698) ) ofset = mt-650+1;
-    else if( (700<=mt) && (mt<=748) ) ofset = mt-700+1;
-    else if( (750<=mt) && (mt<=798) ) ofset = mt-750+1;
-    else if( (800<=mt) && (mt<=848) ) ofset = mt-800+1;
+  if(ofset == 0){
+    if(mt == 2) ofset = 1;
+    else if( ( 51 <= mt) && (mt <=  91) ) ofset = mt- 50+1;
+    else if( (600 <= mt) && (mt <= 648) ) ofset = mt-600+1;
+    else if( (650 <= mt) && (mt <= 698) ) ofset = mt-650+1;
+    else if( (700 <= mt) && (mt <= 748) ) ofset = mt-700+1;
+    else if( (750 <= mt) && (mt <= 798) ) ofset = mt-750+1;
+    else if( (800 <= mt) && (mt <= 848) ) ofset = mt-800+1;
   }
 
 
@@ -119,16 +120,15 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
     istringstream s1(&line[1]);  // skip comment #
     s1 >> en[ne] >> legflag;
 
-#ifdef ENERGY_UNIT_MEV
-    en[ne] *= 1e+6;
-#endif
+    /*** convert energy unit into eV */
+    en[ne] *= opt.EnergyConversion;
 
     bool nonzero = false;
     if(legflag == "Legcoef"){
       for(int i=0 ; i<MAX_LEGCOEF ; i++){
         getline(fp,line);
         istringstream s2(line);
-        s2 >>x[i];
+        s2 >> x[i];
         for(int j=0 ; j<ofset ; j++) s2 >> y[ne][i];
       }
       if(y[ne][0] != 0.0) nonzero = true;
@@ -137,7 +137,7 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
       for(int i=0 ; i<ANGLE_POINTS ; i++){
         getline(fp,line);
         istringstream s2(line);
-        s2 >>x[i];
+        s2 >> x[i];
         for(int j=0 ; j<ofset ; j++) s2 >> y[ne][i];
       }
       if(y[ne][0] != 0.0) nonzero = true;
@@ -145,13 +145,14 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
     }
 
     if(nonzero) ne++;
-    if(ne>=MAX_ENERGY) TerminateCode("too many energy points for angular distributions");
+    if(ne >= MAX_ENERGY) TerminateCode("too many energy points for angular distributions");
   }
 
   fp.close();
 
   return ne;
 }
+
 
 /**********************************************************/
 /*      Generate 2-Dim Array of Legendre Coefficients     */
@@ -273,7 +274,6 @@ void storeMF4(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)
   idat[1] = 2;      // lin-lin interpolation
   ENDFPackTAB2(cont, xcont, idat, xdat, lib);
 }
-
 
 
 /**********************************************************/

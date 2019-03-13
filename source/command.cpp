@@ -157,6 +157,7 @@ string CmdExtractArgument(void)
   }
   else if(ope == "set" || ope == "unset"){
     gettext(d1,cmd.text);
+    cmd.x     =      getval(d1);
   }
   else{
     cmd.mf    = (int)getval(d1);

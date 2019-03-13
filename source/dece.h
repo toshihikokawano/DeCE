@@ -10,12 +10,6 @@
 #include "endflib.h"
 #endif
 
-//#define ENERGY_UNIT_EV
-//#define CROSS_SECTION_UNIT_B
-
-#define ENERGY_UNIT_MEV
-#define CROSS_SECTION_UNIT_MB
-
 /*** dece.cpp */
 void   DeceCreateLib    (ENDFDict *, int, int);
 void   DeceCheckMT      (int);
@@ -23,44 +17,51 @@ void   DeceCheckMT      (int);
 /*** deceoperation.cpp */
 void   DeceOperation    (ENDFDict *, ENDF **, ifstream *);
 
+/*** dececalc.cpp */
+void   DeceCalc         (ENDFDict *, ENDF **, const int, const int, const int, const char);
+void   DeceCalc452      (ENDFDict *dict, ENDF *lib[]);
+
+/*** decedelete.cpp */
+void   DeceDelete       (ENDFDict *, const int, const int);
+
+/*** deceread.cpp */
+void   DeceRead         (ENDFDict *, ENDF *, const int, const int, char *, int, bool);
+
+/*** deceangdist.cpp */
+void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, int);
+
+/*** decelibread.cpp */
+void   DeceLibRead      (ENDFDict *, ENDF *, char *);
+
 /*** decetable.cpp */
 void   DeceTable        (ENDFDict *, ENDF *[], ifstream *, const int, const int, const int);
 void   DeceFileToTable  (ifstream *, const int, const int, const int);
 void   DeceDataPoint    (ifstream *, const int, const int, const double);
 
-/*** deceangdist.cpp */
-void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, int);
-
-/*** dececalc.cpp */
-void   DeceCalc         (ENDFDict *, ENDF **, const int, const int, const int, const char);
-void   DeceCalc452      (ENDFDict *dict, ENDF *lib[]);
-
-/*** dececopy.cpp */
+/*** deceextract.cpp */
 void   DeceExtract      (ENDFDict *, ENDF *[], ifstream *, const int, const int);
-void   DeceLibRead      (ENDFDict *, ENDF *, char *);
-void   DeceDelete       (ENDFDict *, const int, const int);
-void   DeceScan         (ENDFDict *);
-
-/*** deceheader.cpp */
-void   DeceFixAWR       (ENDFDict *);
-
-/*** deceoutput.cpp */
-void   DeceOutput       (ifstream *, ENDFDict *, ENDF **);
-void   DeceRenumber     (string, string, ENDFDict *);
 
 /*** decepoint.cpp */
 void   DecePoint        (ENDFDict *, ENDF **, const int, const int, double, double, string);
+
+/*** decefactor.cpp */
 void   DeceFactor       (ENDFDict *, ENDF **, const int, const int, double, double, double, double);
+
+/*** deceapplyfunc.cpp */
 void   DeceApplyFunc    (ENDFDict *, ENDF **, const int, const int, int, double, double, double);
-void   DeceChangeInt    (ENDFDict *, ENDF **, const int, int, int, int);
+
+/*** decereadjust.cpp */
 void   DeceReadjust     (ENDFDict *, ENDF **, const int, const int);
+
+/*** decechangeint.cpp */
+void   DeceChangeInt    (ENDFDict *, ENDF **, const int, int, int, int);
 
 /*** deceqvalue.cpp */
 void   DeceChangeQvalue (ENDFDict *, ENDF **, const int, double, double);
 void   DeceCheckEnergy  (ENDFDict *, ENDF **, const bool);
 
-/*** deceread.cpp */
-void   DeceRead         (ENDFDict *, ENDF *, const int, const int, char *, int, bool);
+/*** deceheader.cpp */
+void   DeceFixAWR       (ENDFDict *);
 
 /*** decemod6 */
 void   DeceBoundCorrect (ENDFDict *, ENDF **, const int);
@@ -74,6 +75,15 @@ void   gfrPtCross       (ENDFDict *, ENDF **, double, double, double);
 void   gfrAngDist       (ENDFDict *, ENDF **, double, double, double);
 void   gfrAngDistSmooth (ENDFDict *, ENDF **, double);
 
-/*** deceprocpoint.cpp */
+/*** deceprocpointwise.cpp */
 void   DeceGeneratePointwise (ENDFDict *, ENDF **);
 
+/*** decescanindex.cpp */
+void   DeceScanIndex    (ENDFDict *);
+
+/*** deceglobaloption.cpp */
+void   DeceGlobalOption (string, string, const double);
+
+/*** deceoutput.cpp */
+void   DeceOutput       (ifstream *, ENDFDict *, ENDF **);
+void   DeceRenumber     (string, string, ENDFDict *);

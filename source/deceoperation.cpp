@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include <iostream>
+#include <iomanip>
 #include <cstdlib>
 #include <sstream>
 
@@ -21,7 +22,7 @@ static void DeceOperationANGDIST         (ENDFDict *, ENDF **);
 static void DeceOperationLIBREAD         (ENDFDict *, ENDF **);
 static void DeceOperationTABLE           (ENDFDict *, ENDF **, ifstream *);
 static void DeceOperationEXTRACT         (ENDFDict *, ENDF **, ifstream *);
-static void DeceOperationADDPOINT        (ENDFDict *, ENDF **);
+static void DeceOperationPOINT           (ENDFDict *, ENDF **);
 static void DeceOperationFACTOR          (ENDFDict *, ENDF **);
 static void DeceOperationAPPLYFUNC       (ENDFDict *, ENDF **);
 static void DeceOperationREADJUST        (ENDFDict *, ENDF **);
@@ -35,7 +36,6 @@ static void DeceOperationDUPLICATEPOINT  (ENDFDict *, ENDF **);
 static void DeceOperationGENPROD         (ENDFDict *, ENDF **);
 static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
-static void DeceGlobalOptions            (void);
 
 extern CLine cmd;
 
@@ -88,7 +88,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 
   /*** ADDPOINT, DELPOINT: add / remove a point in TAB1 record */
   else if( (ope == "addpoint") || (ope == "delpoint") ){
-    DeceOperationADDPOINT(dict,lib);
+    DeceOperationPOINT(dict,lib);
   }
 
   /*** FACTOR, NORMALIZE: multiply by a factor */
@@ -168,10 +168,12 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   else if(ope == "tpid") CmdExtractString(dict->tpid);
 
   /*** INDEX: print section index */
-  else if(ope == "index") DeceScan(dict);
+  else if(ope == "index") DeceScanIndex(dict);
 
   /*** SET: modify global setting */
-  else if(ope == "set" || ope == "unset" || ope == "showoptions") DeceGlobalOptions();
+  else if(ope == "set" || ope == "unset" || ope == "showoptions"){
+    DeceGlobalOption(ope,(string)cmd.text,cmd.x);
+  }
 
   /*** Unknown command */
   else TerminateCode("command not found",ope);
@@ -201,7 +203,12 @@ void DeceOperationCALC(ENDFDict *dict, ENDF *lib[])
   }
 
   ostringstream os;
-  os << "MF3:MT" << cmd.mt << " = " << cmd.opt1 << " " << cmd.text[0] << " " << cmd.opt2;
+  os << "MF3:MT" << cmd.mt << " created by ";
+  if(     cmd.text[0] == '+'){ os << "adding MT" << cmd.opt1 << " and MT" << cmd.opt2; }
+  else if(cmd.text[0] == '-'){ os << "subtracting MT" << cmd.opt2 << " from MT" << cmd.opt1; }
+  else if(cmd.text[0] == '*'){ os << "multiplying MT" << cmd.opt1 << " and MT" << cmd.opt2; }
+  else if(cmd.text[0] == '/'){ os << "dividing MT" << cmd.opt1 << " by MT" << cmd.opt2; }
+  else if(cmd.text[0] == ':'){ os << "adding subsections from MT" << cmd.opt2 << " to MT" << cmd.opt1; }
   Notice("DeceOperationCALC",os.str());
 }
 
@@ -218,7 +225,7 @@ void DeceOperationDUPLICATE(ENDFDict *dict, ENDF *lib[])
   int k0 = dict->getID(cmd.mf,cmd.mt);
   int k1 = dict->getID(cmd.mf,cmd.opt1);
 
-  if(k0 < 0) TerminateCode("MT number not found",cmd.mt);
+  if(k0 < 0) TerminateCode("source MT number not found",cmd.mt);
 
   ENDFLibCopy(lib[k0],lib[k1]);
 
@@ -323,7 +330,7 @@ void DeceOperationEXTRACT(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 /* addpoint MF MT Xdata Ydata                             */
 /* delpoint MF MT Xdata Ydata                             */
 /**********************************************************/
-void DeceOperationADDPOINT(ENDFDict *dict, ENDF *lib[])
+void DeceOperationPOINT(ENDFDict *dict, ENDF *lib[])
 {
   string ope = CmdGetOperation();
   DeceCheckMT(cmd.mt);
@@ -512,25 +519,3 @@ void DeceOperationPOINTWISE(ENDFDict *dict, ENDF *lib[])
   }
 }
 
-
-/**********************************************************/
-/* SHOWOPTIONS, SET, UNSET                                */
-/*      change global options, or show current            */
-/* set option                                             */
-/* unset option                                           */
-/* showoptions                                            */
-/**********************************************************/
-void DeceGlobalOptions()
-{
-  string ope = CmdGetOperation();
-
-  if(ope == "showoptions"){
-    cout << "option: linenumber " << ((opt.linenumber) ? " ON" : "OFF") << endl;
-  }
-  else{
-    if((string)cmd.text == "linenumber"){
-      opt.linenumber = (ope == "set") ? true : false;
-    }
-    else WarningMessage("option not found ",cmd.text);
-  }
-}

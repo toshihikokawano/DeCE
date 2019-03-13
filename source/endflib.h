@@ -21,7 +21,6 @@
 #define FIELD_WIDTH            11
 #define COLUMN_NUM              6
 
-#undef LINE_NUMBER
 
 enum dataSize{S =0, M =1, L  =2};
 typedef enum dataSize DataSize;
@@ -374,6 +373,7 @@ void   ENDFWriteFEND      (int);
 void   ENDFWriteArray     (ENDF *, int, double *);
 void   ENDFWriteArray     (ENDF *, int, int *);
 void   ENDFPrintRight     (const int, const int, const int);
+void   ENDFPrintLineNumber(const bool);
 void   ENDFPackCONT       (Record, ENDF *);
 void   ENDFPackLIST       (Record, double *, ENDF *);
 void   ENDFPackTAB1       (Record, int *, double *, ENDF *);

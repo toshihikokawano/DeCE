@@ -8,10 +8,14 @@
 /**************************************/
 class GlobalOption{
  public:
-  bool linenumber         ;    // print line numbers
+  bool   LineNumber              ;    // print line numbers
+  double EnergyConversion        ;    // conversion factor of energy when imported
+  double CrossSectionConversion  ;    // conversion factor of cross section
 
   GlobalOption(){
-    linenumber          = false;
+    LineNumber             =  false;
+    EnergyConversion       =  1.0e+6; // default in MeV
+    CrossSectionConversion =  0.001;  // default in mb
   }
 };
 

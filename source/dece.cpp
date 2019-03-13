@@ -27,10 +27,11 @@ static ENDF   *lib[MAX_SECTION];
 
 static void DeceMain          (string, string, ENDFDict *);
 static void DeceStoreData     (ENDFDict *, ifstream *);
+static void DeceInitOptions   (void);
+static void DeceReadMonitor   (int, int, int, int, int);
 static void DeceHelp          (void);
 static void DeceFreeMemory    (void);
 static void DeceBanner        (void);
-static inline void DeceReadMonitor   (int, int, int, int, int);
 
 
 /**********************************************************/
@@ -74,7 +75,10 @@ int main(int argc, char *argv[])
   if(optind < argc) libname_in = argv[optind];
   if(libname_in == "") TerminateCode("ENDF-6 formattted file not given");
   if(libname_in == libname_out) TerminateCode("same in/out file names");
-  
+
+  /*** initialize global options */
+  DeceInitOptions();
+
   /*** tabular output from one section */
   if(mfin == 2) mtin = 151;
 
@@ -208,6 +212,15 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
 
 
 /**********************************************************/
+/*      Initialize Global Options                         */
+/**********************************************************/
+void DeceInitOptions()
+{
+  ENDFPrintLineNumber(opt.LineNumber);
+}
+
+
+/**********************************************************/
 /*      Data Read Monitor                                 */
 /**********************************************************/
 void DeceReadMonitor(int mat, int mf, int mt, int sec, int n)
@@ -277,7 +290,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
     dict->setID(i,newsec);
   }
 
-  os << " MF:" << mf << " MT:" << mt << " assinged for " << newsec;
+  os << " MF" << mf << ":MT" << mt << " assinged for section " << newsec;
   Notice("DeceCreateLib",os.str());
 
   newsec++;

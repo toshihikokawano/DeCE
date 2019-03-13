@@ -29,28 +29,36 @@ History:
    1.1.4              : Jul. 2014   Legendre coefficients from resonances
    1.2.0 (Adularia)   : Sep. 2015   resonance reconstruction, and more upgrades
    1.2.1              : May  2016   open source version
-   1.2.2 (Pyrite)     : Mar  2019   reorganize some files for better reading
+   1.2.2 (Pyrite)     : Mar  2019   reorganize source files for better reading
 
 
 Files:
     source/
       [Main Program]
-        constant.h        physical constatns definition
-        dece.h            prototype definition of main modules
-        decetable.h       prototype definition of functions in decetable sources
-        terminate.h       code emergency stop
-        dece.cpp          main program
-        deceangdist.cpp   make MF4 from data, calculate Legendre coefficients
-        dececalc.cpp      add/sub/mul/div operation of TAB1 type sections
-        dececopy.cpp      scan the ENDF file, copy section to memory
-        deceheader.cpp    manipulate header part in MF1
-        decemisc.cpp      some mathematical functions
-        decemod6.cpp      manipulate sections in MF6
-        deceoutput.cpp    output whole ENDF data, renumbered, make new dictionary
-        decepoint.cpp     manipulate one-point data
-        deceprocpoit.cpp  create point-wise cross sections in MF3
-        deceread.cpp      read external file and make a section in MF3
-        decetable.cpp     output human readable table from ENDF data
+        constant.h            physical constatns definition
+        dece.h                prototype definition of main modules
+        decetable.h           prototype definition of functions in decetable sources
+        terminate.h           code emergency stop
+        dece.cpp              main program
+        deceangdist.cpp       make MF4 from data, calculate Legendre coefficients
+        deceapplyfunc.cpp     modify MF3 data by applying some functional forms
+        dececalc.cpp          add/sub/mul/div operation of TAB1 type sections
+        decechangeint.cpp     change interpolation
+        decedelete.cpp        remove some subsections or whole 
+        deceextract.cpp       print a specified MF MT subsection
+        decefactor.cpp        apply a constant to the data in MF3, or re-scale all
+        deceheader.cpp        manipulate header part in MF1
+        decelibread.cpp       import a subsection from external ENDF file
+        decemisc.cpp          some mathematical functions
+        decemod6.cpp          manipulate sections in MF6
+        deceoperation.cpp     perform each given operation
+        deceoutput.cpp        output whole ENDF data, renumbered, make new dictionary
+        decepoint.cpp         manipulate one-point data
+        deceprocpoitwise.cpp  create point-wise cross sections in MF3
+        deceread.cpp          read external file and make a section in MF3
+        decereadjust.cpp      rescale partial cross section by the sum
+        decescanindex.cpp     print contained MF and MT numbers
+        decetable.cpp         output human readable table from ENDF data
         decetable1.cpp        part of decetable, for MF1
         decetable2.cpp        part of decetable, for MF2
         decetable3.cpp        part of decetable, for MF3
@@ -62,34 +70,41 @@ Files:
         decetable10.cpp       part of decetable, for MF10
         decetable12.cpp       part of decetable, for MF12
         decetable13.cpp       part of decetable, for MF13
+        decetable13.cpp       part of decetable, for MF14
         decetable15.cpp       part of decetable, for MF15
         decetable33.cpp       part of decetable, for MF33
+        decetable34.cpp       part of decetable, for MF34
+        deceqvalue.cpp        edit energy-related quantities
 
       [ENDF-6 Formatted File I/O]
-        endflib.h         ENDFlib class definition
-        endfio.cpp        read/write interface to ENDF data section
-        endflib.cpp       ENDF-6 HEAD, CONT, LIST, TAB1, TAB2
+        endflib.h             ENDFlib class definition
+        endfio.cpp            read/write interface to ENDF data section
+        endflib.cpp           ENDF-6 HEAD, CONT, LIST, TAB1, TAB2
 
       [Input Line Interpreter]
-        command.h         Class Cline, and prototype definition 
-        command.cpp       input command analyzer
+        command.h             Class Cline, and prototype definition 
+        command.cpp           input command analyzer
+
+      [Global Setting]
+        global.h              define global parameters
+        deceglobaloption.cpp  set/reset/print global parameters
 
       [Reconstruct Poinwise Cross Section from Resonances]
-        gfr.h             prototype definition of GFR
-        gfr.cpp           calculate cross section from resonances
-        gfrcross.cpp      main calculation part
-        gfrcs1.cpp        SLBW / MLBW
-        gfrcs3.cpp        Reich-Moore
-        gfrcs7.cpp        R-matrix limited
-        gfrcsurr.cpp      unresolved resonance region
-        gfrenergy.cpp     auto energy grid
-        gfrformula.cpp    resonance formulae
-        gfrlegcoef.cpp    Legendre expansion coefficients
+        gfr.h                 prototype definition of GFR
+        gfr.cpp               calculate cross section from resonances
+        gfrcross.cpp          main calculation part
+        gfrcs1.cpp            SLBW / MLBW
+        gfrcs3.cpp            Reich-Moore
+        gfrcs7.cpp            R-matrix limited
+        gfrcsurr.cpp          unresolved resonance region
+        gfrenergy.cpp         auto energy grid
+        gfrformula.cpp        resonance formulae
+        gfrlegcoef.cpp        Legendre expansion coefficients
 
       [Miscellaneous Functions]
         decemisc.h
         decemisc.cpp
-        coupling.h        angular momentum couplings (from CoH3)
+        coupling.h            angular momentum couplings (from CoH3)
         coupling.cpp
 
       [Mass Table]
@@ -106,15 +121,16 @@ Files:
         polysq.cpp
 
    tools/
-        decemf4.cpp:  elastic scattering angular distribution section in ENDF-6
-        decemf5.cpp:  make energy spectrum section in ENDF-6
-        decemf6.cpp:  convert ECLIPSE(CoH) DDX output into ENDF-6
-        decemf12.cpp: convert ECLIPSE(CoH) discrete level output into ENDF-6
-        decemacs.cpp: calculate Maxwellian average cross section
+        decemf4.cpp           elastic scattering angular distribution section in ENDF-6
+        decemf5.cpp           make energy spectrum section in ENDF-6
+        decemf6.cpp           convert ECLIPSE(CoH) DDX output into ENDF-6
+        decemf12.cpp          convert ECLIPSE(CoH) discrete level output into ENDF-6
+        decephoto.cpp         create neutron production cross section for photo-reactions
+        decemacs.cpp          calculate Maxwellian average cross section
 
    example/
-        example1.cpp: read/write ENDF-6 using endflib
-        example2.cpp: onvert private date into ENDF-6 using endflib
+        example1.cpp          read/write ENDF-6 using endflib
+        example2.cpp          onvert private date into ENDF-6 using endflib
  
    manual/
         dece manual in HTML
