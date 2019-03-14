@@ -35,10 +35,12 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
   /*** copy src1 to dest */
   if(k2 < 0){
     ENDFLibCopy(lib[k1],lib[k0]);
+    lib[k0]->setENDFmt(mtdest);
   }
   /*** copy src2 to dest */
   else if(k1 < 0){
     ENDFLibCopy(lib[k2],lib[k0]);
+    lib[k0]->setENDFmt(mtdest);
   }
   else{
     /*** deterimine Q-value */
@@ -52,6 +54,7 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
 
     /*** copy SRC1 to DEST */
     ENDFLibCopy(lib[k1],lib[k0]);
+    lib[k0]->setENDFmt(mtdest);
 
     /*** add all MTs in the range to DEST */
     if(op == ':'){
@@ -66,14 +69,8 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
     /*** add SRC2 to DEST */
     else addsection(op,lib[k2],lib[k0]);
 
-    Record r  = lib[k0]->rdata[0];
-    int    np = r.n2;
-    int    nc = np/3 + 4;  if(np%3 == 0 && np != 0) nc--;
-
-    dict->nc[k0] = nc;
-
-    lib[k0]->setENDFmf(mf);
-    lib[k0]->setENDFmt(mtdest);
+    /*** number of lines of this section, set in dict */
+    dict->setLineCount(k0,lib[k0]->rdata[0].n2);
 
     /*** restore Q values */
     lib[k0]->rdata[0].c1 = qm;
@@ -96,8 +93,8 @@ void DeceCalc452(ENDFDict *dict, ENDF *lib[])
   int k2 = dict->getID(1,456);
   int mf = 1;
 
-  if(k1<0) TerminateCode("MT number not found",455);
-  if(k2<0) TerminateCode("MT number not found",456);
+  if(k1 < 0) TerminateCode("MT number not found",455);
+  if(k2 < 0) TerminateCode("MT number not found",456);
 
   Record hd = lib[k1]->getENDFhead();
   Record hp = lib[k2]->getENDFhead();
@@ -108,6 +105,7 @@ void DeceCalc452(ENDFDict *dict, ENDF *lib[])
 
   /*** first, copy 456(prompt) to 452(total) */
   ENDFLibCopy(lib[k2],lib[k0]);
+  lib[k0]->setENDFmt(452);
 
   /*** create a temporaly MF3-like library for delayed-nu */
   ENDF lib455(M);
@@ -198,6 +196,8 @@ void addsection(char pm, ENDF *src, ENDF *dest)
   for(int i=0 ; i<n*2 ; i++){
     dest->xptr[0][i] = z[i];
   }
+
+  dest->inclPOS();
 
   delete [] z;
 }

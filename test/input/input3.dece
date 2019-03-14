@@ -1,0 +1,13 @@
+echo "reading inelastic scattering cross sections"
+multiread 3 51 91 "data/CoHLevelExcite1.dat"
+
+echo "add all subsections"
+make4
+
+echo "print section indices"
+index
+
+echo "extract MF3:MT4"
+extract 3 4
+
+quit

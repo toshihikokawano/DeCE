@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <cmath>
 
@@ -25,15 +26,19 @@ void DeceChangeInt(ENDFDict *dict, ENDF *lib[], const int mt, int range, int poi
   int    nr = r.n1;
   int    np = r.n2;
 
-  if(point > np) TerminateCode("data point address exceeds the highest",point);
+  if(point < 0 || point >= np) point = np;
+
   if(range <= 0) TerminateCode("data range incorrect",range);
   if(range > nr+1) TerminateCode("data range incorrect",range);
 
   if(range == nr+1) lib[k]->rdata[0].n1 = nr+1;
-  if(point < 0) point = np;
 
   lib[k]->idata[(range-1)*2  ] = point;
   lib[k]->idata[(range-1)*2+1] = intlaw;
+
+  ostringstream os;
+  os << "interporation range " << range << " is up to " << point << " and INT = " << intlaw;
+  Notice("DeceChangeInt",os.str());
 }
 
 

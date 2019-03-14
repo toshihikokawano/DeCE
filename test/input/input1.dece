@@ -1,0 +1,22 @@
+echo "reading total cross section"
+read 3 1  "data/CoHCrossSection.dat"
+
+echo "reading elastic scattering cross section"
+read 3 2  "data/CoHCrossSection.dat"
+
+echo "reading (n,2n) cross section"
+read 3 16 "data/CoHParticleProduction.dat"
+
+echo "reading elastic again"
+read 3 2  "data/CoHCrossSection.dat"
+
+echo "changing LineNumber option"D
+set LineNumber
+showoptions
+
+echo "extract MF1, 2, and 16"
+extract 3 1
+extract 3 2
+extract 3 16
+
+quit

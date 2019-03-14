@@ -16,7 +16,7 @@ using namespace std;
 /**********************************************************/
 /*      Select ENDF Tape or In Memory                     */
 /**********************************************************/
-void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const int mt, const int d)
+void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const int mt)
 {
   if( (mf <=  5) ||
       (mf ==  8) ||
@@ -32,9 +32,9 @@ void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const in
     int k = dict->getID(mf,mt);
 
     /*** if already in memory */
-    if(k >= 0) DeceLibToTable(lib[k],NULL,d);
+    if(k >= 0) DeceLibToTable(lib[k],NULL);
     /*** otherwise read a data file */
-    else if(k == -1) DeceFileToTable(fp,mf,mt,d);
+    else if(k == -1) DeceFileToTable(fp,mf,mt);
   }
   else if(mf == 6){
     int k3 = dict->getID(3,mt);
@@ -43,7 +43,7 @@ void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const in
     /*** in memory */
     if(k3 >= 0 && k6 >= 0) DeceTableMF6(lib[k3],lib[k6]);
     /*** from a file */
-    else DeceFileToTable(fp,mf,mt,d);
+    else DeceFileToTable(fp,mf,mt);
   }
   else WarningMessage("table command cannot process MF",mf);
 }
@@ -52,7 +52,7 @@ void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const in
 /**********************************************************/
 /*      Read ENDF Data into Lib                           */
 /**********************************************************/
-void DeceFileToTable(ifstream *fp, const int mf, const int mt, const int d)
+void DeceFileToTable(ifstream *fp, const int mf, const int mt)
 {
   /*** more sections to be added */
   if( (1 <= mf && mf <= 10) ||
@@ -90,7 +90,7 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt, const int d)
     }
 
     if(c < 0) WarningMessage("no section given");
-    else      DeceLibToTable(&lib,&sup,d);
+    else      DeceLibToTable(&lib,&sup);
   }
   else WarningMessage("table command cannot process MF",mf);
 }
@@ -134,7 +134,7 @@ void DeceDataPoint(ifstream *fp, const int mf, const int mt, const double e)
 /**********************************************************/
 /*      In Memory Case                                    */
 /**********************************************************/
-void DeceLibToTable(ENDF *lib, ENDF *sup, int d)
+void DeceLibToTable(ENDF *lib, ENDF *sup)
 {
   Record head = lib->getENDFhead();
   double za   = head.c1;
@@ -157,7 +157,7 @@ void DeceLibToTable(ENDF *lib, ENDF *sup, int d)
   case  1: DeceTableMF1(lib);     break;
   case  2: DeceTableMF2(lib);     break;
   case  3: DeceTableMF3(lib);     break;
-  case  4: DeceTableMF4(lib,d);   break;
+  case  4: DeceTableMF4(lib);     break;
   case  5: DeceTableMF5(lib);     break;
   case  6: DeceTableMF6(sup,lib); break;
   case  8: DeceTableMF8(lib);     break;

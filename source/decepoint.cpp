@@ -53,12 +53,7 @@ void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x
     }
   }
 
-  r  = lib[k0]->rdata[0];
-  np = r.n2;
-
-  int nc = np/3 + 4;
-  if(np%3 == 0 && np != 0) nc--;
-  dict->nc[k0] = nc;
+  dict->setLineCount(k0,lib[k0]->rdata[0].n2);
 
   //  ENDFWriteHEAD(lib[k0]);
   //  ENDFWriteTAB1(lib[k0]);

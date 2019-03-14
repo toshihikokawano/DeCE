@@ -1,0 +1,14 @@
+echo "reading total cross sections"
+read 3 1 "data/CoHCrossSection.dat"
+
+echo "copy MT1 into MT2"
+duplicate 3 1 2
+
+echo "divide MF2 by 2.0"
+factor 3 2 0.5
+
+echo "extract MF3"
+extract 3 1
+extract 3 2
+
+quit

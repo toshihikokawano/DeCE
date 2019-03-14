@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <cstdlib>
 #include <cmath>
@@ -20,7 +21,7 @@ void DeceChangeQvalue(ENDFDict *dict, ENDF *lib[], const int mt, double qm, doub
 {
   int k = dict->getID(3,mt);
 
-  if(k<0) TerminateCode("MT number not found",mt);
+  if(k < 0) TerminateCode("MT number not found",mt);
 
   lib[k]->rdata[0].c1 = qm;
   lib[k]->rdata[0].c2 = qi;
@@ -28,19 +29,22 @@ void DeceChangeQvalue(ENDFDict *dict, ENDF *lib[], const int mt, double qm, doub
 
 
 /**********************************************************/
-/*      Check Q-values and Threshold Energies s in MF3    */
+/*      Check Q-values and Threshold Energies in MF3      */
 /**********************************************************/
-void DeceCheckEnergy(ENDFDict *dict, ENDF *lib[], bool fix)
+void DeceCheckThreshold(ENDFDict *dict, ENDF *lib[], bool fix)
 {
   double qm, qi, e0, e1, de;
   double tolerance = 1.0; // eV
 
   cout.setf(ios::fixed, ios::floatfield);
+  cerr.setf(ios::fixed, ios::floatfield);
 
   for(int i=0 ; i<dict->sec ; i++){
 
     if(dict->mf[i] == 3){
       int k = dict->getID(3,dict->mt[i]);
+      if(k < 0) continue;
+
       Record head = lib[k]->getENDFhead();
       double mass = head.c2;
 
@@ -67,6 +71,14 @@ void DeceCheckEnergy(ENDFDict *dict, ENDF *lib[], bool fix)
 
         if(fix) lib[k]->xptr[0][0] = e1;
       }
+
+      ostringstream os;
+      os << "MF" << dict->mf[i] << ":MT" << dict->mt[i];
+      os << " given threshold " << setprecision(6) << e0;
+      os << "   calc. from mass " << setprecision(6) << e1;
+      os << "   diff. " << setprecision(6) << e0 - e1;
+
+      Notice("DeceCheckThreshold",os.str());
     }
   }
 }

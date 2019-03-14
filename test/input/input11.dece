@@ -1,0 +1,11 @@
+echo "reading inelastic scattering cross sections"
+multiread 3 51 91 "data/CoHLevelExcite1.dat"
+
+echo "adding all subsections"
+make4
+
+multidelete 3 60 91
+
+checkthreshold
+
+quit

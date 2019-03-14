@@ -1,0 +1,6 @@
+echo "calculating total nu from nu_d and nu_p"
+nutotal
+
+extract 1 455
+extract 1 456
+extract 1 452

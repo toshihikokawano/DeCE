@@ -1,0 +1,12 @@
+echo "reading total cross section in ENDF library"
+libread 3 1 "ENDFMF3MT1.evl"
+
+echo "remove from 20 to 150 MeV data"
+delpoint 3 1 2.000001e+7 1.5e+8
+
+echo "add the last duplicated point"
+addpoint 3 1 2.0e+7 0.0
+
+extract 3 1
+
+quit

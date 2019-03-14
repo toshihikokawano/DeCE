@@ -34,8 +34,18 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
   int      nc = 0, np = 0;
   double   *cx, *cy, *xdat, elev = 0.0, qm = 0.0, qi = 0.0, et = 0.0;
 
-  if((mf != 1) && (mf != 3)) return;
-  if((mt <= 0) || (mt >= 1000)) return;
+  if((mf != 1) && (mf != 3)){
+    ostringstream os;
+    os << "MF" << mf << " different from MF1 or MF3";
+    WarningMessage(os.str());
+    return;
+  }
+  if((mt <= 0) || (mt >= 1000)){
+    ostringstream os;
+    os << "MT" << mt << " out of range";
+    WarningMessage(os.str());
+    return;
+  }
 
   /*** allocate data array and open data file */
   cx   = new double [MAX_DBLDATA];
@@ -60,7 +70,7 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     }
     if(nc == 0){
       ostringstream os;
-      os << "no data to be added from a file for MT = " << mt;
+      os << "no cross section data to be added from " << datafile << " for MT = " << mt;
       WarningMessage(os.str());
     }
 
@@ -100,7 +110,11 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
   /*** for number of prompt/delayed neutrons, MT=455, 456 */
   else{
     nc = readNUdata(datafile,ofset,cx,cy);
-    if(nc==0) TerminateCode("no data to be added from a file for MT = ",mt);
+    if(nc == 0){
+      ostringstream os;
+      os << "no nu data to be added from " << datafile << " for MT = " << mt;
+      WarningMessage(os.str());
+    }
 
     np = nc;
     for(int i=0 ; i<np ; i++){
@@ -261,13 +275,13 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   if(!fp) TerminateCode("cannot open data file",file);
 
   if(ofset == 0){
-    if( (51 <= mt) && (mt <= 91) )        ofset = mt -50+1;
-    else if( (600 <= mt) && (mt <= 648) ) ofset = mt-600+1;
-    else if( (650 <= mt) && (mt <= 698) ) ofset = mt-650+1;
-    else if( (700 <= mt) && (mt <= 748) ) ofset = mt-700+1;
-    else if( (750 <= mt) && (mt <= 798) ) ofset = mt-750+1;
-    else if( (800 <= mt) && (mt <= 848) ) ofset = mt-800+1;
-    else if( (mt == 649) || (mt == 699) || (mt == 749) || (mt == 799) || (mt == 849) ) ofset = 42;
+    if( (51 <= mt) && (mt <= 91) )        ofset = mt  - 50 + 1;
+    else if( (600 <= mt) && (mt <= 640) ) ofset = mt - 600 + 1;
+    else if( (650 <= mt) && (mt <= 690) ) ofset = mt - 650 + 1;
+    else if( (700 <= mt) && (mt <= 740) ) ofset = mt - 700 + 1;
+    else if( (750 <= mt) && (mt <= 790) ) ofset = mt - 750 + 1;
+    else if( (800 <= mt) && (mt <= 840) ) ofset = mt - 800 + 1;
+    else if( (mt == 649) || (mt == 690) || (mt == 749) || (mt == 799) || (mt == 849) ) ofset = 42;
   }
 
   getline(fp,line);

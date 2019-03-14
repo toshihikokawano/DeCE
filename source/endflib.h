@@ -324,6 +324,12 @@ class ENDFDict{
     emaxRe = e3;
     emax   = cont[1].c2;
   }
+  /*** set Line Count from number of data points */
+  void setLineCount(int k, int n){
+    int m = n/3 + 4;
+    if(n%3 == 0 && n != 0) m--;
+    nc[k] = m;
+  }
   /*** check if fissile */
   bool isFission(){
     return( (head.l2 == 1) ? true : false );

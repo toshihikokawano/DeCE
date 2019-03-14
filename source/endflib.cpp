@@ -816,7 +816,7 @@ void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
   libdst->setENDFhead( libsrc->getENDFhead() );
   libdst->setENDFmat( libsrc->getENDFmat() );
   libdst->setENDFmf( libsrc->getENDFmf() );
-//libdst->setENDFmt( libsrc->getENDFmt() ); // preserve destination MT
+  libdst->setENDFmt( libsrc->getENDFmt() );
 
   /*** check size */
   libdst->setPOS(nb);
@@ -824,18 +824,25 @@ void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
   if( libdst->checkMAXDATA(ni,nx) ) ENDFExceedDataSize("LibCopy",libdst,ni,nx);
 
   /*** copy all blocks */
-  for(int i=0 ; i<nb ; i++){
-    libdst->rdata[i] = libsrc->rdata[i];
-    libdst->iptr[i]  = libsrc->iptr[i];
-    libdst->xptr[i]  = libsrc->xptr[i];
-  }
   for(int i=0 ; i<ni ; i++) libdst->idata[i] = libsrc->idata[i];
   for(int i=0 ; i<nx ; i++) libdst->xdata[i] = libsrc->xdata[i];
+
+  for(int i=0 ; i<nb ; i++){
+    if(libsrc->iptr[i] != NULL){
+      int ofset = libsrc->iptr[i] - libsrc->iptr[0];
+      libdst->iptr[i] = &libdst->idata[ofset];
+    }
+    if(libsrc->xptr[i] != NULL){
+      int ofset = libsrc->xptr[i] - libsrc->xptr[0];
+      libdst->xptr[i] = &libdst->xdata[ofset];
+    }
+    libdst->rdata[i] = libsrc->rdata[i];
+  }
 }
 
 
 /**********************************************************/
-/*      Copy Object                                       */
+/*      Browse Object Contents                            */
 /**********************************************************/
 void ENDFLibPeek(ENDF *lib)
 {
@@ -849,13 +856,23 @@ void ENDFLibPeek(ENDF *lib)
   cout <<"HEAD: ";
   ENDFWriteRecord(&head);
   cout << endl;
+  cout <<"Position: " << lib->getPOS() << endl;
   /*** each block */
-  for(int i=0 ; i<lib->getPOS() ; i++){
+  if(lib->getPOS() == 1){
     cout <<"CONT: ";
-    ENDFWriteRecord(&lib->rdata[i]);
+    ENDFWriteRecord(&lib->rdata[0]);
     cout << endl;
-    cout <<"NINT: " << lib->iptr[i+1] - lib->iptr[i] << endl;
-    cout <<"NDBL: " << lib->xptr[i+1] - lib->xptr[i] << endl;
+    cout <<"NINT: " << lib->getNI() << endl;
+    cout <<"NDBL: " << lib->getNX() << endl;
+  }
+  else{
+    for(int i=0 ; i<lib->getPOS() ; i++){
+      cout <<"CONT: ";
+      ENDFWriteRecord(&lib->rdata[i]);
+      cout << endl;
+      cout <<"NINT: " << lib->iptr[i+1] - lib->iptr[i] << endl;
+      cout <<"NDBL: " << lib->xptr[i+1] - lib->xptr[i] << endl;
+    }
   }
 }
 

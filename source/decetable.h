@@ -7,11 +7,11 @@
 /*      decetable.cpp                 */
 /**************************************/
 
-void   DeceLibToTable    (ENDF *, ENDF *, int);
+void   DeceLibToTable    (ENDF *, ENDF *);
 void   DeceTableMF1      (ENDF *);
 void   DeceTableMF2      (ENDF *);
 void   DeceTableMF3      (ENDF *);
-void   DeceTableMF4      (ENDF *, int);
+void   DeceTableMF4      (ENDF *);
 void   DeceTableMF5      (ENDF *);
 void   DeceTableMF6      (ENDF *, ENDF *);
 void   DeceTableMF8      (ENDF *);

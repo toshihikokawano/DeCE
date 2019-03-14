@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <cmath>
 
@@ -14,7 +15,7 @@ using namespace std;
 
 /**********************************************************/
 /*      TAB1 Data Multiplied by Factor                    */
-/*      Rescale Y-data if x>0.0                           */
+/*      Rescale Y-data if x > 0.0                         */
 /**********************************************************/
 void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
                 double x, double y, double xmin, double xmax)
@@ -50,9 +51,12 @@ void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
     for(int ip=0 ; ip<np ; ip++) lib[k0]->xdata[2*ip+1] *= f;
   }
 
-  //  ENDFWriteHEAD(lib[k0]);
-  //  ENDFWriteTAB1(lib[k0]);
-  //  ENDFWriteSEND(lib[k0]);
+  ostringstream os;
+  os << "MF" << mf << ":MT" << mt << " rescaled by factor " << f;
+  if( (xmin < xmax) && (xmin >= 0.0) && (xmax > 0.0) ){
+    os << "in the energy range [" << xmin << "," << xmax <<"]";
+  }
+  Notice("DeceFactor",os.str());
 }
 
 

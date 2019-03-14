@@ -159,6 +159,9 @@ string CmdExtractArgument(void)
     gettext(d1,cmd.text);
     cmd.x     =      getval(d1);
   }
+  else if(ope == "echo"){
+    CmdExtractString(cmd.text);
+  }
   else{
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);

@@ -3,7 +3,7 @@
 /******************************************************************************/
 
 #include <iostream>
-#include <iomanip>
+#include <sstream>
 #include <cstdlib>
 #include <cmath>
 
@@ -47,10 +47,7 @@ void DeceApplyFunc(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
   if(     kind == 1) os << "Fermi function p1/{1+exp(x-p2)/p3} + 1";
   else if(kind == 2) os << "Gauss function p1 exp{-(x-p2)(x-p2)/p3} + 1";
   else if(kind == 3) os << "reversed Fermi function p1/{1+exp(-(x-p2)/p3)} + 1";
-  os << " where parameters p1, p2, p3";
-  os << setw(13) << p1;
-  os << setw(13) << p2;
-  os << setw(13) << p3;
+  os << " where parameters p1 = " << p1 << " p2 = " << p2 << " p3 =" << p3;
   Notice("DeceApplyFunc",os.str());
 }
 

@@ -39,7 +39,13 @@ void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *
   if( !((mt == 2) || (51 <= mt && mt <= 90) || (mt >= 600)) ) return;
 
   int k3 = dict->getID(3,mt);
-  if(k3 < 0) TerminateCode("same MT must exist both in MF3 and MF4",mt);
+  if(k3 < 0){
+    ostringstream os;
+    os << "process skipped since no MT" << mt << " found in MF3";
+    WarningMessage(os.str());
+    DeceDelete(dict,mf,mt);
+    return;
+  }
 
   int k4 = dict->getID(4,mt);
   if(mf == 6) k4 = dict->getID(6,mt);
@@ -58,23 +64,30 @@ void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *
 
   /*** read angular distribution data */
   int ne = readADdata(datafile,ofset,mt,cx,cy,en);
-  if(ne == 0) TerminateCode("no data to be added from a file",datafile);
+  if(ne == 0){
+    ostringstream os;
+    os << "no data to be added from " << datafile << " for MT = " << mt;
+    WarningMessage(os.str());
+  }
 
-  /*** threshold energy */
-  double eth = (mt == 2) ? 1e-05 : lib[k3]->xdata[0];
+  if(ne > 0){
+    /*** threshold energy */
+    double eth = (mt == 2) ? 1e-05 : lib[k3]->xdata[0];
 
-  /*** generate floating point data */
-  ne = geneADdata(mt,ne,eth,en,cx,cy,lg,cont);
+    /*** generate floating point data */
+    ne = geneADdata(mt,ne,eth,en,cx,cy,lg,cont);
 
-  /*** ZA, AWT, and MAT number from Dictionary */
-  mat  = dict->mat;
-  za   = dict->head.c1;
-  awt  = dict->head.c2;
+    /*** ZA, AWT, and MAT number from Dictionary */
+    mat  = dict->mat;
+    za   = dict->head.c1;
+    awt  = dict->head.c2;
 
-  if(mf == 4) storeMF4(mt,ne,lg,cont,lib[k4]);
-  else        storeMF6(mt,ne,lg,cont,lib[k4]);
-
-//ENDFWrite(lib[k4]);
+    if(mf == 4) storeMF4(mt,ne,lg,cont,lib[k4]);
+    else        storeMF6(mt,ne,lg,cont,lib[k4]);
+  }
+  else{
+    DeceDelete(dict,mf,mt);
+  }
 
   /*** Clean all */
   for(int i=0 ; i<MAX_ENERGY ; i++){
@@ -91,7 +104,6 @@ void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *
 }
 
 
-
 /**********************************************************/
 /*      Read in Angular Distribution Data                 */
 /**********************************************************/
@@ -105,14 +117,13 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
 
   if(ofset == 0){
     if(mt == 2) ofset = 1;
-    else if( ( 51 <= mt) && (mt <=  91) ) ofset = mt- 50+1;
-    else if( (600 <= mt) && (mt <= 648) ) ofset = mt-600+1;
-    else if( (650 <= mt) && (mt <= 698) ) ofset = mt-650+1;
-    else if( (700 <= mt) && (mt <= 748) ) ofset = mt-700+1;
-    else if( (750 <= mt) && (mt <= 798) ) ofset = mt-750+1;
-    else if( (800 <= mt) && (mt <= 848) ) ofset = mt-800+1;
+    else if( ( 51 <= mt) && (mt <=  91) ) ofset = mt -  50 + 1;
+    else if( (600 <= mt) && (mt <= 640) ) ofset = mt - 600 + 1;
+    else if( (650 <= mt) && (mt <= 690) ) ofset = mt - 650 + 1;
+    else if( (700 <= mt) && (mt <= 740) ) ofset = mt - 700 + 1;
+    else if( (750 <= mt) && (mt <= 790) ) ofset = mt - 750 + 1;
+    else if( (800 <= mt) && (mt <= 840) ) ofset = mt - 800 + 1;
   }
-
 
   int ne=0;
   while(getline(fp,line)){

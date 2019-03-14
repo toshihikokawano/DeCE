@@ -34,8 +34,8 @@ void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, int)
 void   DeceLibRead      (ENDFDict *, ENDF *, char *);
 
 /*** decetable.cpp */
-void   DeceTable        (ENDFDict *, ENDF *[], ifstream *, const int, const int, const int);
-void   DeceFileToTable  (ifstream *, const int, const int, const int);
+void   DeceTable        (ENDFDict *, ENDF *[], ifstream *, const int, const int);
+void   DeceFileToTable  (ifstream *, const int, const int);
 void   DeceDataPoint    (ifstream *, const int, const int, const double);
 
 /*** deceextract.cpp */
@@ -58,7 +58,7 @@ void   DeceChangeInt    (ENDFDict *, ENDF **, const int, int, int, int);
 
 /*** deceqvalue.cpp */
 void   DeceChangeQvalue (ENDFDict *, ENDF **, const int, double, double);
-void   DeceCheckEnergy  (ENDFDict *, ENDF **, const bool);
+void   DeceCheckThreshold (ENDFDict *, ENDF **, const bool);
 
 /*** deceheader.cpp */
 void   DeceFixAWR       (ENDFDict *);

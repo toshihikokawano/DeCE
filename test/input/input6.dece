@@ -1,0 +1,13 @@
+echo "reading elastic scattering cross section"
+read 3 2  "data/CoHCrossSection.dat"
+
+echo "reading inelastic scattering cross sections"
+multiread 3 51 91 "data/CoHLevelExcite1.dat"
+
+echo "reading elastic scattering angular distribution in MF4"
+angdist 4 2  "data/CoHLegendreCoefficient1.dat"
+
+echo "reading inelastic scattering angular distribution in MF6"
+multiangdist 6 51 90 "data/CoHLegendreCoefficient1.dat"
+
+quit

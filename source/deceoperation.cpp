@@ -46,6 +46,9 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 {
   string ope = CmdGetOperation();
 
+  //--------------------------------------------------------
+  //  section manipulation commands
+
   /*** CALC: manipulate TAB1 record */
   if(ope == "calc" || ope == "make4"){
     DeceOperationCALC(dict,lib);
@@ -76,7 +79,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationLIBREAD(dict,lib);
   }
 
-  /*** TABLE: tabulate MF3, MF4, MF6 data */
+  /*** TABLE: tabulate data */
   else if(ope == "table"){
     DeceOperationTABLE(dict,lib,fpin);
   }
@@ -116,7 +119,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationCHANGEQVAL(dict,lib);
   }
 
-  /*** CHECHKTHRESHOLD: check Q-vales and threshold energies in MF3 */
+  /*** CHECHKENERGY: check Q-vales and threshold energies in MF3 */
   else if( (ope == "checkthreshold") || (ope == "fixthreshold") ){
     DeceOperationCHECKTHRESHOLD(dict,lib);
   }
@@ -126,14 +129,18 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationFIXAWR(dict);
   }
 
-  /*** miscellaneous MF1 manipulations */
+
+  //--------------------------------------------------------
+  //  MF1 manipulations
 
   /*** NUTOTAL: generate / reconstruct total nu-bar as the sum of 455 and 456 */
   else if(ope == "nutotal"){
     DeceOperationNUTOTAL(dict,lib);
   }
 
-  /*** miscellaneous MF6 manipulations */
+
+  //--------------------------------------------------------
+  //  MF6 manipulations
 
   /*** BOUNDCORRECT: correct energy boundary in continuum in MF6 */
   else if(ope == "boundcorrect"){
@@ -148,7 +155,9 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationGENPROD(dict,lib);
   }
 
-  /*** resonance manipulation */
+
+  //--------------------------------------------------------
+  //  resonance manipulation
 
   /*** RECONSTRUCT: reconstruct cross sections from resonances */
   /*** RECONANGDIST: calculate Legendre coefficients from resonance parameters */
@@ -157,22 +166,37 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationRECONSTRUCT(dict,lib);
   }
 
-  /*** data processing */
+
+  //--------------------------------------------------------
+  //  data processing [experimental]
 
   /*** POINTWISE: create pointwise cross section */
   else if(ope == "pointwise"){
     DeceOperationPOINTWISE(dict,lib);
   }
 
+
+  //--------------------------------------------------------
+  //  miscellaneous operations
+
   /*** TPID: replace TPID */
-  else if(ope == "tpid") CmdExtractString(dict->tpid);
+  else if(ope == "tpid"){
+    CmdExtractString(dict->tpid);
+  }
 
   /*** INDEX: print section index */
-  else if(ope == "index") DeceScanIndex(dict);
+  else if(ope == "index"){
+    DeceScanIndex(dict);
+  }
 
   /*** SET: modify global setting */
   else if(ope == "set" || ope == "unset" || ope == "showoptions"){
     DeceGlobalOption(ope,(string)cmd.text,cmd.x);
+  }
+
+  /*** ECHO: print text */
+  else if(ope == "echo"){
+    Notice("NOTE",cmd.text);
   }
 
   /*** Unknown command */
@@ -194,13 +218,13 @@ void DeceOperationCALC(ENDFDict *dict, ENDF *lib[])
   string ope = CmdGetOperation();
 
   if(ope == "make4"){
-    DeceCreateLib(dict,3,4);
-    DeceCalc(dict,lib,4,51,91,':');
+    cmd.text[0] = ':';
+    cmd.mt = 4;
+    cmd.opt1 = 51;
+    cmd.opt2 = 91;
   }
-  else{
-    DeceCreateLib(dict,3,cmd.mt);
-    DeceCalc(dict,lib,cmd.mt,cmd.opt1,cmd.opt2,cmd.text[0]);
-  }
+  DeceCreateLib(dict,3,cmd.mt);
+  DeceCalc(dict,lib,cmd.mt,cmd.opt1,cmd.opt2,cmd.text[0]);
 
   ostringstream os;
   os << "MF3:MT" << cmd.mt << " created by ";
@@ -228,6 +252,7 @@ void DeceOperationDUPLICATE(ENDFDict *dict, ENDF *lib[])
   if(k0 < 0) TerminateCode("source MT number not found",cmd.mt);
 
   ENDFLibCopy(lib[k0],lib[k1]);
+  lib[k1]->setENDFmt(cmd.opt1);
 
   ostringstream os;
   os << "MF" << cmd.mf << ":MT" << cmd.mt << " copied to ";
@@ -308,7 +333,7 @@ void DeceOperationLIBREAD(ENDFDict *dict, ENDF *lib[])
 /**********************************************************/
 void DeceOperationTABLE(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 {
-  DeceTable(dict,lib,fpin,cmd.mf,cmd.mt,cmd.opt1);
+  DeceTable(dict,lib,fpin,cmd.mf,cmd.mt);
 }
 
 
@@ -414,7 +439,7 @@ void DeceOperationCHECKTHRESHOLD(ENDFDict *dict, ENDF *lib[])
 {
   string ope = CmdGetOperation();
   bool fix = (ope == "fixthreshold") ? true : false;
-  DeceCheckEnergy(dict,lib,fix);
+  DeceCheckThreshold(dict,lib,fix);
 }
 
 

@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
     fpin.open(&libname_in[0]);  if(!fpin) TerminateCode("ENDF file cannot open",libname_in);
     DeceCheckMT(mtin);
     if(ein > 0.0) DeceDataPoint(&fpin,mfin,mtin,ein);
-    else          DeceFileToTable(&fpin,mfin,mtin,0);
+    else          DeceFileToTable(&fpin,mfin,mtin);
     fpin.close();
   }
 
@@ -226,10 +226,9 @@ void DeceInitOptions()
 void DeceReadMonitor(int mat, int mf, int mt, int sec, int n)
 {
   ostringstream os;
-  os << " (@_@) <";
-  os << " MAT:" << mat;
-  os << " MF:" << mf;
-  os << " MT:" << mt;
+  os << "MAT:" << mat <<" ";
+  os << "MF:" << mf;
+  os << "MT:" << mt;
   os << " assigned for Section " << sec;
   os << " sub-blocks " << n;
   Notice("DeceReadMonitor",os.str());
@@ -255,7 +254,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
 
   /*** if already exists */
   if( dict->getID(mf,mt) >= 0 ){
-    os << " MF" << mf << ":MT" << mt << " exists, reuse it";
+    os << "MF" << mf << ":MT" << mt << " exists, reuse it. assigned section " << dict->getID(mf,mt);
     Notice("DeceCreateLib",os.str());
     return;
   }
@@ -290,7 +289,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
     dict->setID(i,newsec);
   }
 
-  os << " MF" << mf << ":MT" << mt << " assinged for section " << newsec;
+  os << "MF" << mf << ":MT" << mt << " assigned for section " << newsec;
   Notice("DeceCreateLib",os.str());
 
   newsec++;
@@ -355,7 +354,12 @@ void WarningMessage(string msg, string x)
 { cerr << "WARNING   : " << msg << x << endl; }
 
 void Notice(string module,string msg){
-  if(verbflag) cerr << "NOTICE [" << module << "] " << msg << endl;
+  if(module == "NOTE"){
+    cerr << " (._.) " << msg << endl;
+  }
+  else{
+    if(verbflag) cerr << " (@_@) [" << module << "] " << msg << endl;
+  }
 }
 
 

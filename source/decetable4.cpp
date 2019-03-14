@@ -11,17 +11,18 @@ using namespace std;
 #include "dece.h"
 #include "decetable.h"
 #include "decemisc.h"
+#include "global.h"
 #include "terminate.h"
 #include "constant.h"
 
-static int decetable4LEG (ENDF *, int, int);
+static int decetable4LEG (ENDF *, int);
 static int decetable4TAB (ENDF *, int);
 
 
 /**********************************************************/
 /*      Process MF=4                                      */
 /**********************************************************/
-void DeceTableMF4(ENDF *lib, int da)
+void DeceTableMF4(ENDF *lib)
 {
   Record head = lib->getENDFhead();
   int    lvt  = head.l1;   // transformation matrix flag (deprecated)
@@ -43,13 +44,13 @@ void DeceTableMF4(ENDF *lib, int da)
   else{
     idx++;
     if(ltt == 1){
-      idx = decetable4LEG(lib,da,idx);
+      idx = decetable4LEG(lib,idx);
     }
     else if(ltt == 2){
       idx = decetable4TAB(lib,idx);
     }
     else if(ltt == 3){
-      idx = decetable4LEG(lib,da,idx);
+      idx = decetable4LEG(lib,idx);
       idx = decetable4TAB(lib,idx);
     }
   }
@@ -59,11 +60,13 @@ void DeceTableMF4(ENDF *lib, int da)
 /**********************************************************/
 /*      Angular Distribution in Legendre Coefficient      */
 /**********************************************************/
-int decetable4LEG(ENDF *lib, int da, int idx)
+int decetable4LEG(ENDF *lib, int idx)
 {
   Record cont = lib->rdata[idx];
   int    ne   = cont.n2;
   idx++;
+
+  int da = opt.AngleStep;
 
   cout << "#           NE" << setw(14) << ne << "  number of incident energy points" << endl;
 

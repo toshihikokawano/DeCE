@@ -1,0 +1,14 @@
+echo "reading inelastic scattering cross sections"
+read 3 51 "data/CoHLevelExcite1.dat"
+read 3 91 "data/CoHLevelExcite1.dat"
+
+echo "add two subsections"
+calc 3 = 51 + 91
+
+echo "print MF3"
+table 3 51
+table 3 91
+table 3 3
+
+quit
+
