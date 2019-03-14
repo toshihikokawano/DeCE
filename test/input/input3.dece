@@ -1,7 +1,7 @@
-echo "reading inelastic scattering cross sections"
+echo "read inelastic scattering cross sections"
 multiread 3 51 91 "data/CoHLevelExcite1.dat"
 
-echo "add all subsections"
+echo "add all subsections, and store in MT4"
 make4
 
 echo "print section indices"

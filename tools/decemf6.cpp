@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
     }
   }
 
-  if(mt<=0 || mt > 849){
+  if(mt <= 0 || mt > 849){
     cerr << "MT number " << mt << " out of range" << endl;
     exit(-1);
   }

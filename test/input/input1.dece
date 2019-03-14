@@ -1,16 +1,16 @@
-echo "reading total cross section"
+echo "read total cross section"
 read 3 1  "data/CoHCrossSection.dat"
 
-echo "reading elastic scattering cross section"
+echo "read elastic scattering cross section"
 read 3 2  "data/CoHCrossSection.dat"
 
-echo "reading (n,2n) cross section"
+echo "read (n,2n) cross section"
 read 3 16 "data/CoHParticleProduction.dat"
 
-echo "reading elastic again"
+echo "read elastic again"
 read 3 2  "data/CoHCrossSection.dat"
 
-echo "changing LineNumber option"D
+echo "change LineNumber option"
 set LineNumber
 showoptions
 

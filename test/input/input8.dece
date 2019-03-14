@@ -1,4 +1,4 @@
-echo "reading (n,p) cross section"
+echo "read (n,p) cross section"
 read 3 103 "data/CoHParticleProduction.dat"
 duplicate 3 103 95
 duplicate 3 103 96
@@ -6,16 +6,16 @@ duplicate 3 103 97
 duplicate 3 103 98
 duplicate 3 103 99
 
-echo "apply Fermi function"
+echo "apply Fermi function to (n,p)"
 applyfunc1 3 95 1.0 10.0 1.5
 
-echo "apply Gaussian"
+echo "apply Gaussian to (n,p)"
 applyfunc2 3 96 1.0 12.0 1.5
 
-echo "apply reversed-Fermi function"
+echo "apply reversed-Fermi function to (n,p)"
 applyfunc3 3 97 1.0 14.0 1.5
 
-echo "multiply by 1.5 in the 6 - 8 MeV"
+echo "multiply data by 1.5 in the 6 - 8 MeV range"
 factor 3 98 1.5 6.0e+6 8.0e+6
 
 echo "normalize data at 10MeV to be 1.0b"

@@ -253,7 +253,9 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
   ostringstream os;
 
   /*** if already exists */
-  if( dict->getID(mf,mt) >= 0 ){
+  int k = dict->getID(mf,mt);
+  if( k >= 0 ){
+    lib[k]->reset();
     os << "MF" << mf << ":MT" << mt << " exists, reuse it. assigned section " << dict->getID(mf,mt);
     Notice("DeceCreateLib",os.str());
     return;

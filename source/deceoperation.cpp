@@ -232,7 +232,7 @@ void DeceOperationCALC(ENDFDict *dict, ENDF *lib[])
   else if(cmd.text[0] == '-'){ os << "subtracting MT" << cmd.opt2 << " from MT" << cmd.opt1; }
   else if(cmd.text[0] == '*'){ os << "multiplying MT" << cmd.opt1 << " and MT" << cmd.opt2; }
   else if(cmd.text[0] == '/'){ os << "dividing MT" << cmd.opt1 << " by MT" << cmd.opt2; }
-  else if(cmd.text[0] == ':'){ os << "adding subsections from MT" << cmd.opt2 << " to MT" << cmd.opt1; }
+  else if(cmd.text[0] == ':'){ os << "adding subsections from MT" << cmd.opt1 << " to MT" << cmd.opt2; }
   Notice("DeceOperationCALC",os.str());
 }
 

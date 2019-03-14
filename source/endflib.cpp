@@ -823,10 +823,18 @@ void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
   if( libdst->checkSUBBLOCK() ) ENDFExceedSubBlock("LibCopy",libdst);
   if( libdst->checkMAXDATA(ni,nx) ) ENDFExceedDataSize("LibCopy",libdst,ni,nx);
 
-  /*** copy all blocks */
+  /*** copy all integer and double data */
   for(int i=0 ; i<ni ; i++) libdst->idata[i] = libsrc->idata[i];
-  for(int i=0 ; i<nx ; i++) libdst->xdata[i] = libsrc->xdata[i];
+  cout << nx << endl;
+  for(int i=0 ; i<nx ; i++){
+    libdst->xdata[i] = libsrc->xdata[i];
+    cout << i << " " << libsrc->xdata[i] << " " << libdst->xdata[i]<<endl;
+  }
 
+  /*** copy all CONT */
+  for(int i=0 ; i<nb ; i++) libdst->rdata[i] = libsrc->rdata[i];
+
+  /*** reassign pointers */
   for(int i=0 ; i<nb ; i++){
     if(libsrc->iptr[i] != NULL){
       int ofset = libsrc->iptr[i] - libsrc->iptr[0];
@@ -836,7 +844,6 @@ void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
       int ofset = libsrc->xptr[i] - libsrc->xptr[0];
       libdst->xptr[i] = &libdst->xdata[ofset];
     }
-    libdst->rdata[i] = libsrc->rdata[i];
   }
 }
 
@@ -853,25 +860,25 @@ void ENDFLibPeek(ENDF *lib)
        << lib->getENDFmf() << " "
        << lib->getENDFmt() << endl;
 
-  cout <<"HEAD: ";
+  cout <<"  HEAD: ";
   ENDFWriteRecord(&head);
   cout << endl;
-  cout <<"Position: " << lib->getPOS() << endl;
+  cout <<"  Position: " << lib->getPOS() << endl;
   /*** each block */
   if(lib->getPOS() == 1){
-    cout <<"CONT: ";
+    cout <<"  CONT: ";
     ENDFWriteRecord(&lib->rdata[0]);
     cout << endl;
-    cout <<"NINT: " << lib->getNI() << endl;
-    cout <<"NDBL: " << lib->getNX() << endl;
+    cout <<"  NINT: " << lib->getNI() << endl;
+    cout <<"  NDBL: " << lib->getNX() << endl;
   }
   else{
     for(int i=0 ; i<lib->getPOS() ; i++){
-      cout <<"CONT: ";
+      cout <<"  CONT: ";
       ENDFWriteRecord(&lib->rdata[i]);
       cout << endl;
-      cout <<"NINT: " << lib->iptr[i+1] - lib->iptr[i] << endl;
-      cout <<"NDBL: " << lib->xptr[i+1] - lib->xptr[i] << endl;
+      cout <<"  NINT: " << lib->iptr[i+1] - lib->iptr[i] << endl;
+      cout <<"  NDBL: " << lib->xptr[i+1] - lib->xptr[i] << endl;
     }
   }
 }

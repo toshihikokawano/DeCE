@@ -4,7 +4,7 @@ outfile=ENDF.evl
 workmf6=ENDFMF6.evl
 workmf12=ENDFMF12.evl
 
-inbase=input/input
+inbase=input
 outbase=output/ENDFout
 toolbase=../tools
 

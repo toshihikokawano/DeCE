@@ -54,20 +54,21 @@ class Record{
 /**************************************/
 class ENDF{
  private:
-  int       mat    ;     // ENDF MAT number
-  int       mf     ;     // ENDF MF number
-  int       mt     ;     // ENDF MT number
-  Record    head   ;     // Head Record
-  DataSize  size   ;     // ENDF data size
-  int       pos    ;     // pointer to current block
-  int       ni     ;     // current number of integer data
-  int       nx     ;     // current number of double data
+  bool      allocated;  // memory allocation flag
+  int       mat;        // ENDF MAT number
+  int       mf;         // ENDF MF number
+  int       mt;         // ENDF MT number
+  Record    head;       // Head Record
+  DataSize  size;       // ENDF data size
+  int       pos;        // pointer to current block
+  int       ni;         // current number of integer data
+  int       nx;         // current number of double data
  public:
-  int       *idata ;     // integer data
-  double    *xdata ;     // floating point data
-  int      **iptr  ;     // int pointer for the 2-dim array
-  double   **xptr  ;     // double pointer for the 2-dim array
-  Record    *rdata ;     // pointer for 2-dim data CONT
+  int       *idata;     // integer data
+  double    *xdata;     // floating point data
+  int      **iptr;      // int pointer for the 2-dim array
+  double   **xptr;      // double pointer for the 2-dim array
+  Record    *rdata;     // pointer for 2-dim data CONT
 
   ENDF(DataSize datasize){
     mat   = 0;
@@ -77,54 +78,71 @@ class ENDF{
     ni    = 0;
     nx    = 0;
 
-    if(datasize == S){
-      idata = new int      [MAX_INTDATA_SMALL];
-      xdata = new double   [MAX_DBLDATA_SMALL];
-      iptr  = new int    * [MAX_SUBBLOCK_SMALL];
-      xptr  = new double * [MAX_SUBBLOCK_SMALL];
-      rdata = new Record   [MAX_SUBBLOCK_SMALL];
-      size  = S;
-      for(int i=0 ; i<MAX_SUBBLOCK_SMALL ; i++){
-        iptr[i] = NULL;
-        xptr[i] = NULL;
-      }
-    }
-    else if(datasize == L){
-      idata = new int      [MAX_INTDATA_LARGE];
-      xdata = new double   [MAX_DBLDATA_LARGE];
-      iptr  = new int    * [MAX_SUBBLOCK_LARGE];
-      xptr  = new double * [MAX_SUBBLOCK_LARGE];
-      rdata = new Record   [MAX_SUBBLOCK_LARGE];
-      size  = L;
-      for(int i=0 ; i<MAX_SUBBLOCK_LARGE ; i++){
-        iptr[i] = NULL;
-        xptr[i] = NULL;
-      }
-    }
-    else{
-      idata = new int      [MAX_INTDATA];
-      xdata = new double   [MAX_DBLDATA];
-      iptr  = new int    * [MAX_SUBBLOCK];
-      xptr  = new double * [MAX_SUBBLOCK];
-      rdata = new Record   [MAX_SUBBLOCK];
-      size  = M;
-      for(int i=0 ; i<MAX_SUBBLOCK ; i++){
-        iptr[i] = NULL;
-        xptr[i] = NULL;
-      }
-    }
-
+    allocated = false;
+    memalloc(datasize);
     iptr[0] = &idata[0];
     xptr[0] = &xdata[0];
   }
 
   ~ENDF(){
-    delete [] idata;
-    delete [] xdata;
-    delete [] iptr ;
-    delete [] xptr ;
-    delete [] rdata;
+    memfree();
   }
+
+  void memalloc(DataSize datasize){
+    if(!allocated){
+      if(datasize == S){
+        idata = new int      [MAX_INTDATA_SMALL];
+        xdata = new double   [MAX_DBLDATA_SMALL];
+        iptr  = new int    * [MAX_SUBBLOCK_SMALL];
+        xptr  = new double * [MAX_SUBBLOCK_SMALL];
+        rdata = new Record   [MAX_SUBBLOCK_SMALL];
+        size  = S;
+        for(int i=0 ; i<MAX_SUBBLOCK_SMALL ; i++){
+          iptr[i] = NULL;
+          xptr[i] = NULL;
+        }
+      }
+      else if(datasize == L){
+        idata = new int      [MAX_INTDATA_LARGE];
+        xdata = new double   [MAX_DBLDATA_LARGE];
+        iptr  = new int    * [MAX_SUBBLOCK_LARGE];
+        xptr  = new double * [MAX_SUBBLOCK_LARGE];
+        rdata = new Record   [MAX_SUBBLOCK_LARGE];
+        size  = L;
+        for(int i=0 ; i<MAX_SUBBLOCK_LARGE ; i++){
+          iptr[i] = NULL;
+          xptr[i] = NULL;
+        }
+      }
+      else{
+        idata = new int      [MAX_INTDATA];
+        xdata = new double   [MAX_DBLDATA];
+        iptr  = new int    * [MAX_SUBBLOCK];
+        xptr  = new double * [MAX_SUBBLOCK];
+        rdata = new Record   [MAX_SUBBLOCK];
+        size  = M;
+        for(int i=0 ; i<MAX_SUBBLOCK ; i++){
+          iptr[i] = NULL;
+          xptr[i] = NULL;
+        }
+      }
+      allocated = true;
+    }
+  }
+
+  void memfree(){
+    if(allocated){
+      delete [] idata;
+      delete [] xdata;
+      delete [] iptr ;
+      delete [] xptr ;
+      delete [] rdata;
+      allocated = false;
+    }
+  }
+
+  bool   isalloc(){return allocated;}
+
   void   setENDFmat(int n){    mat = n;    }
   void   setENDFmf (int n){    mf  = n;    }
   void   setENDFmt (int n){    mt  = n;    }
@@ -135,39 +153,26 @@ class ENDF{
 
   void   setENDFhead(double c1, double c2, int l1, int l2, int n1, int n2){
     head.setRecord(c1,c2,l1,l2,n1,n2);
-    pos = ni = nx = 0;
+    reset();
   }
-  void   setENDFhead(Record r){
-    head = r;
-  }
-  Record getENDFhead(){
-    return head;
-  }
-  int getPOS(void){
-    return pos;
-  }
-  int getNI(void){
-    return ni;
-  }
-  int getNX(void){
-    return nx;
-  }
-  void setPOS(int i){
-    pos = i;
-  }
-  void resetPOS(void){
-    pos = 0;
-  }
-  void inclPOS(void){
-    pos++;
-  }
-  void addPOS(int n){
-    pos += n;
-  }
-  Record getENDFcont(){
-    return rdata[pos];
-  }
-  bool checkSUBBLOCK(void){
+
+  void   reset(void){ pos = ni = nx = 0; }
+
+  void   setENDFhead(Record r){ head = r; }
+  Record getENDFhead()        { return head; }
+
+  int    getPOS(void){ return pos; }
+  int    getNI(void) { return ni;  }
+  int    getNX(void) { return nx;  }
+
+  void   setPOS(int i)  { pos = i;  }
+  void   resetPOS(void) { pos = 0;  }
+  void   inclPOS (void) { pos++;    }
+  void   addPOS  (int n){ pos += n; }
+
+  Record getENDFcont(){ return rdata[pos]; }
+
+  bool   checkSUBBLOCK(void){
     if(size == S){
       if(pos >= MAX_SUBBLOCK_SMALL) return true;
     }else if(size == L){
@@ -177,7 +182,7 @@ class ENDF{
     }
     return false;
   }
-  bool checkMAXDATA(int mi, int mx){
+  bool   checkMAXDATA(int mi, int mx){
     ni += mi;
     nx += mx;
     if(size == S){
@@ -192,7 +197,7 @@ class ENDF{
     return false;
   }
 
-  void copyENDF(ENDF *src){
+  void   copyENDF(ENDF *src){
     int n1,n2,n3;
     if(size == S){
       n1 = MAX_INTDATA_SMALL;

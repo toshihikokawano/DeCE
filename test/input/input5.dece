@@ -1,14 +1,14 @@
-echo "reading inelastic scattering cross sections"
+echo "read inelastic scattering cross sections"
 multiread 3 51 91 "data/CoHLevelExcite1.dat"
 
 index
 
-echo "deleting MF70"
+echo "delete MF70"
 delete 3 70
 
 index
 
-echo "deleting from MF60 to MF63"
+echo "delete from MF60 to MF63"
 multidelete 3 60 63
 
 index

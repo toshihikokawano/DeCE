@@ -1,21 +1,21 @@
-echo "reading inelastic scattering cross sections"
+echo "read inelastic scattering cross sections"
 multiread 3 51 91 "data/CoHLevelExcite1.dat"
 
-echo "adding all subsections"
+echo "add all subsections"
 make4
 
-echo "saving MF4 in MF3"
+echo "save MF4 in MF3:MT3"
 copy 3 4 3
 
-echo "applying reversed-Fermi function"
+echo "apply reversed-Fermi function to MT4"
 applyfunc3 3 4 -0.5 8.0 2.0
 
 extract 3 4
 
-echo "re-adjusting partial cross sections"
+echo "re-adjust MT51-91 partial cross sections by MT4"
 readjust 4
 
-echo "making MF4 again by adjusted partial data"
+echo "make MF4 again by adjusted partial data"
 make4
 
 extract 3 3

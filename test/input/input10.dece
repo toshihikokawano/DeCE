@@ -1,4 +1,4 @@
-echo "reading total cross section in ENDF library"
+echo "read total cross section in ENDF library"
 libread 3 1 "ENDFMF3MT1.evl"
 
 echo "change interpolation law to INT=2"

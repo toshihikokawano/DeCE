@@ -53,8 +53,20 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
     }
 
     /*** copy SRC1 to DEST */
+    cout << "SRC" << endl;
+    ENDFLibPeek(lib[k1]);
+    ENDFWriteHEAD(lib[k1]);
+    ENDFWriteTAB1(lib[k1]);
+
     ENDFLibCopy(lib[k1],lib[k0]);
     lib[k0]->setENDFmt(mtdest);
+
+    cout << "DEST" << endl;
+    ENDFLibPeek(lib[k0]);
+    ENDFWriteHEAD(lib[k0]);
+    ENDFWriteTAB1(lib[k0]);
+
+
 
     /*** add all MTs in the range to DEST */
     if(op == ':'){
@@ -77,9 +89,9 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
     lib[k0]->rdata[0].c2 = qi;
   }
 
-//ENDFWriteHEAD(lib[k0]);
-//ENDFWriteTAB1(lib[k0]);
-//ENDFWriteSEND(lib[k0]);
+//  ENDFWriteHEAD(lib[k0]);
+//  ENDFWriteTAB1(lib[k0]);
+//  ENDFWriteSEND(lib[k0]);
 }
 
 
@@ -197,6 +209,7 @@ void addsection(char pm, ENDF *src, ENDF *dest)
     dest->xptr[0][i] = z[i];
   }
 
+  dest->setNX(n*2);
   dest->inclPOS();
 
   delete [] z;

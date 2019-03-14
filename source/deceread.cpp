@@ -123,7 +123,7 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     }
   }
 
-  if(np > 0){
+  if(np > 1){
     /*** make TAB1 */
     Record cont;
     int    idat[4];
@@ -156,16 +156,10 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
       idat[1] = 2;
     }
 
-    if(np <= 1){
-      /*** nothing to be added */
-      DeceDelete(dict,mf,mt);
-    }
-    else{
-      ENDFPackTAB1(cont,idat,xdat,lib);
-      //  ENDFWriteHEAD(lib);
-      //  ENDFWriteTAB1(lib);
-      //  ENDFWriteSEND(lib);
-    }
+    ENDFPackTAB1(cont,idat,xdat,lib);
+//  ENDFWriteHEAD(lib);
+//  ENDFWriteTAB1(lib);
+//  ENDFWriteSEND(lib);
   }
   else{
     if(!mflag) DeceDelete(dict,mf,mt);
@@ -275,13 +269,13 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   if(!fp) TerminateCode("cannot open data file",file);
 
   if(ofset == 0){
-    if( (51 <= mt) && (mt <= 91) )        ofset = mt  - 50 + 1;
+    if(      ( 51 <= mt) && (mt <=  91) ) ofset = mt  - 50 + 1;
     else if( (600 <= mt) && (mt <= 640) ) ofset = mt - 600 + 1;
     else if( (650 <= mt) && (mt <= 690) ) ofset = mt - 650 + 1;
     else if( (700 <= mt) && (mt <= 740) ) ofset = mt - 700 + 1;
     else if( (750 <= mt) && (mt <= 790) ) ofset = mt - 750 + 1;
     else if( (800 <= mt) && (mt <= 840) ) ofset = mt - 800 + 1;
-    else if( (mt == 649) || (mt == 690) || (mt == 749) || (mt == 799) || (mt == 849) ) ofset = 42;
+    else if( (mt == 649) || (mt == 699) || (mt == 749) || (mt == 799) || (mt == 849) ) ofset = 42;
   }
 
   getline(fp,line);

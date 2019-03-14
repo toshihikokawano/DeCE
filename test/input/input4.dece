@@ -1,4 +1,4 @@
-echo "reading total cross sections"
+echo "read total cross section"
 read 3 1 "data/CoHCrossSection.dat"
 
 echo "copy MT1 into MT2"

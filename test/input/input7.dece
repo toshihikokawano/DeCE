@@ -1,10 +1,10 @@
-echo "reading total cross section in ENDF library"
+echo "read total cross section in ENDF library"
 libread 3 1 "ENDFMF3MT1.evl"
 
-echo "remove from 20 to 150 MeV data"
+echo "remove data points from 20 to 150 MeV"
 delpoint 3 1 2.000001e+7 1.5e+8
 
-echo "add the last duplicated point"
+echo "add one point at the end to duplicate the point"
 addpoint 3 1 2.0e+7 0.0
 
 extract 3 1

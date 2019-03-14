@@ -1,4 +1,4 @@
-echo "calculating total nu from nu_d and nu_p"
+echo "calculate total nu-bar from nu_delayed and nu_prompt"
 nutotal
 
 extract 1 455
