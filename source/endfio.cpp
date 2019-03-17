@@ -38,6 +38,8 @@ int ENDFRead(ifstream *fp, ENDF *lib, const int mf, const int mt)
   case 31: idx = ENDFReadMF31(fp,lib,mt); break;
   case 32: idx = ENDFReadMF32(fp,lib   ); break;
   case 33: idx = ENDFReadMF33(fp,lib,mt); break;
+  case 34: idx = ENDFReadMF34(fp,lib,mt); break;
+  case 35: idx = ENDFReadMF35(fp,lib,mt); break;
   default:                                break;
   }
 
@@ -65,6 +67,8 @@ void ENDFWrite(ENDF *lib)
   case 31: ENDFWriteMF31(lib); break;
   case 32: ENDFWriteMF32(lib); break;
   case 33: ENDFWriteMF33(lib); break;
+  case 34: ENDFWriteMF34(lib); break;
+  case 35: ENDFWriteMF35(lib); break;
   default:                     break;
   }
 }
@@ -1088,6 +1092,39 @@ void ENDFWriteMF34(ENDF *lib)
     Record cont = ENDFWriteCONT(lib);
     int ni = cont.n2;
     for(int i=0 ; i<ni ; i++) ENDFWriteLIST(lib);
+  }
+
+  ENDFWriteSEND(lib);
+}
+
+
+/**********************************************************/
+/* MF35 :                                                 */
+/*        Covariances of Particle Energy Spectra          */
+/**********************************************************/
+int ENDFReadMF35(ifstream *fp, ENDF *lib, const int mt)
+{
+  if( (ENDFSeekHead(fp,lib,35,mt))< 0 ) return(-1);
+
+  lib->resetPOS();
+  Record head = lib->getENDFhead();
+  int    nk   = head.n1;  // number of subsections
+
+  for(int n=0 ; n<nk ; n++) ENDFReadLIST(fp,lib);
+
+  return(lib->getPOS());
+}
+
+
+void ENDFWriteMF35(ENDF *lib)
+{
+  ENDFWriteHEAD(lib);
+
+  Record head = lib->getENDFhead();
+  int    nk   = head.n1;
+
+  for(int n=0 ; n<nk ; n++){
+    for(int i=0 ; i<nk ; i++) ENDFWriteLIST(lib);
   }
 
   ENDFWriteSEND(lib);

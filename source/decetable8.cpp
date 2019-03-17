@@ -10,7 +10,6 @@ using namespace std;
 
 #include "dece.h"
 #include "decetable.h"
-#include "terminate.h"
 
 static void DeceTableMF8Other(ENDF *);
 static void DeceTableMF8MT454(ENDF *);

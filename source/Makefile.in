@@ -114,13 +114,14 @@ am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) dece.$(OBJEXT) \
 	decetable14.$(OBJEXT) decetable15.$(OBJEXT) \
 	decetable2.$(OBJEXT) decetable3.$(OBJEXT) \
 	decetable33.$(OBJEXT) decetable34.$(OBJEXT) \
-	decetable4.$(OBJEXT) decetable5.$(OBJEXT) decetable6.$(OBJEXT) \
-	decetable8.$(OBJEXT) decetable9.$(OBJEXT) deceqvalue.$(OBJEXT) \
-	endfio.$(OBJEXT) endflib.$(OBJEXT) gfr.$(OBJEXT) \
-	gfrcross.$(OBJEXT) gfrcs1.$(OBJEXT) gfrcs3.$(OBJEXT) \
-	gfrcs7.$(OBJEXT) gfrcsurr.$(OBJEXT) gfrenergy.$(OBJEXT) \
-	gfrformula.$(OBJEXT) gfrlegcoef.$(OBJEXT) masstable.$(OBJEXT) \
-	matrix.$(OBJEXT) polycalc.$(OBJEXT) polysq.$(OBJEXT)
+	decetable35.$(OBJEXT) decetable4.$(OBJEXT) \
+	decetable5.$(OBJEXT) decetable6.$(OBJEXT) decetable8.$(OBJEXT) \
+	decetable9.$(OBJEXT) deceqvalue.$(OBJEXT) endfio.$(OBJEXT) \
+	endflib.$(OBJEXT) gfr.$(OBJEXT) gfrcross.$(OBJEXT) \
+	gfrcs1.$(OBJEXT) gfrcs3.$(OBJEXT) gfrcs7.$(OBJEXT) \
+	gfrcsurr.$(OBJEXT) gfrenergy.$(OBJEXT) gfrformula.$(OBJEXT) \
+	gfrlegcoef.$(OBJEXT) masstable.$(OBJEXT) matrix.$(OBJEXT) \
+	polycalc.$(OBJEXT) polysq.$(OBJEXT)
 dece_OBJECTS = $(am_dece_OBJECTS)
 dece_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -155,16 +156,17 @@ am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coupling.Po \
 	./$(DEPDIR)/decetable14.Po ./$(DEPDIR)/decetable15.Po \
 	./$(DEPDIR)/decetable2.Po ./$(DEPDIR)/decetable3.Po \
 	./$(DEPDIR)/decetable33.Po ./$(DEPDIR)/decetable34.Po \
-	./$(DEPDIR)/decetable4.Po ./$(DEPDIR)/decetable5.Po \
-	./$(DEPDIR)/decetable6.Po ./$(DEPDIR)/decetable8.Po \
-	./$(DEPDIR)/decetable9.Po ./$(DEPDIR)/endfio.Po \
-	./$(DEPDIR)/endflib.Po ./$(DEPDIR)/gfr.Po \
-	./$(DEPDIR)/gfrcross.Po ./$(DEPDIR)/gfrcs1.Po \
-	./$(DEPDIR)/gfrcs3.Po ./$(DEPDIR)/gfrcs7.Po \
-	./$(DEPDIR)/gfrcsurr.Po ./$(DEPDIR)/gfrenergy.Po \
-	./$(DEPDIR)/gfrformula.Po ./$(DEPDIR)/gfrlegcoef.Po \
-	./$(DEPDIR)/masstable.Po ./$(DEPDIR)/matrix.Po \
-	./$(DEPDIR)/polycalc.Po ./$(DEPDIR)/polysq.Po
+	./$(DEPDIR)/decetable35.Po ./$(DEPDIR)/decetable4.Po \
+	./$(DEPDIR)/decetable5.Po ./$(DEPDIR)/decetable6.Po \
+	./$(DEPDIR)/decetable8.Po ./$(DEPDIR)/decetable9.Po \
+	./$(DEPDIR)/endfio.Po ./$(DEPDIR)/endflib.Po \
+	./$(DEPDIR)/gfr.Po ./$(DEPDIR)/gfrcross.Po \
+	./$(DEPDIR)/gfrcs1.Po ./$(DEPDIR)/gfrcs3.Po \
+	./$(DEPDIR)/gfrcs7.Po ./$(DEPDIR)/gfrcsurr.Po \
+	./$(DEPDIR)/gfrenergy.Po ./$(DEPDIR)/gfrformula.Po \
+	./$(DEPDIR)/gfrlegcoef.Po ./$(DEPDIR)/masstable.Po \
+	./$(DEPDIR)/matrix.Po ./$(DEPDIR)/polycalc.Po \
+	./$(DEPDIR)/polysq.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -344,6 +346,7 @@ dece_SOURCES = \
 	decetable3.cpp \
 	decetable33.cpp \
 	decetable34.cpp \
+	decetable35.cpp \
 	decetable4.cpp \
 	decetable5.cpp \
 	decetable6.cpp \
@@ -506,6 +509,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable3.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable33.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable34.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable35.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable4.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable5.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable6.Po@am__quote@ # am--include-marker
@@ -708,6 +712,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/decetable3.Po
 	-rm -f ./$(DEPDIR)/decetable33.Po
 	-rm -f ./$(DEPDIR)/decetable34.Po
+	-rm -f ./$(DEPDIR)/decetable35.Po
 	-rm -f ./$(DEPDIR)/decetable4.Po
 	-rm -f ./$(DEPDIR)/decetable5.Po
 	-rm -f ./$(DEPDIR)/decetable6.Po
@@ -807,6 +812,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/decetable3.Po
 	-rm -f ./$(DEPDIR)/decetable33.Po
 	-rm -f ./$(DEPDIR)/decetable34.Po
+	-rm -f ./$(DEPDIR)/decetable35.Po
 	-rm -f ./$(DEPDIR)/decetable4.Po
 	-rm -f ./$(DEPDIR)/decetable5.Po
 	-rm -f ./$(DEPDIR)/decetable6.Po

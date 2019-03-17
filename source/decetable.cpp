@@ -27,7 +27,8 @@ void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const in
       (mf == 15) ||
       (mf == 31) ||
       (mf == 33) ||
-      (mf == 34) ){
+      (mf == 34) ||
+      (mf == 35) ){
 
     int k = dict->getID(mf,mt);
 
@@ -62,7 +63,8 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt)
       (mf == 15) ||
       (mf == 31) ||
       (mf == 33) ||
-      (mf == 34) ){
+      (mf == 34) ||
+      (mf == 35) ){
 
     ENDF lib(L);
     ENDF sup(M);
@@ -86,6 +88,7 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt)
     case 31: c = ENDFReadMF31(fp,&lib,mt);  break;
     case 33: c = ENDFReadMF33(fp,&lib,mt);  break;
     case 34: c = ENDFReadMF34(fp,&lib,mt);  break;
+    case 35: c = ENDFReadMF35(fp,&lib,mt);  break;
     default:                                break;
     }
 
@@ -151,7 +154,8 @@ void DeceLibToTable(ENDF *lib, ENDF *sup)
        << " ]   "
        << setw(3) << z << " - " << setw(3) << a << endl;
 
-  cout.setf(ios::fixed, ios::floatfield);
+//cout.setf(ios::fixed, ios::floatfield);
+  cout.setf(ios::scientific, ios::floatfield);
 
   switch(mf){
   case  1: DeceTableMF1(lib);     break;
@@ -170,6 +174,7 @@ void DeceLibToTable(ENDF *lib, ENDF *sup)
   case 31:
   case 33: DeceTableMF33(lib);    break;
   case 34: DeceTableMF34(lib);    break;
+  case 35: DeceTableMF35(lib);    break;
   default:                        break;
   }
 }

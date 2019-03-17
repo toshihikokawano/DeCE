@@ -10,7 +10,6 @@ using namespace std;
 
 #include "dece.h"
 #include "decetable.h"
-#include "terminate.h"
 
 static int DeceTableMF6Law1(ENDF *, int);
 static int DeceTableMF6Law2(ENDF *, int);

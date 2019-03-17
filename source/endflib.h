@@ -452,6 +452,7 @@ int    ENDFReadMF31       (ifstream *, ENDF *, const int);
 int    ENDFReadMF32       (ifstream *, ENDF *);
 int    ENDFReadMF33       (ifstream *, ENDF *, const int);
 int    ENDFReadMF34       (ifstream *, ENDF *, const int);
+int    ENDFReadMF35       (ifstream *, ENDF *, const int);
 
 void   ENDFWriteMF1       (ENDF *);
 void   ENDFWriteMF2       (ENDF *);
@@ -471,6 +472,7 @@ void   ENDFWriteMF31      (ENDF *);
 void   ENDFWriteMF32      (ENDF *);
 void   ENDFWriteMF33      (ENDF *);
 void   ENDFWriteMF34      (ENDF *);
+void   ENDFWriteMF35      (ENDF *);
 
 void   ENDFPrintLIST      (ENDF *, const int);
 void   ENDFPrint1Dim      (ENDF *, const int);

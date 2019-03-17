@@ -12,7 +12,6 @@ using namespace std;
 #include "decetable.h"
 #include "decemisc.h"
 #include "global.h"
-#include "terminate.h"
 #include "constant.h"
 
 static int decetable4LEG (ENDF *, int);
