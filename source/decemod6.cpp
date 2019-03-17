@@ -125,7 +125,7 @@ void DeceDuplicatePoint(ENDFDict *dict, ENDF *lib0[], const int mt, double x)
     }
   }
 
-  lib0[k]->copyENDF(&lib1);
+  ENDFLibCopy(&lib1,lib0[k]);
 //ENDFWrite(lib0[k]);
 
   delete [] xdat;
@@ -195,7 +195,7 @@ void DeceGenProdCS(ENDFDict *dict, ENDF *lib[], const int mt1, const int zap1)
 
   Record cont;
   int    idat[2];
-  int    za = (int)dict->head.c1;
+  int    za = (int)dict->getZA();
 
   double qm = qvalue(dict->getProj(),za,mt1);
   cont.setRecord(qm,qm,0,0,1,ndat);

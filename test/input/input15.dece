@@ -1,0 +1,6 @@
+echo "tabulate resonance parameters"
+echo "MT = 151 omitted"
+table 2
+
+echo "reconstruct pointwise cross section from resonance parameters"
+reconstruct

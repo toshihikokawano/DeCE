@@ -60,9 +60,8 @@ class ENDF{
   int       mt;         // ENDF MT number
   Record    head;       // Head Record
   DataSize  size;       // ENDF data size
-  int       pos;        // pointer to current block
-  int       ni;         // current number of integer data
-  int       nx;         // current number of double data
+  int       ctr;        // pointer to currently running block
+  int       nb;         // total number of blocks
  public:
   int       *idata;     // integer data
   double    *xdata;     // floating point data
@@ -74,14 +73,9 @@ class ENDF{
     mat   = 0;
     mf    = 0;
     mt    = 0;
-    pos   = 0;
-    ni    = 0;
-    nx    = 0;
-
     allocated = false;
     memalloc(datasize);
-    iptr[0] = &idata[0];
-    xptr[0] = &xdata[0];
+    resetPOS();
   }
 
   ~ENDF(){
@@ -97,10 +91,6 @@ class ENDF{
         xptr  = new double * [MAX_SUBBLOCK_SMALL];
         rdata = new Record   [MAX_SUBBLOCK_SMALL];
         size  = S;
-        for(int i=0 ; i<MAX_SUBBLOCK_SMALL ; i++){
-          iptr[i] = NULL;
-          xptr[i] = NULL;
-        }
       }
       else if(datasize == L){
         idata = new int      [MAX_INTDATA_LARGE];
@@ -109,10 +99,6 @@ class ENDF{
         xptr  = new double * [MAX_SUBBLOCK_LARGE];
         rdata = new Record   [MAX_SUBBLOCK_LARGE];
         size  = L;
-        for(int i=0 ; i<MAX_SUBBLOCK_LARGE ; i++){
-          iptr[i] = NULL;
-          xptr[i] = NULL;
-        }
       }
       else{
         idata = new int      [MAX_INTDATA];
@@ -121,10 +107,6 @@ class ENDF{
         xptr  = new double * [MAX_SUBBLOCK];
         rdata = new Record   [MAX_SUBBLOCK];
         size  = M;
-        for(int i=0 ; i<MAX_SUBBLOCK ; i++){
-          iptr[i] = NULL;
-          xptr[i] = NULL;
-        }
       }
       allocated = true;
     }
@@ -141,95 +123,98 @@ class ENDF{
     }
   }
 
-  bool   isalloc(){return allocated;}
+  /*** reset pointers */
+  void resetPOS(){
+    if(allocated){
+      if(size == S){
+        for(int i=0 ; i<MAX_SUBBLOCK_SMALL ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
+      }
+      else if(size == L){
+        for(int i=0 ; i<MAX_SUBBLOCK_LARGE ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
+      }
+      else{
+        for(int i=0 ; i<MAX_SUBBLOCK       ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
+      }
+      iptr[0] = &idata[0];
+      xptr[0] = &xdata[0];
+    }
+    ctr = nb = 0;
+  }
 
-  void   setENDFmat(int n){    mat = n;    }
-  void   setENDFmf (int n){    mf  = n;    }
-  void   setENDFmt (int n){    mt  = n;    }
+  /*** increment data block pointer */
+  void inclPOS (void) { nb ++; }
 
-  int    getENDFmat()     {    return mat; }
-  int    getENDFmf ()     {    return mf;  }
-  int    getENDFmt ()     {    return mt;  }
+  /*** number of currently stored blocks */
+  int getPOS (void) { return nb; }
 
-  void   setENDFhead(double c1, double c2, int l1, int l2, int n1, int n2){
+  /*** reset / increment block counter */
+  void resetCTR (void) { ctr = 0; }
+  void inclCTR (void) { ctr ++; }
+  int  getCTR (void)   { return ctr; }
+
+  /*** total number of data */
+  int getNI (void) {
+    int ni = 0;
+    if(nb > 0) ni = iptr[nb] - iptr[0];
+    return ni;
+  }
+  int getNX (void) {
+    int nx = 0;
+    if(nb > 0) nx = xptr[nb] - xptr[0];
+    return nx;
+  }
+
+  DataSize getSIZE(void) { return size; }
+  bool isalloc(void) { return allocated; }
+
+  /** when HEAD is set, block counter reset */
+  void setENDFhead(double c1, double c2, int l1, int l2, int n1, int n2){
     head.setRecord(c1,c2,l1,l2,n1,n2);
-    reset();
+    resetCTR();
+  }
+  void setENDFhead(Record r){
+    head = r;
+    resetCTR();
   }
 
-  void   reset(void){ pos = ni = nx = 0; }
+  /*** setting ENDF data */
+  void setENDFmat(int n){ mat = n; }
+  void setENDFmf (int n){ mf  = n; }
+  void setENDFmt (int n){ mt  = n; }
 
-  void   setENDFhead(Record r){ head = r; }
-  Record getENDFhead()        { return head; }
+  /*** inquire ENDF data */
+  int getENDFmat(){ return mat; }
+  int getENDFmf (){ return mf; }
+  int getENDFmt (){ return mt; }
 
-  int    getPOS(void){ return pos; }
-  int    getNI(void) { return ni;  }
-  int    getNX(void) { return nx;  }
+  Record getENDFhead(){ return head; }
+  Record getENDFcont(){ return rdata[ctr]; }
 
-  void   setPOS(int i)  { pos = i;  }
-  void   resetPOS(void) { pos = 0;  }
-  void   inclPOS (void) { pos++;    }
-  void   addPOS  (int n){ pos += n; }
-
-  Record getENDFcont(){ return rdata[pos]; }
-
-  bool   checkSUBBLOCK(void){
+  /*** check if more data can be stored */
+  bool checkSUBBLOCK(void){
     if(size == S){
-      if(pos >= MAX_SUBBLOCK_SMALL) return true;
+      if(nb >= MAX_SUBBLOCK_SMALL) return true;
     }else if(size == L){
-      if(pos >= MAX_SUBBLOCK_LARGE) return true;
+      if(nb >= MAX_SUBBLOCK_LARGE) return true;
     }else{
-      if(pos >= MAX_SUBBLOCK      ) return true;
-    }
-    return false;
-  }
-  bool   checkMAXDATA(int mi, int mx){
-    ni += mi;
-    nx += mx;
-    if(size == S){
-      if((ni >= MAX_INTDATA_SMALL) || (nx >= MAX_DBLDATA_SMALL)) return true;
-    }
-    else if(size == L){
-      if((ni >= MAX_INTDATA_LARGE) || (nx >= MAX_DBLDATA_LARGE)) return true;
-    }
-    else{
-      if((ni >= MAX_INTDATA)       || (nx >= MAX_DBLDATA      )) return true;
+      if(nb >= MAX_SUBBLOCK      ) return true;
     }
     return false;
   }
 
-  void   copyENDF(ENDF *src){
-    int n1,n2,n3;
+  bool checkMAXDATA(int mi, int mx){
+    int ni0 = getNI() + mi;
+    int nx0 = getNX() + mx;
     if(size == S){
-      n1 = MAX_INTDATA_SMALL;
-      n2 = MAX_DBLDATA_SMALL;
-      n3 = MAX_SUBBLOCK_SMALL;
+      if((ni0 >= MAX_INTDATA_SMALL) || (nx0 >= MAX_DBLDATA_SMALL)) return true;
     }
     else if(size == L){
-      n1 = MAX_INTDATA_LARGE;
-      n2 = MAX_DBLDATA_LARGE;
-      n3 = MAX_SUBBLOCK_LARGE;
+      if((ni0 >= MAX_INTDATA_LARGE) || (nx0 >= MAX_DBLDATA_LARGE)) return true;
     }
     else{
-      n1 = MAX_INTDATA;
-      n2 = MAX_DBLDATA;
-      n3 = MAX_SUBBLOCK;
+      if((ni0 >= MAX_INTDATA)       || (nx0 >= MAX_DBLDATA      )) return true;
     }
-
-    for(int i=0 ; i<n1 ; i++) idata[i] = src->idata[i];
-    for(int i=0 ; i<n2 ; i++) xdata[i] = src->xdata[i];
-    for(int i=0 ; i<n3 ; i++){
-      if(src->iptr[i] != NULL){
-        int ofset = src->iptr[i] - src->iptr[0];
-        iptr[i] = &idata[ofset];
-      }
-      if(src->xptr[i] != NULL){
-        int ofset = src->xptr[i] - src->xptr[0];
-        xptr[i] = &xdata[ofset];
-      }
-      rdata[i] = src->rdata[i];
-    }
-    ni = src->getNI();
-    nx = src->getNX();
+    return false;
   }
 };
 
@@ -238,25 +223,25 @@ class ENDF{
 /*      Class ENDF : Dictionary       */
 /**************************************/
 class ENDFDict{
- public:
+ private:
   int       mat     ;     // ENDF MAT number
   int       sec     ;     // number of sections
+  Record    head    ;     // Tape HEAD Record
+  Record    cont[3] ;     // CONT Records
+ public:
   int       *mf     ;     // ENDF MF number
   int       *mt     ;     // ENDF MT number
   int       *nc     ;     // Line count
   int       *mod    ;     // MOD number
   int       *id     ;     // ID for ENDF data on memory
   char      tpid[67];     // Tape ID 
-  Record    head    ;     // Tape HEAD Record
-  Record    cont[3] ;     // CONT Records
-  double    emax    ;     // highest energy in the file
   double    emaxRR  ;     // energy boundary of resolved resonance region
   double    emaxUR  ;     // energy boundary of unresolved resonance region
   double    emaxRe  ;     // either emaxRR or emaxUR depending on LSSF flag
+
   ENDFDict(){
     mat    = 0;
     sec    = 0;
-    emax   = 0.0;
     emaxRR = 0.0;
     emaxUR = 0.0;
     emaxRe = 0.0;
@@ -266,6 +251,7 @@ class ENDFDict{
     mod    = new int [MAX_SECTION];
     id     = new int [MAX_SECTION];
   }
+
   ~ENDFDict(){
     delete [] mf;
     delete [] mt;
@@ -273,28 +259,75 @@ class ENDFDict{
     delete [] mod;
     delete [] id;
   }
-  int getNWD(){
-    return cont[2].n1;
-  }
-  int getNXC(){
-    return cont[2].n2;
-  }
-  int getProj(){
-    int nsub = cont[1].n1;
-    return(nsub/10);
-  }
-  void setNWD(int nwd){
-    cont[2].n1 = nwd;
-  }
-  void setNXC(int nxc){
-    cont[2].n2 = nxc;
-  }
+
+  void   setMAT(int n){ mat = n; }
+  int    getMAT(){ return mat; }
+
+  void   resetSEC(){ sec = 0; }
+  int    getSEC(){ return sec; }
+
+  void   setDICThead(Record r){ head = r; }
+  Record getDICThead(){ return head; }
+
+  void   setDICTcont(int i, Record r){ cont[i] = r; }
+  Record getDICTcont(int i){ return cont[i]; }
+
+  void   setZA   (double za  ){ head.c1 = za;   }
+  void   setAWR  (double awr ){ head.c2 = awr;  }
+  void   setLRP  (int    lrp ){ head.l1 = lrp;  }
+  void   setLFI  (int    lfi ){ head.c2 = lfi;  }
+  void   setNLIB (int    nlib){ head.l1 = nlib; }
+  void   setNMOD (int    nmod){ head.l1 = nmod; }
+
+  double getZA   (){ return head.c1; }
+  double getAWR  (){ return head.c2; }
+  int    getLRP  (){ return head.l1; }
+  int    getLFI  (){ return head.l2; }
+  int    getNLIB (){ return head.n1; }
+  int    getNMOD (){ return head.n2; }
+
+  void   setELIS (double elis){ cont[0].c1 = elis; }
+  void   setSTA  (double sta ){ cont[0].c2 = sta ; }
+  void   setLIS  (int    lis ){ cont[0].l1 = lis ; }
+  void   setLISO (int    liso){ cont[0].l2 = liso; }
+  void   setNFOR (int    nfor){ cont[0].n2 = nfor; }
+
+  double getELIS (){ return cont[0].c1; }
+  double getSTA  (){ return cont[0].c2; }
+  int    getLIS  (){ return cont[0].l1; }
+  int    getLISO (){ return cont[0].l2; }
+  int    getNFOR (){ return cont[0].n2; }
+
+  void   setAWI  (double awi ){ cont[1].c1 = awi ; }
+  void   setEMAX (double emax){ cont[1].c2 = emax; }
+  void   setLREL (int    lrel){ cont[1].l1 = lrel; }
+  void   setNSUB (int    nsub){ cont[1].n1 = nsub; }
+  void   setNVER (int    nver){ cont[1].n2 = nver; }
+
+  double getAWI  (){ return cont[1].c1; }
+  double getEMAX (){ return cont[1].c2; }
+  int    getLREL (){ return cont[1].l1; }
+  int    getNSUB (){ return cont[1].n1; }
+  int    getNVER (){ return cont[1].n2; }
+
+  void   setTEMP (double temp){ cont[2].c1 = temp; }
+  void   setLDRV (int    ldrv){ cont[2].l1 = ldrv; }
+  void   setNWD  (int    nwd ){ cont[2].n1 = nwd;  }
+  void   setNXC  (int    nxc ){ cont[2].n2 = nxc;  }
+
+  double getTEMP (){ return cont[2].c1; }
+  int    getLDRV (){ return cont[2].l1; }
+  int    getNWD  (){ return cont[2].n1; }
+  int    getNXC  (){ return cont[2].n2; }
+
+  int    getProj (){ return(getNSUB()/10); } // no way to get projectile
+
   /*** if MF and MT are in Dict, return its index in Dict.
        if >=0, unknown if Lib is allocated. */
   int scanDict(int n1, int n2){
     int k = -1;
     for(int i=0 ; i<sec ; i++){
-      if( (mf[i]==n1) && (mt[i]==n2) ){ k = i; break; }
+      if( (mf[i] == n1) && (mt[i] == n2) ){ k = i; break; }
     }
     return(k);
   }
@@ -303,17 +336,19 @@ class ENDFDict{
   int getID(int n1, int n2){
     int k = -1;
     for(int i=0 ; i<sec ; i++){
-      if( (mf[i]==n1) && (mt[i]==n2) ){ k = id[i]; break; }
+      if( (mf[i] == n1) && (mt[i] == n2) ){ k = id[i]; break; }
     }
     return(k);
   }
-  void addDict(int n1, int n2, int c, int k){
+  bool addDict(int n1, int n2, int c, int k){
     mf[sec]  = n1;
     mt[sec]  = n2;
     nc[sec]  = c ;
     mod[sec] = 0 ;
     id[sec]  = k ;
     sec ++;
+    if(sec >= MAX_SECTION) return true;
+    else return false;
   }
   void setID(int i, int k){
     if(0 <= i && i < sec) id[i] = k;
@@ -327,13 +362,6 @@ class ENDFDict{
     emaxRR = e1;
     emaxUR = e2;
     emaxRe = e3;
-    emax   = cont[1].c2;
-  }
-  /*** set Line Count from number of data points */
-  void setLineCount(int k, int n){
-    int m = n/3 + 4;
-    if(n%3 == 0 && n != 0) m--;
-    nc[k] = m;
   }
   /*** check if fissile */
   bool isFission(){

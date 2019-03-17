@@ -106,16 +106,16 @@ int ENDFScanLibrary(string libname, ENDFDict *dict)
 
   /*** first HEAD record */
   ENDFSeekHead(&fp,&lib,1,451);
-  dict->head = lib.getENDFhead();
-  dict->mat  = lib.getENDFmat();
+  dict->setDICThead(lib.getENDFhead());
+  dict->setMAT(lib.getENDFmat());
 
   /*** read in 3 CONT fields */
-  dict->cont[0] = ENDFNextCONT(&fp);
-  dict->cont[1] = ENDFNextCONT(&fp);
-  dict->cont[2] = ENDFNextCONT(&fp);
+  dict->setDICTcont(0, ENDFNextCONT(&fp));
+  dict->setDICTcont(1, ENDFNextCONT(&fp));
+  dict->setDICTcont(2, ENDFNextCONT(&fp));
 
   /*** start at the TEXT field */
-  dict->sec = 0;
+  dict->resetSEC();
   int c = 4;
   while( getline(fp,line) ){
 
@@ -129,10 +129,10 @@ int ENDFScanLibrary(string libname, ENDFDict *dict)
     s = line.substr(70,2);  mf0 = atoi(s.c_str());
     s = line.substr(72,3);  mt0 = atoi(s.c_str());
 
-    if( (mf0==mf1) && (mt0==mt1) ){
+    if( (mf0 == mf1) && (mt0 == mt1) ){
       c++;
       continue;
-    }else if(mf0==0 || mt0==0)
+    }else if(mf0 == 0 || mt0 == 0)
       continue;
 
     dict->addDict(mf1,mt1,c,-1);
@@ -141,7 +141,7 @@ int ENDFScanLibrary(string libname, ENDFDict *dict)
     mt1 = mt0;
     c = 1;
 
-    if(dict->sec >= MAX_SECTION-1){
+    if(dict->getSEC() >= MAX_SECTION-1){
       overrun = -2;
       break;
     }
@@ -280,6 +280,7 @@ Record ENDFReadTAB2(ifstream *fp, ENDF *lib)
   /*** calculate next address */
   lib->iptr[idx+1] = lib->iptr[idx] + 2*nr;
   lib->xptr[idx+1] = lib->xptr[idx];
+
   lib->inclPOS();
 
   /*** read LIST for each subsection */
@@ -310,6 +311,7 @@ Record ENDFReadTAB21(ifstream *fp, ENDF *lib)
   /*** calculate next address */
   lib->iptr[idx+1] = lib->iptr[idx] + 2*nr;
   lib->xptr[idx+1] = lib->xptr[idx];
+
   lib->inclPOS();
 
   /*** read TAB1 for each subsection */
@@ -340,6 +342,7 @@ Record ENDFReadTAB22(ifstream *fp, ENDF *lib)
   /*** calculate next address */
   lib->iptr[idx+1] = lib->iptr[idx] + 2*nr;
   lib->xptr[idx+1] = lib->xptr[idx];
+
   lib->inclPOS();
 
   /*** read TAB1 for each subsection */
@@ -413,7 +416,7 @@ void ENDFExceedSubBlock(const string loc, ENDF *lib)
   cerr << "too many sub-block at " << loc;
   cerr << "  MF = " << lib->getENDFmf();
   cerr << "  MT = " << lib->getENDFmt() << endl;
-  cerr << "  current position " << lib->getPOS() << endl;
+  cerr << "  current block count " << lib->getPOS() << endl;
   exit(-1);
 }
 
@@ -437,7 +440,7 @@ void ENDFWriteHEAD(ENDF *lib)
   Record head = lib->getENDFhead();
   ENDFWriteRecord(&head);
   ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
-  lib->resetPOS();
+  lib->resetCTR();
 }
 
 
@@ -488,12 +491,13 @@ void ENDFWriteRecord(Record *cont)
 /**********************************************************/
 Record ENDFWriteCONT(ENDF *lib)
 {
-  int idx = lib->getPOS();
+  int idx = lib->getCTR();
   Record cont = lib->rdata[idx];
 
   ENDFWriteRecord(&cont);
   ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
-  lib->inclPOS();
+
+  lib->inclCTR();
 
   return(cont);
 }
@@ -504,7 +508,7 @@ Record ENDFWriteCONT(ENDF *lib)
 /**********************************************************/
 Record ENDFWriteLIST(ENDF *lib)
 {
-  int idx = lib->getPOS();
+  int idx = lib->getCTR();
   int np  = lib->rdata[idx].n1;
 
   Record cont = ENDFWriteCONT(lib);
@@ -519,7 +523,7 @@ Record ENDFWriteLIST(ENDF *lib)
 /**********************************************************/
 Record ENDFWriteTAB1(ENDF *lib)
 {
-  int idx = lib->getPOS();
+  int idx = lib->getCTR();
   int nr  = lib->rdata[idx].n1;
   int np  = lib->rdata[idx].n2;
 
@@ -536,7 +540,7 @@ Record ENDFWriteTAB1(ENDF *lib)
 /**********************************************************/
 Record ENDFWriteTAB2(ENDF *lib)
 {
-  int idx = lib->getPOS();
+  int idx = lib->getCTR();
   int nr  = lib->rdata[idx].n1;
   int np  = lib->rdata[idx].n2;
 
@@ -554,7 +558,7 @@ Record ENDFWriteTAB2(ENDF *lib)
 /**********************************************************/
 Record ENDFWriteTAB21(ENDF *lib)
 {
-  int idx = lib->getPOS();
+  int idx = lib->getCTR();
   int nr  = lib->rdata[idx].n1;
   int np  = lib->rdata[idx].n2;
 
@@ -572,7 +576,7 @@ Record ENDFWriteTAB21(ENDF *lib)
 /**********************************************************/
 Record ENDFWriteTAB22(ENDF *lib)
 {
-  int idx = lib->getPOS();
+  int idx = lib->getCTR();
   int nr  = lib->rdata[idx].n1;
   int np  = lib->rdata[idx].n2;
 
@@ -759,6 +763,7 @@ void ENDFPackTAB2(Record cont, Record *xcont, int *idat, double **xdat, ENDF *li
 
   lib->iptr[idx+1] = lib->iptr[idx] + 2*nr;
   lib->xptr[idx+1] = lib->xptr[idx];
+
   lib->inclPOS();
 
   /*** read LIST for each subsection */
@@ -787,6 +792,7 @@ void ENDFPackTAB21(Record cont, int *idat, Record *ctab, int **itab, double **xt
   /*** calculate next address */
   lib->iptr[idx+1] = lib->iptr[idx] + 2*nr;
   lib->xptr[idx+1] = lib->xptr[idx];
+
   lib->inclPOS();
 
   /*** read TAB1 for each subsection */
@@ -808,6 +814,11 @@ void ENDFPackTAB21(Record cont, int *idat, Record *ctab, int **itab, double **xt
 /**********************************************************/
 void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
 {
+  if(libsrc->getSIZE() != libdst->getSIZE()){
+    cerr << "cannot copy to different size object" << endl;
+    exit(-1);
+  }
+
   int nb = libsrc->getPOS();
   int ni = libsrc->getNI();
   int nx = libsrc->getNX();
@@ -818,32 +829,24 @@ void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
   libdst->setENDFmf( libsrc->getENDFmf() );
   libdst->setENDFmt( libsrc->getENDFmt() );
 
-  /*** check size */
-  libdst->setPOS(nb);
-  if( libdst->checkSUBBLOCK() ) ENDFExceedSubBlock("LibCopy",libdst);
-  if( libdst->checkMAXDATA(ni,nx) ) ENDFExceedDataSize("LibCopy",libdst,ni,nx);
-
   /*** copy all integer and double data */
-  for(int i=0 ; i<ni ; i++) libdst->idata[i] = libsrc->idata[i];
-  cout << nx << endl;
-  for(int i=0 ; i<nx ; i++){
-    libdst->xdata[i] = libsrc->xdata[i];
-    cout << i << " " << libsrc->xdata[i] << " " << libdst->xdata[i]<<endl;
-  }
+  for(int i=0 ; i<ni ; i++){ libdst->idata[i] = libsrc->idata[i]; }
+  for(int i=0 ; i<nx ; i++){ libdst->xdata[i] = libsrc->xdata[i]; }
 
   /*** copy all CONT */
   for(int i=0 ; i<nb ; i++) libdst->rdata[i] = libsrc->rdata[i];
 
-  /*** reassign pointers */
-  for(int i=0 ; i<nb ; i++){
-    if(libsrc->iptr[i] != NULL){
-      int ofset = libsrc->iptr[i] - libsrc->iptr[0];
-      libdst->iptr[i] = &libdst->idata[ofset];
-    }
-    if(libsrc->xptr[i] != NULL){
-      int ofset = libsrc->xptr[i] - libsrc->xptr[0];
-      libdst->xptr[i] = &libdst->xdata[ofset];
-    }
+  /*** re-assign pointers */
+  libdst->resetPOS();
+  int ofset = 0;
+  for(int i=1 ; i<=nb ; i++){
+    ofset = libsrc->iptr[i] - libsrc->iptr[0];
+    libdst->iptr[i] = &libdst->idata[ofset];
+
+    ofset = libsrc->xptr[i] - libsrc->xptr[0];
+    libdst->xptr[i] = &libdst->xdata[ofset];
+
+    libdst->inclPOS();
   }
 }
 
@@ -856,29 +859,30 @@ void ENDFLibPeek(ENDF *lib)
   Record head = lib->getENDFhead();
 
   /*** HEAD record */
-  cout << "MATMFMT: " << lib->getENDFmat() << " "
-       << lib->getENDFmf() << " "
-       << lib->getENDFmt() << endl;
+  cout << lib->getENDFmat() << " "
+       << lib->getENDFmf()  << " "
+       << lib->getENDFmt()  << endl;
 
-  cout <<"  HEAD: ";
+  cout <<" HEAD  : ";
   ENDFWriteRecord(&head);
   cout << endl;
-  cout <<"  Position: " << lib->getPOS() << endl;
+  cout <<" POS   : " << setw(11) << lib->getPOS() << endl;
+  cout <<" CTR   : " << setw(11) << lib->getCTR() << endl;
   /*** each block */
   if(lib->getPOS() == 1){
-    cout <<"  CONT: ";
+    cout <<" CONT  : ";
     ENDFWriteRecord(&lib->rdata[0]);
     cout << endl;
-    cout <<"  NINT: " << lib->getNI() << endl;
-    cout <<"  NDBL: " << lib->getNX() << endl;
+    cout <<" NINT  : " << setw(11) << lib->getNI() << endl;
+    cout <<" NDBL  : " << setw(11) << lib->getNX() << endl;
   }
   else{
     for(int i=0 ; i<lib->getPOS() ; i++){
-      cout <<"  CONT: ";
+      cout <<" CONT  : ";
       ENDFWriteRecord(&lib->rdata[i]);
       cout << endl;
-      cout <<"  NINT: " << lib->iptr[i+1] - lib->iptr[i] << endl;
-      cout <<"  NDBL: " << lib->xptr[i+1] - lib->xptr[i] << endl;
+      cout <<" NINT  : " << setw(11) << lib->iptr[i+1] - lib->iptr[i] << endl;
+      cout <<" NDBL  : " << setw(11) << lib->xptr[i+1] - lib->xptr[i] << endl;
     }
   }
 }
@@ -901,7 +905,7 @@ void ENDFExtract(ifstream *fp, int mf, int mt)
     if(n < 75){
       cout << left << line;
       n = 65-n;
-      while(n>=0){
+      while(n >= 0){
         cout <<' ';
         n--;
       }

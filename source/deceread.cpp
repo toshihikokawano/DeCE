@@ -52,11 +52,11 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
   cy   = new double [MAX_DBLDATA];
   xdat = new double [MAX_DBLDATA*2];
 
-  /*** ZA, AWT, and MAT number from Dictionary */
-  double za   = dict->head.c1;    //  1000*Z + A number
-  double awt  = dict->head.c2;    //  mass ratio to neutron 1.008665
-  double elis = dict->cont[0].c1; //  target excitation energy
-  int    mat  = dict->mat;
+  /*** ZA, AWR, and MAT number from Dictionary */
+  double za   = dict->getZA();    //  1000*Z + A number
+  double awr  = dict->getAWR();   //  mass ratio to neutron 1.008665
+  double elis = dict->getELIS();  //  target excitation energy
+  int    mat  = dict->getMAT();
 
   /*** in the case of cross sections in MF3 */
   if(mf == 3){
@@ -130,7 +130,7 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
 
     /*** Make HEAD and CONT */
     int lnu = (mt == 3) ? 0 : 2; // tabulated nu case
-    lib->setENDFhead(za,awt,0,lnu,0,0);
+    lib->setENDFhead(za,awr,0,lnu,0,0);
     lib->setENDFmat(mat);
     lib->setENDFmf(mf);
     lib->setENDFmt(mt);
@@ -237,10 +237,10 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
     if(x[nc] == 0.0) continue;
 
     /*** convert energy unit into eV */
-    x[nc] *= opt.EnergyConversion;
+    x[nc] *= opt.ReadXdataConversion;
 
     /*** convert cross section unit into barns */
-    y[nc] *= opt.CrossSectionConversion;
+    y[nc] *= opt.ReadYdataConversion;
 
     nc++;
     if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
@@ -282,7 +282,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   istringstream s1(&line[1]);  // skip comment #
   for(int i=0 ; i<ofset ; i++) s1 >> eth;
 
-  *elev = eth * opt.EnergyConversion;
+  *elev = eth * opt.ReadXdataConversion;
 
   int nc = 0;
   while(getline(fp,line)){
@@ -290,8 +290,8 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
     s2 >> x[nc];
     for(int i=0 ; i<ofset ; i++) s2 >> y[nc];
 
-    x[nc] *= opt.EnergyConversion;
-    y[nc] *= opt.CrossSectionConversion;
+    x[nc] *= opt.ReadXdataConversion;
+    y[nc] *= opt.ReadYdataConversion;
 
     if( (mt >= 600) || (y[nc] > 0.0) ) nc++;
     if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
@@ -341,7 +341,7 @@ int readNUdata(char *file, int ofset, double *x, double *y)
     /*** in case blank line is given, skip it */
     if(x[nc] == 0.0) continue;
 
-    x[nc] *= opt.EnergyConversion;
+    x[nc] *= opt.ReadXdataConversion;
 
     nc++;
     if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");

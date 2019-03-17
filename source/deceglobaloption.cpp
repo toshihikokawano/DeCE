@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <cstdlib>
 
@@ -12,50 +13,89 @@ using namespace std;
 #include "global.h"
 #include "terminate.h"
 
-static void printOption(void);
+static void optionPrint (void);
+static void optionToggle (string, string);
+static void optionSet (string, string, const double);
 
 /**********************************************************/
 /*      set / unset global options                        */
 /**********************************************************/
 void DeceGlobalOption(string ope, string option, const double x)
 {
-  if(ope == "showoptions") printOption();
-  else{
+  /*** print current setting */
+  if(ope == "showoptions") optionPrint();
 
-    if(ope == "set"){
-      if(option == "LineNumber"){
-        opt.LineNumber = true;
-        ENDFPrintLineNumber(opt.LineNumber);
-      }
-      else if(option == "EnergyConversion"){
-        opt.EnergyConversion = x;
-      }
-      else if(option == "CrossSectionConversion"){
-        opt.CrossSectionConversion = x;
-      }
-      else if(option == "AngleStep"){
-        opt.AngleStep = x;
-      }
-      else WarningMessage("option not found ",option);
-    }
-    else if(ope == "unset"){
-      if(option == "LineNumber"){
-        opt.LineNumber = false;
-        ENDFPrintLineNumber(opt.LineNumber);
-      }
-      else WarningMessage("option not found ",option);
+  /*** toggle options */
+  else if(option == "LineNumber") optionToggle(ope,option);
+
+  /*** set a value */
+  else optionSet(ope,option,x);
+}
+
+
+/**********************************************************/
+/*      global options, set or unset                      */
+/**********************************************************/
+void optionToggle(string ope, string option)
+{
+  if(ope == "set"){
+    if(option == "LineNumber"){
+      opt.LineNumber = true;
+      ENDFPrintLineNumber(opt.LineNumber);
     }
   }
+  else if(ope == "unset"){
+    if(option == "LineNumber"){
+      opt.LineNumber = false;
+      ENDFPrintLineNumber(opt.LineNumber);
+    }
+  }
+
+  if(option == "LineNumber"){
+    ostringstream os;
+    os << "option" << option << " line number is ";
+    if(opt.LineNumber) os << "on";
+    else os << "off";
+    Notice("optionToggle",os.str());
+  }
+}
+
+
+/**********************************************************/
+/*      global options, value setting                     */
+/**********************************************************/
+void optionSet(string ope, string option, const double x)
+{
+  if(ope == "unset"){
+    WarningMessage("option cannnot unset: ",option);
+    return;
+  }
+
+  if(     option == "ReadXdataConversion")  opt.ReadXdataConversion  = x;
+  else if(option == "ReadYdataConversion")  opt.ReadYdataConversion  = x;
+  else if(option == "WriteXdataConversion") opt.WriteXdataConversion = x;
+  else if(option == "WriteYdataConversion") opt.WriteYdataConversion = x;
+  else if(option == "AngleStep")            opt.AngleStep            = x;
+  else{
+    WarningMessage("option not found: ",option);
+    return;
+  }
+
+  ostringstream os;
+  os << "option " << option << " set to " << x;
+  Notice("optionSet",os.str());
 }
 
 
 /**********************************************************/
 /*      print global options                              */
 /**********************************************************/
-void printOption()
+void optionPrint()
 {
-  cout << "option: LineNumber             " << setw(13) << ((opt.LineNumber) ? " ON" : "OFF") << endl;
-  cout << "option: AngleStep              " << setw(13) << opt.AngleStep << endl;
-  cout << "option: EnergyConversion       " << setw(13) << opt.EnergyConversion << endl;
-  cout << "option: CrossSectionConversion " << setw(13) << opt.CrossSectionConversion << endl;
+  cout << "option: LineNumber           " << setw(13) << ((opt.LineNumber) ? " ON" : "OFF") << endl;
+  cout << "option: AngleStep            " << setw(13) << opt.AngleStep << endl;
+  cout << "option: ReadXdataConversion  " << setw(13) << opt.ReadXdataConversion << endl;
+  cout << "option: ReadYdataConversion  " << setw(13) << opt.ReadYdataConversion << endl;
+  cout << "option: WriteXdataConversion " << setw(13) << opt.WriteXdataConversion << endl;
+  cout << "option: WriteYdataConversion " << setw(13) << opt.WriteYdataConversion << endl;
 }

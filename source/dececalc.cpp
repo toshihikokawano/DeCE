@@ -53,24 +53,12 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
     }
 
     /*** copy SRC1 to DEST */
-    cout << "SRC" << endl;
-    ENDFLibPeek(lib[k1]);
-    ENDFWriteHEAD(lib[k1]);
-    ENDFWriteTAB1(lib[k1]);
-
     ENDFLibCopy(lib[k1],lib[k0]);
     lib[k0]->setENDFmt(mtdest);
 
-    cout << "DEST" << endl;
-    ENDFLibPeek(lib[k0]);
-    ENDFWriteHEAD(lib[k0]);
-    ENDFWriteTAB1(lib[k0]);
-
-
-
     /*** add all MTs in the range to DEST */
     if(op == ':'){
-      for(int i=0 ; i<dict->sec ; i++){
+      for(int i=0 ; i<dict->getSEC() ; i++){
         if( (dict->mf[i] == mf) && (dict->mt[i] >= mtsrc1+1 && dict->mt[i] <= mtsrc2) ){
           k2 = dict->getID(3,dict->mt[i]);
           if(k2 < 0) continue;
@@ -80,9 +68,6 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
     }
     /*** add SRC2 to DEST */
     else addsection(op,lib[k2],lib[k0]);
-
-    /*** number of lines of this section, set in dict */
-    dict->setLineCount(k0,lib[k0]->rdata[0].n2);
 
     /*** restore Q values */
     lib[k0]->rdata[0].c1 = qm;
@@ -148,6 +133,7 @@ void addsection(char pm, ENDF *src, ENDF *dest)
 {
   double   *z;
 
+
   z = new double [MAX_DBLDATA];
 
   int n = ENDFMergeXdata(src,dest,z);
@@ -189,7 +175,6 @@ void addsection(char pm, ENDF *src, ENDF *dest)
   double qis = rs.c2;
 
   Record rd = dest->rdata[0];
-
   rd.n1 = 1;
   rd.n2 = n;
 
@@ -198,19 +183,13 @@ void addsection(char pm, ENDF *src, ENDF *dest)
   rd.c2 = qis;
   dest->rdata[0] = rd;
 
+  /*** force lin-lin interpolation */
+  int idat[2];
+  idat[0] = n;
+  idat[1] = 2;
+
   dest->resetPOS();
-
-  for(int i=0 ; i<MAX_INTDATA ; i++) dest->iptr[0][i] = 0;
-  dest->iptr[0][0] = n;
-  dest->iptr[0][1] = 2;
-
-  for(int i=0 ; i<MAX_DBLDATA ; i++) dest->xptr[0][i] = 0.0;
-  for(int i=0 ; i<n*2 ; i++){
-    dest->xptr[0][i] = z[i];
-  }
-
-  dest->setNX(n*2);
-  dest->inclPOS();
+  ENDFPackTAB1(rd,idat,z,dest);
 
   delete [] z;
 }

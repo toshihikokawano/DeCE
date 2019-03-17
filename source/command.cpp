@@ -232,7 +232,8 @@ void CmdExtractString(char *d)
   int i0=0, i1=0;
   for(int i=0 ; i<lens ; i++){
     if(s[i] == '"'){
-      i0=i+1;
+      if((i > 0) && s[i-1] == '\\') continue;
+      i0 = i+1;
       break;
     }
   }
@@ -240,14 +241,19 @@ void CmdExtractString(char *d)
 
   for(int i=i0 ; i<lens ; i++){
     if(s[i] == '"'){
-      i1=i-1;
+      if(s[i-1] == '\\') continue;
+      i1 = i-1;
       break;
     }
   }
 
   if(i1-i0+1 < MAX_TEXTLENGTH){
-    for(int i=i0 ; i<=i1 ; i++)  d[i-i0] = s[i];
-    d[i1-i0+1] = '\0';
+    int k = 0;
+    for(int i=i0 ; i<=i1 ; i++){
+      d[k] = s[i];
+      if(s[i] != '\\') k++;
+    }
+    d[k] = '\0';
   }
 }
 

@@ -8,13 +8,13 @@
 <body>
 
 <h1><a name = "top"> The Descriptive Correction of ENDF-6 Format Code </a><br/>
-     DeCE (Adularia) Manual </h1>
+     DeCE (Pyrite) Manual </h1>
 
 <p style="text-align:center;">
 <img src="DeCE.png" width="340" height="320" alt="DeCE Logo" title="DeCE" style="margin-top:20px;margin-bottom:20px;padding:0px;"/>
 </p>
 
-<p style="text-align:center;"> Sept. 14 (2015) </p>
+<p style="text-align:center;"> March 14 (2019) </p>
 <p style="text-align:right;"> Kawano Toshihiko </p>
 <p style="text-align:right;"> Los Alamos National Laboratory </p>
 
@@ -82,7 +82,7 @@
         <li> <a href="ope1.html#duplicate">
              duplicate (copy section)</a>
         <li> <a href="ope1.html#calc">
-             calc (calculate from two sections)</a>
+             calc (calculate sum, difference, ratio, or product of two sections in MF3)</a>
         <li> <a href="ope1.html#make4">
              make4 (create MF/MT=3/4 section)</a>
         </ul>
@@ -110,11 +110,13 @@
         <li> <a href="ope3.html#delpoint">
              delpoint (delete one data point, or multiple points) </a>
         <li> <a href="ope3.html#factor">
-             factor (multiply data point by a factor)</a>
+             factor (multiply data points by a factor)</a>
         <li> <a href="ope3.html#applyfunc">
              applyfunc (multiply data point by a function)</a>
         <li> <a href="ope3.html#noramlize">
              normalize (normalize data)</a>
+        <li> <a href="ope3.html#readjust">
+             readjust (readjust partial cross sections by the sum)</a>
         <li> <a href="ope3.html#changeint">
              changeint (modify interpolation law)</a>
         </ul>
@@ -137,6 +139,9 @@
              smoothangdist (energy averaged Legendre coefficients from resonance parameters)</a>
         </ul>
     </ul>
+<li><a href="option.html">
+    Options
+
 <li><a href="class.html">
     ENDF Class Library
     <ul>
@@ -178,58 +183,59 @@
 <p>DeCE is an ENDF-6 formatted file manipulation program, similar to
 STANEF by C.L. Dunford et al. (BNL), or FIXUP in PREPRO by D.E. Cullen
 (IAEA), but probably the closest to CRECTJ6 by T. Nakagawa (JAEA), as
-the calculations are performed interactively.</p>
+some data manupulation can be performed interactively.</p>
 
 <p>In this manual, the word <tt>ENDF-6 file</tt> is often used.  This
 does not refer to a particular name of libraries, like ENDF/B-VI, but
 a data file which is in the ENDF-6 format in general.</p>
 
-<p>In a general case, one data file can contain more than one
-materials, each of the materials specified by some different MAT numbers. 
-However, DeCE assumes that an input ENDF-6 file includes only
-one MAT number.</p>
+<p>In general, one data file (or the so-called tape) can contain more
+than one materials, in which each of the materials is specified by a
+different MAT number.  However, DeCE expects that an input ENDF-6 file
+includes only one MAT number.</p>
 
-
-<p>DeCE does the following things. Here the word "section" means a
+<p>DeCE is capable for doing the items below. Here the word "section" means a
 data block specified by a combination of MF and MT numbers. </p>
 
 <ul>
   <li> extract one section from a file, and display it
-  <li> calculate add/sub/etc of two sections
-  <li> manipulate a data-point in a section (replace, scaling, delete)
+  <li> calculate add/sub/etc of two sections in MF3
+  <li> manipulate a data-point in a section (insertion, replacement, scaling, and delete)
   <li> read data in an external file, and convert them into ENDF-6
-  <li> reconstruct pointwise cross sections from resonance parameters
+  <li> reconstruct pointwise cross sections from given resonance parameters
   <li> renumber all the sections, make a new dictionary, 
-       update <tt>NWD</tt> and <tt>NXC</tt>, 
+       update <tt>NWD</tt> and <tt>NXC</tt> in the header section, 
        then write the entire data on a new file.
 </ul> 
 
 <p>DeCE is written in C++, and it has classes, ENDF and ENDFDict,
 which provide interface to the ENDF-6 specified data structure. The
-ENDF class is so general that it can be used in other user utility
-programs. This package contains some examples to use the ENDF
-class.</p>
+ENDF class is designed to be general so that it can be used in other
+user utility programs. This package offers some examples to use the
+ENDF class in the example direcrory.</p>
 
 
 
 <h2><a name="history"> History </a></h2>
 
-<p>Starting in Dec. 2009, DeCE still has a short history in
-development. Some of major updates have a code name like, Talc,
-Gypsum, and Calcite. They are known to as "the Mohs scale of mineral
-hardness." The code was originally developed as <tt>E-Type</tt>, which
-was a converter program from the Hauser-Feshbach model code output
-into the ENDF-6 format, first appeared in Summer 2009.  This was totally
-superseded by DeCE.  The current version, built in Sept. 2015, is
-Adularia.</p>
+<p>The development of DeCE was started in Dec. 2009. At each major
+update, a new code name like, Talc, Gypsum, and Calcite, was given.
+They are known as "the Mohs scale of mineral hardness." The code was
+originally developed as a program <tt>E-Type</tt>, which was a
+converter program from the Hauser-Feshbach model code output into the
+ENDF-6 formatted data, first appeared in Summer 2009.  This was
+totally superseded by DeCE.  The current version, built in March 2019,
+is Pyrite, whose Mohs scale is 6 - 6.5.</p>
 
 <p>All versions up to DeCE (Fluorite) were just for the author's
 private use. Apatite is the first version of outside release (yet
 limited to the lab internal use). This version comes with some
 documents. Turquoise is a stable version of Apatite, including many
 bug fixes. Adularia, which was built in 2015, has several upgrades in
-the resonance region. DeCE was released as an open source software
-in 2016.</p>
+the resonance region. DeCE was released as an open source software in
+2016. In 2019 the source code was re-organized aiming at better
+readability, and released as the version Pyrite. Some test cases are
+also provided in this version.</p>
 
 <hr>
 <a href="#top">    [TOP]  </a>

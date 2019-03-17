@@ -13,7 +13,7 @@ int main(int, char *[]);
 
 int main(int argc, char *argv[])
 {
-  ifstream fpin;     // file pointer to input library
+  ifstream fpin;   // file pointer to input library
   ENDF     lib(M); // allocate medium size data block
 
   if(argc<=1){

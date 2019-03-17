@@ -24,7 +24,7 @@ static void storeMF4   (int, int, double **, Record *, ENDF *);
 static void storeMF6   (int, int, double **, Record *, ENDF *);
 
 static bool   addata = true;
-static double za = 0.0, awt = 0.0;
+static double za = 0.0, awr = 0.0;
 static int    mat = 0;
 
 /**********************************************************/
@@ -77,10 +77,10 @@ void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *
     /*** generate floating point data */
     ne = geneADdata(mt,ne,eth,en,cx,cy,lg,cont);
 
-    /*** ZA, AWT, and MAT number from Dictionary */
-    mat  = dict->mat;
-    za   = dict->head.c1;
-    awt  = dict->head.c2;
+    /*** ZA, AWR, and MAT number from Dictionary */
+    mat  = dict->getMAT();
+    za   = dict->getZA();
+    awr  = dict->getAWR();
 
     if(mf == 4) storeMF4(mt,ne,lg,cont,lib[k4]);
     else        storeMF6(mt,ne,lg,cont,lib[k4]);
@@ -132,7 +132,7 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
     s1 >> en[ne] >> legflag;
 
     /*** convert energy unit into eV */
-    en[ne] *= opt.EnergyConversion;
+    en[ne] *= opt.ReadXdataConversion;
 
     bool nonzero = false;
     if(legflag == "Legcoef"){
@@ -160,6 +160,10 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
   }
 
   fp.close();
+
+  ostringstream os;
+  os << "MT" << mt << " angular distributions at " << ne << " energy points imported from " << file;
+  Notice("readADdata",os.str());
 
   return ne;
 }
@@ -273,10 +277,10 @@ void storeMF4(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)
   lib->setENDFmat(mat);
   lib->setENDFmf(4);
   lib->setENDFmt(mt);
-  lib->setENDFhead(za, awt, lvt, ltt, 0, 0);
+  lib->setENDFhead(za, awr, lvt, ltt, 0, 0);
 
   /*** extra card for MF4 */
-  cont.setRecord(0.0, awt, li, lct, 0, 0);
+  cont.setRecord(0.0, awr, li, lct, 0, 0);
   ENDFPackCONT(cont,lib);
 
   /*** Make TAB2 (LIST) */
@@ -307,7 +311,7 @@ void storeMF6(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)
   lib->setENDFmat(mat);
   lib->setENDFmf(6);
   lib->setENDFmt(mt);
-  lib->setENDFhead(za, awt, 0, lct, nk, 0);
+  lib->setENDFhead(za, awr, 0, lct, nk, 0);
 
 
   /*** TAB1 for fraction = 1.0 in the [emin,emax] range */
@@ -337,7 +341,7 @@ void storeMF6(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)
 
   /*** Make TAB1 for recoil */
   zap = za;
-  awp = awt;
+  awp = awr;
   law = 4;                  // discrete two body recoil
   cont.setRecord(zap, awp, lip, law, 1, 2);
   idat[0] = 2;              // two points

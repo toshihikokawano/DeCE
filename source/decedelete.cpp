@@ -20,7 +20,7 @@ void DeceDelete(ENDFDict *dict, const int mf, const int mt)
 
   /*** mark id = -2 to be deleted */
   if(mt == 0){
-    for(int i=0 ; i<dict->sec ; i++){
+    for(int i=0 ; i<dict->getSEC() ; i++){
       if(mf == dict->mf[i]){
         dict->setID(i,-2);
         ostringstream os;
@@ -30,7 +30,7 @@ void DeceDelete(ENDFDict *dict, const int mf, const int mt)
     }
   }
   else{
-    for(int i=0 ; i<dict->sec ; i++){
+    for(int i=0 ; i<dict->getSEC() ; i++){
       if( (mf == dict->mf[i]) && (mt == dict->mt[i]) ){
         dict->setID(i,-2);
         ostringstream os;

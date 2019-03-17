@@ -9,6 +9,7 @@
 using namespace std;
 
 #include "dece.h"
+#include "global.h"
 
 static void dictsort         (ENDFDict *);
 static void fixdictionary    (ifstream *, ENDFDict *);
@@ -35,14 +36,14 @@ void DeceOutput(ifstream *fpin, ENDFDict *dict, ENDF *lib[])
 
     /*** check if MF is given */
     bool given = false;
-    for(int i=0 ; i<dict->sec ; i++) if(dict->mf[i] == mf) given = true;
+    for(int i=0 ; i<dict->getSEC() ; i++) if(dict->mf[i] == mf) given = true;
     if(!given) continue;
 
     /*** copy one section from original or replaced */
     DeceExtract(dict,lib,fpin,mf,0);
 
     /*** insert SEND recort */
-    ENDFWriteFEND(dict->mat);
+    ENDFWriteFEND(dict->getMAT());
   }
 }
 
@@ -58,10 +59,10 @@ void DeceRenumber(string fin, string fout, ENDFDict *dict)
   string    line;
   Record    head;
 
-  /*** rescan temp file */
-  head = dict->head;
+  /*** rescan temp file, set line count for each section  */
+  head = dict->getDICThead();
   ENDFScanLibrary(fin,dict);
-  dict->head = head;
+  dict->setDICThead(head);
 
   fpin.open(&fin[0]);
   fpout.open(&fout[0]);
@@ -74,9 +75,7 @@ void DeceRenumber(string fin, string fout, ENDFDict *dict)
   fpin.seekg(0,ios_base::beg);
   getline(fpin,line);
   cout << left << setw(66) << dict->tpid << "   1 0  0";
-#ifdef LINE_NUMBER
-  cout << "    0";
-#endif
+  if(opt.LineNumber) cout << setw(5) << "    0";
   cout << endl;
   cout << right;
 
@@ -88,15 +87,15 @@ void DeceRenumber(string fin, string fout, ENDFDict *dict)
 
     /*** check if MF is given */
     bool given = false;
-    for(int i=0 ; i<dict->sec ; i++) if(dict->mf[i] == mf) given = true;
+    for(int i=0 ; i<dict->getSEC() ; i++) if(dict->mf[i] == mf) given = true;
     if(!given) continue;
 
-    for(int i=0 ; i<dict->sec ; i++){
+    for(int i=0 ; i<dict->getSEC() ; i++){
       if(mf == dict->mf[i]) ENDFExtract(&fpin,mf,dict->mt[i]);
     }
 
     /*** insert SEND recort */
-    ENDFWriteFEND(dict->mat);
+    ENDFWriteFEND(dict->getMAT());
   }
 
   /*** write MEND */
@@ -116,9 +115,9 @@ void DeceRenumber(string fin, string fout, ENDFDict *dict)
 /**********************************************************/
 void dictsort(ENDFDict *dict)
 {
-  for(int j=0 ; j<dict->sec ; j++){
+  for(int j=0 ; j<dict->getSEC() ; j++){
     int k = j;
-    for(int i=j ; i<dict->sec ; i++){
+    for(int i=j ; i<dict->getSEC() ; i++){
       if( (dict->mf[i]<=dict->mf[k]) && (dict->mt[i]<dict->mt[k]) ) k = i;
     }
     swap(&dict->mf[j], &dict->mf[k]);
@@ -162,7 +161,7 @@ void fixdictionary(ifstream *fp, ENDFDict *dict)
       break;
     }
     /*** in case no dictionary */
-    else if( (mf0==1) && (mt0==0) ){
+    else if( (mf0 == 1) && (mt0 == 0) ){
       nodic = true;
       break;
     }
@@ -181,18 +180,18 @@ void fixdictionary(ifstream *fp, ENDFDict *dict)
       s3 = line.substr(70, 2);  mf0 = atoi(s3.c_str());
       s4 = line.substr(72, 3);  mt0 = atoi(s4.c_str());
 
-      if( (mf0==1) && (mt0==0) )  break;
+      if( (mf0 == 1) && (mt0 == 0) )  break;
 
       int k = dict->scanDict(mf,mt);
-      if(k>=0)  dict->mod[k] = mod;
+      if(k >= 0)  dict->mod[k] = mod;
     }while( getline(*fp,line) );
   }
 
   dict->setNWD(nwd);
-  dict->setNXC(dict->sec);  // NXC should be the same as Nsec
+  dict->setNXC(dict->getSEC());  // NXC should be the same as Nsec
 
   /*** the number of cards in the MF=1/MT=451 = NWD + NXC + Header */
-  dict->nc[0] = nwd + dict->sec + 4;
+  dict->nc[0] = nwd + dict->getSEC() + 4;
 }
 
 
@@ -207,16 +206,16 @@ void makeMF1(ifstream *fpin, ENDFDict *dict)
   int       mf = 1, mt = 451;
 
   /*** header part */
-  lib.setENDFmat(dict->mat);
+  lib.setENDFmat(dict->getMAT());
   lib.setENDFmf(mf);
   lib.setENDFmt(mt);
-  lib.setENDFhead(dict->head);
+  lib.setENDFhead(dict->getDICThead());
   getline(*fpin,line);
   ENDFWriteHEAD(&lib);
 
   for(int i=0 ; i<3 ; i++){
     getline(*fpin,line);
-    lib.rdata[i] = dict->cont[i];
+    lib.rdata[i] = dict->getDICTcont(i);
     ENDFWriteCONT(&lib);
   }
 
@@ -227,7 +226,7 @@ void makeMF1(ifstream *fpin, ENDFDict *dict)
   }
 
   /*** generate dictionary */
-  for(int i=0 ; i<dict->sec ; i++){
+  for(int i=0 ; i<dict->getSEC() ; i++){
     ENDFWriteDICT(&lib,dict->mf[i],dict->mt[i],dict->nc[i],dict->mod[i]);
   }
 
@@ -240,5 +239,5 @@ void makeMF1(ifstream *fpin, ENDFDict *dict)
   mt = 458; if( dict->scanDict(1,mt)>=0 ) ENDFExtract(fpin,1,mt);
   mt = 460; if( dict->scanDict(1,mt)>=0 ) ENDFExtract(fpin,1,mt);
 
-  ENDFWriteFEND(dict->mat);
+  ENDFWriteFEND(dict->getMAT());
 }

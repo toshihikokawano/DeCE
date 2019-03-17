@@ -23,13 +23,13 @@ void DeceScanIndex(ENDFDict *dict)
   for(int mf=1 ; mf <= 40 ; mf++){
 
     bool given = false;
-    for(int i=0 ; i<dict->sec ; i++) if(dict->mf[i] == mf) given = true;
+    for(int i=0 ; i<dict->getSEC() ; i++) if(dict->mf[i] == mf) given = true;
 
     if(given){
       cout << "MF " << setw(2) << "  " <<  mf << endl;
 
       int k = 0;
-      for(int i=0 ; i<dict->sec ; i++){
+      for(int i=0 ; i<dict->getSEC() ; i++){
         if(dict->mf[i] == mf){
           if(dict->getID(mf,dict->mt[i]) >= 0) mt[k++] = dict->mt[i];
         }

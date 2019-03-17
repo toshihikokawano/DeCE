@@ -24,8 +24,8 @@ without any command-line options.</p>
  % dece <i> ENDF_in.DAT </i>
 </pre>
 
-<p>DeCE will be in an interactive mode, and print out a section only
-when user indicates so. DeCE continues running until you
+<p>DeCE will be in an interactive mode, and prints a manipulation result
+as indicated by a user. DeCE continues running until you
 type <tt>quit, end</tt> or <tt>exit</tt>.</p>
 
 <p>The second one is to use an option of <i>-o File_Name</i>.</p>
@@ -35,17 +35,20 @@ type <tt>quit, end</tt> or <tt>exit</tt>.</p>
 </pre>
 
 <p>Again DeCE will be in the interactive mode. Once DeCE processed all
-the instructions provided, and read <tt>quit</tt> command, it writes
+the instructions provided, and read <tt>quit</tt> command, the code writes
 the whole ENDF-6 formatted data on the <tt>ENDF_out.DAT</tt> file.</p>
 
-<p>DeCE can be used for renumbering only, without any numerical
-manipulation.  In this case, typing the <tt>quit</tt> command at each
-time is a bit anoying.  There is a command line option <i>-q</i>,
-which tells DeCE to exit right away and reformat the file.</p>
+<p>DeCE can be used just only for renumbering, or for reformatting the
+comment section, without any numerical manipulation.  In this case,
+you can bypass the <tt>quit</tt> command by a command line
+option <i>-q</i>, which tells DeCE to exit right away and reformat the
+file. When if you want line numbers, add the option <i>-n</i>.</p>
 
 <pre>
  % dece <i> -q -o ENDF_out.DAT ENDF_in.DAT</i>
+ % dece <i> -q -n -o ENDF_out.DAT ENDF_in.DAT</i>
 </pre>
+
 
 <p>The last mode is to tabulate a specific section in the 
 ENDF file.</p>
@@ -56,9 +59,10 @@ ENDF file.</p>
 
 <p>These options <tt>-f</tt> and <tt>-t</tt> tells DeCE to 
 extract that MF/MT section, and print the data in a 
-human readable format. Note that this function has not 
-been completed yet. Some Mf/MT sections cannot be
-processed.</p>
+human readable format. MF2, the resonance parameters, is 
+a special case. Since MT is always 151, you can omit the 
+<tt>-t</tt> option.  Note that this function has not been completed
+yet. Some MF/MT sections cannot be processed.</p>
 
 
 <p>The main input to DeCE is provided either from the command line,
@@ -67,14 +71,14 @@ or a data file. In the case of command line,</p>
 <pre id="dat">
  % dece <i> ENDF_in.DAT </i>
  <i> extract 3 16 </i> 
-  3.307500+4 7.427800+1          0          0          0          03325 3 16    1
- -1.024300+7-1.024300+7          0          0          1         113325 3 16    2
-          11          2                                            3325 3 16    3
-  1.038090+7 0.000000+0 1.100000+7 7.277550-2 1.200000+7 4.510200-13325 3 16    4
-  1.300000+7 7.748970-1 1.400000+7 9.846150-1 1.500000+7 1.101520+03325 3 16    5
-  1.600000+7 1.157040+0 1.700000+7 1.172020+0 1.800000+7 1.169510+03325 3 16    6
-  1.900000+7 1.156890+0 2.000000+7 1.110300+0                      3325 3 16    7
-                                                                   3325 3  099999
+  3.307500+4 7.427800+1          0          0          0          03325 3 16
+ -1.024300+7-1.024300+7          0          0          1         113325 3 16
+          11          2                                            3325 3 16
+  1.038090+7 0.000000+0 1.100000+7 7.277550-2 1.200000+7 4.510200-13325 3 16
+  1.300000+7 7.748970-1 1.400000+7 9.846150-1 1.500000+7 1.101520+03325 3 16
+  1.600000+7 1.157040+0 1.700000+7 1.172020+0 1.800000+7 1.169510+03325 3 16
+  1.900000+7 1.156890+0 2.000000+7 1.110300+0                      3325 3 16
+                                                                   3325 3  0
  </pre>
 
 <p>and when all the input commands are in a file,</p>
@@ -96,14 +100,11 @@ or a data file. In the case of command line,</p>
 <dt> <b>-e</b> <i>En</i>
 <dd>  Print a cross section at a given energy <i>En</i>.
 
-<dt> <b>-x</b>
-<dd>  Scan ENDF-6 file, and make a summary in XML.
-
 <dt> <b>-v</b>
 <dd> Verbose mode when DeCE scans an input file.
 
 <dt> <b>-h</b>
-<dd> Print help.
+<dd> Print help, and quit.
 </dl>
 
 

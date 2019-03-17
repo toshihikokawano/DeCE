@@ -22,6 +22,7 @@ using namespace std;
 static string version  = "1.2.2 Pyrite (March 2019)";
 static bool   verbflag = false;
 static bool   justquit = false;
+static bool   renumber = false;
 static int    newsec   = 0;
 static ENDF   *lib[MAX_SECTION];
 
@@ -50,14 +51,17 @@ extern CLine cmd;
 /**********************************************************/
 int main(int argc, char *argv[])
 {
+  cout.setf(ios::scientific, ios::floatfield);
+  cerr.setf(ios::scientific, ios::floatfield);
+
   ENDFDict dict;
-  int      p,mfin=0,mtin=0;
-  double   ein=0.0;
+  int      p, mfin = 0, mtin = 0;
+  double   ein = 0.0;
   string   libname_in = "",  libname_out = "";
   bool     reconr = false;
 
   /*** command line options */
-  while((p=getopt(argc,argv,"o:f:t:e:rqvh"))!=-1){
+  while((p=getopt(argc,argv,"o:f:t:e:rqnvh"))!=-1){
     switch(p){
     case 'o':  libname_out = optarg;   break;
     case 'f':  mfin = atoi(optarg);    break;
@@ -65,6 +69,7 @@ int main(int argc, char *argv[])
     case 'e':  ein  = atof(optarg);    break;
     case 'r':  reconr   = true;        break;
     case 'q':  justquit = true;        break;
+    case 'n':  renumber = true;        break;
     case 'v':  verbflag = true;        break;
     case 'h':  DeceHelp();             break;
     default:                           break;
@@ -176,7 +181,7 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
 {
   DataSize size = M;
 
-  for(int i=0 ; i<dict->sec ; i++){
+  for(int i=0 ; i<dict->getSEC() ; i++){
 
     if(dict->mf[i] ==  1){
       if( (dict->mt[i] == 452) || (dict->mt[i] == 455) || (dict->mt[i] == 456) ) size = M;
@@ -216,7 +221,7 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
 /**********************************************************/
 void DeceInitOptions()
 {
-  ENDFPrintLineNumber(opt.LineNumber);
+  ENDFPrintLineNumber(renumber);
 }
 
 
@@ -255,7 +260,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
   /*** if already exists */
   int k = dict->getID(mf,mt);
   if( k >= 0 ){
-    lib[k]->reset();
+    lib[k]->resetPOS();
     os << "MF" << mf << ":MT" << mt << " exists, reuse it. assigned section " << dict->getID(mf,mt);
     Notice("DeceCreateLib",os.str());
     return;
@@ -279,13 +284,13 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
     return;
   }
 
-  lib[newsec]->setENDFmat(dict->mat);
+  lib[newsec]->setENDFmat(dict->getMAT());
   lib[newsec]->setENDFmf(mf);
   lib[newsec]->setENDFmt(mt);
 
   int i = dict->scanDict(mf,mt);
   if(i < 0){
-    dict->addDict(mf,mt,0,newsec);
+    if(dict->addDict(mf,mt,0,newsec)) TerminateCode("Too many sections");
   }
   else{
     dict->setID(i,newsec);
@@ -295,7 +300,6 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
   Notice("DeceCreateLib",os.str());
 
   newsec++;
-  if(newsec >= MAX_SECTION) TerminateCode("Too many sections");
 }
 
 

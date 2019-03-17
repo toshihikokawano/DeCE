@@ -25,13 +25,9 @@ void DeceLibRead(ENDFDict *dict, ENDF *lib, char *file)
   fpin.close();
 
   /*** replace ZA and AWR from Dictionary */
-  Record head = dict->head;
-  double za   = head.c1;
-  double awr  = head.c2;
-
-  head = lib->getENDFhead();
-  head.c1 = za;
-  head.c2 = awr;
+  Record head = lib->getENDFhead();
+  head.c1 = dict->getZA();
+  head.c2 = dict->getAWR();
 
   lib->setENDFhead(head);
 }

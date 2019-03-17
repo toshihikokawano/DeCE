@@ -333,6 +333,8 @@ void DeceOperationLIBREAD(ENDFDict *dict, ENDF *lib[])
 /**********************************************************/
 void DeceOperationTABLE(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 {
+  if((cmd.mf == 2) && (cmd.mt == 0)) cmd.mt = 151;
+
   DeceTable(dict,lib,fpin,cmd.mf,cmd.mt);
 }
 

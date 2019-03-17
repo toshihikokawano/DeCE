@@ -22,8 +22,9 @@
 
 <p>DeCE can read cross section data from an external data file,
 and store the data into the specified MF,MT section.
-In the current version, the MF number should be 3, so that
-only cross section data can be read.</p>
+In the current version, the MF number should be 1 or 3, so that
+only cross section or average number of neutron data can be read.
+The file name must be quoted by the quotation marks.</p>
 
 <p>The data in the external data file are in the table format, like</p>
 <pre id="dat">
@@ -43,8 +44,11 @@ only cross section data can be read.</p>
 </pre>
 <p>where the energies are in MeV, and the cross sections in milli-barns.
 When <i>offset</i> is not given, DeCE reads the first column as the energy,
-and the second column as the cross section. In the case of <i>offset=2</i>,
+and the second column as the cross section. When <i>offset=2</i> is specified,
 the third column data are copied.</p> 
+
+<p>The unit of the external data can be changed by the <a href="option.html">option</a>
+<tt>ReadXdataConversion</tt> and <tt>ReadYdataConversion</tt>. 
 
 
 <p>Often the energy range given in the file does not match the ENDF-6
@@ -72,7 +76,9 @@ extract 3 102
 </pre>
 
 <p>In this case, the resonance region goes up to 100 keV, and therefore
-the data below 100 keV are skipped.</p>
+the data below 100 keV are skipped. Ocassionally, though quite rare, 
+DeCE cannot determine the correct resonance upper boundary. Users should 
+be aware of this. </p>
 
 
 <h2><a name="multiread">multiread (read multiple cross section data from file)</a></h2>
@@ -83,10 +89,15 @@ the data below 100 keV are skipped.</p>
 
 <p>DeCE reads all MT numbers from <i>MTstart</i> to <i>MTlast</i> from
 the same data file "file_name". Since an offset is not given in this
-operation, DeCE assumes that the data file includes the reactions
-in the following column order - Energy, Total, Elastic, Non-elastic,
-Capture, Inelastic, (x,p),  (x,alpha), (x,2n), (x,np), (x,n alpha),
-(x,3n), (x,4n), (x,d), (x,nd), Fission.</p>
+operation, DeCE assumes that the data file includes the reactions in
+the following column order - Energy, Total, Elastic, Non-elastic,
+Capture, Inelastic, and Fission. For the particle production cross
+section cases - Energy, (x,n), (x,p), (x,alpha), (x,d), (x,t), (x,h),
+(x,2n), (x,np), (x,n alpha), (x,nd), (x,nt), (x,nh), (x,2p), (x,p
+alpha), (x,pd), (x,2alpha), (x,d alpha), (x,3n), (x,2np), (x,2n
+alpha), (x,np alpha), (x,n2p), (x,4n), (x,5n). For the partial
+inelastic scattering - Energy, elastic, 1st level, 2nd level, 3rd level ...
+and the last 40th column is the continuum inelastic.</p>
 
 
 
@@ -97,10 +108,12 @@ Capture, Inelastic, (x,p),  (x,alpha), (x,2n), (x,np), (x,n alpha),
 </pre>
 
 <p>DeCE creates scattering angular distribution data in MF=4, MT=2,
-51, 52 ...  The MF number should be 4. The data file may contain
-either the differential cross sections or the Legendre expansion
-coefficients, which is indicated by the keyword in the data file
-(<tt>Angdist</tt> or <tt>Legcoef</tt>).</p>
+51, 52 ...  The MF number should be 4 for the elastic scattering,
+while it can be 4 or 6 for the inelastic scattering. The charged
+particle angular distributions are in MF6. The data file may
+contain either the differential cross sections or the Legendre
+expansion coefficients, which is indicated by the keyword in the data
+file (<tt>Angdist</tt> or <tt>Legcoef</tt>).</p>
 
 <p>The format for the differential angular distribution data 
 is as follows.</p>
@@ -118,14 +131,16 @@ is as follows.</p>
  ... (snip) ...
 </pre>
 
-<p>In the first line, the neutron incident energy, the keyword of
-<tt> Angist </tt>, the first level excitation energy, the second
-level, etc, are given. The differential cross sections are given at
-180 angular points at every 1 degree. These blocks are repeated for
-all incident energies.</p>
+<p>In the first line, the neutron incident energy in MeV (default),
+the keyword of <tt> Angist </tt>, the first level excitation energy,
+the second level, etc, are given. The differential cross sections are
+given at 180 angular points at every 1 degree. These blocks are
+repeated for all incident energies. The unit of scattering cross section
+is arbitrary, since they will be normalized.</p>
 
 <p>When Legendre coefficients are given, the keyword
-is <tt>Legcoef</tt>, and 50 expansion coefficients are given.</p>
+is <tt>Legcoef</tt>, and maximum of 50 expansion coefficients are
+given.</p>
 
 <pre id="dat">
 # 1.00000e-06   Legcoef    1.986060e-01 2.646580e-01 2.795430e-01
@@ -161,13 +176,13 @@ ranging from <i>MTstart</i> to <i>MTlast</i>.</p>
    libread  <i>MFnumber</i> <i>MTnumber</i> "file_name"
 </pre>
 
-<p>DeCE reads a specified MF/MT section from another ENDF-6 file, and
+<p>DeCE imports a specified MF/MT section from another ENDF-6 file, and
 replace by that, or creates a new section if it does not exist.  The
 external file can be a full ENDF-6 file, or just a section.</p>
 
 <p>When the ZA and AWR parameters in the external file are different
 from the current data, DeCE replace them by the current ones, but
-only in the HEAD section.</p>
+only in the HEAD part.</p>
 
 
 <h2><a name="multilibread">multilibread (read multiple sections from another file)</a></h2>

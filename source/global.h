@@ -8,16 +8,20 @@
 /**************************************/
 class GlobalOption{
  public:
-  bool   LineNumber              ;    // print line numbers
-  int    AngleStep               ;    // calculate angular distribution at this step
-  double EnergyConversion        ;    // conversion factor of energy when imported
-  double CrossSectionConversion  ;    // conversion factor of cross section
+  bool   LineNumber            ;    // print line numbers
+  int    AngleStep             ;    // calculate angular distribution at this step
+  double ReadXdataConversion   ;    // conversion factor of energy when importing data
+  double ReadYdataConversion   ;    // conversion factor of cross section
+  double WriteXdataConversion  ;    // conversion factor when tabulating energy
+  double WriteYdataConversion  ;    // conversion factor when tabulating cross section
 
   GlobalOption(){
-    LineNumber             =  false;
-    AngleStep              =  0;      // when zero, Legendre coefficients are printed
-    EnergyConversion       =  1.0e+6; // default in MeV
-    CrossSectionConversion =  0.001;  // default in mb
+    LineNumber           =  false;
+    AngleStep            =  0;      // when zero, Legendre coefficients are printed
+    ReadXdataConversion  =  1.0e+6; // default in MeV
+    ReadYdataConversion  =  0.001;  // default in milli-barn
+    WriteXdataConversion =  1.0;    // default in eV
+    WriteYdataConversion =  1.0;    // default in barn
   }
 };
 

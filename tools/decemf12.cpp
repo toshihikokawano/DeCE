@@ -13,7 +13,7 @@ using namespace std;
 
 #include "../source/endflib.h"
 
-#define NEUTRON_INELASTIC_ONLY
+//#define NEUTRON_INELASTIC_ONLY
 
 const int NSUB = 200;  // maximum 200 levels
 const int NSEC = 600;  // 200 levels for n, p, and alpha
@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
 {
   if(argc < 2){
     cerr << "usage: decemf12 CoHoutput.dat ENDF_file" << endl;
-    cerr << "       CoHoutput generated with -p512 option" << endl;
+    cerr << "       CoHoutput generated with -q1 option" << endl;
     exit(-1);
   }
 

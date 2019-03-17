@@ -36,7 +36,7 @@ h3         {color:#003366;
             font-family:sans-serif;
             font-size:12pt;}
 
-li         {margin:10pt 0pt 0pt 0pt;}
+li         {margin:12pt 0pt 0pt 0pt;}
             
 ul.level1  {color:#000000;
             margin-left:30px;
@@ -55,9 +55,9 @@ dl         {margin-left:30px;
             padding-left:0px;
             font-size:12pt;}
 
-dd         {font-size:11pt;}
+dd         {font-size:12pt;}
 
-p          {font-size:11pt;
+p          {font-size:12pt;
             margin-left:20px;
             margin-top:20px;
             margin-right:30px;
@@ -79,7 +79,7 @@ tt         {font-size:12pt;
             font-weight:bold;
             color:#8b0000;}
 
-pre        {font-size:11pt;
+pre        {font-size:12pt;
             background-color:f8f8f8;
             border-style:solid;
             border-width:1px;
@@ -96,15 +96,15 @@ pre        {font-size:11pt;
             line-height: 100%;
             text-align:left;}
 
-pre#dat    {font-size:10pt;
+pre#dat    {font-size:12pt;
             background-color:fbfbfb;
             color:#0a500a;}
 
-pre#syn    {font-size:11pt;
+pre#syn    {font-size:12pt;
             background-color:303030;
             color:#f0fefe;}
 
-pre#prg    {font-size:10pt;
+pre#prg    {font-size:12pt;
             background-color:fff4f0;
             color:#050070;}
 

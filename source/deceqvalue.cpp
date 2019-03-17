@@ -39,7 +39,7 @@ void DeceCheckThreshold(ENDFDict *dict, ENDF *lib[], bool fix)
   cout.setf(ios::fixed, ios::floatfield);
   cerr.setf(ios::fixed, ios::floatfield);
 
-  for(int i=0 ; i<dict->sec ; i++){
+  for(int i=0 ; i<dict->getSEC() ; i++){
 
     if(dict->mf[i] == 3){
       int k = dict->getID(3,dict->mt[i]);

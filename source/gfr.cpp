@@ -32,11 +32,11 @@ void gfrScanThermal(ifstream *fp, ENDFDict *dict)
   Pcross crs = gfrPtCrossFILE(fp,dict,eth);
 
   cout.setf(ios::scientific, ios::floatfield);
-  cout <<"# Energy[eV]  Total[b]     Elastic[b]   Capture[b]";
-  if(dict->isFission()) cout <<"   Fission[b]";
+  cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]";
+  if(dict->isFission()) cout <<"    Fission[b]";
   cout << endl;
 
-  cout << setw(14) << setprecision(7) << eth;
+  cout << setw(14) << setprecision(6) << eth;
   cout << setw(14) << setprecision(6) << crs.total;
   cout << setw(14) << crs.elastic;
   cout << setw(14) << crs.capture;
@@ -74,7 +74,7 @@ Pcross gfrPtCrossFILE(ifstream *fp, ENDFDict *dict, const double elab)
   ENDFSeekHead(fp,&librs,1,451);
 
   /*** fissile and resonance flags */
-  int lrp  = dict->head.l1;   //  resonance parameter flag
+  int lrp  = dict->getLRP();   //  resonance parameter flag
   if(lrp < 0) return(crs);
 
   ENDFReadMF2(fp,&librs);
@@ -107,7 +107,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
 
-  cout <<"# Energy[eV]   Total[b]      Elastic[b]    Capture[b]    Other[b]";
+  cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]    Other[b]";
   if(dict->isFission()) cout <<"    Fission[b]";
   cout << endl;
 
@@ -354,11 +354,11 @@ void gfrReadHEADData(System *sys, ENDF *lib)
   /*** HEAD section in MF2 MT151 */
   Record head = lib->getENDFhead();
   double za   = head.c1;
-  double awt  = head.c2;
+  double awr  = head.c2;
 
   sys->target_Z = (int)za/1000;
   sys->target_A = (int)za - sys->target_Z*1000;
-  sys->reduced_mass = awt/(awt+1.0);
+  sys->reduced_mass = awr/(awr+1.0);
 
   /*** CONT0 */
   Record cont = lib->rdata[0];

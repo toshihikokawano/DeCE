@@ -1,6 +1,7 @@
 #!/bin/sh
 source parameter.sh
 
+#chargediscrete=false
 chargediscrete=true
 
 if [ ! -f $toolbase/$decemf6 ]; then
@@ -22,7 +23,6 @@ else
     $dece $deceoption -o $workfile $template < $inbase/ENDFdataread.dece
 fi
 
-exit
 
 echo "produce MF6, and store in $work6"
 cat /dev/null > $workmf6
@@ -44,23 +44,34 @@ $toolbase/$decemf12 data/gbranch.dat $workfile > $workmf12
 
 
 echo "assemble all results, $workfile, $workmf6, and $workmf12"
-$dece -o $outfile $workfile <<EOF
+if [ $chargediscrete = "true" ]; then
+    $dece -v -o $outfile $workfile <<EOF
 libread 6 16 "$workmf6"
 libread 6 22 "$workmf6"
 libread 6 28 "$workmf6"
 libread 6 102 "$workmf6"
-multilibread 12 51 90 "$workmf12"
-multilibread 14 51 90 "$workmf12"
-EOF
-
-if [ $chargediscrete = "true" ]; then
-    $dece -o $outfile $workfile <<EOF
 libread 6 649 "$workmf6"
 libread 6 849 "$workmf6"
+multilibread 12 51 90 "$workmf12"
+multilibread 12 600 640 "$workmf12"
+multilibread 12 800 840 "$workmf12"
+multilibread 14 51 90 "$workmf12"
+multilibread 14 600 640 "$workmf12"
+multilibread 14 800 840 "$workmf12"
+set LineNumber
+tpid "DeCE Example include MT600,800"
 EOF
 else
-    $dece -o $outfile $workfile <<EOF
+    $dece -v -o $outfile $workfile <<EOF
+libread 6 16 "$workmf6"
+libread 6 22 "$workmf6"
+libread 6 28 "$workmf6"
+libread 6 102 "$workmf6"
 libread 6 103 "$workmf6"
 libread 6 107 "$workmf6"
+multilibread 12 51 90 "$workmf12"
+multilibread 14 51 90 "$workmf12"
+set LineNumber
+tpid "DeCE Example"
 EOF
 fi

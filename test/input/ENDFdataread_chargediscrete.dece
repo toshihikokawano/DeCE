@@ -71,3 +71,4 @@ delete 3 3
 echo "remove total (n,p) and (n,alpha)"
 delete 3 103
 delete 3 107
+

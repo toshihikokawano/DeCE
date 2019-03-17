@@ -40,7 +40,7 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
   if(dict->getID(3, 18) >= 0) DeceDelete(dict,3, 18);
   else                        DeceDelete(dict,3,904);
 
-  dict->head.l1 = 2;
+  dict->setLRP(2); // do not use FILE 2 anymore
 
 //ENDFWrite(lib[kid[2]]);
 }
@@ -104,7 +104,7 @@ void DeceReconstructResonance(ENDFDict *dict, ENDF *lib[], int *kid)
   }
   int np = np1 + np2;
   
-  Record head(dict->head.c1,dict->head.c2,0,0,0,0);
+  Record head(dict->getZA(),dict->getAWR(),0,0,0,0);
 
   lib[kid[0]]->setENDFhead(head);
   lib[kid[0]]->rdata[0].setRecord(0.0, 0.0, 0, 0, 1, np);

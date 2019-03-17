@@ -42,7 +42,7 @@ int main(void)
   idat[0] = NELAB;
   idat[1] = 2;
 
-  /*** store floting point data */
+  /*** store floating point data */
   for(int i=0 ; i<NELAB ; i++){
     xdat[2*i  ] = x[i];
     xdat[2*i+1] = y[i];
@@ -57,13 +57,19 @@ int main(void)
   /*** pack the data into TAB1 format */
   ENDFPackTAB1(cont,idat,xdat,&lib);
 
+  /*** print it in ENDF format */
+  ENDFWriteMF3(&lib);
+  ENDFLibPeek(&lib);
+
   /*** copy the whole data into another */
   ENDFLibCopy(&lib,&cpy);
 
+  /*** change MT into 17 */
+  cpy.setENDFmt(17);
+
   /*** print it in ENDF format */
   ENDFWriteMF3(&cpy);
-
-  ENDFLibPeek(&lib);
+  ENDFLibPeek(&cpy);
 
   return(0);
 }

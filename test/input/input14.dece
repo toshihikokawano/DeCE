@@ -1,0 +1,19 @@
+echo "read (n,p) cross section"
+read 3 103 "data/CoHParticleProduction.dat"
+
+extract 3 103 
+
+echo "read (n,alpha) cross section"
+read 3 107 "data/CoHParticleProduction.dat"
+
+extract 3 107 
+
+echo "calculate ratio of (n,p) to (n,alpha)"
+calc 5 = 103 / 107
+
+extract 3 5
+
+echo "calculate product of (n,p) and (n,alpha)"
+calc 6 = 103 * 107
+
+extract 3 6

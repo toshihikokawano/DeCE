@@ -9,7 +9,7 @@
 
 <a href="ope2.html">    [BACK] </a>
 <a href="index.html">    [UP]  </a>
-<a href="class.html">   [NEXT] </a>
+<a href="option.html">   [NEXT] </a>
 <hr>
 
 <h1>Data Point Manipulation</h1>
@@ -20,29 +20,49 @@
    addpoint  <i>MFnumber</i> <i>MTnumber</i> <i>X-data</i> <i>Y-data</i>
 </pre>
 
-<p>This operation insert a new data point (X-data,Y-data) in the
-<i>MFnumber</i> <i>MTnumber</i> section. The position of the new 
-data is automatically determined. If the energy of <i>X-data</i>
-already exists in the section, the new point will be after that point.
-The next example adds one data point at 22 MeV.</p>
+<p>This operation inserts a new data point (X-data,Y-data) in the
+<i>MFnumber</i> <i>MTnumber</i> section. Although the MF number must
+be specified, the current DeCE works only for MF3. The position of the
+new data is automatically determined. If the energy of <i>X-data</i>
+already exists in the section, the new point will be after that point,
+so that this energy point will be a duplicated point. To overwrite,
+use <tt>delpoint</tt> first to remove the old data.  The next example
+adds one data point at 20 MeV.</p>
 
 <pre>
-addpoint 3 16 2.2e+7 0.9         
+extract 3 16
+addpoint 3 16 2.0e+7 1.30
 extract 3 16
 </pre>
 
 <pre id="dat">
- 2.305100+4 5.050630+1          0          0          0          02328 3 16    1
--1.105120+7-1.105120+7          0          0          1         202328 3 16    2
-         20          2                                            2328 3 16    3
- 1.127000+7 0.000000+0 1.150000+7 1.700940-2 1.200000+7 9.660930-22328 3 16    4
- 1.250000+7 2.103090-1 1.300000+7 3.352050-1 1.350000+7 4.609190-12328 3 16    5
- 1.400000+7 5.657570-1 1.450000+7 6.451030-1 1.500000+7 7.030940-12328 3 16    6
- 1.550000+7 7.442450-1 1.600000+7 7.715590-1 1.650000+7 7.898000-12328 3 16    7
- 1.700000+7 8.010300-1 1.750000+7 8.086610-1 1.800000+7 8.097980-12328 3 16    8
- 1.850000+7 8.112170-1 1.900000+7 8.083990-1 1.950000+7 8.056360-12328 3 16    9
- 2.000000+7 8.009020-1 2.200000+7 9.000000-1                      2328 3 16   10
-                                                                  2328 3  099999
+ 5.312700+4 1.258143+2          0          0          0          05325 3 16
+-9.137380+6-9.137380+6          0          0          1         275325 3 16
+         27          2                                            5325 3 16
+ 9.210020+6 0.000000+0 9.500000+6 2.821950-2 1.000000+7 2.431820-15325 3 16
+ 1.050000+7 5.406310-1 1.100000+7 8.082330-1 1.150000+7 1.018850+05325 3 16
+ 1.200000+7 1.146150+0 1.300000+7 1.326360+0 1.400000+7 1.425820+05325 3 16
+ 1.500000+7 1.481720+0 1.600000+7 1.527540+0 1.640810+7 1.543830+05325 3 16
+ 1.700000+7 1.563290+0 1.800000+7 1.548520+0 1.900000+7 1.443090+05325 3 16
+ 2.000000+7 1.282070+0 2.100000+7 1.122690+0 2.200000+7 9.654330-15325 3 16
+ 2.300000+7 8.367710-1 2.400000+7 7.429470-1 2.500000+7 6.631850-15325 3 16
+ 2.600000+7 6.007160-1 2.603340+7 5.990110-1 2.700000+7 5.524470-15325 3 16
+ 2.800000+7 5.120290-1 2.900000+7 4.783550-1 3.000000+7 4.503090-15325 3 16
+                                                                  5325 3  0
+                                                                  5325 3  0
+ 5.312700+4 1.258143+2          0          0          0          05325 3 16
+-9.137380+6-9.137380+6          0          0          1         285325 3 16
+         28          2                                            5325 3 16
+ 9.210020+6 0.000000+0 9.500000+6 2.821950-2 1.000000+7 2.431820-15325 3 16
+ 1.050000+7 5.406310-1 1.100000+7 8.082330-1 1.150000+7 1.018850+05325 3 16
+ 1.200000+7 1.146150+0 1.300000+7 1.326360+0 1.400000+7 1.425820+05325 3 16
+ 1.500000+7 1.481720+0 1.600000+7 1.527540+0 1.640810+7 1.543830+05325 3 16
+ 1.700000+7 1.563290+0 1.800000+7 1.548520+0 1.900000+7 1.443090+05325 3 16
+ 2.000000+7 1.282070+0 2.000000+7 1.300000+0 2.100000+7 1.122690+05325 3 16
+ 2.200000+7 9.654330-1 2.300000+7 8.367710-1 2.400000+7 7.429470-15325 3 16
+ 2.500000+7 6.631850-1 2.600000+7 6.007160-1 2.603340+7 5.990110-15325 3 16
+ 2.700000+7 5.524470-1 2.800000+7 5.120290-1 2.900000+7 4.783550-15325 3 16
+ 3.000000+7 4.503090-1                                            5325 3 16
 </pre>
 
 
@@ -64,7 +84,7 @@ between two given <i>X-data</i> are removed.</p>
 
 
 
-<h2><a name="factor">factor (multiply data point by a factor)</a></h2>
+<h2><a name="factor">factor (multiply data points by a factor)</a></h2>
 
 <pre id="syn">
    factor <i>MFnumber</i> <i>MTnumber</i> <i>Factor</i> [<i>X-min</i> <i>X-max</i>]
@@ -81,7 +101,7 @@ range is not given, all the data are multiplied by the factor. </p>
    normalize <i>MFnumber</i> <i>MTnumber</i> <i>X-data</i> <i>Y-data</i> [<i>X-min</i> <i>X-max</i>]
 </pre>
 
-<p>This operation first calculate a renormalization factor
+<p>This operation first calculates a renormalization factor
 at <i>X-data</i> such that the Y-value to be <i>Y-data</i>, then apply
 the factor to the all data. When the range [<i>X-min</i>,<i>X-max</i>]
 is given, normalization is performed within the energy range.</p>
@@ -95,17 +115,17 @@ extract 3 16
 </pre>
 
 <pre id="dat">
- 2.305100+4 5.050630+1          0          0          0          02328 3 16    1
--1.105120+7-1.105120+7          0          0          1         192328 3 16    2
-         19          2                                            2328 3 16    3
- 1.127000+7 0.000000+0 1.150000+7 2.123441-2 1.200000+7 1.206063-12328 3 16    4
- 1.250000+7 2.625482-1 1.300000+7 4.184675-1 1.350000+7 5.754079-12328 3 16    5
- 1.400000+7 7.062869-1 1.450000+7 8.053419-1 1.500000+7 8.777374-12328 3 16    6
- 1.550000+7 9.291100-1 1.600000+7 9.632086-1 1.650000+7 9.859806-12328 3 16    7
- 1.700000+7 1.000000+0 1.750000+7 1.009526+0 1.800000+7 1.010946+02328 3 16    8
- 1.850000+7 1.012717+0 1.900000+7 1.009199+0 1.950000+7 1.005750+02328 3 16    9
- 2.000000+7 9.998402-1                                            2328 3 16   10
-                                                                  2328 3  099999
+ 2.305100+4 5.050630+1          0          0          0          02328 3 16
+-1.105120+7-1.105120+7          0          0          1         192328 3 16
+         19          2                                            2328 3 16
+ 1.127000+7 0.000000+0 1.150000+7 2.123441-2 1.200000+7 1.206063-12328 3 16
+ 1.250000+7 2.625482-1 1.300000+7 4.184675-1 1.350000+7 5.754079-12328 3 16
+ 1.400000+7 7.062869-1 1.450000+7 8.053419-1 1.500000+7 8.777374-12328 3 16
+ 1.550000+7 9.291100-1 1.600000+7 9.632086-1 1.650000+7 9.859806-12328 3 16
+ 1.700000+7 1.000000+0 1.750000+7 1.009526+0 1.800000+7 1.010946+02328 3 16
+ 1.850000+7 1.012717+0 1.900000+7 1.009199+0 1.950000+7 1.005750+02328 3 16
+ 2.000000+7 9.998402-1                                            2328 3 16
+                                                                  2328 3  0
 </pre>
 
 
@@ -114,25 +134,51 @@ extract 3 16
 <pre id="syn">
    applyfunc1 <i>MFnumber</i> <i>MTnumber</i> <i>p1</i> <i>p2</i> <i>p3</i>
    applyfunc2 <i>MFnumber</i> <i>MTnumber</i> <i>p1</i> <i>p2</i> <i>p3</i>
+   applyfunc3 <i>MFnumber</i> <i>MTnumber</i> <i>p1</i> <i>p2</i> <i>p3</i>
 </pre>
 
 <p>This is similar to <tt>factor</tt>, but the multiplication
 factor <i>Factor</i> is calculated internally, so that the excitation
-function may vary smoothly. Two functional forms are currently
-implemented in DeCE, the first one is the Fermi function and the
-second one is the Gaussian.</p>
+function may vary smoothly. Three functional forms are currently
+implemented in DeCE, the first one is the Fermi function, the second
+one is the Gaussian, and the third one is an inverted Fermi
+function.</p>
 
 <p>For the Fermi function, the factor is calculated as
 <pre id="prg">
-   f = p1/( 1.0+ exp( (x-p2)/p3 ) ) + 1.0;
+   f = p1/( 1.0+ exp( (x-p2)/p3 ) ) + 1.0
 </pre>
-<p>and for the Gaussian case,</p>
+<p>for the Gaussian case,</p>
 <pre id="prg">
-   f = p1*exp( -(x-p2)*(x-p2)/p3 )  + 1.0;
+   f = p1*exp( -(x-p2)*(x-p2)/p3 )  + 1.0
 </pre>
-<p>where the <i>p1</i> parameter is in barns, and the <i>p2</i>
-and <i>p3</i> are in MeV. The data range cannot be supplied. The
-functions will applied to all the data points. </p>
+<p>and for the reversed Fermi function,</p>
+<pre id="prg">
+   f = p1/( 1.0+ exp(-(x-p2)/p3 ) ) + 1.0
+</pre>
+<p>where the <i>p2</i> and <i>p3</i> parameters are in MeV. The data
+range cannot be supplied. These functions will applied to all the data
+points. </p>
+
+
+<h2><a name="readjust">readjust (readjust partial cross sections by the sum)</a></h2>
+
+<pre id="syn">
+   readjust  <i>MTnumber</i>
+</pre>
+
+<p>Although the total inelastic scattering cross section MF/MT=3/4 is
+redundant, this sections is always given for convenience. However, if
+you need to modify the MT4 section, the partial cross sections in MT51
+- 91 should be modified accordingly. The operation <tt>readjust</tt>
+facilitates this re-adjustment of the partical cross sections.</p>
+
+<p>When <i>MTnumber</i> is 4, the subsections of 51 - 91 will be
+readjusted so that the sum of them will equal to MT4. In the case of
+103, 104, ..., 107, the corresponding subsections, such as MT600 to
+649 for MT103, will be processed.</p>
+
+
 
 
 <h2><a name="changeint">changeint (change interpolation law in MF=3)</a></h2>
@@ -143,8 +189,8 @@ functions will applied to all the data points. </p>
 
 <p><tt>changeint</tt> modifies an interpolation law of TAB1 record in
 MF=3. The three parameters are the energy range, the index of the energy point,
-and the interpolation law. if a negative <i>Point Number</i> is given,
-it will be substituted by the end point.</p>
+and the interpolation law. If <i>Point Number</i> is negative, or
+outside the current data range, it will be substituted by the end point.</p>
 
 
 <h1><a name="MF6"> Miscellaneous MF6 Operations </a></h1>
@@ -190,7 +236,7 @@ energy, and <i>delta-X</i> is the energ increment.</p>
 <p>As in the second syntax, if <i>delta-X</i> is not given, 
 cross section at a given energy is calculated. </p>
 
-<p>When no argument is provided, DeCE determine the energy
+<p>When no argument is provided, DeCE determines the energy
 grid automatically, and gives the cross sections in the
 resonance region.</p>
 
@@ -220,8 +266,8 @@ reconstruct 1 10 1
 </pre>
 
 <p>Elastic scattering angular distributions for given energy points
-are calculated from the resonance parameters. This functionality
-is not fully functional.</p>
+are calculated from the resonance parameters. This is not fully
+functional.</p>
 
 
 <h2><a name="smoothangdist">smoothangdist (energy averaged Legendre coefficients from resonance parameters)</a></h2>
@@ -239,6 +285,6 @@ by a Gaussian weighting function, with the width of <i>width</i>.</p>
 <hr>
 <a href="ope2.html">    [BACK] </a>
 <a href="index.html">    [UP]  </a>
-<a href="class.html">   [NEXT] </a>
+<a href="option.html">   [NEXT] </a>
 </body>
 </html>

@@ -20,7 +20,7 @@ void DeceExtract(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const 
 
   /*** extract all MT sections in MF */
   if(mt == 0){
-    for(int i=0 ; i<dict->sec ; i++){
+    for(int i=0 ; i<dict->getSEC() ; i++){
       if(mf == dict->mf[i]){
         /*** check if in Lib */
         int k = dict->getID(mf,dict->mt[i]);
@@ -32,7 +32,7 @@ void DeceExtract(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const 
   }
   /*** when MF and MT specified */
   else{
-    for(int i=0 ; i<dict->sec ; i++){
+    for(int i=0 ; i<dict->getSEC() ; i++){
       if( (mf == dict->mf[i]) && (mt == dict->mt[i]) ){
         /*** check if in Lib */
         int k = dict->getID(mf,mt);

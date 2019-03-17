@@ -104,7 +104,10 @@ block pointers to the next index <tt>idx+1</tt>, and increment the
 index by <tt>inclPOS()</tt>.</p>
 
 
-<p>The function <tt>ENDFWriteCONT()</tt> writes the CONT record.
+<p>The function <tt>ENDFWriteCONT()</tt> writes the CONT record.  Here
+we use a counter <tt>CTL</tt> to scan all the blocks in an object,
+which contains <tt>NB</tt> blocks. <tt>CTL</tt> will be reset 
+when a <tt>HEAD</tt> record is written.
 <tt>ENDFWriteRecord()</tt> prints the six member variables in an
 appropriate format (2E11.4,4I11), and the function
 <tt>ENDFPrintRight()</tt> outputs MAT/MF/MT triplet on the right-side
@@ -114,12 +117,12 @@ of the data, together with a current line number.</p>
 <pre id="prg">
   Record ENDFWriteCONT(ENDF *lib)
   {
-    int idx = lib->getPOS();
+    int idx = lib->getCTR();
     Record cont = lib->rdata[idx];
 
     ENDFWriteRecord(&cont);
     ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
-    lib->inclPOS();
+    lib->inclCTL();
 
     return(cont);
   }

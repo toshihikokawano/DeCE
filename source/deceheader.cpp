@@ -19,16 +19,16 @@ using namespace std;
 void DeceFixAWR(ENDFDict *dict)
 {
 
-  /*** ZA and AWT from Dictionary */
-  double za   = dict->head.c1;    //  1000*Z + A number
+  /*** ZA and AWR from Dictionary */
+  double za   = dict->getZA();    //  1000*Z + A number
 
   int z = za/1000;
   int a = za - z*1000;
 
   double mass = mass_excess(z,a);
-  double awt  = (mass / AMUNIT + a) / MNEUTRON;
+  double awr  = (mass / AMUNIT + a) / MNEUTRON;
 
-  dict->head.c2 = awt;
+  dict->setAWR(awr);
 }
 
 

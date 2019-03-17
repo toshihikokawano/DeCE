@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: option </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="ope3.html">    [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="class.html">   [NEXT] </a>
+<hr>
+
+<h1>Options</h1>
+
+<h2><a name="set">set (setting global options)</a></h2>
+
+<p>You can control some DeCE behavior by setting <i>option</i>. For example,
+as a default, DeCE does not print line numbers, as it is obsolete. 
+However, you can still activate the line number option by setting 
+<pre id="syn">
+   set LineNumber
+</pre>
+while to de-activate,
+<pre id="syn">
+   unset LineNumber
+</pre>
+
+<p>This option is a toggle without any values followed.
+
+<p>Currently there are 6 options implemented in
+DeCE. Besides <tt>LineNumber</tt> above,
+we have 5 options that require an optional value, such as
+<pre id="syn">
+   set AngleStep 10
+</pre>
+<p>here the angle increment is set to 10 degree when printing the
+scattering angular distribution.</p>
+
+<dl>
+   <dt><b>AngleStep</b> <dd>angle inrement when scattering angular distribution is printed</dd>
+   <dt><b>ReadXdataConversion</b> <dd>energy unit conversion when cross section data are imported</dd>
+   <dt><b>ReadYdataConversion</b> <dd>cross section unit conversion</dd>
+   <dt><b>WriteXdataConversion</b> <dd>energy unit conversion when cross section data are tabulated </dd>
+   <dt><b>WriteYdataConversion</b> <dd>cross section unit for tabulation </dd>
+</dl>
+
+<p><tt>read</tt> and <tt>multiread</tt> commands import data from an
+external file.  As a default, DeCE assumes that the cross section is
+in mill-barn, and the energy is in
+MeV. When <tt>ReadXdataConversion</tt> is set to 0.001, the energy in
+the external file will be in keV. </p>
+
+<p><tt>WriteXdataConversion</tt> and <tt>WriteYdataConversion</tt>
+work only for the <tt>table</tt> command applied to MF3. The printed
+energies and cross sections will be multiplied by these factors.  For
+example, when <tt>WriteYdataConversion</tt> is 1000, the output cross
+sections are in milli-barns, intead of the default of barns.</p>
+
+<hr>
+<a href="ope3.html">    [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="class.html">   [NEXT] </a>
+</body>
+</html>

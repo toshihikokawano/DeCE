@@ -10,4 +10,7 @@ angdist 4 2  "data/CoHLegendreCoefficient1.dat"
 echo "read inelastic scattering angular distributions in MF6"
 multiangdist 6 51 90 "data/CoHLegendreCoefficient1.dat"
 
+extract 4 2
+extract 6 51
+
 quit
