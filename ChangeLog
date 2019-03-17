@@ -1,3 +1,14 @@
+2019-03-16  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* manual/option.html: new file
+	* manual/index.html: updated
+	manual updated
+
+	* source/endflib.h: updated
+	ENDF class and ENDFDict class updated
+	NX, NI variables removed since redundant
+	Some member variables in ENDFDict moved to private
+
 2019-03-13  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* test/decetest.sh: new file

@@ -127,6 +127,7 @@ Files:
         decemf12.cpp          convert ECLIPSE(CoH) discrete level output into ENDF-6
         decephoto.cpp         create neutron production cross section for photo-reactions
         decemacs.cpp          calculate Maxwellian average cross section
+        deceangdist.cpp       produce scattering angular distributions from ENDF
 
    example/
         example1.cpp          read/write ENDF-6 using endflib
