@@ -1,0 +1,3 @@
+echo "reconstruct scattering angular distributions"
+echo "from resonance parameters"
+reconangdist 10 100000 10

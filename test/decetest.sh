@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]; then
     echo 'decetest.sh N'
-    echo '   where N = 1 ... 15'
+    echo '   where N = 1 ... 16'
     exit 1
 fi
 
@@ -95,8 +95,19 @@ elif [ $testcase = "15" ]; then
     echo '# This may take some time'
 
 ###################################################
+elif [ $testcase = "16" ]; then
+    echo '# Reconstruct scattering angular distributions'
+    echo '# at every 1 keV interval from resolved resonance parameters'
+
+###################################################
+elif [ $testcase = "17" ]; then
+    echo '# Reconstruct elastic scattering cross section'
+    echo '# by summing all the partial cross sections, and'
+    echo '# subtract it from the total cross section'
+
+###################################################
 else
-    echo '# currently testcase shoud be less than 15'
+    echo '# currently testcase shoud be less than 17'
     exit;
 fi
 
