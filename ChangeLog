@@ -1,3 +1,15 @@
+2019-03-18  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* README (DeCE): updated
+
+	* source/decetable35.cpp: new file
+	read and tabulate MF35 spectrum covariance
+
+	* test/input/input14.dece: new file
+	* test/input/input15.dece: new file
+	* test/input/input16.dece: new file
+	three more tests added
+
 2019-03-16  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* manual/option.html: new file

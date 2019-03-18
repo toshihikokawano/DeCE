@@ -74,6 +74,7 @@ Files:
         decetable15.cpp       part of decetable, for MF15
         decetable33.cpp       part of decetable, for MF33
         decetable34.cpp       part of decetable, for MF34
+        decetable35.cpp       part of decetable, for MF35
         deceqvalue.cpp        edit energy-related quantities
 
       [ENDF-6 Formatted File I/O]
