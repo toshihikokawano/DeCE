@@ -118,20 +118,20 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
 /**********************************************************/
 int DeceTableMF6Law2(ENDF *lib6, int idx)
 {
-  int    lang = lib6->rdata[idx].l1;
   int    nr   = lib6->rdata[idx].n1;
   int    ne   = lib6->rdata[idx].n2; idx++;
 
   cout << "#           NR" << setw(14) << nr << endl;
   cout << "#           NE" << setw(14) << ne << endl;
-  cout << "#         LANG" << setw(14) << lang << "  0: Legendre, 12,14: tabulated" << endl;
 
   for(int i0=0 ; i0<ne ; i0++){
-    double e1  = lib6->rdata[idx].c2;
-    int    nw  = lib6->rdata[idx].n1;
-    int    nl  = lib6->rdata[idx].n2;
+    double e1   = lib6->rdata[idx].c2;
+    int    lang = lib6->rdata[idx].l1;
+    int    nw   = lib6->rdata[idx].n1;
+    int    nl   = lib6->rdata[idx].n2;
 
     cout << "#           E1"; outVal(e1); cout << "  incident energy" << endl;
+    cout << "#         LANG" << setw(14) << lang << "  0: Legendre, 12,14: tabulated probability" << endl;
     cout << "#           NW" << setw(14) << nw << "  number of parameters in LIST" << endl;
     cout << "#           NL" << setw(14) << nl << "  the higheset Legendre order, or number of cosines tabulated" << endl;
 
@@ -141,10 +141,13 @@ int DeceTableMF6Law2(ENDF *lib6, int idx)
         outVal(lib6->xptr[idx][i1]);
         cout << endl;
       }
-    }else{
+    }
+    else{
       for(int i1=0 ; i1<nl ; i1++){
-        outVal(lib6->xptr[idx][2*i1  ]);
-        outVal(lib6->xptr[idx][2*i1+1]);
+        double p = lib6->xptr[idx][2*i1+1];
+        if(lang == 14) p = exp(p);
+        outVal(lib6->xptr[idx][2*i1]);
+        outVal(p);
         cout << endl;
       }
     }

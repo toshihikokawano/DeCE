@@ -23,6 +23,7 @@ static string version  = "1.2.2 Pyrite (March 2019)";
 static bool   verbflag = false;
 static bool   justquit = false;
 static bool   renumber = false;
+static bool   filescan = false;
 static int    newsec   = 0;
 static ENDF   *lib[MAX_SECTION];
 
@@ -61,7 +62,7 @@ int main(int argc, char *argv[])
   bool     reconr = false;
 
   /*** command line options */
-  while((p=getopt(argc,argv,"o:f:t:e:rqnvh"))!=-1){
+  while((p=getopt(argc,argv,"o:f:t:e:rqnsvh"))!=-1){
     switch(p){
     case 'o':  libname_out = optarg;   break;
     case 'f':  mfin = atoi(optarg);    break;
@@ -70,6 +71,8 @@ int main(int argc, char *argv[])
     case 'r':  reconr   = true;        break;
     case 'q':  justquit = true;        break;
     case 'n':  renumber = true;        break;
+    case 's':  filescan = true;
+               justquit = true;        break;
     case 'v':  verbflag = true;        break;
     case 'h':  DeceHelp();             break;
     default:                           break;
@@ -109,7 +112,7 @@ int main(int argc, char *argv[])
       gfrScanThermal(&fpin,&dict);
       fpin.close();
     }
-
+    /*** enter the main part */
     else{
       DeceMain(libname_in,libname_out,&dict);
     }
@@ -133,19 +136,26 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
   /*** read ENDF tape in lib[], determine resonance boundary */
   DeceStoreData(dict,&fpin);
 
+
+  /*** not in interactive mode */
+  if(justquit){
+    /*** just print file contents */
+    if(filescan) DeceScanIndex(dict);
+  }
   /*** for all operation commands */
-  do{
-    if( justquit ) break;
-    if( CmdFgetOneline() < 0 ) break;
-    ope = CmdExtractArgument();
+  else{
+    do{
+      if( CmdFgetOneline() < 0 ) break;
+      ope = CmdExtractArgument();
 
-    /*** END: terminate code */
-    if( (ope == "end") || (ope == "quit") || (ope == "exit") ) break;
+      /*** END: terminate code */
+      if( (ope == "end") || (ope == "quit") || (ope == "exit") ) break;
 
-    /*** perform each operation */
-    else DeceOperation(dict,lib,&fpin);
+      /*** perform each operation */
+      else DeceOperation(dict,lib,&fpin);
 
-  }while(!cin.eof());
+    }while(!cin.eof());
+  }
 
 
   /*** put all sections in a temporal file */
@@ -335,6 +345,8 @@ void DeceHelp()
     "                     print cross section at ELAB\n"
     "  % dece -r ENDF_in.DAT\n"
     "                     print thermal cross sections\n"
+    "  % dece -s ENDF_in.DAT\n"
+    "                     print data contents\n"
     "Interactive Mode\n"
     "  % dece ENDF_in.DAT\n"
     "  command ... (see manual)\n"
