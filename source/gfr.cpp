@@ -26,17 +26,20 @@ static Pcross  gfrBackGround     (ENDFDict *, ENDF **, const double);
 /**********************************************************/
 /*      GFR Interface, Scan File for the Thermal Value    */
 /**********************************************************/
-void gfrScanThermal(ifstream *fp, ENDFDict *dict)
+void gfrScanThermal(ifstream *fp, ENDFDict *dict, double elab)
 {
   const double eth = 0.0253;
-  Pcross crs = gfrPtCrossFILE(fp,dict,eth);
+
+  if(elab <= 0.0) elab = eth;
+
+  Pcross crs = gfrPtCrossFILE(fp,dict,elab);
 
   cout.setf(ios::scientific, ios::floatfield);
   cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]";
   if(dict->isFission()) cout <<"    Fission[b]";
   cout << endl;
 
-  cout << setw(14) << setprecision(6) << eth;
+  cout << setw(14) << setprecision(6) << elab;
   cout << setw(14) << setprecision(6) << crs.total;
   cout << setw(14) << crs.elastic;
   cout << setw(14) << crs.capture;

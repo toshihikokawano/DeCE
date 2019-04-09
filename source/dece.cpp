@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
     if(reconr){
       ifstream  fpin;
       fpin.open(&libname_in[0]);
-      gfrScanThermal(&fpin,&dict);
+      gfrScanThermal(&fpin,&dict,ein);
       fpin.close();
     }
     /*** enter the main part */

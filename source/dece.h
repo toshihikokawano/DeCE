@@ -69,7 +69,7 @@ void   DeceDuplicatePoint (ENDFDict *, ENDF **, const int, double);
 void   DeceGenProdCS    (ENDFDict *, ENDF **, const int, const int);
 
 /*** gfr.cpp */
-void   gfrScanThermal   (ifstream *, ENDFDict *);
+void   gfrScanThermal   (ifstream *, ENDFDict *, double);
 double gfrGetOnePoint   (ifstream *, ENDFDict *, const double);
 void   gfrPtCross       (ENDFDict *, ENDF **, double, double, double);
 void   gfrAngDist       (ENDFDict *, ENDF **, double, double, double);

@@ -1,3 +1,11 @@
+2019-04-07  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfr.h: modified
+	use the same sqrt{2m}/h-bar as ENDF-6
+
+	* source/gfr.cpp (gfrScanThermal): modified
+	accept incident energy by option -e
+
 2019-03-19  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* LICENSE: updated
