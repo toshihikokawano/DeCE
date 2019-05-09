@@ -33,6 +33,7 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
 {
   int      nc = 0, np = 0;
   double   *cx, *cy, *xdat, elev = 0.0, qm = 0.0, qi = 0.0, et = 0.0;
+  ostringstream os;
 
   if((mf != 1) && (mf != 3)){
     ostringstream os;
@@ -80,19 +81,23 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     qi = qm;
     et = 0.0;
 
+    /*** determine the threshold energy */
     if( (51 <= mt) && (mt <= 91) ){
+      /*** inelastic scattering */
       qi = elis - elev;
       et = threshold((int)za,qi);
     }
     else if( (600 <= mt) && (mt <= 849) ){
+      /*** discrete transition by charged particle */
       qi = qm - elev;
-      if(qi < 0) et = threshold((int)za,qi);
+      if(qi < 0.0) et = threshold((int)za,qi);
     }
     else{
-      if(qm < 0) et = threshold((int)za,qm);
+      /*** all other reactions */
+      if(qm < 0.0) et = threshold((int)za,qm);
     }
 
-    /*** check resonance boundary */
+    /*** check resonance boundary, when data will be merged */
     if(mflag){
       double ebtest = findBoundary(lib);
       if(ebtest < dict->emaxRe && ebtest != 1.0e-05){
@@ -102,16 +107,25 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
       }
     }
 
+    os.str("");
+    os << "Q(mass) " << qm << " Q(level) " << qi << " Threshold Energy " << et << " Resonance Boundary " << dict->emaxRe;
+    Notice("DeceRead",os.str());
+
     /*** generate floating point data */
     np = nc;
     if(mflag) np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->xptr[0]);
     else      np = geneCSdata(nc,cx,cy,et,dict->emaxRe,xdat);
+
+    os.str("");
+    os << "number of points added " << np;
+    Notice("DeceRead",os.str());
+
   }
   /*** for number of prompt/delayed neutrons, MT=455, 456 */
   else{
     nc = readNUdata(datafile,ofset,cx,cy);
     if(nc == 0){
-      ostringstream os;
+      os.str("");
       os << "no nu data to be added from " << datafile << " for MT = " << mt;
       WarningMessage(os.str());
     }
@@ -407,15 +421,19 @@ int geneCSdata(int n, double *x, double *y, double eth, double eres, double *xda
     xdat[i++] = 0.0;
     xdat[i++] = 2.5300e-02;
     xdat[i++] = 0.0;
-    xdat[i++] = eres;
-    xdat[i++] = 0.0;
 
+    /*** skip if no resolved resonance is given */
     int skip = 0;
-    double yint = loginterpol(n,eres,x,y,&skip);
-
-    if(yint>0.0){
+    if(eres > 2.53e-2){
       xdat[i++] = eres;
-      xdat[i++] = yint;
+      xdat[i++] = 0.0;
+
+      double yint = loginterpol(n,eres,x,y,&skip);
+
+      if(yint>0.0){
+        xdat[i++] = eres;
+        xdat[i++] = yint;
+      }
     }
 
     bool onetrip = false;

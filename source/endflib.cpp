@@ -1116,14 +1116,25 @@ void ENDFMF2boundary(ENDFDict *dict, ENDF *lib)
   /*** actual highest resonance range */
   double emaxRe = 0.0;
 
-  /*** when not URR is given */
-  if(emaxUR == 0.0) emaxRe = emaxRR;
-  /*** when URR exists */
-  else{
-    if(ssf) emaxRe = emaxRR;  // if LSSF flag is on, take the RRR boundary
-    else    emaxRe = emaxUR;  // otherwise URR high-side
+  /*** when RRR exists */
+  if(emaxRR > 0.0){
+    /*** when URR exists too */
+    if(emaxUR > 0.0){
+      if(ssf) emaxRe = emaxRR;  // if LSSF flag is on, take the RRR boundary
+      else    emaxRe = emaxUR;  // otherwise URR high-side
+    }
+    /*** when only RRR */
+    else emaxRe = emaxRR;
   }
-
+  else{
+    /*** when only URR exists (no RRR) */
+    if(emaxUR > 0.0){
+      if(ssf) emaxRe = 0.0;
+      else    emaxRe = emaxUR;
+    }
+    /*** no resonance */
+    else emaxRe = 0.0;
+  }
 
   dict->setEboundary(emaxRR,emaxUR,emaxRe);
 }
