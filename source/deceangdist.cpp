@@ -40,9 +40,8 @@ void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *
 
   int k3 = dict->getID(3,mt);
   if(k3 < 0){
-    ostringstream os;
-    os << "process skipped since no MT" << mt << " found in MF3";
-    WarningMessage(os.str());
+    message << "process skipped since no MT" << mt << " found in MF3";
+    WarningMessage();
     DeceDelete(dict,mf,mt);
     return;
   }
@@ -65,9 +64,8 @@ void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *
   /*** read angular distribution data */
   int ne = readADdata(datafile,ofset,mt,cx,cy,en);
   if(ne == 0){
-    ostringstream os;
-    os << "no data to be added from " << datafile << " for MT = " << mt;
-    WarningMessage(os.str());
+    message << "no data to be added from " << datafile << " for MT = " << mt;
+    WarningMessage();
   }
 
   if(ne > 0){
@@ -161,9 +159,8 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
 
   fp.close();
 
-  ostringstream os;
-  os << "MT" << mt << " angular distributions at " << ne << " energy points imported from " << file;
-  Notice("readADdata",os.str());
+  message << "MT" << mt << " angular distributions at " << ne << " energy points imported from " << file;
+  Notice("DeceAngdist:readADdata");
 
   return ne;
 }

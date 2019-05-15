@@ -42,13 +42,12 @@ void DeceApplyFunc(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
     lib[k0]->xdata[2*ip+1] *= f;
   }
 
-  ostringstream os;
-  os << "MF" << mf << ":MT" << mt << " applied ";
-  if(     kind == 1) os << "Fermi function p1/{1+exp(x-p2)/p3} + 1";
-  else if(kind == 2) os << "Gauss function p1 exp{-(x-p2)(x-p2)/p3} + 1";
-  else if(kind == 3) os << "reversed Fermi function p1/{1+exp(-(x-p2)/p3)} + 1";
-  os << " where parameters p1 = " << p1 << " p2 = " << p2 << " p3 =" << p3;
-  Notice("DeceApplyFunc",os.str());
+  message << "MF" << mf << ":MT" << mt << " applied ";
+  if(     kind == 1) message << "Fermi function p1/{1+exp(x-p2)/p3} + 1";
+  else if(kind == 2) message << "Gauss function p1 exp{-(x-p2)(x-p2)/p3} + 1";
+  else if(kind == 3) message << "reversed Fermi function p1/{1+exp(-(x-p2)/p3)} + 1";
+  message << " where parameters p1 = " << p1 << " p2 = " << p2 << " p3 =" << p3;
+  Notice("DeceApplyFunc");
 }
 
 

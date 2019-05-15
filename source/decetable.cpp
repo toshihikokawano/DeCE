@@ -46,7 +46,10 @@ void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const in
     /*** from a file */
     else DeceFileToTable(fp,mf,mt);
   }
-  else WarningMessage("table command cannot process MF",mf);
+  else{
+    message << "table command cannot process MF " << mf;
+    WarningMessage();
+  }
 }
 
 
@@ -92,10 +95,16 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt)
     default:                                break;
     }
 
-    if(c < 0) WarningMessage("no section given");
+    if(c < 0){
+      message << "no section given";
+      WarningMessage();
+    }
     else      DeceLibToTable(&lib,&sup);
   }
-  else WarningMessage("table command cannot process MF",mf);
+  else{
+    message << "table command cannot process MF " << mf;
+    WarningMessage();
+  }
 }
 
 
@@ -106,7 +115,8 @@ void DeceDataPoint(ifstream *fp, const int mf, const int mt, const double e)
 {
   /*** work only for MF=1, 2 and 3 */
   if((mf != 1) && (mf != 3)){
-    WarningMessage("point command works for MF =1 and 3 only");
+    message << "point command works for MF =1 and 3 only";
+    WarningMessage();
     return;
   }
 

@@ -58,10 +58,9 @@ void DeceReadjust(ENDFDict *dict, ENDF *lib[], const int mt, const int mtmp)
     }
   }
 
-  ostringstream os;
-  os << "MF3:MT" << mt << " used for renormalizing "; 
-  os << "from MF3:MT" << mt0;
-  os << " to MF3:MT"  << mt1;
-  Notice("DeceReadjust",os.str());
+  message << "MF3:MT" << mt << " used for renormalizing "; 
+  message << "from MF3:MT" << mt0;
+  message << " to MF3:MT"  << mt1;
+  Notice("DeceReadjust");
 }
 

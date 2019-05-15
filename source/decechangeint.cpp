@@ -36,9 +36,8 @@ void DeceChangeInt(ENDFDict *dict, ENDF *lib[], const int mt, int range, int poi
   lib[k]->idata[(range-1)*2  ] = point;
   lib[k]->idata[(range-1)*2+1] = intlaw;
 
-  ostringstream os;
-  os << "interporation range " << range << " is up to " << point << " and INT = " << intlaw;
-  Notice("DeceChangeInt",os.str());
+  message << "interporation range " << range << " is up to " << point << " and INT = " << intlaw;
+  Notice("DeceChangeInt");
 }
 
 

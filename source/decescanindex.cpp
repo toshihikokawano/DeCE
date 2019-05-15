@@ -17,7 +17,7 @@ using namespace std;
 /**********************************************************/
 void DeceScanIndex(ENDFDict *dict)
 {
-  int mt[100];
+  int *mt = new int [1000];
 
   /*** scan all MF numbers, up to 40 */
   for(int mf=1 ; mf <= 40 ; mf++){
@@ -46,4 +46,6 @@ void DeceScanIndex(ENDFDict *dict)
       if(c%20 != 0) cout << endl;
     }
   }
+
+  delete [] mt;
 }

@@ -51,12 +51,11 @@ void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
     for(int ip=0 ; ip<np ; ip++) lib[k0]->xdata[2*ip+1] *= f;
   }
 
-  ostringstream os;
-  os << "MF" << mf << ":MT" << mt << " rescaled by factor " << f;
+  message << "MF" << mf << ":MT" << mt << " rescaled by factor " << f;
   if( (xmin < xmax) && (xmin >= 0.0) && (xmax > 0.0) ){
-    os << "in the energy range [" << xmin << "," << xmax <<"]";
+    message << "in the energy range [" << xmin << "," << xmax <<"]";
   }
-  Notice("DeceFactor",os.str());
+  Notice("DeceFactor");
 }
 
 

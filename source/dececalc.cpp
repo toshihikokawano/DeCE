@@ -160,13 +160,12 @@ void addsection(char pm, ENDF *src, ENDF *dest)
     }
 
     if(z[i*2+1] < 0.0){
-      ostringstream os;
-      os << "MF3:MT" << dest->getENDFmt();
-      os << " negative value " << setw(13) << z[i*2+1];
-      os << " detected at "    << setw(13) << z[i*2];
-      os << " where Y1 = "     << setw(13) << y1;
-      os << " and Y2 = "       << setw(13) << y2;
-      WarningMessage(os.str());
+      message << "MF3:MT" << dest->getENDFmt();
+      message << " negative value " << setw(13) << z[i*2+1];
+      message << " detected at "    << setw(13) << z[i*2];
+      message << " where Y1 = "     << setw(13) << y1;
+      message << " and Y2 = "       << setw(13) << y2;
+      WarningMessage();
     }
   }
 

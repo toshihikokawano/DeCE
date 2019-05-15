@@ -19,6 +19,8 @@ static int    readCSdata    (char *, int, const int, double *, double *);
 static int    readISdata    (char *, int, const int, double *, double *, double *);
 static int    readNUdata    (char *, int,            double *, double *);
 static int    geneCSdata    (int, double *, double *, double, double, double *);
+static int    geneCSdata1   (int, double *, double *, double, double, double *);
+static int    geneCSdata2   (int, double *, double *, double, double *);
 static int    mergeCSdata   (int, double *, double *, double, double *, double *);
 static double findBoundary  (ENDF *);
 static double loginterpol   (int, double, double *, double *, int *);
@@ -36,15 +38,13 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
   ostringstream os;
 
   if((mf != 1) && (mf != 3)){
-    ostringstream os;
-    os << "MF" << mf << " different from MF1 or MF3";
-    WarningMessage(os.str());
+    message << "MF" << mf << " different from MF1 or MF3";
+    WarningMessage();
     return;
   }
   if((mt <= 0) || (mt >= 1000)){
-    ostringstream os;
-    os << "MT" << mt << " out of range";
-    WarningMessage(os.str());
+    message << "MT" << mt << " out of range";
+    WarningMessage();
     return;
   }
 
@@ -70,9 +70,8 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
       nc = readCSdata(datafile,ofset,mt,cx,cy);
     }
     if(nc == 0){
-      ostringstream os;
-      os << "no cross section data to be added from " << datafile << " for MT = " << mt;
-      WarningMessage(os.str());
+      message << "no cross section data to be added from " << datafile << " for MT = " << mt;
+      WarningMessage();
     }
 
     /*** find Q-values */
@@ -101,33 +100,29 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     if(mflag){
       double ebtest = findBoundary(lib);
       if(ebtest < dict->emaxRe && ebtest != 1.0e-05){
-        ostringstream os;
-        os << "maybe background cross sections given for MT = " << mt << " at E1 = " << dict->emaxRe << "  E2 = " << ebtest;
-        WarningMessage(os.str());
+        message << "maybe background cross sections given for MT = " << mt << " at E1 = " << dict->emaxRe << "  E2 = " << ebtest;
+        WarningMessage();
       }
     }
 
-    os.str("");
-    os << "Q(mass) " << qm << " Q(level) " << qi << " Threshold Energy " << et << " Resonance Boundary " << dict->emaxRe;
-    Notice("DeceRead",os.str());
+    message << "Q(mass) " << qm << " Q(level) " << qi << " Threshold Energy " << et << " Resonance Boundary " << dict->emaxRe;
+    Notice("DeceRead");
 
     /*** generate floating point data */
     np = nc;
     if(mflag) np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->xptr[0]);
     else      np = geneCSdata(nc,cx,cy,et,dict->emaxRe,xdat);
 
-    os.str("");
-    os << "number of points added " << np;
-    Notice("DeceRead",os.str());
+    message << "number of points added " << np;
+    Notice("DeceRead");
 
   }
   /*** for number of prompt/delayed neutrons, MT=455, 456 */
   else{
     nc = readNUdata(datafile,ofset,cx,cy);
     if(nc == 0){
-      os.str("");
-      os << "no nu data to be added from " << datafile << " for MT = " << mt;
-      WarningMessage(os.str());
+      message << "no nu data to be added from " << datafile << " for MT = " << mt;
+      WarningMessage();
     }
 
     np = nc;
@@ -262,9 +257,8 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
 
   fp.close();
 
-  ostringstream os;
-  os << "MF3:MT" << mt << " " << nc << " points imported from " << file;
-  Notice("readCSdata",os.str());
+  message << "MF3:MT" << mt << " " << nc << " points [" << x[0] << "," << x[nc-1] << "] imported from " << file;
+  Notice("DeceRead:readCSdata");
 
   return nc;
 }
@@ -323,9 +317,8 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   }
   if(zero) nc = 0;
 
-  ostringstream os;
-  os << "MF3:MT" << mt << " " << nc << " points imported from " << file;
-  Notice("readISdata",os.str());
+  message << "MF3:MT" << mt << " " << nc << " points imported from " << file;
+  Notice("DeceRead:readISdata");
 
   return nc;
 }
@@ -363,9 +356,8 @@ int readNUdata(char *file, int ofset, double *x, double *y)
 
   fp.close();
 
-  ostringstream os;
-  os << "MF1:MT455(6) " << nc << " points imported from " << file;
-  Notice("readNUdata",os.str());
+  message << "MF3:MT455(6) " << nc << " points [" << x[0] << "," << x[nc-1] << "] imported from " << file;
+  Notice("DeceRead:readNUdata");
 
   return nc;
 }
@@ -382,76 +374,109 @@ int geneCSdata(int n, double *x, double *y, double eth, double eres, double *xda
 
   /*** for the threshold reaction */
   if(eth > 0.0){
-    xdat[i++] = eth;
+    i = geneCSdata1(n,x,y,eth,eres,xdat);
+  }
+  /*** for the non-threshold reaction */
+  else{
+    i = geneCSdata2(n,x,y,eres,xdat);
+  }
+
+  return(i/2);
+}
+
+
+/**********************************************************/
+/*      Threshold Reaction Case                           */
+/**********************************************************/
+int geneCSdata1(int n, double *x, double *y, double eth, double eres, double *xdat)
+{
+  int i = 0;
+
+  xdat[i++] = eth;
+  xdat[i++] = 0.0;
+
+  /*** if E(threshold) is inside the resonance range place zeros from Eth to Eres */
+  if(eth < eres){
+    xdat[i++] = eres;
     xdat[i++] = 0.0;
 
-    /*** if E(threshold) is inside the resonance range
-         place zeros from Eth to Eres */
-    if(eth < eres){
-      xdat[i++] = eres;
-      xdat[i++] = 0.0;
+    /*** duplicated point at Eres */
+    int skip = 0;
+    double yint = loginterpol(n,eres,x,y,&skip);
+    xdat[i++] = eres;
+    xdat[i++] = yint;
 
-      int skip = 0;
-      double yint = loginterpol(n,eres,x,y,&skip);
-      xdat[i++] = eres;
-      xdat[i++] = yint;
-
-      for(int j=skip ; j<n ; j++){
-        if(y[j] >= eps){
-          xdat[i++] = x[j];
-          xdat[i++] = y[j];
-        }
-      }
-    }
-    /*** if Eth is larger than Eres, omit resonance range */
-    else{
-      for(int j=0 ; j<n ; j++){
-        if(y[j] >= eps){
-          xdat[i++] = x[j];
-          xdat[i++] = y[j];
-        }
+    /*** copy all the rest */
+    for(int j=skip ; j<n ; j++){
+      if(y[j] >= eps){
+        xdat[i++] = x[j];
+        xdat[i++] = y[j];
       }
     }
   }
-
-  /*** for the non-threshold reaction */
+  /*** if Eth is larger than Eres, omit entire resonance range */
   else{
-    /*** Insert thermal point, start at the resonance boundary */
-    xdat[i++] = 1.0000e-05;
-    xdat[i++] = 0.0;
-    xdat[i++] = 2.5300e-02;
-    xdat[i++] = 0.0;
-
-    /*** skip if no resolved resonance is given */
-    int skip = 0;
-    if(eres > 2.53e-2){
-      xdat[i++] = eres;
-      xdat[i++] = 0.0;
-
-      double yint = loginterpol(n,eres,x,y,&skip);
-
-      if(yint>0.0){
-        xdat[i++] = eres;
-        xdat[i++] = yint;
-      }
-    }
-
-    bool onetrip = false;
-    for(int j=skip ; j<n ; j++){
+    for(int j=0 ; j<n ; j++){
       if(y[j] >= eps){
-        /*** insert 1-point before data start */
-        if(skip>1 && !onetrip && j>=1 && y[j-1]==0.0){
-          xdat[i++] = x[j-1];
-          xdat[i++] = 0.0;
-          onetrip = true;
-        }
         xdat[i++] = x[j];
         xdat[i++] = y[j];
       }
     }
   }
 
-  return(i/2);
+  return i;
+}
+
+
+/**********************************************************/
+/*      Non-Threshold Reaction Case                       */
+/**********************************************************/
+int geneCSdata2(int n, double *x, double *y, double eres, double *xdat)
+{
+  int i = 0;
+
+  /*** Insert thermal point, start at the resonance boundary */
+  xdat[i++] = 1.0000e-05;
+  xdat[i++] = 0.0;
+  xdat[i++] = 2.5300e-02;
+  xdat[i++] = 0.0;
+
+  /*** Duplicated point at Eres
+       We hope Eres is bigger than 0.0253 */
+  int skip = 0;
+  if(eres > 0.0){
+    xdat[i++] = eres;
+    xdat[i++] = 0.0;
+
+    double yint = loginterpol(n,eres,x,y,&skip);
+
+    if(yint > 0.0){
+      xdat[i++] = eres;
+      xdat[i++] = yint;
+    }
+  }
+  /*** Duplicate at x[0] when no resonance case */
+  else{
+    xdat[i++] = x[0];
+    xdat[i++] = 0.0;
+  }
+
+  /*** copy all the rest */
+  bool onetrip = false;
+  for(int j=skip ; j<n ; j++){
+    if(y[j] >= eps){
+      /*** insert 1-point before data start to avoid long interpolation to Eres */
+      if(!onetrip && (j >= 1) && (y[j-1] == 0.0)){
+        xdat[i++] = x[j-1];
+        xdat[i++] = 0.0;
+        onetrip = true;
+      }
+      xdat[i++] = x[j];
+      xdat[i++] = y[j];
+    }
+  }
+
+  return i;
 }
 
 
@@ -475,7 +500,7 @@ int mergeCSdata(int n, double *x, double *y, double eres, double *xdat, double *
   int skip = 0;
   double yint = loginterpol(n,eres,x,y,&skip);
 
-  if(yint>0.0){
+  if(yint > 0.0){
     xdat[i++] = eres;
     xdat[i++] = yint;
   }

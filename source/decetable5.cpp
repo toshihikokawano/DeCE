@@ -90,7 +90,10 @@ void DeceTableMF5(ENDF *lib)
       cout << endl;
       cout << endl;
     }
-    else WarningMessage("table command cannot process MF = 5, LF = ",lf);
+    else{
+      message << "table command cannot process MF = 5, LF = " << lf;
+      WarningMessage();
+    }
   }
 }
 
