@@ -72,13 +72,12 @@ void DeceCheckThreshold(ENDFDict *dict, ENDF *lib[], bool fix)
         if(fix) lib[k]->xptr[0][0] = e1;
       }
 
-      ostringstream os;
-      os << "MF" << dict->mf[i] << ":MT" << dict->mt[i];
-      os << " given threshold " << setprecision(6) << e0;
-      os << "   calc. from mass " << setprecision(6) << e1;
-      os << "   diff. " << setprecision(6) << e0 - e1;
+      message << "MF" << dict->mf[i] << ":MT" << dict->mt[i];
+      message << " given threshold " << setprecision(6) << e0;
+      message << "   calc. from mass " << setprecision(6) << e1;
+      message << "   diff. " << setprecision(6) << e0 - e1;
 
-      Notice("DeceCheckThreshold",os.str());
+      Notice("DeceCheckThreshold");
     }
   }
 }

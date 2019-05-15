@@ -40,8 +40,9 @@ static void DeceBanner        (void);
 /*      Global Parameters                                 */
 /**********************************************************/
 #define DECE_TOPLEVEL
-GlobalOption opt;
-string   tempfile = "DECETempfile.dat";
+GlobalOption  opt;
+string        tempfile = "DECETempfile.dat";
+ostringstream message;
 
 /*** defined in command.cpp */
 extern CLine cmd;
@@ -109,7 +110,7 @@ int main(int argc, char *argv[])
     if(reconr){
       ifstream  fpin;
       fpin.open(&libname_in[0]);
-      gfrScanThermal(&fpin,&dict);
+      gfrScanThermal(&fpin,&dict,ein);
       fpin.close();
     }
     /*** enter the main part */
@@ -210,8 +211,10 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
     else if(dict->mf[i] == 13) size = M;
     else if(dict->mf[i] == 14) size = M;
     else if(dict->mf[i] == 15) size = M;
-//  else if(dict->mf[i] == 32) size = L; // MF32 temporarily disabled
+    else if(dict->mf[i] == 32) size = L;
     else if(dict->mf[i] == 33) size = L;
+    else if(dict->mf[i] == 34) size = L;
+    else if(dict->mf[i] == 35) size = L;
     else continue;
 
     lib[newsec] = new ENDF(size);
@@ -240,13 +243,12 @@ void DeceInitOptions()
 /**********************************************************/
 void DeceReadMonitor(int mat, int mf, int mt, int sec, int n)
 {
-  ostringstream os;
-  os << "MAT:" << mat <<" ";
-  os << "MF:" << mf;
-  os << "MT:" << mt;
-  os << " assigned for Section " << sec;
-  os << " sub-blocks " << n;
-  Notice("DeceReadMonitor",os.str());
+  message << "MAT:" << mat <<" ";
+  message << "MF:" << mf;
+  message << "MT:" << mt;
+  message << " assigned for Section " << sec;
+  message << " sub-blocks " << n;
+  Notice("DeceReadMonitor");
 }
 
 
@@ -265,14 +267,14 @@ void DeceCheckMT(int mt)
 void DeceCreateLib(ENDFDict *dict, int mf, int mt)
 {
   DeceCheckMT(mt);
-  ostringstream os;
 
   /*** if already exists */
   int k = dict->getID(mf,mt);
   if( k >= 0 ){
     lib[k]->resetPOS();
-    os << "MF" << mf << ":MT" << mt << " exists, reuse it. assigned section " << dict->getID(mf,mt);
-    Notice("DeceCreateLib",os.str());
+    message.str("");
+    message << "MF" << mf << ":MT" << mt << " exists, reuse it. assigned section " << dict->getID(mf,mt);
+    Notice("DeceCreateLib");
     return;
   }
 
@@ -306,8 +308,8 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
     dict->setID(i,newsec);
   }
 
-  os << "MF" << mf << ":MT" << mt << " assigned for section " << newsec;
-  Notice("DeceCreateLib",os.str());
+  message << "MF" << mf << ":MT" << mt << " assigned for section " << newsec;
+  Notice("DeceCreateLib");
 
   newsec++;
 }
@@ -359,25 +361,20 @@ void DeceHelp()
 /**********************************************************/
 /*     Warning Message                                    */
 /**********************************************************/
-void WarningMessage(string msg)
-{ cerr << "WARNING   : " << msg << endl; }
+void WarningMessage()
+{
+  cerr << "WARNING   : " << message.str()      << endl;
+  message.str("");
+}
 
-void WarningMessage(string msg, int n)
-{ cerr << "WARNING   : " << msg << n << endl; }
-
-void WarningMessage(string msg, double x)
-{ cerr << "WARNING   : " << msg << x << endl; }
-
-void WarningMessage(string msg, string x)
-{ cerr << "WARNING   : " << msg << x << endl; }
-
-void Notice(string module,string msg){
+void Notice(string module){
   if(module == "NOTE"){
-    cerr << " (._.) " << msg << endl;
+    cerr << " (._.) " << message.str() << endl;
   }
   else{
-    if(verbflag) cerr << " (@_@) [" << module << "] " << msg << endl;
+    if(verbflag) cerr << " (@_@) [" << module << "] " << message.str() << endl;
   }
+  message.str("");
 }
 
 

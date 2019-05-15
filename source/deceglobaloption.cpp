@@ -52,11 +52,10 @@ void optionToggle(string ope, string option)
   }
 
   if(option == "LineNumber"){
-    ostringstream os;
-    os << "option" << option << " line number is ";
-    if(opt.LineNumber) os << "on";
-    else os << "off";
-    Notice("optionToggle",os.str());
+    message << "option" << option << " line number is ";
+    if(opt.LineNumber) message << "on";
+    else message << "off";
+    Notice("DeceGlobalOption:optionToggle");
   }
 }
 
@@ -67,7 +66,8 @@ void optionToggle(string ope, string option)
 void optionSet(string ope, string option, const double x)
 {
   if(ope == "unset"){
-    WarningMessage("option cannnot unset: ",option);
+    message << "option [ " << option << " ] cannnot unset: ";
+    WarningMessage();
     return;
   }
 
@@ -77,13 +77,13 @@ void optionSet(string ope, string option, const double x)
   else if(option == "WriteYdataConversion") opt.WriteYdataConversion = x;
   else if(option == "AngleStep")            opt.AngleStep            = x;
   else{
-    WarningMessage("option not found: ",option);
+    message << "option [ " << option << " ] not found: " ;
+    WarningMessage();
     return;
   }
 
-  ostringstream os;
-  os << "option " << option << " set to " << x;
-  Notice("optionSet",os.str());
+  message << "option " << option << " set to " << x;
+  Notice("optionSet");
 }
 
 

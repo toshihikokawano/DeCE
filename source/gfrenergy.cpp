@@ -77,11 +77,11 @@ int gfrAutoEnergyRRR(System *sys, ENDF *lib2, double *elab, const double ebr)
   do{
     double dm = ex[0] * 1e-05; // minimum interval
 
-    ds[0] = ((ex[1]-ex[0])*cs[2].total + (ex[2]-ex[1])*cs[0].total)/(ex[2]-ex[0]);
-    ds[1] = ((ex[2]-ex[1])*cs[3].total + (ex[3]-ex[2])*cs[1].total)/(ex[3]-ex[1]);
+    ds[0] = ((ex[1]-ex[0])*cs[2].elastic + (ex[2]-ex[1])*cs[0].elastic)/(ex[2]-ex[0]);
+    ds[1] = ((ex[2]-ex[1])*cs[3].elastic + (ex[3]-ex[2])*cs[1].elastic)/(ex[3]-ex[1]);
 
-    ds[0] = abs(ds[0]/cs[1].total - 1.0);
-    ds[1] = abs(ds[1]/cs[2].total - 1.0);
+    ds[0] = abs(ds[0]/cs[1].elastic - 1.0);
+    ds[1] = abs(ds[1]/cs[2].elastic - 1.0);
 
 //  cout << "   Delta = " << ds[0] <<" " << ds[1] << "   " << dm <<  " "  << de << endl;
 
@@ -125,7 +125,7 @@ int gfrAutoEnergyRRR(System *sys, ENDF *lib2, double *elab, const double ebr)
     }
 
     elab[k++] = ex[1];
-//  cout << k <<" " << ex[1] << " " << cs[1].total << endl;
+//  cout << k <<" " << ex[1] << " " << cs[1].elastic << endl;
 
     nstep ++;
     if(nstep >= MAX_DBLDATA_LARGE/2){

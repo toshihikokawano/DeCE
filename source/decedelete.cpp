@@ -24,9 +24,8 @@ void DeceDelete(ENDFDict *dict, const int mf, const int mt)
     for(int i=0 ; i<dict->getSEC() ; i++){
       if(mf == dict->mf[i]){
         dict->setID(i,-2);
-        ostringstream os;
-        os << "MF" << mf << ":MT" << dict->mt[i] << " deleted";
-        Notice("DeceDelete",os.str());
+        message << "MF" << mf << ":MT" << dict->mt[i] << " deleted";
+        Notice("DeceDelete");
       }
     }
   }
@@ -34,9 +33,8 @@ void DeceDelete(ENDFDict *dict, const int mf, const int mt)
     for(int i=0 ; i<dict->getSEC() ; i++){
       if( (mf == dict->mf[i]) && (mt == dict->mt[i]) ){
         dict->setID(i,-2);
-        ostringstream os;
-        os << "MF" << mf << ":MT" << mt << " deleted";
-        Notice("DeceDelete",os.str());
+        message << "MF" << mf << ":MT" << mt << " deleted";
+        Notice("DeceDelete");
       }
     }
   }

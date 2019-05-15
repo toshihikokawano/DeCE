@@ -27,7 +27,10 @@ void  DeceTableMF1(ENDF *lib)
   else if(mt == 456) DeceTableMF1MT452(lib);
   else if(mt == 455) DeceTableMF1MT455(lib);
   else if(mt == 458) DeceTableMF1MT458(lib);
-  else  WarningMessage("invalid MT number",mt);
+  else{
+    message << "invalid MT number " << mt;
+    WarningMessage();
+  }
 }
 
 

@@ -1,3 +1,31 @@
+2019-05-14  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dece.cpp (DeceStoreData): modified
+	MF32, 34, and 35 activated
+
+	* source/endflib.cpp (ENDFMF2boundary): modified
+	bug reported by HIK
+	set emaxRe zero when only URR is given but LSSF flag is 1
+
+	* source/deceread.cpp (geneCSdata): update
+	function split into two cases
+
+	* source/decescanindex.cpp (DeceScanIndex): bug fixed
+	MT number can be more than 100 in a special case
+
+	* source/dece.cpp (WarningMessage): modified
+	* source/dece.cpp (Notice): modified
+	made message global, and unify all WarningMessage methods
+	
+
+2019-04-07  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfr.h: modified
+	use the same sqrt{2m}/h-bar as ENDF-6
+
+	* source/gfr.cpp (gfrScanThermal): modified
+	accept incident energy by option -e
+
 2019-03-19  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* LICENSE: updated

@@ -100,7 +100,10 @@ void DeceTableMF2(ENDF *lib)
       // Case C
       else if(lrf == 2) idx = DeceTableMF2URC(lib,idx);
     }
-    else WarningMessage("this resonance parameters cannot be processed");
+    else{
+      message << "this resonance parameters cannot be processed";
+      WarningMessage();
+    }
   }
 }
 

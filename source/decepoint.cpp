@@ -108,11 +108,10 @@ void addpoint(ENDF *lib, const double x, const double y)
   r.n2 = np;
   lib->rdata[0] = r;
 
-  ostringstream os;
-  os << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data ";
-  os << setw(13) << setprecision(6) << x;
-  os << setw(13) << setprecision(6) << y << " inserted";
-  Notice("addpoint",os.str());
+  message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data ";
+  message << setw(13) << setprecision(6) << x;
+  message << setw(13) << setprecision(6) << y << " inserted";
+  Notice("DecePoint:addpoint");
 }
 
 
@@ -148,10 +147,9 @@ void delpoint(ENDF *lib, const double x)
   }
 
   if(!found){
-    ostringstream os;
-    os << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt();
-    os<< " does not have data a point at " << setw(13) << setprecision(6) << x;
-    WarningMessage(os.str());
+    message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt();
+    message << " does not have data a point at " << setw(13) << setprecision(6) << x;
+    WarningMessage();
     return;
   }
 
@@ -169,9 +167,8 @@ void delpoint(ENDF *lib, const double x)
   r.n2 = np;
   lib->rdata[0] = r;
 
-  ostringstream os;
-  os << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data ";
-  os << setw(13) << setprecision(6) << xd;
-  os << setw(13) << setprecision(6) << yd << " removed";
-  Notice("delpoint",os.str());
+  message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data ";
+  message << setw(13) << setprecision(6) << xd;
+  message << setw(13) << setprecision(6) << yd << " removed";
+  Notice("DecePoint:delpoint");
 }

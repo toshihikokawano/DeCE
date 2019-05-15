@@ -196,7 +196,8 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 
   /*** ECHO: print text */
   else if(ope == "echo"){
-    Notice("NOTE",cmd.text);
+    message << cmd.text;
+    Notice("NOTE");
   }
 
   /*** Unknown command */
@@ -226,14 +227,13 @@ void DeceOperationCALC(ENDFDict *dict, ENDF *lib[])
   DeceCreateLib(dict,3,cmd.mt);
   DeceCalc(dict,lib,cmd.mt,cmd.opt1,cmd.opt2,cmd.text[0]);
 
-  ostringstream os;
-  os << "MF3:MT" << cmd.mt << " created by ";
-  if(     cmd.text[0] == '+'){ os << "adding MT" << cmd.opt1 << " and MT" << cmd.opt2; }
-  else if(cmd.text[0] == '-'){ os << "subtracting MT" << cmd.opt2 << " from MT" << cmd.opt1; }
-  else if(cmd.text[0] == '*'){ os << "multiplying MT" << cmd.opt1 << " and MT" << cmd.opt2; }
-  else if(cmd.text[0] == '/'){ os << "dividing MT" << cmd.opt1 << " by MT" << cmd.opt2; }
-  else if(cmd.text[0] == ':'){ os << "adding subsections from MT" << cmd.opt1 << " to MT" << cmd.opt2; }
-  Notice("DeceOperationCALC",os.str());
+  message << "MF3:MT" << cmd.mt << " created by ";
+  if(     cmd.text[0] == '+'){ message << "adding MT" << cmd.opt1 << " and MT" << cmd.opt2; }
+  else if(cmd.text[0] == '-'){ message << "subtracting MT" << cmd.opt2 << " from MT" << cmd.opt1; }
+  else if(cmd.text[0] == '*'){ message << "multiplying MT" << cmd.opt1 << " and MT" << cmd.opt2; }
+  else if(cmd.text[0] == '/'){ message << "dividing MT" << cmd.opt1 << " by MT" << cmd.opt2; }
+  else if(cmd.text[0] == ':'){ message << "adding subsections from MT" << cmd.opt1 << " to MT" << cmd.opt2; }
+  Notice("DeceOperationCALC");
 }
 
 
@@ -254,10 +254,9 @@ void DeceOperationDUPLICATE(ENDFDict *dict, ENDF *lib[])
   ENDFLibCopy(lib[k0],lib[k1]);
   lib[k1]->setENDFmt(cmd.opt1);
 
-  ostringstream os;
-  os << "MF" << cmd.mf << ":MT" << cmd.mt << " copied to ";
-  os << "MF" << cmd.mf << ":MT" << cmd.opt1;
-  Notice("DeceOperationDUPLICATE",os.str());
+  message << "MF" << cmd.mf << ":MT" << cmd.mt << " copied to ";
+  message << "MF" << cmd.mf << ":MT" << cmd.opt1;
+  Notice("DeceOperationDUPLICATE");
 }
 
 

@@ -4,8 +4,8 @@
  */
 
 
-const double gcKfactor = 0.21908;
-//const double gcKfact   = 0.2196771;
+//const double gcKfactor = 0.21908;
+const double gcKfactor = 0.2196771;
 
 static inline double gfrENDFChannelRadius(int a)
 {

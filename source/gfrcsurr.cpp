@@ -57,8 +57,8 @@ Pcross gfrCrossSectionURR(const int ner, const double elab, System *sys, ENDF *l
   /*** case B: energy independent, but for fission */
     else{
     }
-
-    WarningMessage("LRF=0,1 not yet supported");
+    message << "LRF=0,1 not yet supported";
+    WarningMessage();
   }
   /*** case C: all parameters are energy dependent */
   else{

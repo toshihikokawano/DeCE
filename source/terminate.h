@@ -5,14 +5,17 @@
         the functions are defined in main.cpp
  */
 
+#include <ostream>
+
+#ifndef DECE_TOPLEVEL
+extern ostringstream message;
+#endif
+
 /**************************************/
 /*      dece.cpp                      */
 /**************************************/
-void    WarningMessage     (std::string);
-void    WarningMessage     (std::string, int);
-void    WarningMessage     (std::string, double);
-void    WarningMessage     (std::string, std::string);
-void    Notice             (std::string, std::string);
+void    WarningMessage     ();
+void    Notice             (std::string);
 
 int     TerminateCode      (std::string);
 int     TerminateCode      (std::string, int);
