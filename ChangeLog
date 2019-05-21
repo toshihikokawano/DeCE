@@ -1,3 +1,13 @@
+2019-05-20  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/matrix.cpp (MatrixInverse1): modified
+	gcc8 hack
+
+	* source/decescanindex.cpp (DeceScanIndex): modified
+	* source/dece.cpp (DeceStoreData): bug fixed
+	change in decescanindex created a side effect of deceoutput
+	older file recovered
+
 2019-05-14  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/dece.cpp (DeceStoreData): modified

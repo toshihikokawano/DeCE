@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <algorithm>
 
+
 using namespace std;
 
 #include "dece.h"
@@ -18,24 +19,20 @@ using namespace std;
 void DeceScanIndex(ENDFDict *dict)
 {
   int *mt = new int [1000];
+  ENDF lib(S);
 
   /*** scan all MF numbers, up to 40 */
   for(int mf=1 ; mf <= 40 ; mf++){
 
-    bool given = false;
-    for(int i=0 ; i<dict->getSEC() ; i++) if(dict->mf[i] == mf) given = true;
+    int k = 0;
+    for(int i=0 ; i<dict->getSEC() ; i++){
+      if( (dict->mf[i] == mf) && (dict->getID(mf,dict->mt[i]) != -2) ) mt[k++] = dict->mt[i];
+    }
 
-    if(given){
-      cout << "MF " << setw(2) << "  " <<  mf << endl;
-
-      int k = 0;
-      for(int i=0 ; i<dict->getSEC() ; i++){
-        if(dict->mf[i] == mf){
-          if(dict->getID(mf,dict->mt[i]) >= 0) mt[k++] = dict->mt[i];
-        }
-      }
-
+    if(k > 0){
       sort(mt,mt+k);
+
+      cout << "MF " << setw(2) << "  " <<  mf << endl;
 
       int c = 0;
       for(int i=0 ; i<k ; i++){

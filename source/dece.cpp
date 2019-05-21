@@ -195,9 +195,9 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
   for(int i=0 ; i<dict->getSEC() ; i++){
 
     if(dict->mf[i] ==  1){
-      if(dict->mt[i] == 451) size = S;
-      else if( (dict->mt[i] == 452) || (dict->mt[i] == 455) || (dict->mt[i] == 456) ) size = M;
+      if( (dict->mt[i] == 452) || (dict->mt[i] == 455) || (dict->mt[i] == 456) ) size = M;
       else if(dict->mt[i] == 460) size = L;
+      else continue;
     }
     else if(dict->mf[i] ==  2) size = L;
     else if(dict->mf[i] ==  3) size = M;
@@ -292,7 +292,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
         lib[newsec] = new ENDF(M);
     }
   }
-  catch(bad_alloc){
+  catch(bad_alloc &e){
     TerminateCode("memory allocation error");
     return;
   }

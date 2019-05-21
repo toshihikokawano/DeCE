@@ -64,7 +64,7 @@ int MatrixInverse1(const int m, complex<double> **a, complex<double> **b)
   try{
     d = new complex<double> [m*(m+1)/2];
   }
-  catch(bad_alloc){
+  catch(bad_alloc &e){
     cerr << "memory allocation error";
     return(-1);
   }
@@ -107,7 +107,7 @@ int MatrixInverse2(const int m, complex<double> **a, complex<double> **b)
   try{
     d = new complex<double> [m];
   }
-  catch(bad_alloc){
+  catch(bad_alloc &e){
     cerr << "memory allocation error";
     return(-1);
   }

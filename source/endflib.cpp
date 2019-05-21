@@ -38,9 +38,9 @@ int ENDFSeekHead(ifstream *fp, ENDF *lib, const int mfsearch, const int mtsearch
   string s;
 
   /*** rewind tape, if query section is bigger than previous search */
-  if(mfs==0 && mts==0) fp->seekg(0,ios_base::beg);
-  if( (mfsearch<mfs) ||
-      ((mfsearch==mfs) && (mtsearch<mts) )) fp->seekg(0,ios_base::beg);
+  if((mfs == 0) && (mts == 0)) fp->seekg(0,ios_base::beg);
+  if( (mfsearch < mfs) ||
+      ((mfsearch == mfs) && (mtsearch < mts) )) fp->seekg(0,ios_base::beg);
 
   /*** look for given MF and MT */
   lib->setENDFmat(0);
@@ -58,7 +58,7 @@ int ENDFSeekHead(ifstream *fp, ENDF *lib, const int mfsearch, const int mtsearch
     s = line.substr(70,2);  mfs = atoi(s.c_str());
     s = line.substr(72,3);  mts = atoi(s.c_str());
 
-    if(mfs==mfsearch && mts==mtsearch){
+    if( (mfs == mfsearch) && (mts== mtsearch) ){
       found =true;
       mfs = mfsearch;
       mts = mtsearch;
@@ -73,7 +73,7 @@ int ENDFSeekHead(ifstream *fp, ENDF *lib, const int mfsearch, const int mtsearch
     }
 
     /*** not found */
-    if( (mfs>mfsearch) || ((mfs==mfsearch) && (mts>mtsearch)) ){
+    if( (mfs > mfsearch) || ((mfs == mfsearch) && (mts > mtsearch)) ){
       mfs = 0;
       mts = 0;
       break;
@@ -359,9 +359,9 @@ int ENDFReadArray(ifstream *fp, int m, int n, double *x)
 {
   string s;
 
-  if(m==0 && n>0)     { m = numline(n);   }
-  else if(n==0 && m>0){ n = COLUMN_NUM*m; }
-  else                  return(0);
+  if( (m == 0) && (n > 0) )     { m = numline(n);   }
+  else if( (n == 0) && (m > 0) ){ n = COLUMN_NUM*m; }
+  else return(0);
 
   int i=0;
   for(int j=0 ; j<m ; j++){
@@ -387,9 +387,9 @@ int ENDFReadArray(ifstream *fp, int m, int n, int *x)
 {
   string s;
 
-  if(m==0 && n>0)     { m = numline(n);   }
-  else if(n==0 && m>0){ n = COLUMN_NUM*m; }
-  else                  return(0);
+  if( (m == 0) && (n > 0) )     { m = numline(n);   }
+  else if( (n == 0) && (m > 0) ){ n = COLUMN_NUM*m; }
+  else return(0);
 
   int i=0;
   for(int j=0 ; j<m ; j++){
@@ -623,7 +623,7 @@ void ENDFWriteArray(ENDF *lib, int np, double *x)
   int k = 0;
   for(int i=0 ; i<n ; i++){
     for(int j=0 ; j<COLUMN_NUM ; j++){
-      if(k<np){
+      if(k < np){
         ENDFDelExp(x[k++],num);
         cout << setw(FIELD_WIDTH) << num;
       }
@@ -643,7 +643,7 @@ void ENDFWriteArray(ENDF *lib, int np, int *c)
   int k = 0;
   for(int i=0 ; i<n ; i++){
     for(int j=0 ; j<COLUMN_NUM ; j++){
-      if(k<np){
+      if(k < np){
         cout << setw(FIELD_WIDTH) << c[k++];
       }
       else cout << blank;
@@ -931,7 +931,7 @@ void ENDFExtract(ifstream *fp, int mf, int mt)
 double ENDFInterpolation(ENDF *lib, double x, bool dupflag, const int idx)
 {
   int p = 0;
-  if(x<lib->xptr[idx][0]) return(0.0);
+  if(x < lib->xptr[idx][0]) return(0.0);
 
   Record cont = lib->rdata[idx];
 
@@ -975,11 +975,11 @@ double ENDFInterpolation(ENDF *lib, double x, bool dupflag, const int idx)
         break;
       }
     }
-    if(p>0) break;
+    if(p > 0) break;
     i = lib->iptr[idx][2*ir]-1;
   }
 
-  if(m>0){
+  if(m > 0){
     double x1 = lib->xptr[idx][p  ];
     double y1 = lib->xptr[idx][p+1];
     double x2 = lib->xptr[idx][p+2];
@@ -1147,10 +1147,10 @@ inline void ENDFDelExp(double x, char *num)
 {
   ostringstream os;
 
-  if(fabs(x)<1.0e-99){
+  if(fabs(x) < 1.0e-99){
     strcpy(num," 0.000000+0");
   }
-  else if(fabs(x)<1.0e-09){
+  else if(fabs(x) < 1.0e-09){
  // sprintf(num,"% 12.5e",x);
     os.setf(ios::scientific, ios::floatfield);
     os << setprecision(5) << setw(12) << x;
