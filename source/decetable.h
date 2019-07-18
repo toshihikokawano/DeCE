@@ -30,7 +30,8 @@ static inline void outVal(int x)
 
 static inline void outVal(double x)
 { cout.setf(ios::scientific, ios::floatfield);
-  cout << setprecision(7) << setw(14) << x; }
+  if(x >= 0.0) cout << setprecision(7) << setw(14) << x;
+  else         cout << setprecision(6) << setw(14) << x; }
 
 static inline void outVal(int w, int p, double x)
 { cout.setf(ios::fixed, ios::floatfield);

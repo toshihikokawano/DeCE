@@ -108,6 +108,9 @@ void addpoint(ENDF *lib, const double x, const double y)
   r.n2 = np;
   lib->rdata[0] = r;
 
+  /*** update position pointer */ 
+  lib->xptr[lib->getPOS()] = &lib->xdata[2*np];
+
   message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data ";
   message << setw(13) << setprecision(6) << x;
   message << setw(13) << setprecision(6) << y << " inserted";
@@ -166,6 +169,9 @@ void delpoint(ENDF *lib, const double x)
   np--;
   r.n2 = np;
   lib->rdata[0] = r;
+
+  /*** update position pointer */ 
+  lib->xptr[lib->getPOS()] = &lib->xdata[2*np];
 
   message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data ";
   message << setw(13) << setprecision(6) << xd;
