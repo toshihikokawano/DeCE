@@ -1,3 +1,8 @@
+2019-07-17  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decepoint.cpp (addpoint): bug fixed
+	problem in ENDFLibCopy called after del/add-point
+
 2019-05-20  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/matrix.cpp (MatrixInverse1): modified

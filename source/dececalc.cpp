@@ -46,8 +46,8 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
     /*** deterimine Q-value */
     double qm = 0.0, qi = 0.0;
     if(mtdest >= 4){
-      int    kq = qselect(k1,k2,lib[k1]->rdata[0].c1+lib[k1]->rdata[0].c2,
-                                lib[k2]->rdata[0].c1+lib[k2]->rdata[0].c2);
+      int kq = qselect(k1,k2,lib[k1]->rdata[0].c1+lib[k1]->rdata[0].c2,
+                             lib[k2]->rdata[0].c1+lib[k2]->rdata[0].c2);
       qm = lib[kq]->rdata[0].c1;
       qi = lib[kq]->rdata[0].c2;
     }

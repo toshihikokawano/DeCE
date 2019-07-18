@@ -48,8 +48,8 @@ string CmdExtractArgument(void)
   strcpy(work,cmd.line);
   tok = strtok(work,d2.c_str());
 
-  if(tok!=NULL) ope = (string)tok;
-  else          ope = "";
+  if(tok != NULL) ope = (string)tok;
+  else            ope = "";
 
   for(char *p = &ope[0] ; *p ; p++) *p = tolower(*p);
 

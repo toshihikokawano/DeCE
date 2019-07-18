@@ -18,7 +18,7 @@ int main(int, char *[]);
 static void DecePhotoProduction(const int, const int, ENDF *);
 static inline void printdata(const string);
 
-static int np0;
+static int np0, counter = 0;
 static double *x0, *y0, *y1, *y2;
 
 int main(int argc, char *argv[])
@@ -41,7 +41,14 @@ int main(int argc, char *argv[])
   if(!fpin){
     cerr << "ENDF file cannot open" << endl; exit(-1);
   }
-  ENDFReadMF3(&fpin,&lib3,5);
+
+  int id3 = ENDFReadMF3(&fpin,&lib3,3);
+  int id5 = ENDFReadMF3(&fpin,&lib3,5);
+
+  if(     id3 < 0) ENDFReadMF3(&fpin,&lib3,5);
+  else if(id5 < 0) ENDFReadMF3(&fpin,&lib3,3);
+  else             ENDFReadMF3(&fpin,&lib3,3);
+
   ENDFReadMF6(&fpin,&lib6,5);
   fpin.close();
 
@@ -53,8 +60,7 @@ int main(int argc, char *argv[])
 
 
   cout.setf(ios::scientific, ios::floatfield);
-  cout << "# " << "photo absorption" << endl;
-
+  cout << "# " << setw(3) << counter << " photo absorption" << endl;
   np0 = lib3.rdata[0].n2;
   for(int i=0 ; i<np0 ; i++){
     x0[i] = lib3.xdata[2*i  ];
@@ -64,6 +70,7 @@ int main(int argc, char *argv[])
   }
   cout << endl;
   cout << endl;
+  counter ++;
 
   /*** neutron production, ZAP = 1 */
   DecePhotoProduction(1,np0,&lib6);
@@ -71,52 +78,65 @@ int main(int argc, char *argv[])
   printdata("neutron production");
 
   /*** (g,n) */
-  DecePhotoProduction(zat - 1,np0,&lib6);
+  DecePhotoProduction(zat - 1,np0,&lib6);    // (g,n)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
   printdata("(g,n)");
 
   /*** (g,1nx) */
-  DecePhotoProduction(zat - 1002,np0,&lib6);
+  DecePhotoProduction(zat - 1002,np0,&lib6); // (g,n+p)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 2005,np0,&lib6);
+  DecePhotoProduction(zat - 2005,np0,&lib6); // + (g,n+A)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
   printdata("(g,1nx)");
 
   /*** (g,2n) */
-  DecePhotoProduction(zat - 2,np0,&lib6);
+  DecePhotoProduction(zat - 2,np0,&lib6);    // (g,2n)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
   printdata("(g,2n)");
 
   /*** (g,2nx) */
-  DecePhotoProduction(zat - 1003,np0,&lib6);
+  DecePhotoProduction(zat - 1003,np0,&lib6); // + (g,2n+p)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 2006,np0,&lib6);
+  DecePhotoProduction(zat - 2006,np0,&lib6); // + (g,2n+A)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
   printdata("(g,2nx)");
 
   /*** (g,3n) */
-  DecePhotoProduction(zat - 3,np0,&lib6);
+  DecePhotoProduction(zat - 3,np0,&lib6);    // (g,3n)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
   printdata("(g,3n)");
 
   /*** (g,sn) */
-  DecePhotoProduction(zat - 1,np0,&lib6);
+  DecePhotoProduction(zat - 1,np0,&lib6);    // (g,n)
   for(int i=0 ; i<np0 ; i++) y2[i]  = y1[i];
-  DecePhotoProduction(zat - 2,np0,&lib6);
+  DecePhotoProduction(zat - 2,np0,&lib6);    // + (g,2n)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 3,np0,&lib6);
+  DecePhotoProduction(zat - 3,np0,&lib6);    // + (g,3n)
+  for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
+  DecePhotoProduction(zat - 1002,np0,&lib6); // + (g,n+p)
+  for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
+  DecePhotoProduction(zat - 2005,np0,&lib6); // + (g,n+A)
+  for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
+  DecePhotoProduction(zat - 1003,np0,&lib6); // + (g,2n+p)
+  for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
+  DecePhotoProduction(zat - 2006,np0,&lib6); // + (g,2n+A)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
   printdata("(g,sn)");
 
   /*** (g,p) */
-  DecePhotoProduction(zat - 1001,np0,&lib6);
+  DecePhotoProduction(zat - 1001,np0,&lib6); // (g,p)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
   printdata("(g,p)");
 
   /*** (g,alpha) */
-  DecePhotoProduction(zat - 2004,np0,&lib6);
+  DecePhotoProduction(zat - 2004,np0,&lib6); // (g,A)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
   printdata("(g,a)");
+
+  /*** (g,4n) */
+  DecePhotoProduction(zat - 4,np0,&lib6);    // (g,4n)
+  for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
+  printdata("(g,4n)");
 
 
   delete [] x0;
@@ -130,15 +150,23 @@ int main(int argc, char *argv[])
 
 static inline void printdata(string title)
 {
-  cout << "# " << title << endl;
+  bool out = false;
   for(int i=0 ; i<np0 ; i++){
-    if(y2[i] == 0.0) continue;
-    cout << setprecision(6) << setw(14) << x0[i] * 1e-6;
-//  cout << setprecision(6) << setw(14) << y2[i];
-    cout << setprecision(6) << setw(14) << y0[i] * y2[i] * 1e+3<< endl;
+    if(y2[i] > 0.0){ out = true; break; }
   }
-  cout << endl;
-  cout << endl;
+
+  if(out){
+    cout << "# " << setw(3) << counter << " " << title << endl;
+    for(int i=0 ; i<np0 ; i++){
+      if(y2[i] == 0.0) continue;
+      cout << setprecision(6) << setw(14) << x0[i] * 1e-6;
+//    cout << setprecision(6) << setw(14) << y2[i];
+      cout << setprecision(6) << setw(14) << y0[i] * y2[i] * 1e+3<< endl;
+    }
+    cout << endl;
+    cout << endl;
+    counter ++;
+  }
 }
 
 
