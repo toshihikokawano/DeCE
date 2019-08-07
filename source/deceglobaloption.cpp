@@ -75,7 +75,13 @@ void optionSet(string ope, string option, const double x)
   else if(option == "ReadYdataConversion")  opt.ReadYdataConversion  = x;
   else if(option == "WriteXdataConversion") opt.WriteXdataConversion = x;
   else if(option == "WriteYdataConversion") opt.WriteYdataConversion = x;
-  else if(option == "AngleStep")            opt.AngleStep            = x;
+  else if(option == "AngleStep"){
+    if((0.0 <= x) && (x < 180.0) ) opt.AngleStep = x;
+    else{
+      message << "option AngleStep = " << x << " out of range" ;
+      WarningMessage();
+    }
+  }
   else{
     message << "option [ " << option << " ] not found: " ;
     WarningMessage();

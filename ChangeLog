@@ -1,3 +1,13 @@
+2019-08-07  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceglobaloption.cpp (optionSet): modified
+	* source/global.h (class GlobalOption): modified
+	angle step less than one allowed
+
+	* source/decetable4.cpp (decetable4LEG): modified
+	* source/decetable6.cpp (DeceTableMF6Law2): modified
+	reconstruct angular distributions from Legendre coefficients
+ 
 2019-07-17  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/decepoint.cpp (addpoint): bug fixed
