@@ -10,6 +10,8 @@ using namespace std;
 
 #include "dece.h"
 #include "decetable.h"
+#include "decemisc.h"
+#include "global.h"
 
 static int DeceTableMF6Law1(ENDF *, int);
 static int DeceTableMF6Law2(ENDF *, int);
@@ -120,6 +122,7 @@ int DeceTableMF6Law2(ENDF *lib6, int idx)
 {
   int    nr   = lib6->rdata[idx].n1;
   int    ne   = lib6->rdata[idx].n2; idx++;
+  double da   = opt.AngleStep;
 
   cout << "#           NR" << setw(14) << nr << endl;
   cout << "#           NE" << setw(14) << ne << endl;
@@ -136,10 +139,32 @@ int DeceTableMF6Law2(ENDF *lib6, int idx)
     cout << "#           NL" << setw(14) << nl << "  the higheset Legendre order, or number of cosines tabulated" << endl;
 
     if(lang == 0){
-      for(int i1=0 ; i1<nl ; i1++){
-        outVal(i1+1);
-        outVal(lib6->xptr[idx][i1]);
-        cout << endl;
+      if(da > 0){
+        int np = 180/da;
+        if( np*da == 180.0 ) np++;
+        cout << "#           NP" << setw(14) << np << endl;
+        cout << "# energy        angle         probability" << endl;
+        double t = 0.0;
+        while(t <= 180.0){
+          double f = 0.5;
+          for(int i1=0 ; i1<nl ; i1++) f += (i1+1.5)*lib6->xptr[idx][i1]*legendre(i1+1,t);
+          outVal(e1);
+          outVal(t);
+          outVal(f);
+          cout << endl;
+          t += da;
+        }
+      }
+      else{
+        cout << "#           NL" << setw(14) << nl << "  the higheset Legendre order, or number of cosines tabulated" << endl;
+        cout << "# Energy       Leg. Order    Coefficient" << endl;
+        outVal(e1); outVal(0); outVal(1.0); cout << endl;
+        for(int i1=0 ; i1<nl ; i1++){
+          outVal(e1);
+          outVal(i1+1);
+          outVal(lib6->xptr[idx][i1]);
+          cout << endl;
+        }
       }
     }
     else{

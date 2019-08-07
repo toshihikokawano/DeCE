@@ -63,9 +63,8 @@ int decetable4LEG(ENDF *lib, int idx)
 {
   Record cont = lib->rdata[idx];
   int    ne   = cont.n2;
+  double da   = opt.AngleStep;
   idx++;
-
-  int da = opt.AngleStep;
 
   cout << "#           NE" << setw(14) << ne << "  number of incident energy points" << endl;
 
@@ -73,22 +72,23 @@ int decetable4LEG(ENDF *lib, int idx)
     double e  = lib->rdata[idx].c2;
     int    nl = lib->rdata[idx].n1;
 
-    if(da > 0){
-      int np = 180/da;
-      if( (180%da) == 0 ) np++;
+    if(da > 0.0){
+      int np = 180.0/da;
+      if( np*da == 180.0 ) np++;
       cout << "#           NP" << setw(14) << np << endl;
       cout << "# energy        angle         probability" << endl;
-      for(int t=0 ; t<=180 ; t+=da){
-        double f=0.5;
-        for(int j=0 ; j<nl ; j++){
-          f += (j+1.5)*lib->xptr[idx][j]*legendre(j+1,(double)t);
-        }
+      double t = 0.0;
+      while(t <= 180.0){
+        double f = 0.5;
+        for(int j=0 ; j<nl ; j++) f += (j+1.5)*lib->xptr[idx][j]*legendre(j+1,t);
         outVal(e);
         outVal(t);
         outVal(f);
         cout << endl;
+        t += da;
       }
-    }else{
+    }
+    else{
       cout << "#           NL" << setw(14) << nl << endl;
       cout << "# Energy       Leg. Order    Coefficient" << endl;
       outVal(e); outVal(0); outVal(1.0); cout << endl;
