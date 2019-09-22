@@ -159,6 +159,7 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
   cont = lib->rdata[idx];
   int    npp  = cont.l1;
   cout << "#          NPP" << setw(14) << npp << "  number of pairs"<< endl;
+  cout << endl;
 
   for(int ipp=0 ; ipp<npp ; ipp++){
     double ma  = lib->xptr[idx][ipp*12];
@@ -174,13 +175,16 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
     double pa  = lib->xptr[idx][ipp*12+10];
     double pb  = lib->xptr[idx][ipp*12+11];
 
+    if(ia != 0.0) pa = (ia < 0.0) ? -1.0 : 1.0;
+    if(ib != 0.0) pb = (ib < 0.0) ? -1.0 : 1.0;
+
     cout << "# MT" << setw(5) << (int)mt << "  Q-value = "; outVal(11,5,q);
     cout << endl;
     cout << "#              PNT = " << (int)pnt << "   SHF = " << (int) shf << endl;
     cout << "# Pair               Mass     Charge spin  par" << endl;
-    cout << "              "; outVal(11,4,ma); outVal(11,4,za); outVal(5,1,ia); outVal(5,1,pa);
+    cout << "              "; outVal(11,4,ma); outVal(11,4,za); outVal(5,1,abs(ia)); outVal(5,1,pa);
     cout << endl;
-    cout << "              "; outVal(11,4,mb); outVal(11,4,zb); outVal(5,1,ib); outVal(5,1,pb);
+    cout << "              "; outVal(11,4,mb); outVal(11,4,zb); outVal(5,1,abs(ib)); outVal(5,1,pb);
     cout << endl;
   }
   idx++;

@@ -83,7 +83,7 @@ void optionSet(string ope, string option, const double x)
     }
   }
   else{
-    message << "option [ " << option << " ] not found: " ;
+    message << "option [ " << option << " ] not found" ;
     WarningMessage();
     return;
   }

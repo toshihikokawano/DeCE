@@ -51,51 +51,53 @@ void DeceOutput(ifstream *fpin, ENDFDict *dict, ENDF *lib[])
 /**********************************************************/
 /*      Clean-up, Renumber and Fix Dictionary             */
 /**********************************************************/
-void DeceRenumber(string fin, string fout, ENDFDict *dict)
+void DeceRenumber(string fin, string fout, ENDFDict *dic0)
 {
   ifstream  fpin;
   streambuf *save = cout.rdbuf();
   ofstream  fpout;
   string    line;
   Record    head;
+  ENDFDict  dic1;
 
   /*** rescan temp file, set line count for each section  */
-  head = dict->getDICThead();
-  ENDFScanLibrary(fin,dict);
-  dict->setDICThead(head);
+  head = dic0->getDICThead();
+  ENDFScanLibrary(fin,&dic1);
+  dic1.setDICThead(head);
+  for(int i=0 ; i<3 ; i++) dic1.setDICTcont(i,dic0->getDICTcont(i));
 
   fpin.open(&fin[0]);
   fpout.open(&fout[0]);
   cout.rdbuf(fpout.rdbuf());
 
   /*** recalculate NWD and NXC from temp file */
-  fixdictionary(&fpin,dict);
+  fixdictionary(&fpin,&dic1);
 
   /*** tape ID */
   fpin.seekg(0,ios_base::beg);
   getline(fpin,line);
-  cout << left << setw(66) << dict->tpid << "   1 0  0";
+  cout << left << setw(66) << dic1.tpid << "   1 0  0";
   if(opt.LineNumber) cout << setw(5) << "    0";
   cout << endl;
   cout << right;
 
   /*** MF1 */
-  makeMF1(&fpin,dict);
+  makeMF1(&fpin,&dic1);
 
   /*** all other MFs, copy from temp file */
   for(int mf=2 ; mf<=40 ; mf++){
 
     /*** check if MF is given */
     bool given = false;
-    for(int i=0 ; i<dict->getSEC() ; i++) if(dict->mf[i] == mf) given = true;
+    for(int i=0 ; i<dic1.getSEC() ; i++) if(dic1.mf[i] == mf) given = true;
     if(!given) continue;
 
-    for(int i=0 ; i<dict->getSEC() ; i++){
-      if(mf == dict->mf[i]) ENDFExtract(&fpin,mf,dict->mt[i]);
+    for(int i=0 ; i<dic1.getSEC() ; i++){
+      if(mf == dic1.mf[i]) ENDFExtract(&fpin,mf,dic1.mt[i]);
     }
 
     /*** insert SEND recort */
-    ENDFWriteFEND(dict->getMAT());
+    ENDFWriteFEND(dic1.getMAT());
   }
 
   /*** write MEND */

@@ -224,20 +224,22 @@ class ENDF{
 /**************************************/
 class ENDFDict{
  private:
-  int       mat     ;     // ENDF MAT number
-  int       sec     ;     // number of sections
-  Record    head    ;     // Tape HEAD Record
-  Record    cont[3] ;     // CONT Records
+  int       mat;          // ENDF MAT number
+  int       sec;          // number of sections
+  Record    head;         // Tape HEAD Record
+  Record    cont[3];      // CONT Records
+  char      *cbuf;        // buffer for TEXT lines and TPID
  public:
-  int       *mf     ;     // ENDF MF number
-  int       *mt     ;     // ENDF MT number
-  int       *nc     ;     // Line count
-  int       *mod    ;     // MOD number
-  int       *id     ;     // ID for ENDF data on memory
-  char      tpid[67];     // Tape ID 
-  double    emaxRR  ;     // energy boundary of resolved resonance region
-  double    emaxUR  ;     // energy boundary of unresolved resonance region
-  double    emaxRe  ;     // either emaxRR or emaxUR depending on LSSF flag
+  int       *mf;          // ENDF MF number
+  int       *mt;          // ENDF MT number
+  int       *nc;          // Line count
+  int       *mod;         // MOD number
+  int       *id;          // ID for ENDF data on memory
+  char      *tpid;        // Tape ID 
+  char      *text[5];     // text data field
+  double    emaxRR;       // energy boundary of resolved resonance region
+  double    emaxUR;       // energy boundary of unresolved resonance region
+  double    emaxRe;       // either emaxRR or emaxUR depending on LSSF flag
 
   ENDFDict(){
     mat    = 0;
@@ -250,6 +252,16 @@ class ENDFDict{
     nc     = new int [MAX_SECTION];
     mod    = new int [MAX_SECTION];
     id     = new int [MAX_SECTION];
+
+    int l = 67;
+    int p = 0;
+    cbuf   = new char [l * 6];
+    tpid   = &cbuf[p];  p += l;
+    text[0]= &cbuf[p];  p += l;
+    text[1]= &cbuf[p];  p += l;
+    text[2]= &cbuf[p];  p += l;
+    text[3]= &cbuf[p];  p += l;
+    text[4]= &cbuf[p];
   }
 
   ~ENDFDict(){
@@ -258,6 +270,7 @@ class ENDFDict{
     delete [] nc;
     delete [] mod;
     delete [] id;
+    delete [] cbuf;
   }
 
   void   setMAT(int n){ mat = n; }
@@ -269,15 +282,15 @@ class ENDFDict{
   void   setDICThead(Record r){ head = r; }
   Record getDICThead(){ return head; }
 
-  void   setDICTcont(int i, Record r){ cont[i] = r; }
+  void   setDICTcont(int i, Record r){ if(0 <= i && i < 3) cont[i] = r; }
   Record getDICTcont(int i){ return cont[i]; }
 
   void   setZA   (double za  ){ head.c1 = za;   }
   void   setAWR  (double awr ){ head.c2 = awr;  }
   void   setLRP  (int    lrp ){ head.l1 = lrp;  }
-  void   setLFI  (int    lfi ){ head.c2 = lfi;  }
-  void   setNLIB (int    nlib){ head.l1 = nlib; }
-  void   setNMOD (int    nmod){ head.l1 = nmod; }
+  void   setLFI  (int    lfi ){ head.l2 = lfi;  }
+  void   setNLIB (int    nlib){ head.n1 = nlib; }
+  void   setNMOD (int    nmod){ head.n2 = nmod; }
 
   double getZA   (){ return head.c1; }
   double getAWR  (){ return head.c2; }

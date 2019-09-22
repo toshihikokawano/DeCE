@@ -14,6 +14,9 @@ using namespace std;
 
 /**********************************************************/
 /*      Correct Boundary Energy in MF6                    */
+/*      --------                                          */
+/*      adjust the threshold energy given in MF6          */
+/*      to be the same as it in MF3                       */
 /**********************************************************/
 void DeceBoundCorrect(ENDFDict *dict, ENDF *lib[], const int mt)
 {
@@ -23,13 +26,17 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib[], const int mt)
   if(k3 < 0) TerminateCode("MT number in MF3 not found",mt);
   if(k6 < 0) TerminateCode("MT number in MF6 not found",mt);
 
+  /*** get the threshold energy, the first element in the array */
   double x0   = lib[k3]->xdata[0];
+
   Record head = lib[k6]->getENDFhead();
   int    nk   = head.n1;
   int    idx  = 0;
 
   for(int n=0 ; n<nk ; n++){
     int law = lib[k6]->rdata[idx].l2;
+
+    /**** so far works only for LAW = 1, energy-angle dist  */
     if(law != 1) return;
 
     lib[k6]->xptr[idx][0] = x0;

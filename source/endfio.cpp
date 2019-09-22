@@ -304,6 +304,7 @@ void ENDFWriteMF2(ENDF *lib)
       }
     }
   }
+  ENDFWriteSEND(lib);
 }
 
 

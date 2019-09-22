@@ -146,6 +146,10 @@ string CmdExtractArgument(void)
     cmd.mt    = (int)getval(d1);
     cmd.x     =      getval(d1);
   }
+  else if(ope == "editheader"){
+    gettext(d1,cmd.text);
+    cmd.x     =      getval(d1);
+  }
   else if(ope == "genprod"){
     cmd.mt    = (int)getval(d1);
     cmd.opt1  = (int)getval(d1);
@@ -259,7 +263,7 @@ void CmdExtractString(char *d)
 
 
 /**********************************************************/
-/*      Scan Characte in Line                             */
+/*      Scan Character in Line                            */
 /**********************************************************/
 bool CmdCheckChar(char c)
 {
