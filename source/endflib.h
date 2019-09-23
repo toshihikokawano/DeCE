@@ -410,6 +410,8 @@ int    ENDFReadArray      (ifstream *, int, int, double *);
 void   ENDFExceedSubBlock (const string, ENDF *);
 void   ENDFExceedDataSize (const string, ENDF *, int, int);
 
+
+void   ENDFWriteTPID      (ENDFDict *);
 void   ENDFWriteHEAD      (ENDF *);
 void   ENDFWriteRecord    (Record *);
 void   ENDFWriteTEXT      (ENDF *, string);

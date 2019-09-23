@@ -1,3 +1,11 @@
+2019-09-23  Toshihiko KAWANO  <kawano@lanl.gov>
+
+	* example/example3.cpp: new file
+	new example, which uses ENDFDict object
+
+	* source/endflib.cpp (ENDFWriteTPID): new function
+	print TPID in Dict
+
 2019-09-22  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceoutput.cpp (DeceRenumber): modified

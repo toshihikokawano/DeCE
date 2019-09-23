@@ -28,8 +28,7 @@ void DeceOutput(ifstream *fpin, ENDFDict *dict, ENDF *lib[])
   dictsort(dict);
 
   /*** tape ID */
-  cout << left << setw(66) << dict->tpid << "   1 0  0" << endl;
-  cout << right;
+  ENDFWriteTPID(dict);
 
   /*** for all MF */
   for(int mf=1 ; mf<=40 ; mf++){
@@ -76,10 +75,8 @@ void DeceRenumber(string fin, string fout, ENDFDict *dic0)
   /*** tape ID */
   fpin.seekg(0,ios_base::beg);
   getline(fpin,line);
-  cout << left << setw(66) << dic1.tpid << "   1 0  0";
-  if(opt.LineNumber) cout << setw(5) << "    0";
-  cout << endl;
-  cout << right;
+
+  ENDFWriteTPID(&dic1);
 
   /*** MF1 */
   makeMF1(&fpin,&dic1);
