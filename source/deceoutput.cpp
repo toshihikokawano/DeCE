@@ -156,7 +156,7 @@ void fixdictionary(ifstream *fp, ENDFDict *dict)
     s4 = line.substr(72, 3);  mt0 = atoi(s4.c_str());
 
     /*** dictionary starts at two blanks and two integers line */
-    if( (s1==blank) && (s2==blank) && (mf==1) && (mt==451) ){
+    if( (s1 == blank) && (s2 == blank) && (mf == 1) && (mt == 451) ){
       break;
     }
     /*** in case no dictionary */

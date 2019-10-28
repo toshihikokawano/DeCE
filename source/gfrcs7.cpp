@@ -138,7 +138,7 @@ Pcross gfrRMatrixLimited(const int cmax, double e, System *sys, ParPair *ppr, RM
     MatrixInverse(nch-1,wmat);
 
     /*** S-matrix elements */
-    complex<double> ph0(0.0,0.0), ph1(0.0,0.0),pzero(0.0,0.0);
+    complex<double> ph0(0.0,0.0), ph1(0.0,0.0), pzero(0.0,0.0);
     for(int i0=0 ; i0<mch ; i0++){
       ph0 = (i0 < nel) ? wf[i0].phase : pzero;
 
@@ -309,7 +309,9 @@ int gfrLoadParticlePairs(int idx, System *sys, ParPair *ppr, ENDF *lib)
     /*** find target spin, look for elastic (MT=2) channel */
     if(ppr[i].mt == 2){
       for(int j=0 ; j<2 ; j++){
-        if(ppr[i].znum[j] == 0){ // this is neutron
+
+        /*** check Mtarg instead of Znum, since sometimes Ztarg is set to zero */
+        if(ppr[i].mass[j] > 1.0){ // this should be target
           sys->target_spin2  = ppr[i].spin2[j];
           sys->target_parity = ppr[i].parity[j];
         }

@@ -65,6 +65,13 @@ MF   6
 <p>In this example, the file contains five <tt>MT</tt> sections in <tt>MF=1</tt>,
 one resonance section in  <tt>MF=2</tt>, etc.</p>
 
+<p>This command is equivalent to the command-line option of <tt> -s </tt>
+
+<pre>
+ % dece -s <i> ENDF_in.DAT </i>
+</pre>
+
+
 
 <h2><a name="end">end / quit / exit </a></h2>
 
@@ -75,6 +82,19 @@ one resonance section in  <tt>MF=2</tt>, etc.</p>
 </pre>
 
 <p> Three operations are the same - quit the code. </p>
+
+
+
+<h2><a name="echo">echo </a></h2>
+
+<pre id="syn">
+   echo "<i>any text to be printed.</i>"
+</pre>
+
+<p><tt>echo</tt> command does not do any operation but just prints the
+given text.  Since the output goes into STDERR, the provided message
+is only printed when DeCE is executed with the <tt>-v</tt>
+option. 
 
 
 <h1><a name="section">Section Manipulation </a></h1>
