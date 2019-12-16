@@ -43,7 +43,7 @@ decemf12.o:	../source/endflib.h
 decemacs.o:	../source/endflib.h
 deceangdist.o:	../source/endflib.h
 decephoto.o:	../source/endflib.h
-deceheader.o:	../source/endflib.h
+deceheader.o:	../source/endflib.h deceheader.h
 endflib.o:	../source/endflib.cpp ../source/endflib.h
 		$(CPP) $(CPPFLAGS) ../source/endflib.cpp -c
 endfio.o:	../source/endfio.cpp ../source/endflib.h

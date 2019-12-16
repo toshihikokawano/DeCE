@@ -14,77 +14,10 @@
 using namespace std;
 
 #include "../source/endflib.h"
+#include "deceheader.h"
 
-class TextField{
-  private:
-    int length;
-    char *text;
-  public:
-    int xpos, ypos;
-
-  TextField(const int m, const int x, const int y){
-    length = m;
-    text = new char [m+1];
-    for(int i=0 ; i<length ; i++) text[i] = ' ';
-    text[length] = '\0';
-    xpos = x;
-    ypos = y;
-  }
-
-  ~TextField(){
-    delete [] text;
-  }
-
-  int getlen(){ return length; }
-
-  void read(int c, char *src){
-    if(c > length) c = length;
-    for(int i=0 ; i<c ; i++) text[i] = src[i];
-    if(c < length){
-      for(int i=c ; i<length ; i++) text[i] = ' ';
-    }
-  }
-
-  void copy(int c, char *src){
-    if(c >= length + xpos){
-      for(int i=0 ; i<length ; i++) text[i] = src[i+xpos];
-    }
-  }
-
-  void paste(int c, char *dst){
-    if(c > length + xpos) c = length + xpos;
-    for(int i=xpos ; i<c ; i++) dst[i] = text[i-xpos];
-  }
-
-  void print(){
-    int ix = length-1;
-    for(int i=ix ; i>=0 ; i--){
-      if(text[i] != ' '){ ix = i; break; }
-    }
-    for(int i=0 ; i<=ix ; i++) cout << text[i];
-  }
-};
-
-
-const int MAX_FIELD = 66;
 
 int main(int, char *[]);
-static void readData(ifstream *);
-static int checkMF1(ifstream *, char **, const bool);
-static bool checkStandardHeader(const int, char *[]);
-
-static void replaceHeader(const int, char *[]);
-static void copyHeader(const int, char *[]);
-static void printHeader();
-
-static bool stdheader = false;
-
-static TextField zsymam(11,0,0), alab(11,11,0), edate(11,22,0), auth(33,33,0);
-static TextField refer(21,1,1), ddate(11,22,1), rdate(11,33,1), endate(11,55,1);
-static TextField libname(18,4,2), matnum(4,31,2), sublib(MAX_FIELD-5,5,3);
-static TextField format(MAX_FIELD-6,6,4);
-
-
 int main(int argc, char *argv[])
 {
   ENDFDict dict;
@@ -92,129 +25,97 @@ int main(int argc, char *argv[])
   string   libname = "", datname = "";
   char     *cbuf = NULL, **line = NULL;
 
-  /*** command line options */
   int p = 0;
-  while((p=getopt(argc,argv,"d:f:"))!=-1){
+  while((p = getopt(argc,argv,"d:")) != -1){
     switch(p){
-    case 'd':
+    case 'd': // data file when patched
       datname = optarg;
-      break;
-    case 'f':
-      libname = optarg;
       break;
     default:
       break;
     }
   }
+  if(optind < argc) libname = argv[optind];
 
+  if(libname == ""){
+    cerr << "ENDF file not given" << endl;
+    exit(-1);
+  }
+
+  /*** scan the ENDF file and initiate DICT object */
   if(ENDFScanLibrary(libname,&dict) < 0){
     cerr << "ENDF file cannot open " << libname << endl;
     exit(-1);
   }
 
 
-  /*** check MF1 */
+  /*** check MF1 to see how many text lines in the comment section */
   libin.open(libname.c_str());
-  int nline = checkMF1(&libin,line,false);
+  int nline = DeceHeaderScanMF1(&libin,line,false);
 
-//  cout << nline << " " << dict.getNWD() << " " << dict.getNXC() << endl;
-
-  cbuf = new char [MAX_FIELD * nline];
+  /*** allocate 1-dim buffer to store all the text data */
+  cbuf = new char [(MAX_FIELD + 1) * nline];
   line = new char * [nline];
-  for(int i=0 ; i<nline ; i++) line[i] = &cbuf[MAX_FIELD * i];
+  for(int i=0 ; i<nline ; i++) line[i] = &cbuf[(MAX_FIELD +1) * i];
 
-  checkMF1(&libin,line,true);
-  stdheader = checkStandardHeader(nline,line);
+  /*** this time, copy the comment section into the line array */
+  DeceHeaderScanMF1(&libin,line,true);
 
-  if(stdheader) copyHeader(nline,line);
+  /*** check if the file has the standard text header */
+  if( ! DeceHeaderCheckStandard(nline,line) ){
+    cerr << "Provided ENDF file is not in a standard header format" << endl;
+    exit(-1);
+  }
 
+
+  /*** copy all the text data into the TextField objects */
+  DeceHeaderCopyData(nline,line);
+
+  /*** main process*/ 
+  /*** when data file is given, replace text by those in the data file */
   if(datname != ""){
     datin.open(datname.c_str());
     if(!datin){
       cerr << "Data file cannot open " << datname << endl;
       exit(-1);
     }
-    readData(&datin);
-    replaceHeader(nline,line);
+    DeceHeaderReadData(&datin);
+    datin.close();
+
+    /*** replace text data in Dictionary by inputs */
+    DeceHeaderReplaceData(&dict);
+
+    /*** print entire data file */
+    DeceHeaderCreateLib(&libin,&dict,nline,line);
   }
-  else printHeader();
+  /*** if not given, print the data */
+  else DeceHeaderPrint();
 
 
-/*
-  ENDFWriteTPID(&dict);
-  
-  for(int mf=1 ; mf <= 40 ; mf++){
-
-    for(int i=0 ; i<dict.getSEC() ; i++){
-      if(dict.mf[i] == mf){
-        ENDFExtract(&libin,mf,dict.mt[i]);
-      }
-    }
-  }
-
-  ENDFWriteFEND(0);
-  ENDFWriteFEND(-1);
-*/
   libin.close();
-  datin.close();
 
-  delete [] cbuf;
   delete [] line;
+  delete [] cbuf;
 
   return(0);
 }
 
 
-void readData(ifstream *fpin)
-{
-  const int WORD_LENGTH = 9;
-  string data;
-  char s1[WORD_LENGTH+1], s2[MAX_FIELD+1];
-
-  while( getline(*fpin,data) ){
-    int n = data.length();
-    if(n < WORD_LENGTH) continue;
-    else if(n > 66) n = 66;
-
-    for(int i=0 ; i<WORD_LENGTH ; i++) s1[i] = data[i];
-    s1[WORD_LENGTH] = '\0';
-
-    int i0, i1;
-    for(i0=WORD_LENGTH ; i0<n ; i0++) if(data[i0] != ' ') break;
-    for(i1=n-1 ; i1>=-i0 ; i1--) if(data[i1] != ' ') break;
-    for(int i=i0 ; i<=i1 ; i++) s2[i-i0] = data[i];
-    for(int i=i1-i0+1 ; i<MAX_FIELD ; i++) s2[i] = ' ';
-    s2[MAX_FIELD] = '\0';
-//  cout << "DEBUB:" << s2 << "| " << i0 <<" " << i1 <<endl;
-
-    if(     !strncmp(s1,"  ZSYMAM:",WORD_LENGTH)){ zsymam.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"    ALAB:",WORD_LENGTH)){ alab.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"    AUTH:",WORD_LENGTH)){ auth.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"   REFER:",WORD_LENGTH)){ refer.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"   EDATE:",WORD_LENGTH)){ edate.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"   DDATE:",WORD_LENGTH)){ ddate.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"   RDATE:",WORD_LENGTH)){ rdate.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"  ENDATE:",WORD_LENGTH)){ endate.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1," LIBNAME:",WORD_LENGTH)){ libname.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"     MAT:",WORD_LENGTH)){ matnum.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"  SUBLIB:",WORD_LENGTH)){ sublib.read(MAX_FIELD,s2); }
-    else if(!strncmp(s1,"  FORMAT:",WORD_LENGTH)){ format.read(MAX_FIELD,s2); }
-  }
-}
-
-
-
-int checkMF1(ifstream *fpin, char *line[], bool copy)
+/*******************************************************************************
+ Scan MF1/MT451 and return the total number of lines.
+ When boolean copy is true, copy all the text fields into line array. */
+int DeceHeaderScanMF1(ifstream *fpin, char *line[], bool copy)
 {
   ENDF lib(S);
   string data, s;
 
+  /*** skip first 4 lines */
   fpin->seekg(0,ios_base::beg);
   ENDFSeekHead(fpin,&lib,1,451);
-
   for(int i=0 ; i < 3 ; i++) getline(*fpin,data);
 
-  int m = 0;
+
+  int m = 0; // number of lines
   while( getline(*fpin,data) ){
 
     int n = data.length();
@@ -224,10 +125,10 @@ int checkMF1(ifstream *fpin, char *line[], bool copy)
       if(mt == 0) break;
     }
 
+    /*** when copy flag is set, copy the text contents into the line array */
     if(copy){
       for(int i=0 ; i<66 ; i++) line[m][i] = (i < n) ? data[i] : ' ';
       line[m][66] = '\0';
-      //cout << m << " : " << line[m] << endl;
     }
 
     m ++;
@@ -237,17 +138,20 @@ int checkMF1(ifstream *fpin, char *line[], bool copy)
 }
 
 
-bool checkStandardHeader(const int nline, char *line[])
+/*******************************************************************************
+  Test the file provided to see if this is in the standard format. */
+bool DeceHeaderCheckStandard(const int nline, char *line[])
 {
   if(nline < 5) return false;
 
   char dash1[5], dash2[6], dash3[7];
 
+  /*** first 3 lines should be there */
   strncpy(dash1, &line[2][0],4); dash1[4] = '\0';
   strncpy(dash2, &line[3][0],5); dash2[5] = '\0';
   strncpy(dash3, &line[4][0],6); dash3[6] = '\0';
 
-  /*** maybe this is in the standard format */
+  /*** when these lines are given, maybe this is in the standard format */
   bool test1 = strncmp(dash1,"----",4);
   bool test2 = strncmp(dash2,"-----",5);
   bool test3 = strncmp(dash3,"------",6);
@@ -260,7 +164,9 @@ bool checkStandardHeader(const int nline, char *line[])
 }
 
 
-void copyHeader(const int nline, char *line[])
+/*******************************************************************************
+  copy text filed data into objects */
+void DeceHeaderCopyData(const int nline, char *line[])
 {
   if(nline < 2) return;
 
@@ -272,43 +178,165 @@ void copyHeader(const int nline, char *line[])
   ddate.copy(  MAX_FIELD,line[  ddate.ypos]);
   rdate.copy(  MAX_FIELD,line[  rdate.ypos]);
   endate.copy( MAX_FIELD,line[ endate.ypos]);
+
+  if(nline < 5) return;
+
   libname.copy(MAX_FIELD,line[libname.ypos]);
-  matnum.copy( MAX_FIELD,line[ matnum.ypos]);
   sublib.copy( MAX_FIELD,line[ sublib.ypos]);
   format.copy( MAX_FIELD,line[ format.ypos]);
 }
 
 
-void replaceHeader(const int nline, char *line[])
+/*******************************************************************************
+ Read text data to be used for substitution */
+void DeceHeaderReadData(ifstream *fpin)
 {
-  if(nline < 2) return;
+  string data;
+  char s1[WORD_LENGTH+1], s2[MAX_FIELD+1];
 
-  zsymam.paste(MAX_FIELD,line[zsymam.ypos]);
-  alab.paste(  MAX_FIELD,line[  alab.ypos]);
-  edate.paste( MAX_FIELD,line[ edate.ypos]);
-  auth.paste(  MAX_FIELD,line[  auth.ypos]);
-  refer.paste( MAX_FIELD,line[ refer.ypos]);
-  ddate.paste( MAX_FIELD,line[ ddate.ypos]);
-  rdate.paste( MAX_FIELD,line[ rdate.ypos]);
-  endate.paste(MAX_FIELD,line[endate.ypos]);
+  while( getline(*fpin,data) ){
+    int n = data.length();
+
+    if(data[0] == '#') continue;
+
+    if(n < WORD_LENGTH) continue;
+    else if(n > WORD_LENGTH + MAX_FIELD) n = WORD_LENGTH + MAX_FIELD;
+
+    /*** copy key word to s1 */
+    for(int i=0 ; i<WORD_LENGTH ; i++) s1[i] = data[i];
+    s1[WORD_LENGTH] = '\0';
+
+    int i0 = WORD_LENGTH, i1;
+    /*** when data are not given */
+    if(i0 == n) i1 = n;
+    /*** when text is given, remove all extra spaces after the text data, last point is i1 */
+    else{
+      for(i1=n-1 ; i1>=-i0 ; i1--) if(data[i1] != ' ') break;
+    }
+
+    /*** copy the actual data into s2 */
+    for(int i=i0 ; i<=i1 ; i++) s2[i-i0] = data[i];
+
+    /*** fill right side of s2 by spaces */
+    for(int i=i1-i0+1 ; i<MAX_FIELD ; i++) s2[i] = ' ';
+    s2[MAX_FIELD] = '\0';
+
+    if(     !strncmp(s1,"  ZSYMAM:",WORD_LENGTH)){
+      zsymam.read(MAX_FIELD,s2);
+    }
+    else if(!strncmp(s1,"    ALAB:",WORD_LENGTH)){ alab.read(MAX_FIELD,s2); }
+    else if(!strncmp(s1,"    AUTH:",WORD_LENGTH)){ auth.read(MAX_FIELD,s2); }
+    else if(!strncmp(s1,"   REFER:",WORD_LENGTH)){ refer.read(MAX_FIELD,s2); }
+    else if(!strncmp(s1,"   EDATE:",WORD_LENGTH)){ edate.read(MAX_FIELD,s2); }
+    else if(!strncmp(s1,"   DDATE:",WORD_LENGTH)){ ddate.read(MAX_FIELD,s2); }
+    else if(!strncmp(s1,"   RDATE:",WORD_LENGTH)){ rdate.read(MAX_FIELD,s2); }
+    else if(!strncmp(s1,"  ENDATE:",WORD_LENGTH)){ endate.read(MAX_FIELD,s2); }
+    else if(!strncmp(s1," LIBNAME:",WORD_LENGTH)){ libname.read(MAX_FIELD,s2); }
+    else if(!strncmp(s1,"  SUBLIB:",WORD_LENGTH)){ sublib.read(MAX_FIELD,s2); }
+    else if(!strncmp(s1,"  FORMAT:",WORD_LENGTH)){ format.read(MAX_FIELD,s2); }
+    else{
+      cerr << " Keyword " << s1 << "not defined" << endl;
+    }
+  }
 }
 
 
-void printHeader()
+/*******************************************************************************
+ replace text data in DICT object by given data */
+void DeceHeaderReplaceData(ENDFDict *dict)
 {
-  cout << "  ZSYMAM: "; zsymam.print(); cout << endl;
-  cout << "    ALAB: "; alab.print();   cout << endl;
-  cout << "    AUTH: "; auth.print();   cout << endl;
-  cout << "   REFER: "; refer.print();  cout << endl;
-  cout << "   EDATE: "; edate.print();  cout << endl;
-  cout << "   DDATE: "; ddate.print();  cout << endl;
-  cout << "   RDATE: "; rdate.print();  cout << endl;
-  cout << "  ENDATE: "; endate.print(); cout << endl;
+  zsymam.paste( MAX_FIELD,dict->text[zsymam.ypos]);
+  alab.paste(   MAX_FIELD,dict->text[  alab.ypos]);
+  edate.paste(  MAX_FIELD,dict->text[ edate.ypos]);
+  auth.paste(   MAX_FIELD,dict->text[  auth.ypos]);
 
-  if(stdheader){
-    cout << " LIBNAME: "; libname.print(); cout << endl;
-    cout << "     MAT: "; matnum.print();  cout << endl;
-    cout << "  SUBLIB: "; sublib.print();  cout << endl;
-    cout << "  FORMAT: "; format.print();  cout << endl;
+  refer.paste(  MAX_FIELD,dict->text[ refer.ypos]);
+  ddate.paste(  MAX_FIELD,dict->text[ ddate.ypos]);
+  rdate.paste(  MAX_FIELD,dict->text[ rdate.ypos]);
+  endate.paste( MAX_FIELD,dict->text[endate.ypos]);
+
+  for(int i=44 ; i<55 ; i++) dict->text[1][i] = ' ';
+
+  libname.paste(MAX_FIELD,dict->text[libname.ypos]);
+  sublib.paste( MAX_FIELD,dict->text[ sublib.ypos]);
+  format.paste( MAX_FIELD,dict->text[ format.ypos]);
+
+  for(int i=0 ; i<4 ; i++) dict->text[2][i] = '-';
+  for(int i=0 ; i<5 ; i++) dict->text[3][i] = '-';
+  for(int i=0 ; i<6 ; i++) dict->text[4][i] = '-';
+
+  sprintf(&dict->text[2][22],"MATERIAL "); dict->text[2][31] = ' ';
+  sprintf(&dict->text[2][31],"%4d",dict->getMAT());
+  for(int i=35 ; i<66 ; i++) dict->text[2][i] = ' ';
+
+  for(int i=0 ; i<5 ; i++){
+    dict->text[i][66] = '\0';
+//  cout << dict->text[i] << "<" << endl;
   }
+}
+
+
+/*******************************************************************************
+ Print entire file */
+void DeceHeaderCreateLib(ifstream *fpin, ENDFDict *dict, const int nline, char *line[])
+{
+  string data;
+  ENDF   lib(S);
+  int    mf = 1, mt = 451;
+
+  ENDFWriteTPID(dict);
+
+  /*** header part */
+  lib.setENDFmat(dict->getMAT());
+  lib.setENDFmf(mf);
+  lib.setENDFmt(mt);
+  lib.setENDFhead(dict->getDICThead());
+  ENDFWriteHEAD(&lib);
+
+  for(int i=0 ; i<3 ; i++){
+    Record r = dict->getDICTcont(i);
+    ENDFWriteRecord(&r);
+    ENDFPrintRight(dict->getMAT(),mf,mt);
+  }
+
+  for(int i=0 ; i<nline ; i++){
+    if(i < 5) cout << dict->text[i];
+    else      cout << line[i];
+    ENDFPrintRight(dict->getMAT(),mf,mt);
+  }
+
+  ENDFWriteSEND(&lib);
+  ENDFWriteFEND(dict->getMAT());
+
+  for(int mf=2 ; mf <= 40 ; mf++){
+    bool printed = false;
+    for(int i=0 ; i<dict->getSEC() ; i++){
+      if(dict->mf[i] == mf){
+        ENDFExtract(fpin,mf,dict->mt[i]);
+        printed = true;
+      }
+    }
+    if(printed) ENDFWriteFEND(dict->getMAT());
+  }
+  ENDFWriteFEND(0);
+  ENDFWriteFEND(-1);
+}
+
+
+/*******************************************************************************
+  show text data */
+void DeceHeaderPrint()
+{
+  cout << "  ZSYMAM:"; zsymam.print(); cout << endl;
+  cout << "    ALAB:"; alab.print();   cout << endl;
+  cout << "    AUTH:"; auth.print();   cout << endl;
+  cout << "   REFER:"; refer.print();  cout << endl;
+  cout << "   EDATE:"; edate.print();  cout << endl;
+  cout << "   DDATE:"; ddate.print();  cout << endl;
+  cout << "   RDATE:"; rdate.print();  cout << endl;
+  cout << "  ENDATE:"; endate.print(); cout << endl;
+
+  cout << " LIBNAME:"; libname.print(); cout << endl;
+  cout << "  SUBLIB:"; sublib.print();  cout << endl;
+  cout << "  FORMAT:"; format.print();  cout << endl;
 }
