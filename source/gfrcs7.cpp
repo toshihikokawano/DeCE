@@ -41,9 +41,6 @@ Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib
   res = new RMLParameter [sys->nj];
   gfrLoadRMLParameters(sys->idx[ner],sys,res,lib);
 
-  //double gk = PI/(sys->wave_number*sys->wave_number) * 0.01 / ((sys->target_spin2+1)*2);
-
-
   /*** look for max L and Nch */
   int lmax = 0, cmax = 0;
   for(int j=0 ; j<sys->nj ; j++){
@@ -78,7 +75,7 @@ Pcross gfrRMatrixLimited(const int cmax, double e, System *sys, ParPair *ppr, RM
   Pcross sig,z;
   complex<double> *rmat, *smat, *wmat;
   Wfunc  wf[max_elastic_channel];
-  int    nch, mch, *mtid, elidx[max_elastic_channel];
+  int    nch, mch, cpt, *mtid, elidx[max_elastic_channel];
   double *gmat, *pen[max_elastic_channel];
 
   const int msize = cmax * (cmax+1) / 2;
@@ -120,14 +117,15 @@ Pcross gfrRMatrixLimited(const int cmax, double e, System *sys, ParPair *ppr, RM
     }
 
     /*** R-matrix elements */
-    mch = 0; nch = 0;
+    mch = 0; nch = 0, cpt = 0;
     for(int i=0 ; i<msize ; i++) smat[i] = rmat[i] = wmat[i] = complex<double>(0.0,0.0);
     for(int k=0 ; k<res[j].nres ; k++){
       nch = arrange_matrixRML(k,nel,elidx,mtid,pen,wf,gmat,ppr,&res[j]);
-      mch = (nch-1)*nch / 2; // capture eliminated
+      mch = (nch-1)*nch / 2;     // capture eliminated
+      cpt = (nch+1)*nch / 2 - 1; // index of capture width, Gamma_g
 
       /*** capture width found at the last element */
-      complex<double> w(res[j].er[k]-e, -gmat[nch]/2.0);
+      complex<double> w(res[j].er[k]-e, -gmat[cpt]/2.0);
       w = 1.0 / w;
       for(int i=0 ; i<mch ; i++) rmat[i] += gmat[i]*w;
     }
@@ -140,7 +138,7 @@ Pcross gfrRMatrixLimited(const int cmax, double e, System *sys, ParPair *ppr, RM
     MatrixInverse(nch-1,wmat);
 
     /*** S-matrix elements */
-    complex<double> ph0(0.0,0.0), ph1(0.0,0.0),pzero(0.0,0.0);
+    complex<double> ph0(0.0,0.0), ph1(0.0,0.0), pzero(0.0,0.0);
     for(int i0=0 ; i0<mch ; i0++){
       ph0 = (i0 < nel) ? wf[i0].phase : pzero;
 
@@ -259,7 +257,7 @@ int arrange_matrixRML(int k, int nel, int *elidx, int *mt, double **pen,
     x[di] = abs(x[di]);
     gt += x[di];
   }
-
+  
   return(nch);
 }
 
@@ -270,13 +268,13 @@ int arrange_matrixRML(int k, int nel, int *elidx, int *mt, double **pen,
 int gfrLoadParticlePairs(int idx, System *sys, ParPair *ppr, ENDF *lib)
 {
   /*** first line */
-  sys->gammaunit_flag = lib->rdata[idx].l1; // 0, maybe
-  sys->format         = lib->rdata[idx].l2; // 3
-  sys->nj             = lib->rdata[idx].n1; // Nj
-  sys->relativ_flag   = lib->rdata[idx].n2; // 0
+  sys->gammaunit_flag = lib->rdata[idx].l1; // IFG: 0, maybe
+  sys->format         = lib->rdata[idx].l2; // KRM: 3, Reich-Moore
+  sys->nj             = lib->rdata[idx].n1; // NJS: number of J-Pi, Nj
+  sys->relativ_flag   = lib->rdata[idx].n2; // KRL: 0, non-relativistic
   idx++;
 
-  sys->npair          = lib->rdata[idx].l1;
+  sys->npair          = lib->rdata[idx].l1; // NPP: number of pairs
   if(sys->npair > MAX_PAIRS){
     cerr << "too many particle pairs " << sys->npair << endl;
     return(0);
@@ -296,6 +294,7 @@ int gfrLoadParticlePairs(int idx, System *sys, ParPair *ppr, ENDF *lib)
     ppr[i].fsft     = (int)lib->xptr[idx][k++];
     ppr[i].mt       = (int)lib->xptr[idx][k++];
 
+    /*** determine parity, since parity is given only when I=0 */
     p[0] = (int)lib->xptr[idx][k++];
     p[1] = (int)lib->xptr[idx][k++];
 
@@ -307,10 +306,12 @@ int gfrLoadParticlePairs(int idx, System *sys, ParPair *ppr, ENDF *lib)
       }
     }
 
-    /*** find target spin */
+    /*** find target spin, look for elastic (MT=2) channel */
     if(ppr[i].mt == 2){
       for(int j=0 ; j<2 ; j++){
-        if(ppr[i].znum[j] == 0){
+
+        /*** check Mtarg instead of Znum, since sometimes Ztarg is set to zero */
+        if(ppr[i].mass[j] > 1.0){ // this should be target
           sys->target_spin2  = ppr[i].spin2[j];
           sys->target_parity = ppr[i].parity[j];
         }
@@ -328,19 +329,20 @@ int gfrLoadParticlePairs(int idx, System *sys, ParPair *ppr, ENDF *lib)
 /**********************************************************/
 int gfrLoadRMLParameters(int idx, System *sys, RMLParameter *res, ENDF *lib)
 {
-  idx += 2;
+  idx += 2; // skip first and second CONTs
 
   int restot = 0;
   for(int j=0 ; j<sys->nj ; j++){
 
     /*** channel data */
     res[j].j2 = (int)(2.0*lib->rdata[idx].c1);
-    int pj    = (int)lib->rdata[idx].c2;
-//  int kbk   = lib->rdata[idx].l1;
-//  int kps   = lib->rdata[idx].l2;
-    int nch   = lib->rdata[idx].n2;
-    int nres  = lib->rdata[idx+1].l2;
+    int pj    = (int)lib->rdata[idx].c2; //  AJ: J-pi
+//  int kbk   = lib->rdata[idx].l1;      // KBK: background R-matrix, maybe zero
+//  int kps   = lib->rdata[idx].l2;      // KPS: hard-sphere phase shift specified, maybe zero
+    int nch   = lib->rdata[idx].n2;      // NCH: number of channels
+    int nres  = lib->rdata[idx+1].l2;    // NRS: number of resonances
 
+    /*** determine resonance parity */
     if(res[j].j2 == 0) res[j].parity = pj;
     else{
       res[j].parity = (res[j].j2 < 0) ? -1 : 1;
@@ -353,11 +355,11 @@ int gfrLoadRMLParameters(int idx, System *sys, RMLParameter *res, ENDF *lib)
     /*** for each channel */
     for(int c=0 ; c<nch ; c++){
       int k = 6*c;
-      res[j].pidx[c] = lib->xptr[idx][k] - 1;
-      res[j].l[c]    = lib->xptr[idx][k+1];
-      res[j].s2[c]   = (int)(2.0*lib->xptr[idx][k+2]);
-      res[j].rade[c] = lib->xptr[idx][k+4] * 10.0;
-      res[j].radt[c] = lib->xptr[idx][k+5] * 10.0;
+      res[j].pidx[c] = lib->xptr[idx][k] - 1;          // PPI: pair index
+      res[j].l[c]    = lib->xptr[idx][k+1];            //   L: orbital angular momentum
+      res[j].s2[c]   = (int)(2.0*lib->xptr[idx][k+2]); // SCH: channel spin
+      res[j].rade[c] = lib->xptr[idx][k+4] * 10.0;     // APE: effective channel radius
+      res[j].radt[c] = lib->xptr[idx][k+5] * 10.0;     // APT: true channel radius
     }
     idx ++;
 

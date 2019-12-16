@@ -5,8 +5,7 @@ workmf6=ENDFMF6.evl
 workmf12=ENDFMF12.evl
 
 inbase=input
-#outbase=output
-outbase=.
+outbase=output
 toolbase=../tools
 
 dece=../source/dece

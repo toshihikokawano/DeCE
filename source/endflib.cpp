@@ -432,6 +432,16 @@ void ENDFExceedDataSize(const string loc, ENDF *lib, int ni, int nx)
 
 
 /**********************************************************/
+/*      Write TPID Record                                 */
+/**********************************************************/
+void ENDFWriteTPID(ENDFDict *dic)
+{
+  cout << left << setw(66) << dic->tpid;
+  ENDFPrintRight(1,0,0);
+}
+
+
+/**********************************************************/
 /*      Write HEAD Record                                 */
 /**********************************************************/
 void ENDFWriteHEAD(ENDF *lib)

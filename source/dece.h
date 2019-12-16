@@ -61,6 +61,8 @@ void   DeceChangeQvalue (ENDFDict *, ENDF **, const int, double, double);
 void   DeceCheckThreshold (ENDFDict *, ENDF **, const bool);
 
 /*** deceheader.cpp */
+void   DeceShowHeaders  (ENDFDict *);
+void   DeceEditHeader   (ENDFDict *, string, const double);
 void   DeceFixAWR       (ENDFDict *);
 
 /*** decemod6 */

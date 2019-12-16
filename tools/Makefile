@@ -1,11 +1,11 @@
 LDFLAGS		= -lm
-CPPFLAGS	= -g -Wall -O4 -Wextra
+CPPFLAGS	= -g -Wall -O3 -Wextra
 CPP		= g++
 RM      	= rm
 LIBOBJS		= endflib.o endfio.o
 
-PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf12.o decemacs.o decephoto.o deceangdist.o
-PROG		= decemf4 decemf5 decemf6 decemf12 decemacs decephoto deceangdist
+PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf12.o decemacs.o decephoto.o deceangdist.o deceheader.o
+PROG		= decemf4 decemf5 decemf6 decemf12 decemacs decephoto deceangdist deceheader
 
 all:		$(PROG)
 
@@ -30,6 +30,9 @@ deceangdist:	$(LIBOBJS) deceangdist.o
 decephoto:	$(LIBOBJS) decephoto.o
 		$(CPP) decephoto.o $(LIBOBJS) $(LDFLAGS) -o decephoto
 
+deceheader:	$(LIBOBJS) deceheader.o
+		$(CPP) deceheader.o $(LIBOBJS) $(LDFLAGS) -o deceheader
+
 clean:
 		$(RM) -f $(LIBOBJS) $(PRGOBJS) $(PROG)
 
@@ -40,6 +43,7 @@ decemf12.o:	../source/endflib.h
 decemacs.o:	../source/endflib.h
 deceangdist.o:	../source/endflib.h
 decephoto.o:	../source/endflib.h
+deceheader.o:	../source/endflib.h deceheader.h
 endflib.o:	../source/endflib.cpp ../source/endflib.h
 		$(CPP) $(CPPFLAGS) ../source/endflib.cpp -c
 endfio.o:	../source/endfio.cpp ../source/endflib.h

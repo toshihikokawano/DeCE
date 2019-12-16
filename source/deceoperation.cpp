@@ -29,7 +29,6 @@ static void DeceOperationREADJUST        (ENDFDict *, ENDF **);
 static void DeceOperationCHANGEINT       (ENDFDict *, ENDF **);
 static void DeceOperationCHANGEQVAL      (ENDFDict *, ENDF **);
 static void DeceOperationCHECKTHRESHOLD  (ENDFDict *, ENDF **);
-static void DeceOperationFIXAWR          (ENDFDict *);
 static void DeceOperationNUTOTAL         (ENDFDict *, ENDF **);
 static void DeceOperationBOUNDCORRECT    (ENDFDict *, ENDF **);
 static void DeceOperationDUPLICATEPOINT  (ENDFDict *, ENDF **);
@@ -124,14 +123,24 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationCHECKTHRESHOLD(dict,lib);
   }
 
-  /*** FIXAWR: fix AWR in at the top of the file */
-  else if(ope == "fixawr"){
-    DeceOperationFIXAWR(dict);
-  }
-
 
   //--------------------------------------------------------
   //  MF1 manipulations
+
+  /*** SHOWHEADERS: print parameters in the header part */
+  else if(ope == "showheaders"){
+    DeceShowHeaders(dict);
+  }
+
+  /*** EDITHEADER: modify header parameter */
+  else if(ope == "editheader"){
+    DeceEditHeader(dict,(string)cmd.text,cmd.x);
+  }
+
+  /*** FIXAWR: fix AWR in at the top of the file */
+  else if(ope == "fixawr"){
+    DeceFixAWR(dict);
+  }
 
   /*** NUTOTAL: generate / reconstruct total nu-bar as the sum of 455 and 456 */
   else if(ope == "nutotal"){
@@ -441,17 +450,6 @@ void DeceOperationCHECKTHRESHOLD(ENDFDict *dict, ENDF *lib[])
   string ope = CmdGetOperation();
   bool fix = (ope == "fixthreshold") ? true : false;
   DeceCheckThreshold(dict,lib,fix);
-}
-
-
-/**********************************************************/
-/* FIXAWR                                                 */
-/*      fix AWR in HEAD                                   */
-/* fixawr                                                 */
-/**********************************************************/
-void DeceOperationFIXAWR(ENDFDict *dict)
-{
-  DeceFixAWR(dict);
 }
 
 

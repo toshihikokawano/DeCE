@@ -1,3 +1,32 @@
+2019-12-15  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/deceheader.cpp: new file
+	tool to patch text data in the header part
+
+2019-09-23  Toshihiko KAWANO  <kawano@lanl.gov>
+
+	* example/example3.cpp: new file
+	new example, which uses ENDFDict object
+
+	* source/endflib.cpp (ENDFWriteTPID): new function
+	print TPID in Dict
+
+2019-09-22  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceoutput.cpp (DeceRenumber): modified
+	* source/deceheader.cpp (DeceShowHeaders): new function
+	(DeceEditHeader): new function
+	print and modify parameters in header part
+	new commands, showheaders and editheader, added
+
+2019-08-28  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable2.cpp (DeceTableMF2RR7): bug fixed
+	parity output fixed
+
+	* source/gfrcs7.cpp (gfrRMatrixLimited): bug fixed
+	capture channel index fixed 
+
 2019-08-07  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceglobaloption.cpp (optionSet): modified

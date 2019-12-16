@@ -12,6 +12,7 @@ using namespace std;
 #include "decetable.h"
 #include "decemisc.h"
 #include "global.h"
+#include "constant.h"
 
 static int DeceTableMF6Law1(ENDF *, int);
 static int DeceTableMF6Law2(ENDF *, int);
@@ -74,6 +75,7 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
   int    lep  = lib6->rdata[idx].l2;
   int    nr   = lib6->rdata[idx].n1;
   int    ne   = lib6->rdata[idx].n2; idx++;
+  double da   = opt.AngleStep;
 
   cout << "#           NR" << setw(14) << nr << endl;
   cout << "#           NE" << setw(14) << ne << endl;
@@ -100,10 +102,34 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
       cout << endl;
       cout << endl;
     }
-    for(int i1=nd ; i1<nep ; i1++){
-      outVal(lib6->xptr[idx][(na+2)*i1]);
-      for(int i2=1 ; i2<=na+1 ; i2++) outVal(lib6->xptr[idx][(na+2)*i1+i2]);
-      cout << endl;
+
+    if(da > 0.0 && na > 1){
+      int np = 180.0/da;
+      if( np*da == 180.0 ) np++;
+      cout << "#  angle         energy        probability" << endl;
+
+      double t = 0.0;
+      while(t <= 180.0){
+        for(int i1=nd ; i1<nep ; i1++){
+          outVal(t);
+          outVal(lib6->xptr[idx][(na+2)*i1]);
+          double f = 0.0;
+          for(int i2=0 ; i2<=na ; i2++){
+            f += (i2+0.5) * lib6->xptr[idx][(na+2)*i1+i2+1] * legendre(i2,t);
+          }
+          outVal(f);
+          cout << endl;
+        }
+        t += da;
+        cout << endl;
+      }
+    }
+    else{
+      for(int i1=nd ; i1<nep ; i1++){
+        outVal(lib6->xptr[idx][(na+2)*i1]);
+        for(int i2=1 ; i2<=na+1 ; i2++) outVal(lib6->xptr[idx][(na+2)*i1+i2]);
+        cout << endl;
+      }
     }
     cout << endl;
     cout << endl;
