@@ -47,6 +47,7 @@ Files:
         decedelete.cpp        remove some subsections or whole 
         deceextract.cpp       print a specified MF MT subsection
         decefactor.cpp        apply a constant to the data in MF3, or re-scale all
+        deceglobaloption.cpp  set/unset global options
         deceheader.cpp        manipulate header part in MF1
         decelibread.cpp       import a subsection from external ENDF file
         decemisc.cpp          some mathematical functions
@@ -70,7 +71,7 @@ Files:
         decetable10.cpp       part of decetable, for MF10
         decetable12.cpp       part of decetable, for MF12
         decetable13.cpp       part of decetable, for MF13
-        decetable13.cpp       part of decetable, for MF14
+        decetable14.cpp       part of decetable, for MF14
         decetable15.cpp       part of decetable, for MF15
         decetable33.cpp       part of decetable, for MF33
         decetable34.cpp       part of decetable, for MF34
@@ -107,18 +108,20 @@ Files:
         decemisc.cpp
         coupling.h            angular momentum couplings (from CoH3)
         coupling.cpp
+        matrix.h              matrix inversion
+        matrix.cpp
 
       [Mass Table]
         masstable.h
         masstable_ripl2.h
         masstable_ripl3.h
         masstable_audi2011.h
+        masstable_audi2012_frdm2012.h
         masstable.cpp
 
       [Least-Squares Module]
         polysq.h
         polycalc.cpp
-        polymain.cpp
         polysq.cpp
 
    tools/
@@ -126,13 +129,22 @@ Files:
         decemf5.cpp           make energy spectrum section in ENDF-6
         decemf6.cpp           convert ECLIPSE(CoH) DDX output into ENDF-6
         decemf12.cpp          convert ECLIPSE(CoH) discrete level output into ENDF-6
-        decephoto.cpp         create neutron production cross section for photo-reactions
-        decemacs.cpp          calculate Maxwellian average cross section
         deceangdist.cpp       produce scattering angular distributions from ENDF
+        deceheader.cpp        patch text data in the header part
+        decemacs.cpp          calculate Maxwellian average cross section
+        decephoto.cpp         create neutron production cross section for photo-reactions
 
    example/
         example1.cpp          read/write ENDF-6 using endflib
         example2.cpp          onvert private date into ENDF-6 using endflib
+        example3.cpp          read the entire ENDF-6 file and duplicate it
  
    manual/
         dece manual in HTML
+
+   test/
+        decetest.sh           shell script to run a test case
+        decetest_all.sh       perform all test cases
+        dececreateENDF.sh     example to create a whole ENDF file from CoH3 outputs
+        data/                 contains example CoH3 output files
+        input/                contains DeCE command script file for the tests

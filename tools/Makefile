@@ -1,6 +1,6 @@
 LDFLAGS		= -lm
 CPPFLAGS	= -g -Wall -O3 -Wextra
-CPP		= g++
+CPP		= c++
 RM      	= rm
 LIBOBJS		= endflib.o endfio.o
 

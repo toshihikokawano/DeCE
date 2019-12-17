@@ -284,6 +284,7 @@ void DeceHeaderCreateLib(ifstream *fpin, ENDFDict *dict, const int nline, char *
   ENDF   lib(S);
   int    mf = 1, mt = 451;
 
+  ENDFPrintLineNumber(false);
   ENDFWriteTPID(dict);
 
   /*** header part */
