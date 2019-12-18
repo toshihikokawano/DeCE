@@ -204,18 +204,20 @@ new section is created.</p>
 
 <pre id="prg">
   class ENDFDict{
-   public:
+   private:
     int       mat     ;     // ENDF MAT number
     int       sec     ;     // number of sections
+    Record    head    ;     // Tape HEAD Record
+    Record    cont[3] ;     // CONT Records
+    char      *cbuf   ;     // buffer for TEXT lines and TPID
+   public:
     int       *mf     ;     // ENDF MF number
     int       *mt     ;     // ENDF MT number
     int       *nc     ;     // Line count
     int       *mod    ;     // MOD number
     int       *id     ;     // ID for ENDF data on memory
-    char      tpid[67];     // Tape ID 
-    Record    head    ;     // Tape HEAD Record
-    Record    cont[3] ;     // CONT Records
-    double    emax    ;     // highest energy in the file
+    char     *tpid    ;     // Tape ID 
+    Record   *text]5] ;     // text data field
     double    emaxRR  ;     // energy boundary of resolved resonance region
     double    emaxUR  ;     // energy boundary of unresolved resonance region
     double    emaxRe  ;     // either emaxRR or emaxUR depending on LSSF flag
@@ -223,14 +225,15 @@ new section is created.</p>
 </pre>
 
 <p>An object of ENDFDict class contains MAT number <tt>mat</tt>, Tape
-ID <tt>tpid</tt>, Tape header part (one HEAD and three
-CONTs) <tt>head, cont</tt>, total number of sections <tt>sec</tt>, and
-integer data arrays for each section <tt> mf, mt, nc, mod</tt>,
-and <tt>id</tt>. <tt>nc</tt> is the number of lines (in card image).
-<tt>emax</tt> is for the highest energy of the file, and other
-three floating-point valiables define the energy boundary between
-the resolved, unresolved resonances, and higher range.
-The array <tt>id</tt> has special meanings, as given below.</p>
+ID <tt>tpid</tt>, Tape header part (one HEAD, three CONTs, and five
+lines of text fields) <tt>head, cont</tt>, total number of
+sections <tt>sec</tt>, and integer data arrays for each section <tt>
+mf, mt, nc, mod</tt>, and <tt>id</tt>. <tt>nc</tt> is the number of
+lines (in card image).
+<tt>emaxRR</tt>, <tt>emaxUR</tt>, and <tt>emaxRe> define the energy
+boundary between the resolved, unresolved resonances, and higher
+range.  The array <tt>id</tt> has special meanings, as given
+below.</p>
 
 <p>In DeCE, one object is assigned to each section of an ENDF-6 file
 defined by MF/MT. For example, when sections are given in

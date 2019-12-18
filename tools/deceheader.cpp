@@ -295,7 +295,7 @@ void DeceHeaderCreateLib(ifstream *fpin, ENDFDict *dict, const int nline, char *
 
   for(int i=0 ; i<3 ; i++){
     Record r = dict->getDICTcont(i);
-    ENDFWriteRecord(&r);
+    ENDFWriteRecord(r);
     ENDFPrintRight(dict->getMAT(),mf,mt);
   }
 

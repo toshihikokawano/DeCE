@@ -413,7 +413,7 @@ void   ENDFExceedDataSize (const string, ENDF *, int, int);
 
 void   ENDFWriteTPID      (ENDFDict *);
 void   ENDFWriteHEAD      (ENDF *);
-void   ENDFWriteRecord    (Record *);
+void   ENDFWriteRecord    (Record);
 void   ENDFWriteTEXT      (ENDF *, string);
 void   ENDFWriteDICT      (ENDF *, int, int, int, int);
 Record ENDFWriteCONT      (ENDF *);

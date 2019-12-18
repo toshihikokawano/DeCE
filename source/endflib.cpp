@@ -448,7 +448,7 @@ void ENDFWriteHEAD(ENDF *lib)
 {
   seqno = 1;
   Record head = lib->getENDFhead();
-  ENDFWriteRecord(&head);
+  ENDFWriteRecord(head);
   ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
   lib->resetCTR();
 }
@@ -481,18 +481,18 @@ void ENDFWriteDICT(ENDF *lib, int mf, int mt, int nc, int mod)
 /**********************************************************/
 /*      Write Record                                      */
 /**********************************************************/
-void ENDFWriteRecord(Record *cont)
+void ENDFWriteRecord(Record cont)
 {
   char   num1[14],num2[14];
   string s1,s2;
 
-  ENDFDelExp(cont->c1,num1);
-  ENDFDelExp(cont->c2,num2);
+  ENDFDelExp(cont.c1,num1);
+  ENDFDelExp(cont.c2,num2);
 
-  cout << setw(FIELD_WIDTH) << num1       << setw(FIELD_WIDTH) << num2;
+  cout << setw(FIELD_WIDTH) << num1    << setw(FIELD_WIDTH) << num2;
   cout << right;
-  cout << setw(FIELD_WIDTH) << cont->l1   << setw(FIELD_WIDTH) << cont->l2;
-  cout << setw(FIELD_WIDTH) << cont->n1   << setw(FIELD_WIDTH) << cont->n2;
+  cout << setw(FIELD_WIDTH) << cont.l1 << setw(FIELD_WIDTH) << cont.l2;
+  cout << setw(FIELD_WIDTH) << cont.n1 << setw(FIELD_WIDTH) << cont.n2;
 }
 
 
@@ -504,7 +504,7 @@ Record ENDFWriteCONT(ENDF *lib)
   int idx = lib->getCTR();
   Record cont = lib->rdata[idx];
 
-  ENDFWriteRecord(&cont);
+  ENDFWriteRecord(cont);
   ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
 
   lib->inclCTR();
@@ -874,14 +874,14 @@ void ENDFLibPeek(ENDF *lib)
        << lib->getENDFmt()  << endl;
 
   cout <<" HEAD  : ";
-  ENDFWriteRecord(&head);
+  ENDFWriteRecord(head);
   cout << endl;
   cout <<" POS   : " << setw(11) << lib->getPOS() << endl;
   cout <<" CTR   : " << setw(11) << lib->getCTR() << endl;
   /*** each block */
   if(lib->getPOS() == 1){
     cout <<" CONT  : ";
-    ENDFWriteRecord(&lib->rdata[0]);
+    ENDFWriteRecord(lib->rdata[0]);
     cout << endl;
     cout <<" NINT  : " << setw(11) << lib->getNI() << endl;
     cout <<" NDBL  : " << setw(11) << lib->getNX() << endl;
@@ -889,7 +889,7 @@ void ENDFLibPeek(ENDF *lib)
   else{
     for(int i=0 ; i<lib->getPOS() ; i++){
       cout <<" CONT  : ";
-      ENDFWriteRecord(&lib->rdata[i]);
+      ENDFWriteRecord(lib->rdata[i]);
       cout << endl;
       cout <<" NINT  : " << setw(11) << lib->iptr[i+1] - lib->iptr[i] << endl;
       cout <<" NDBL  : " << setw(11) << lib->xptr[i+1] - lib->xptr[i] << endl;
