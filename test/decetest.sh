@@ -6,9 +6,16 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-
 testcase=$1
+
+# include file and directory names
 source parameter.sh
+
+# check if output dir exists
+if [ ! -e $outbase ]; then
+    mkdir $outbase
+fi
+
 
 echo '# TEST CASE: ' $testcase
 
