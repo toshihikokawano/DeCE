@@ -647,14 +647,14 @@ void ENDFWriteArray(ENDF *lib, int np, double *x)
 /**********************************************************/
 /*      Write 1-Dim Data (int)                            */
 /**********************************************************/
-void ENDFWriteArray(ENDF *lib, int np, int *c)
+void ENDFWriteArray(ENDF *lib, int np, int *x)
 {
   int n = numline(np);
   int k = 0;
   for(int i=0 ; i<n ; i++){
     for(int j=0 ; j<COLUMN_NUM ; j++){
       if(k < np){
-        cout << setw(FIELD_WIDTH) << c[k++];
+        cout << setw(FIELD_WIDTH) << x[k++];
       }
       else cout << blank;
     }
@@ -756,7 +756,7 @@ void ENDFPackTAB1(Record cont, int *idat, double *xdat, ENDF *lib)
 /**********************************************************/
 /*      Pack TAB2 Record (LIST Type)                      */
 /**********************************************************/
-void ENDFPackTAB2(Record cont, Record *xcont, int *idat, double **xdat, ENDF *lib)
+void ENDFPackTAB2(Record cont, Record *cdat, int *idat, double **xtab, ENDF *lib)
 {
   if( lib->checkSUBBLOCK() ) ENDFExceedSubBlock("PackTAB2",lib);
   int idx = lib->getPOS();
@@ -777,14 +777,14 @@ void ENDFPackTAB2(Record cont, Record *xcont, int *idat, double **xdat, ENDF *li
   lib->inclPOS();
 
   /*** read LIST for each subsection */
-  for(int i=0 ; i<np ; i++) ENDFPackLIST(xcont[i],xdat[i],lib);
+  for(int i=0 ; i<np ; i++) ENDFPackLIST(cdat[i],xtab[i],lib);
 }
 
 
 /**********************************************************/
 /*      Pack TAB2 Record (TAB1 Type)                      */
 /**********************************************************/
-void ENDFPackTAB21(Record cont, int *idat, Record *ctab, int **itab, double **xtab, ENDF *lib)
+void ENDFPackTAB21(Record cont, int *idat, Record *cdat, int **itab, double **xtab, ENDF *lib)
 {
   if( lib->checkSUBBLOCK() ) ENDFExceedSubBlock("PackTAB21",lib);
   int idx = lib->getPOS();
@@ -806,7 +806,7 @@ void ENDFPackTAB21(Record cont, int *idat, Record *ctab, int **itab, double **xt
   lib->inclPOS();
 
   /*** read TAB1 for each subsection */
-  for(int i=0 ; i<np ; i++) ENDFPackTAB1(ctab[i],itab[i],xtab[i],lib);
+  for(int i=0 ; i<np ; i++) ENDFPackTAB1(cdat[i],itab[i],xtab[i],lib);
 }
 
 

@@ -1,9 +1,8 @@
 LDFLAGS		= -lm
 CPPFLAGS	= -g -Wall -O3 -Wextra
 #CXX		= c++
-#CPP		= c++
 CXX		= g++
-CPP		= g++
+CPP		= $(CXX)
 RM      	= rm
 LIBOBJS		= endflib.o endfio.o
 
