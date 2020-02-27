@@ -194,14 +194,13 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   Pcross c;
   double *elab, *pleg;
 
-  fact = new double [MAX_FACTORIAL];
   elab = new double [MAX_DBLDATA_LARGE/2];
   pleg = new double [LMAX*2];
 
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
 
   /*** factorial */
-  factorial(MAX_FACTORIAL);
+  factorial_allocate();
 
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
@@ -244,7 +243,7 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   Smat.memfree();
   delete [] elab;
   delete [] pleg;
-  delete [] fact;
+  factorial_delete();
 }
 
 
@@ -260,7 +259,6 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
   Pcross c;
   double **pave, *wsum, *pleg;
 
-  fact = new double [MAX_FACTORIAL];
   pave = new double * [npoint];
   wsum = new double [npoint];
   for(int i=0 ; i<npoint ; i++){
@@ -271,7 +269,7 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
 
   /*** factorial */
-  factorial(MAX_FACTORIAL);
+  factorial_allocate();
 
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
@@ -345,7 +343,7 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
   delete [] pave;
   delete [] wsum;
   delete [] pleg;
-  delete [] fact;
+  factorial_delete();
 }
 
 
