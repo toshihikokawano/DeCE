@@ -217,3 +217,43 @@ void DeceGenProdCS(ENDFDict *dict, ENDF *lib[], const int mt1, const int zap1)
 
   delete [] xdat;
 }
+
+
+/**********************************************************/
+/*      Produce Isotropic Angular Distribution            */
+/**********************************************************/
+void DeceIsotropicAngularDistribution(ENDFDict *dict, ENDF *lib[], const int mt)
+{
+  int k3 = dict->getID(3,mt);
+  int k6 = dict->getID(6,mt);
+
+  if(k3 < 0) TerminateCode("MT number in MF3 not found",mt);
+  if(k6 < 0) TerminateCode("MT number in MF6 not found",mt);
+
+  Record head = lib[k3]->getENDFhead();
+  head.l1 = 0;
+  head.l2 = 2; // LCT = 2 : CMS
+  head.n1 = 1; // NK = 1
+  head.n2 = 0;
+
+  lib[k6]->setENDFhead(head);
+
+
+  int    idat[2];
+  double xdat[4];
+
+  idat[0] = 2;
+  idat[1] = 2;
+  xdat[0] = 1.0;
+  xdat[1] = 1.0;
+  xdat[2] = 1.0;
+  xdat[3] = 1.0;
+
+  Record cont(0.0,0.0,0,3,1,2);
+  ENDFPackTAB1(cont,idat,xdat,lib[k6]);
+
+  ENDFWriteHEAD(lib[k6]);
+  ENDFWriteTAB1(lib[k6]);
+  ENDFWriteSEND(lib[k6]);
+
+}

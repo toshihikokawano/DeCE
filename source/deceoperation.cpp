@@ -33,6 +33,7 @@ static void DeceOperationNUTOTAL         (ENDFDict *, ENDF **);
 static void DeceOperationBOUNDCORRECT    (ENDFDict *, ENDF **);
 static void DeceOperationDUPLICATEPOINT  (ENDFDict *, ENDF **);
 static void DeceOperationGENPROD         (ENDFDict *, ENDF **);
+static void DeceOperationISOANGDIST      (ENDFDict *, ENDF **);
 static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
 
@@ -134,8 +135,13 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 
   /*** EDITHEADER: modify header parameter */
   else if(ope == "editheader"){
-    DeceEditHeader(dict,(string)cmd.text,cmd.x);
+    DeceEditHeader(dict,(string)cmd.parm,cmd.x);
   }
+
+  /*** EDITHEADERTEXT: modify header text */
+//  else if(ope == "editheadertext"){
+//    DeceEditHeaderText(dict,(string)cmd.parm,(string)cmd.text);
+//  }
 
   /*** FIXAWR: fix AWR in at the top of the file */
   else if(ope == "fixawr"){
@@ -162,6 +168,10 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** GENPROD: generate production cross section from MF6 MT5 */
   else if(ope == "genprod"){
     DeceOperationGENPROD(dict,lib);
+  }
+  /*** ISOANGDIST: produce isotropic angular distribution section in MF6 */
+  else if(ope == "isoangdist"){
+    DeceOperationISOANGDIST(dict,lib);
   }
 
 
@@ -498,6 +508,19 @@ void DeceOperationGENPROD(ENDFDict *dict, ENDF *lib[])
 {
   DeceCreateLib(dict,3,cmd.mt);
   DeceGenProdCS(dict,lib,cmd.mt,cmd.opt1);
+}
+
+
+/**********************************************************/
+/* ISOANGDIST                                             */
+/*      produce isotropic angular distribution in MF6     */
+/* isoangdist MT                                          */
+/**********************************************************/
+void DeceOperationISOANGDIST(ENDFDict *dict, ENDF *lib[])
+{
+  DeceCheckMT(cmd.mt);
+  DeceCreateLib(dict,6,cmd.mt);
+  DeceIsotropicAngularDistribution(dict,lib,cmd.mt);
 }
 
 

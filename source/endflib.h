@@ -16,13 +16,14 @@
 #define MAX_INTDATA_SMALL         10
 #define MAX_SUBBLOCK_SMALL        10
 
-#define MAX_SECTION          1000
+#define MAX_SECTION             1000
 
-#define FIELD_WIDTH            11
-#define COLUMN_NUM              6
+#define FIELD_WIDTH               11   // width of data field
+#define COLUMN_NUMBER              6   // number of data files in one line
+#define TEXT_WIDTH                66   // numerical or text data width = FIELD_WIDTH x COLUMN_NUMBER
 
 
-enum dataSize{S =0, M =1, L  =2};
+enum dataSize{S = 0, M = 1, L = 2};
 typedef enum dataSize DataSize;
 
 
@@ -229,6 +230,7 @@ class ENDFDict{
   Record    head;         // Tape HEAD Record
   Record    cont[3];      // CONT Records
   char      *cbuf;        // buffer for TEXT lines and TPID
+  bool      stdheader;    // flag for standard header
  public:
   int       *mf;          // ENDF MF number
   int       *mt;          // ENDF MT number
@@ -253,7 +255,7 @@ class ENDFDict{
     mod    = new int [MAX_SECTION];
     id     = new int [MAX_SECTION];
 
-    int l = 67;
+    int l = TEXT_WIDTH + 1;
     int p = 0;
     cbuf   = new char [l * 6];
     tpid   = &cbuf[p];  p += l;
@@ -262,6 +264,8 @@ class ENDFDict{
     text[2]= &cbuf[p];  p += l;
     text[3]= &cbuf[p];  p += l;
     text[4]= &cbuf[p];
+
+    stdheader = false;
   }
 
   ~ENDFDict(){
@@ -380,13 +384,16 @@ class ENDFDict{
   bool isFission(){
     return( (head.l2 == 1) ? true : false );
   }
+  /*** set / get stdheader flag */
+  void setSTDHeader(bool c){ stdheader = c; }
+  bool getSTDHeader(){ return stdheader; }
 };
 
 
 static int numline(int);
 inline int numline(int n)
-{ int m = (int)(n/COLUMN_NUM)+1;
-  if(n%COLUMN_NUM == 0) m--;
+{ int m = (int)(n/COLUMN_NUMBER)+1;
+  if(n%COLUMN_NUMBER == 0) m--;
   return(m); }
 
 

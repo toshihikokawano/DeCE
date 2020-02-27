@@ -69,6 +69,7 @@ void   DeceFixAWR       (ENDFDict *);
 void   DeceBoundCorrect (ENDFDict *, ENDF **, const int);
 void   DeceDuplicatePoint (ENDFDict *, ENDF **, const int, double);
 void   DeceGenProdCS    (ENDFDict *, ENDF **, const int, const int);
+void   DeceIsotropicAngularDistribution (ENDFDict *, ENDF **, const int);
 
 /*** gfr.cpp */
 void   gfrScanThermal   (ifstream *, ENDFDict *, double);

@@ -8,6 +8,7 @@
 class CLine{
  public:
   char   line[MAX_TEXTLENGTH];
+  char   parm[MAX_TEXTLENGTH];
   char   text[MAX_TEXTLENGTH];
   int    mf;
   int    mt;
@@ -19,8 +20,10 @@ class CLine{
   double y;
   double xmin;
   double xmax;
+
   CLine(){
     line[0] = '\0';
+    parm[0] = '\0';
     text[0] = '\0';
     mf      = 0;
     mt      = 0;

@@ -1,3 +1,8 @@
+2019-12-24  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFScanLibrary): modified
+	copy header text part into ENDFDict object
+
 2019-12-16  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.cpp (ENDFWriteRecord): updated

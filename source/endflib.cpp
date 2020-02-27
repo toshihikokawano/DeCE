@@ -137,6 +137,8 @@ int ENDFScanLibrary(string libname, ENDFDict *dict)
 
     dict->addDict(mf1,mt1,c,-1);
 
+    if((mf1 == 1) && (mt1 == 451) && (c >= 9)) dict->setSTDHeader(true);
+
     mf1 = mf0;
     mt1 = mt0;
     c = 1;
@@ -147,6 +149,19 @@ int ENDFScanLibrary(string libname, ENDFDict *dict)
     }
   }
   dict->addDict(mf1,mt1,c,-1);
+  fp.close();
+
+  /*** when standard header text is given, copy into ENDFDict object */
+  if(dict->getSTDHeader()){
+    fp.open(&libname[0]);
+    getline(fp,line);
+    for(int c=0 ; c<4 ; c++) getline(fp,line);
+    for(int c=0 ; c<5 ; c++){
+      getline(fp,line);
+      strncpy(dict->text[c],&line[0],TEXT_WIDTH);
+    }
+    fp.close();
+  }
 
   return(overrun);
 }
@@ -360,14 +375,14 @@ int ENDFReadArray(ifstream *fp, int m, int n, double *x)
   string s;
 
   if( (m == 0) && (n > 0) )     { m = numline(n);   }
-  else if( (n == 0) && (m > 0) ){ n = COLUMN_NUM*m; }
+  else if( (n == 0) && (m > 0) ){ n = COLUMN_NUMBER * m; }
   else return(0);
 
   int i=0;
   for(int j=0 ; j<m ; j++){
     getline(*fp,line);
     int p=0;
-    for(int k=0 ; k<COLUMN_NUM ; k++){
+    for(int k=0 ; k<COLUMN_NUMBER ; k++){
       s = line.substr(p,FIELD_WIDTH); p+=FIELD_WIDTH;
       if(s != blank) x[i++] = ENDFPadExp(s);
       else           x[i++] = 0.0;
@@ -388,14 +403,14 @@ int ENDFReadArray(ifstream *fp, int m, int n, int *x)
   string s;
 
   if( (m == 0) && (n > 0) )     { m = numline(n);   }
-  else if( (n == 0) && (m > 0) ){ n = COLUMN_NUM*m; }
+  else if( (n == 0) && (m > 0) ){ n = COLUMN_NUMBER * m; }
   else return(0);
 
   int i=0;
   for(int j=0 ; j<m ; j++){
     getline(*fp,line);
     int p=0;
-    for(int k=0 ; k<COLUMN_NUM ; k++){
+    for(int k=0 ; k<COLUMN_NUMBER ; k++){
       s = line.substr(p,FIELD_WIDTH); p+=FIELD_WIDTH;
       if(s != blank) x[i++] = atoi(s.c_str());
       else           x[i++] = 0;
@@ -604,7 +619,7 @@ Record ENDFWriteTAB22(ENDF *lib)
 /**********************************************************/
 void ENDFWriteSEND(ENDF *lib)
 {
-  for(int i=0 ; i<COLUMN_NUM ; i++) cout << blank;
+  for(int i=0 ; i<COLUMN_NUMBER ; i++) cout << blank;
   seqno = 99999;
   ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),0);
   seqno = 1;
@@ -616,7 +631,7 @@ void ENDFWriteSEND(ENDF *lib)
 /**********************************************************/
 void ENDFWriteFEND(int mat)
 {
-  for(int i=0 ; i<COLUMN_NUM ; i++) cout << blank;
+  for(int i=0 ; i<COLUMN_NUMBER ; i++) cout << blank;
   seqno = 0;
   ENDFPrintRight(mat,0,0);
 }
@@ -632,7 +647,7 @@ void ENDFWriteArray(ENDF *lib, int np, double *x)
   int n = numline(np);
   int k = 0;
   for(int i=0 ; i<n ; i++){
-    for(int j=0 ; j<COLUMN_NUM ; j++){
+    for(int j=0 ; j<COLUMN_NUMBER ; j++){
       if(k < np){
         ENDFDelExp(x[k++],num);
         cout << setw(FIELD_WIDTH) << num;
@@ -652,7 +667,7 @@ void ENDFWriteArray(ENDF *lib, int np, int *x)
   int n = numline(np);
   int k = 0;
   for(int i=0 ; i<n ; i++){
-    for(int j=0 ; j<COLUMN_NUM ; j++){
+    for(int j=0 ; j<COLUMN_NUMBER ; j++){
       if(k < np){
         cout << setw(FIELD_WIDTH) << x[k++];
       }

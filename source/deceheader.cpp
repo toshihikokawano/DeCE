@@ -14,6 +14,15 @@ using namespace std;
 #include "terminate.h"
 #include "masstable.h"
 #include "constant.h"
+#include "endftext.h"
+
+static ENDFText zsymam(11,0,0), alab(11,11,0), edate(11,22,0), auth(33,33,0);
+static ENDFText refer(22,0,1), ddate(11,22,1), rdate(11,33,1), endate(11,55,1);
+static ENDFText libname(18,4,2);
+static ENDFText sublib(TEXT_WIDTH-5,5,3);
+static ENDFText format(TEXT_WIDTH-6,6,4);
+
+
 
 /**********************************************************/
 /*      Print Header Data                                 */

@@ -19,7 +19,6 @@ using namespace std;
 void DeceScanIndex(ENDFDict *dict)
 {
   int *mt = new int [1000];
-  ENDF lib(S);
 
   /*** scan all MF numbers, up to 40 */
   for(int mf=1 ; mf <= 40 ; mf++){

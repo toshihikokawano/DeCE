@@ -147,12 +147,19 @@ string CmdExtractArgument(void)
     cmd.x     =      getval(d1);
   }
   else if(ope == "editheader"){
-    gettext(d1,cmd.text);
+    gettext(d1,cmd.parm);
     cmd.x     =      getval(d1);
+  }
+  else if(ope == "editheadertext"){
+    gettext(d1,cmd.parm);
+    CmdExtractString(cmd.text);
   }
   else if(ope == "genprod"){
     cmd.mt    = (int)getval(d1);
     cmd.opt1  = (int)getval(d1);
+  }
+  else if(ope == "isoangdist"){
+    cmd.mt    = (int)getval(d1);
   }
   else if(ope == "reconstruct" || ope == "reconangdist" || ope == "smoothangdist"){
     cmd.xmin  =      getval(d1);

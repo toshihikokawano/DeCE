@@ -62,6 +62,7 @@ dece_SOURCES = \
 	decemisc.h \
 	decetable.h \
 	endflib.h \
+	endftext.h \
 	gfr.h \
 	global.h \
 	masstable.h \

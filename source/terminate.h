@@ -2,7 +2,7 @@
    terminate.h : 
         prototype of function to print out warning messages, 
         and to terminate code execution.
-        the functions are defined in main.cpp
+        the functions are defined in dece.cpp
  */
 
 #include <ostream>
