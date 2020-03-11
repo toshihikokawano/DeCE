@@ -306,6 +306,11 @@ void DeceHeaderCreateLib(ifstream *fpin, ENDFDict *dict, const int nline, char *
   }
 
   ENDFWriteSEND(&lib);
+
+  for(int i=0 ; i<dict->getSEC() ; i++){
+    if(dict->mf[i] == 1 && dict->mt[i] != 451) ENDFExtract(fpin,dict->mf[i],dict->mt[i]);
+  }
+
   ENDFWriteFEND(dict->getMAT());
 
   for(int mf=2 ; mf <= 40 ; mf++){
