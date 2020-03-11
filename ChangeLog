@@ -1,3 +1,8 @@
+2020-03-10  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/deceheader.cpp (DeceHeaderCreateLib): bug fixed
+	missing MF1/MT452455,456 recovered
+
 2019-12-24  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.cpp (ENDFScanLibrary): modified
