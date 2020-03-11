@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: ENDFfunctions (2) </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="function1.html"> [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<hr>
+
+<h1>ENDFIO Functions</h1>
+
+<p>These functions, given in <tt>endfio.cpp</tt>, read (<tt>ENDFReadMF</tt>)
+an MF/MT data section in an ENDF-6 file into an ENDF object, or
+print (<tt>ENDFWriteMF</tt>) the content of the ENDF object in a proper format
+depending on the section MF/MT number. Note that MF=7 has not been implemented yet. </p>
+
+
+<h3><a name="ENDFRead">ENDFRead</a></h3>
+
+<pre id="syn">
+int ENDFRead (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mf</i>, const int <i>mt</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *fp
+        pointer to input stream
+    *lib
+        pointer to ENDF object
+    mf, mt
+        MF/MT numbers 
+Return Value
+    current data block index 
+</pre>
+
+<p>Copy the MF/MT section in an opened ENDF file into an ENDF object.
+The data structure stored in the ENDF object </p>
+
+
+<h3><a name="ENDFWrite">ENDFWrite</a></h3>
+
+<pre id="syn">
+void ENDFWrite (ENDF <i>*lib</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+Return Value
+    none
+</pre>
+
+<p>Print an ENDF object in the ENDF-6 format. </p>
+
+
+
+<h3><a name="ENDFReadMF">ENDFReadMF</a></h3>
+
+<pre id="syn">
+int ENDFReadMF1  (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF2  (ifstream <i>*fp</i>, ENDF <i>*lib</i>)
+int ENDFReadMF3  (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF4  (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF5  (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF6  (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF8  (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF9  (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF10 (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF12 (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF13 (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF14 (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF15 (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF31 (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF32 (ifstream <i>*fp</i>, ENDF <i>*lib</i>)
+int ENDFReadMF33 (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF34 (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+int ENDFReadMF35 (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mt</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *fp
+        pointer to input stream
+    *lib
+        pointer to ENDF object
+    mt
+        MT number
+Return Value
+    current data block index 
+</pre>
+
+<p>Copy the MT section in an opened ENDF file into an ENDF object.
+The data structure stored in the ENDF object. MF=2 and 32 do not
+require an MT number, since MT should be 151.</p>
+
+
+
+<h3><a name="ENDFWriteMF">ENDFWriteMF</a></h3>
+
+<pre id="syn">
+void ENDFWriteMF1  (ENDF <i>*lib</i>)
+void ENDFWriteMF2  (ENDF <i>*lib</i>)
+void ENDFWriteMF3  (ENDF <i>*lib</i>)
+void ENDFWriteMF4  (ENDF <i>*lib</i>)
+void ENDFWriteMF5  (ENDF <i>*lib</i>)
+void ENDFWriteMF6  (ENDF <i>*lib</i>)
+void ENDFWriteMF8  (ENDF <i>*lib</i>)
+void ENDFWriteMF9  (ENDF <i>*lib</i>)
+void ENDFWriteMF10 (ENDF <i>*lib</i>)
+void ENDFWriteMF12 (ENDF <i>*lib</i>)
+void ENDFWriteMF13 (ENDF <i>*lib</i>)
+void ENDFWriteMF14 (ENDF <i>*lib</i>)
+void ENDFWriteMF15 (ENDF <i>*lib</i>)
+void ENDFWriteMF31 (ENDF <i>*lib</i>)
+void ENDFWriteMF32 (ENDF <i>*lib</i>)
+void ENDFWriteMF33 (ENDF <i>*lib</i>)
+void ENDFWriteMF34 (ENDF <i>*lib</i>)
+void ENDFWriteMF35 (ENDF <i>*lib</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+Return Value
+    none
+</pre>
+
+<p>Print an ENDF object in the ENDF-6 format. </p>
+
+
+<h3><a name="ENDFPrint">ENDFPrintLIST, ENDFPrint1Dim</a></h3>
+
+<pre id="syn">
+void ENDFPrintLIST (ENDF <i>*lib</i>, const int <i>idx</i>)
+void ENDFPrint1Dim (ENDF <i>*lib</i>, const int <i>idx</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+    idx
+        index to the data block to be printed
+Return Value
+    none
+</pre>
+
+<p>These two functions print an <i>idx</i> data block stored in the given
+ENDF object. <tt> ENDFPrintLIST </tt> prints the floating point data
+array in one column. <tt>ENDFPrint1Dim</tt> expects the ENDF object is 
+for the TAB1 record, and print the (x,y) pairs. </p>
+
+
+
+<hr>
+<a href="function1.html"> [BACK] </a>
+<a href="index.html">    [UP]  </a>
+</body>
+</html>

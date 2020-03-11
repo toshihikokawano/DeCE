@@ -1,0 +1,580 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: ENDFfunctions (1) </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="endfio.html"> [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="function2.html"> [NEXT]  </a>
+<hr>
+
+<h1>ENDFLIB Functions</h1>
+
+<p>These functions are given in <tt>endflib.cpp</tt> and defined in
+<tt>endflib.h</tt>. They offer an interface between an ENDF-6 formatted file
+and an ENDF object. ENDFRead functions are to read a particular section in
+the ENDF-6 file, which are in the CONT, LIST, TAB1, etc. structure. 
+ENDFWrite functions are to print the content in the specified object. ENDFPack 
+functions are to store integer or floating point data array in the ENDF object.
+</p>
+
+
+<h2><a name="FileAccess"> General File Access </a></h2>
+
+<h3><a name="ENDFSeekHead">ENDFSeekHead</a></h3>
+
+<pre id="syn">
+int ENDFSeekHead (ifstream <i>*fp</i>, ENDF <i>*lib</i>, const int <i>mfsearch</i>, const int <i>mtsearch</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *fp
+        pointer to input stream
+    *lib
+        pointer to ENDF object
+    mfsearch, mtsearch
+        MF/MT numbers to be searched for
+Return Value
+    0: when MF/MT is found in the given file
+   -1: not found
+</pre>
+
+<p>Search MF/MT section in an opened ENDF file, and move the file pointer to the 
+first line of that section. Copy MF/MT numbers as well as the MAT number and
+the first HEAD line of the section into an ENDF object. </p>
+
+
+<h3><a name="ENDFScanLibrary">ENDFScanLibrary</a></h3>
+
+<pre id="syn">
+int ENDFScanLibrary (string <i>libname</i>, ENDFDict <i>*dict</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    libname
+        ENDF file name to be scanned
+    *dict
+        pointer to ENDFDict object
+Return Value
+    0: normal end
+   -1: file cannot be opened
+   -2: too many sections in the ENDF file
+</pre>
+
+<p>Scan the entire ENDF file, and store the MF/MT numbers in the ENDFDict object
+to make an index of the file structure. The MAT number in the file, as well as 
+the first 3 CONT records at the top part of the file, are also copied into 
+the ENDFDict object.</p>
+
+
+
+
+<h2><a name="DataRead"> Data Reading Functions </a></h2>
+
+
+<h3><a name="ENDFSplitCONT">ENDFSplitCONT</a></h3>
+
+<pre id="syn">
+Record ENDFSplitCONT ()
+</pre>
+
+<pre id="prg">
+Parameters
+    none
+Return Value
+    Record class object
+</pre>
+
+<p>Split a CONT line currently reading in the ENDF file into two floating point 
+data and four integers, and put them into one CONT record.  </p>
+
+
+<h3><a name="ENDFNextCONT">ENDFNextCONT</a></h3>
+
+<pre id="syn">
+Record ENDFNextCONT (ifstream <i>*fp</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *fp
+        ENDF file pointer currently opened
+Return Value
+    Record class object
+</pre>
+
+<p>Move the file pointer to the next line, and read the line as a CONT record.</p>
+
+
+
+<h3><a name="ENDFRead">ENDFReadCONT, LIST, TAB1, TAB2, TAB21, TAB22</a></h3>
+
+<pre id="syn">
+Record ENDFReadCONT  (ifstream <i>*fp</i>, ENDF <i>**lib</i>)
+Record ENDFReadLIST  (ifstream <i>**fp</i>, ENDF <i>**lib</i>)
+Record ENDFReadTAB1  (ifstream <i>**fp</i>, ENDF <i>**lib</i>)
+Record ENDFReadTAB2  (ifstream <i>**fp</i>, ENDF <i>**lib</i>)
+Record ENDFReadTAB21 (ifstream <i>**fp</i>, ENDF <i>**lib</i>)
+Record ENDFReadTAB22 (ifstream <i>**fp</i>, ENDF <i>**lib</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *fp
+        ENDF file pointer currently opened
+    *lib
+        pointer to ENDF class object
+Return Value
+    Record class object
+</pre>
+
+<p>Read a subsection which is in the CONT/LIST/TAB1/TAB2/TAB21/TAB22
+structure, copy the subsection into the ENDF object, then return the
+first CONT record (HEAD). In the case of <tt>ENDFReadCONT</tt> the
+returned value is the CONT record itself. Each time these functions
+are called, the section pointer is incremented to prepare for reading
+the next subsection.</p>
+
+
+
+<h3><a name="ENDFReadArray">ENDFReadArray</a></h3>
+
+<pre id="syn">
+int ENDFReadArray (ifstream <i>*fp</i>, int <i>m</i>, int <i>n</i>, double <i>*x</i>)
+int ENDFReadArray (ifstream <i>*fp</i>, int <i>m</i>, int <i>n</i>, int <i>*x</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *fp
+        ENDF file pointer currently opened
+    m
+        number of lines to be read
+    n
+        number of data points to be read
+    *x
+        one dimensional array for integer or double precision data
+Return Value
+    number of data points actually stored
+</pre>
+
+<p>Copy numerical data given in a section currently reading in the ENDF file
+into one-dimensional floting point or integer array. When <i>m</i> is given and
+<i>n = 0</i>, <i>m</i>-line data are stored in the array. When <i>m=0</i>
+and <i>n</i> is given, <i>n</i>-point data are copied. They are exclusive.</p>
+
+<p>Because this function does not check the buffer overrun, 
+users should test the data size by <tt>checkMAXDATA</tt> method
+prior to call this function.</p>
+
+
+<h2><a name="DataWrite"> Data Writing Functions </a></h2>
+
+
+<h3><a name="ENDFWriteTPID">ENDFWriteTPID</a></h3>
+
+<pre id="syn">
+void ENDFWriteTPID (ENDFDict <i>*dic</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *dic
+        pointer to ENDFDict object
+Return Value
+    none
+</pre>
+
+<p>Print a TPID line stored in the ENDFDict object.</p>
+
+
+<h3><a name="ENDFWriteHEAD">ENDFWriteHEAD</a></h3>
+
+<pre id="syn">
+void ENDFWriteHEAD (ENDF <i>*lib</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+Return Value
+    none
+</pre>
+
+<p>Print a HEAD record in the ENDF object in the ENDF-6 format.</p>
+
+
+<h3><a name="ENDFWriteTEXT">ENDFWriteTEXT</a></h3>
+
+<pre id="syn">
+void ENDFWriteTEXT (ENDF <i>*lib</i>, string <i>txt</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+    txt
+        one line text
+Return Value
+    none
+</pre>
+
+<p>Print free text. When longer than 66 characters, they are cut.</p>
+
+
+<h3><a name="ENDFWriteDICT">ENDFWriteDICT</a></h3>
+
+<pre id="syn">
+void ENDFWriteDICT(ENDF <i>*lib</i>, int <i>mf</i>, int <i>mt</i>, int <i>nc</i>, int <i>mod</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+    mf/mt
+        MF/MT numbers
+    nc
+        number of lines in the MF/MT section
+    mod
+        revision number of that section
+Return Value
+    none
+</pre>
+
+<p>Print a line in the dictionary part in the ENDF-6 format, which contains
+the MF/MT numbers, the number of lines in that section, and revision index.</p>
+
+
+<h3><a name="ENDFWriteRecord">ENDFWriteRecord</a></h3>
+
+<pre id="syn">
+void   ENDFWriteRecord (Record <i>cont</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    cont
+         CONT record
+Return Value
+    none
+</pre>
+
+<p>Print a CONT record in the ENDF-6 format.</p>
+
+
+
+<h3><a name="ENDFWrite">ENDFWriteCONT, LIST, TAB1, TAB2, TAB21, TAB22</a></h3>
+
+<pre id="syn">
+Record ENDFWriteCONT  (ENDF <i>*lib</i>)
+Record ENDFWriteLIST  (ENDF <i>*lib</i>)
+Record ENDFWriteTAB1  (ENDF <i>*lib</i>)
+Record ENDFWriteTAB2  (ENDF <i>*lib</i>)
+Record ENDFWriteTAB21 (ENDF <i>*lib</i>)
+Record ENDFWriteTAB22 (ENDF <i>*lib</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+Return Value
+    Record object (HEAD record)
+</pre>
+
+<p>These functions print CONT, LIST, TAB1, TAB2, TAB21, and TAB22 data
+structure in the ENDF-6 format, which are stored in the ENDF object,
+and return its HEAD record. The section pointer is incremented, 
+when <tt>ENDFWriteCONT</tt> is called. However other functions do not 
+increment the pointer, since they always call <tt>ENDFWriteCONT</tt>
+at the beginning. </p>
+
+
+
+<h3><a name="ENDFWriteSEND">ENDFWriteSEND</a></h3>
+
+<pre id="syn">
+void ENDFWriteSEND (ENDF <i>*lib</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+Return Value
+    none
+</pre>
+
+<p><Print a SEND record after each MF/MT section./p>
+
+
+
+<h3><a name="ENDFWriteFEND">ENDFWriteFEND</a></h3>
+
+<pre id="syn">
+void ENDFWriteFEND (int <i>mat</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    mat
+        MAT number
+Return Value
+    none
+</pre>
+
+<p>Print a FEND record at the bottom. We need the MAT number
+since there is no way to get this number. </p>
+
+
+
+<h3><a name="ENDFWriteArray">ENDFWrteArray</a></h3>
+
+<pre id="syn">
+void ENDFWriteArray (ENDF <i>*lib</i>, int <i>np</i>, double <i>*x</i>)
+void ENDFWriteArray (ENDF <i>*lib</i>, int <i>np</i>, int <i>*x</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+    np
+        number of points to be printed
+    *x
+        one dimensional array for integer or double precision data
+Return Value
+    none
+</pre>
+
+<p>Print NP-points of integer or double precision data in the
+ENDF-6 format. The ENDF object is required to print MF/MT/MAT numbers on
+the right side.</p>
+
+
+<h3><a name="ENDFPrintRight">ENDFPrintRight</a></h3>
+
+<pre id="syn">
+void ENDFPrintRight (int <i>mat</i>, int <i>mf</i>, int <i>mt</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    mat/mf/mt
+        MAT/MF/MT numbers of the currently printing section.
+Return Value
+    none
+</pre>
+
+<p>Print MAT/MF/MT numbers after the column 67. When a global option
+of <tt>LineNumber</tt> is set, line numbers are followed. This variable
+can be set by <tt>ENDFPrintLineNumber(true)</tt>. </p>
+
+
+
+<h3><a name="ENDFPrintLineNumber">ENDFPrintLineNumber</a></h3>
+
+<pre id="syn">
+void ENDFPrintLineNumber (bool <i>x</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    x
+        boolean to set or unset LineNumber option.
+Return Value
+    none
+</pre>
+
+<p>Activate or deactivate line number option by providing a boolean argument.</p>
+
+
+
+<h2><a name="DataPack"> Data Packing Functions </a></h2>
+
+
+<h3><a name="ENDFPack">ENDFPack</a></h3>
+
+<pre id="syn">
+void ENDFPackCONT  (Record <i>cont</i>, ENDF <i>*lib</i>)
+void ENDFPackLIST  (Record <i>cont</i>, double <i>*xdat</i>, ENDF <i>*lib</i>)
+void ENDFPackTAB1  (Record <i>cont</i>, int <i>*idat</i>, double <i>*xdat</i>, ENDF <i>*lib</i>)
+void ENDFPackTAB2  (Record <i>cont</i>, Record <i>*cdat</i>, int <i>*idat</i>, double <i>**xtab</i>, ENDF <i>*lib</i>)
+void ENDFPackTAB21 (Record <i>cont</i>, int <i>*idat</i>, Record <i>*cdat</i>,
+                                 int <i>**itab</i>, double <i>**xtab</i>, ENDF <i>*lib</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    cont
+        CONT record for storing data block
+    *lib
+        pointer to ENDF object
+    *idat, *xdat, *cdat
+        one-dimensional arrays for integer, double precision number,
+        and Record object
+    **itab, **tab
+        two-dimensional arrays for integer and double
+Return Value
+    none
+</pre>
+
+<p>Copy one-dimensional or two-dimensional data into an ENDF object where
+the current section pointer is pointing, and move
+the internal data pointer to the end of each data array. The number of data
+to be stored is given by the CONT record in the case of one-dim data. When
+the data are two-dimensional, an array of CONT record is given.</p>
+
+<p><tt>ENDFPackTAB22</tt> is not available in the current version.</p>
+
+
+
+<h2><a name="DataManipulation"> Data Object Manipulating Functions </a></h2>
+
+
+<h3><a name="ENDFLibCopy">ENDFLibCopy</a></h3>
+
+<pre id="syn">
+void ENDFLibCopy (ENDF <i>*libsrc</i>, ENDF <i>*libdst</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *libsrc
+        pointer to source ENDF object
+    *libdst
+        pointer to destination ENDF object
+Return Value
+    none
+</pre>
+
+<p>Copy all the data in the source ENDF object into the destination ENDF object.</p>
+
+
+
+<h3><a name="ENDFLibPeek">ENDFLibPeek</a></h3>
+
+<pre id="syn">
+void ENDFLibPeek (ENDF <i>*lib</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object
+Return Value
+    none
+</pre>
+
+<p>Print data structure of given ENDF object. This is for debugging.</p>
+
+
+
+<h3><a name="ENDFExtract">ENDFExtract</a></h3>
+
+<pre id="syn">
+void ENDFExtract (ifstream <i>*fp</i>, int <i>mf</i>, int <i>mt</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *fp
+        pointer to input stream
+    mf,mt
+        MF/MT number
+Return Value
+</pre>
+
+<p>Print a given MF/MT section in the ENDF-6 file in the original format.</p>
+
+
+
+<h3><a name="ENDFInterpolation">ENDFInterpolation</a></h3>
+
+<pre id="syn">
+double ENDFInterpolation (ENDF <i>*lib</i>, double <i>x</i>, bool <i>dupflag</i>, const int <i>idx</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib
+        pointer to ENDF object that is used as abscissa
+    x
+        X-data point where Y-value is calculated
+    dupflag
+        flag to control a duplicated point, see text below
+Return Value
+    interpolated Y-value
+</pre>
+
+<p>Calculate a Y-value at given any X-value by interpolating a set of (x,y) pair data
+in the ENDF object. Sometimes the (x,y) set contains a duplicated X-point to allow
+a sudden jump in the data, and this prevents interpolation. <i>dupflag</i> tells 
+<tt>ENDFInterpolation</tt> which data point (before jump or after jump) should be
+taken. When <i>dupflag = true</i>, we take the Y-value before the duplicated point,
+and <i>false</i> is to take the value after the duplication. </p>
+
+
+
+<h3><a name="ENDFMergeXdata">ENDFMergeXdata</a></h3>
+
+<pre id="syn">
+int ENDFMergeXdata (ENDF <i>*lib1</i>, ENDF <i>*lib2</i>, double <i>*z</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *lib1, *lib2
+        pointer to two ENDF objects
+    *z
+        array of double precision values as output for X-data
+Return Value
+    number of data point
+</pre>
+
+<p>Produce a set of X-data which are union of X-data in two ENDF objects.
+This is used for doing arithmetic of two sections, such as adding, subtracting,
+multiplying two sections. To perform such calculations, the X-axis should
+be common to these sections, and this function generates a unified set of the
+X-data. After calling this function, <tt>ENDFInterpolation</tt> can be used
+to calculate all the Y-values at each X-value given by this function.</p>
+
+
+
+<h3><a name="ENDFMF2bounday">ENDFMF2bounday</a></h3>
+
+<pre id="syn">
+void ENDFMF2boundary (ENDFDict <i>*dict</i>, ENDF <i>*lib</i>)
+</pre>
+
+<pre id="prg">
+Parameters
+    *dict
+        pointer to ENDFDict object in which outputs will be stored
+    *lib
+        pointer to ENDF object to be scanned
+Return Value
+    none
+</pre>
+
+<p>Determine two energy boundaries given in the ENDFDict object
+- <tt>emaxRR</tt> and
+<tt>emaxUR</tt> by looking into the resonance region of ENDF-6 file.
+<tt>emaxRR</tt>  is the high-side of the resolved resonance region,
+and <tt>emaxUR</tt> is the highest energy of the unresolved resonance.</p>
+
+<hr>
+<a href="endfio.html"> [BACK] </a>
+<a href="index.html">    [UP]  </a>
+<a href="function2.html"> [NEXT]  </a>
+</body>
+</html>
