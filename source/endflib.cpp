@@ -368,6 +368,50 @@ Record ENDFReadTAB22(ifstream *fp, ENDF *lib)
 
 
 /**********************************************************/
+/*      Read CONT+INTG Records                            */
+/**********************************************************/
+Record ENDFReadINTG(ifstream *fp, ENDF *lib)
+{
+  if( lib->checkSUBBLOCK() ) ENDFExceedSubBlock("ReadINTG",lib);
+  int idx = lib->getPOS();
+
+  /*** store CONT record */
+  lib->rdata[idx] = ENDFNextCONT(fp);
+  int nd = lib->rdata[idx].l1;
+  int nm = lib->rdata[idx].n1;
+
+  int field = nd + 1;
+  static int row[] = {0, 0, 18, 13, 11, 9, 8};
+
+  int nmax = nm * row[nd];
+  if( lib->checkMAXDATA(nmax,0) ) ENDFExceedDataSize("ReadINTG",lib,nmax,0);
+
+  int i = 0;
+  string s;
+  for(int j=0 ; j<nm ; j++){
+    getline(*fp,line);
+    s = line.substr(0,5); lib->iptr[idx][i++] = atoi(s.c_str()); 
+    s = line.substr(5,5); lib->iptr[idx][i++] = atoi(s.c_str());
+
+    int p = FIELD_WIDTH;
+    if(nd == 6) p --;
+    for(int k=0 ; k<row[nd] ; k++){
+      s = line.substr(p,field); p += field;
+      if(s != blank) lib->iptr[idx][i++] = atoi(s.c_str());
+    }
+  }
+
+  /*** calculate next address */
+  lib->iptr[idx+1] = lib->iptr[idx] + i;
+  lib->xptr[idx+1] = lib->xptr[idx];
+
+  lib->inclPOS();
+
+  return(lib->rdata[idx]);
+}
+
+
+/**********************************************************/
 /*      Read 1-Dim Array (double)                         */
 /**********************************************************/
 int ENDFReadArray(ifstream *fp, int m, int n, double *x)
@@ -610,6 +654,35 @@ Record ENDFWriteTAB22(ENDF *lib)
 
   for(int n=0 ; n<np ; n++) ENDFWriteTAB21(lib);
   
+  return(cont);
+}
+
+
+/**********************************************************/
+/*      Write CONT+INTG Records                           */
+/**********************************************************/
+Record ENDFWriteINTG(ENDF *lib)
+{
+  int idx = lib->getCTR();
+  Record cont = ENDFWriteCONT(lib);
+  int nd = cont.l1;
+  int nm = cont.n1;
+
+  int field = nd + 1;
+  static int row[] = {0, 0, 18, 13, 11, 9, 8};
+
+  int i = 0;
+  for(int j=0 ; j<nm ; j++){
+    cout << setw(5) << lib->iptr[idx][i++];
+    cout << setw(5) << lib->iptr[idx][i++];
+    if(nd != 6) cout << " ";
+
+    for(int k=0 ; k<row[nd] ; k++) cout << setw(field) << lib->iptr[idx][i++];
+    int p = 55 - row[nd] * field;
+    for(int k=0 ; k<p ; k++) cout << " ";
+    ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
+  }
+
   return(cont);
 }
 

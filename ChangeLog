@@ -1,3 +1,21 @@
+2020-06-11  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable32.cpp: new file
+	tabulate MF32, not so tested yet
+
+2020-06-10  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endfio.cpp (ENDFReadMF32): updated
+	* source/endflib.cpp (ENDFReadINTG): new function
+	(ENDFWriteINTG): new function
+
+	MF32 MT2 LCOMP=2 case, added
+
+2020-05-04  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable5.cpp (DeceTableMF5): modified
+	print fraction of each spectrum added
+
 2020-03-10  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* tools/deceheader.cpp (DeceHeaderCreateLib): bug fixed

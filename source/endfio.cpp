@@ -921,40 +921,68 @@ int ENDFReadMF32(ifstream *fp, ENDF *lib)
 
     cont = ENDFReadCONT(fp,lib);
     int lru  = cont.l1;
+    int lrf  = cont.l2;
     int nro  = cont.n1;
 
-    if(nro !=0 ){
-      /*** Energy Dependent Scattering Radius */
+    /*** Resolved Resonance */
+    if(lru == 1){
+
+      if(nro !=0 ){
+        /*** Energy Dependent Scattering Radius */
+        cont = ENDFReadCONT(fp,lib);
+        int ni = cont.n2;
+
+        /*** NI-type sub-subsections */
+        for(int i=0 ; i<ni ; i++) ENDFReadLIST(fp,lib);
+      }
+
+      /*** SPI, AP, NLS */
       cont = ENDFReadCONT(fp,lib);
-      int ni = cont.n2;
+      int lcomp = cont.l2;
+      int nls   = cont.n1;
+      int isr   = cont.n2;
 
-      /*** NI-type sub-subsections */
-      for(int i=0 ; i<ni ; i++) ENDFReadLIST(fp,lib);
-    }
+      /*** Compatible Resolved Resonance Subsection Format */
+      if(lcomp == 0){
+        if(isr != 0) ENDFReadCONT(fp,lib);
+        for(int inls=0 ; inls<nls ; inls++) ENDFReadLIST(fp,lib);
+      }
 
-    /*** SPI, AP, NLS */
-    cont = ENDFReadCONT(fp,lib);
-    int lcomp = cont.l2;
-    int nls   = cont.n1;
-
-    /*** Compatible Resolved Resonance Subsection Format */
-    if(lcomp == 0){
-      for(int inls=0 ; inls<nls ; inls++) ENDFReadLIST(fp,lib);
-    }
-
-    /*** General Resolved Resonance Subsection Format */
-    else{
-      if(lru == 1){
+      /*** General Resolved Resonance Subsection Format */
+      else if(lcomp == 1){
+        if(isr != 0){
+          if(lrf == 3) ENDFReadLIST(fp,lib);
+          else         ENDFReadCONT(fp,lib);
+        }
         cont = ENDFReadCONT(fp,lib);
         int nsrs = cont.n1;  // within a resonance
         int nlrs = cont.n2;  // long-range
         for(int insrs=0 ; insrs<nsrs ; insrs++) ENDFReadLIST(fp,lib);
         for(int inlrs=0 ; inlrs<nlrs ; inlrs++) ENDFReadLIST(fp,lib);
       }
+
+      /*** Resolved Resonance Compact Covariance Format */
       else{
-        for(int inls=0 ; inls<nls ; inls++) ENDFReadLIST(fp,lib);
-        ENDFReadLIST(fp,lib);
+        if( (lrf == 1) || (lrf == 2) || (lrf == 3)){
+          if(isr == 1){
+            if(lrf == 3) ENDFReadLIST(fp,lib);
+            else         ENDFReadCONT(fp,lib);
+          }
+          ENDFReadLIST(fp,lib);
+          ENDFReadINTG(fp,lib);
+        }
+        else{
+          cout << "LCOMP = " << lcomp << " LRU = " << lru << "  LRF = " << lrf
+               << "  has not been implemented" << endl;
+        }
       }
+    }
+    /*** Unresolved Resonance */
+    else{
+      cont = ENDFReadCONT(fp,lib);
+      int nls = cont.n1;
+      for(int inls=0 ; inls<nls ; inls++) ENDFReadLIST(fp,lib);
+      ENDFReadLIST(fp,lib);
     }
   }
 
@@ -972,34 +1000,56 @@ void ENDFWriteMF32(ENDF *lib)
   for(int i=0 ; i<ner ; i++){
     cont = ENDFWriteCONT(lib);
     int lru  = cont.l1;
+    int lrf  = cont.l2;
     int nro  = cont.n1;
 
-    if(nro !=0 ){
+    if(lru == 1){
+      if(nro !=0 ){
+        cont = ENDFWriteCONT(lib);
+        int ni = cont.n2;
+        for(int i=0 ; i<ni ; i++) ENDFWriteLIST(lib);
+      }
+
       cont = ENDFWriteCONT(lib);
-      int ni = cont.n2;
-      for(int i=0 ; i<ni ; i++) ENDFWriteLIST(lib);
-    }
+      int lcomp = cont.l2;
+      int nls   = cont.n1;
+      int isr   = cont.n2;
 
-    cont = ENDFWriteCONT(lib);
-    int lcomp = cont.l2;
-    int nls   = cont.n1;
-
-    if(lcomp == 0){
-      for(int inls=0 ; inls<nls ; inls++) ENDFWriteLIST(lib);
-    }
-    else{
-      if(lru == 1){
+      if(lcomp == 0){
+        if(isr != 0) ENDFWriteCONT(lib);
+        for(int inls=0 ; inls<nls ; inls++) ENDFWriteLIST(lib);
+      }
+      else if(lcomp == 1){
+        if(isr != 0){
+          if(lrf == 3) ENDFWriteLIST(lib);
+          else         ENDFWriteCONT(lib);
+        }
         cont = ENDFWriteCONT(lib);
         int nsrs = cont.n1;
         int nlrs = cont.n2;
-
         for(int insrs=0 ; insrs<nsrs ; insrs++) ENDFWriteLIST(lib);
         for(int inlrs=0 ; inlrs<nlrs ; inlrs++) ENDFWriteLIST(lib);
       }
       else{
-        for(int inls=0 ; inls<nls ; inls++) ENDFWriteLIST(lib);
-        ENDFWriteLIST(lib);
+        if( (lrf == 1) || (lrf == 2) || (lrf == 3)){
+          if(isr == 1){
+            if(lrf == 3) ENDFWriteLIST(lib);
+            else         ENDFWriteCONT(lib);
+          }
+          ENDFWriteLIST(lib);
+          ENDFWriteINTG(lib);
+        }
+        else{
+          cout << "LCOMP = " << lcomp << " LRU = " << lru << "  LRF = " << lrf
+               << "  has not been implemented" << endl;
+        }
       }
+    }
+    else{
+      cont = ENDFWriteCONT(lib);
+      int nls = cont.n1;
+      for(int inls=0 ; inls<nls ; inls++) ENDFWriteLIST(lib);
+      ENDFWriteLIST(lib);
     }
   }
 }

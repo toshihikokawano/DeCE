@@ -27,6 +27,7 @@ void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const in
       (mf == 14) ||
       (mf == 15) ||
       (mf == 31) ||
+      (mf == 32) ||
       (mf == 33) ||
       (mf == 34) ||
       (mf == 35) ){
@@ -66,6 +67,7 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt)
       (mf == 14) ||
       (mf == 15) ||
       (mf == 31) ||
+      (mf == 32) ||
       (mf == 33) ||
       (mf == 34) ||
       (mf == 35) ){
@@ -90,6 +92,7 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt)
     case 14: c = ENDFReadMF14(fp,&lib,mt);  break;
     case 15: c = ENDFReadMF15(fp,&lib,mt);  break;
     case 31: c = ENDFReadMF31(fp,&lib,mt);  break;
+    case 32: c = ENDFReadMF32(fp,&lib   );  break;
     case 33: c = ENDFReadMF33(fp,&lib,mt);  break;
     case 34: c = ENDFReadMF34(fp,&lib,mt);  break;
     case 35: c = ENDFReadMF35(fp,&lib,mt);  break;
@@ -182,7 +185,8 @@ void DeceLibToTable(ENDF *lib, ENDF *sup)
   case 13: DeceTableMF13(lib);    break;
   case 14: DeceTableMF14(lib);    break;
   case 15: DeceTableMF15(lib);    break;
-  case 31:
+  case 31: DeceTableMF33(lib);    break;
+  case 32: DeceTableMF32(lib);    break;
   case 33: DeceTableMF33(lib);    break;
   case 34: DeceTableMF34(lib);    break;
   case 35: DeceTableMF35(lib);    break;

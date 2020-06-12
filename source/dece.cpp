@@ -89,7 +89,7 @@ int main(int argc, char *argv[])
   DeceInitOptions();
 
   /*** tabular output from one section */
-  if(mfin == 2) mtin = 151;
+  if((mfin == 2) || (mfin == 32)) mtin = 151;
 
   if((mfin > 0) && (mtin > 0)){
     ifstream  fpin;
@@ -244,9 +244,9 @@ void DeceInitOptions()
 /**********************************************************/
 void DeceReadMonitor(int mat, int mf, int mt, int sec, int n)
 {
-  message << "MAT:" << mat <<" ";
-  message << "MF:" << mf;
-  message << "MT:" << mt;
+  message << "MAT:" << mat;
+  message << " MF:" << mf;
+  message << " MT:" << mt;
   message << " assigned for Section " << sec;
   message << " sub-blocks " << n;
   Notice("DeceReadMonitor");

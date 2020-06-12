@@ -8,8 +8,8 @@
 #define MAX_INTDATA             1000
 #define MAX_SUBBLOCK             500
 
-#define MAX_DBLDATA_LARGE    2000000
-#define MAX_INTDATA_LARGE     500000
+#define MAX_DBLDATA_LARGE    2500000
+#define MAX_INTDATA_LARGE    2500000
 #define MAX_SUBBLOCK_LARGE    100000
 
 #define MAX_DBLDATA_SMALL        100
@@ -410,6 +410,7 @@ Record ENDFReadTAB1       (ifstream *, ENDF *);
 Record ENDFReadTAB2       (ifstream *, ENDF *);
 Record ENDFReadTAB21      (ifstream *, ENDF *);
 Record ENDFReadTAB22      (ifstream *, ENDF *);
+Record ENDFReadINTG       (ifstream *, ENDF *);
 
 int    ENDFReadArray      (ifstream *, int, int, int    *);
 int    ENDFReadArray      (ifstream *, int, int, double *);
@@ -429,6 +430,7 @@ Record ENDFWriteTAB1      (ENDF *);
 Record ENDFWriteTAB2      (ENDF *);
 Record ENDFWriteTAB21     (ENDF *);
 Record ENDFWriteTAB22     (ENDF *);
+Record ENDFWriteINTG      (ENDF *);
 void   ENDFWriteSEND      (ENDF *);
 void   ENDFWriteFEND      (int);
 void   ENDFWriteArray     (ENDF *, int, double *);

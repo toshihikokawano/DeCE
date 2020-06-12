@@ -27,8 +27,18 @@ void DeceTableMF5(ENDF *lib)
   cout << "#           NK" << setw(14) << nk << "  number of subsections" << endl;
 
   for(int n=0 ; n<nk ; n++){
-    Record cont = lib->rdata[idx++];
+    Record cont = lib->rdata[idx];
     int lf = cont.l2;
+
+    cout << "#            K" << setw(14) << n << "  subsection" << endl;
+    int nek = lib->rdata[idx].n2;
+    cout << "#           NE" << setw(14) << nek << endl;
+    for(int i=0 ; i<nek ; i++){
+      outVal(lib->xptr[idx][2*i  ]);
+      outVal(lib->xptr[idx][2*i+1]);
+      cout << endl;
+    }
+    idx ++;
 
     if(lf == 1){
       int ne = lib->rdata[idx++].n2;
