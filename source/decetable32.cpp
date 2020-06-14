@@ -27,7 +27,7 @@ void DeceTableMF32(ENDF *lib)
   Record cont = lib->rdata[idx++];
   int    ner  = cont.n1;
 
-  cout << "#   NER:" << setw(6) << ner << endl;
+  cout << "#   NER:" << setw(8) << ner << endl;
 
   for(int i=0 ; i<ner ; i++){
     cont = lib->rdata[idx++];
@@ -39,8 +39,8 @@ void DeceTableMF32(ENDF *lib)
 
     cout << "#    EL:"; outVal(el); cout << endl;
     cout << "#    EH:"; outVal(eh); cout << endl;
-    cout << "#   LRU:" << setw(6) << lru << endl;
-    cout << "#   LRF:" << setw(6) << lrf << endl;
+    cout << "#   LRU:" << setw(8) << lru << endl;
+    cout << "#   LRF:" << setw(8) << lrf << endl;
 
     if( !(lrf == 1 || lrf == 2 || lrf == 3) ){
       message << "LRF = " << lrf << " not yet implemented";
@@ -60,9 +60,9 @@ void DeceTableMF32(ENDF *lib)
       int nls   = cont.n1;
       int isr   = cont.n2;
 
-      cout << "# LCOMP:" << setw(6) << lcomp << endl;
-      cout << "#   NLS:" << setw(6) << nls << endl;
-      cout << "#   ISR:" << setw(6) << isr << endl;
+      cout << "# LCOMP:" << setw(8) << lcomp << endl;
+      cout << "#   NLS:" << setw(8) << nls << endl;
+      cout << "#   ISR:" << setw(8) << isr << endl;
 
       if(isr != 0) idx++;
 
@@ -99,8 +99,8 @@ int DeceTableMF32LCOMP0(int idx, int nls, ENDF *lib)
   for(int inls=0 ; inls<nls ; inls++){
     Record cont = lib->rdata[idx];
     int nrs = cont.n2;
-    cout << "#         L:" << setw(6) << inls << endl;
-    cout << "#       NRS:" << setw(6) << nrs << endl;
+    cout << "#         L:" << setw(8) << inls << endl;
+    cout << "#       NRS:" << setw(8) << nrs << endl;
 
     for(int i=0 ; i<nrs ; i++){
       int j = 18*i;
@@ -154,8 +154,8 @@ int DeceTableMF32LCOMP1(int idx, int lru, int lrf, ENDF *lib)
   int nsrs = cont.n1;
   int nlrs = cont.n2;
 
-  cout << "#  NSRS:" << setw(6) << nsrs << endl;
-  cout << "#  NLRS:" << setw(6) << nlrs << endl;
+  cout << "#  NSRS:" << setw(8) << nsrs << endl;
+  cout << "#  NLRS:" << setw(8) << nlrs << endl;
 
   for(int insrs=0 ; insrs<nsrs ; insrs++){
     cont = lib->rdata[idx];
@@ -163,9 +163,9 @@ int DeceTableMF32LCOMP1(int idx, int lru, int lrf, ENDF *lib)
     int nrb  = cont.n2;
     int n    = nrb * mpar;
 
-    cout << "#     INSRS:" << setw(6) << insrs << endl;
-    cout << "#      MPAR:" << setw(6) << mpar << endl;
-    cout << "#       NRB:" << setw(6) << nrb << endl;
+    cout << "#     INSRS:" << setw(8) << insrs << endl;
+    cout << "#      MPAR:" << setw(8) << mpar << endl;
+    cout << "#       NRB:" << setw(8) << nrb << endl;
 
     double *p = new double [n];
 
@@ -243,7 +243,7 @@ int DeceTableMF32LCOMP2(int idx, int lrf, ENDF *lib)
   Record cont = lib->rdata[idx];
   int nrsa = cont.n2;
 
-  cout << "#  NRSA:" << setw(6) << nrsa << endl;
+  cout << "#  NRSA:" << setw(8) << nrsa << endl;
 
   double *pptr = lib->xptr[idx];
   double *p = new double [nrsa * 4];
@@ -256,8 +256,8 @@ int DeceTableMF32LCOMP2(int idx, int lrf, ENDF *lib)
   int nn = cont.l2;
   int nm = cont.n1;
 
-  cout << "# NDIGT:" << setw(6) << nd << endl;
-  cout << "#    NM:" << setw(6) << nm << endl;
+  cout << "# NDIGT:" << setw(8) << nd << endl;
+  cout << "#    NM:" << setw(8) << nm << endl;
 
   int mpar = nn / nrsa;
 
@@ -297,13 +297,13 @@ int DeceTableMF32LCOMP2(int idx, int lrf, ENDF *lib)
 
   int i = 0;
   for(int j=0 ; j<nm ; j++){
-    int ii = lib->iptr[idx][i++] - 1;
-    int jj = lib->iptr[idx][i++] - 1;
+    int ii = (int)lib->xptr[idx][i++] - 1;
+    int jj = (int)lib->xptr[idx][i++] - 1;
     int k0 = ii*(ii+1)/2 + jj;
     int km = ii*(ii+1)/2 + ii;
 
     for(int k=0 ; k<row[nd] ; k++){
-      int c = lib->iptr[idx][i++];
+      int c = (int)lib->xptr[idx][i++];
 
       int ij = k0 + k;
       if(ij < km) cor[ij] = (int)(1000.0 * c / base[nd]);

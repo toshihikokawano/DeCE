@@ -9,7 +9,7 @@
 #define MAX_SUBBLOCK             500
 
 #define MAX_DBLDATA_LARGE    2500000
-#define MAX_INTDATA_LARGE    2500000
+#define MAX_INTDATA_LARGE     500000
 #define MAX_SUBBLOCK_LARGE    100000
 
 #define MAX_DBLDATA_SMALL        100
@@ -412,13 +412,6 @@ Record ENDFReadTAB21      (ifstream *, ENDF *);
 Record ENDFReadTAB22      (ifstream *, ENDF *);
 Record ENDFReadINTG       (ifstream *, ENDF *);
 
-int    ENDFReadArray      (ifstream *, int, int, int    *);
-int    ENDFReadArray      (ifstream *, int, int, double *);
-
-void   ENDFExceedSubBlock (const string, ENDF *);
-void   ENDFExceedDataSize (const string, ENDF *, int, int);
-
-
 void   ENDFWriteTPID      (ENDFDict *);
 void   ENDFWriteHEAD      (ENDF *);
 void   ENDFWriteRecord    (Record);
@@ -433,8 +426,6 @@ Record ENDFWriteTAB22     (ENDF *);
 Record ENDFWriteINTG      (ENDF *);
 void   ENDFWriteSEND      (ENDF *);
 void   ENDFWriteFEND      (int);
-void   ENDFWriteArray     (ENDF *, int, double *);
-void   ENDFWriteArray     (ENDF *, int, int *);
 void   ENDFPrintRight     (const int, const int, const int);
 void   ENDFPrintLineNumber(const bool);
 void   ENDFPackCONT       (Record, ENDF *);

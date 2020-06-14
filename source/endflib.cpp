@@ -16,8 +16,19 @@ using namespace std;
 
 #include "endflib.h"
 
-static double ENDFPadExp(string);
-static void   ENDFDelExp(double, char *);
+static int    ENDFReadArray (ifstream *, int, int, int    *);
+static int    ENDFReadArray (ifstream *, int, int, double *);
+static int    ENDFReadArray (ifstream *, int, int, int, double *);
+
+static void   ENDFWriteArray (ENDF *, int, int *);
+static void   ENDFWriteArray (ENDF *, int, double *);
+static void   ENDFWriteArray (ENDF *, int, int, int, double *);
+
+static void   ENDFExceedSubBlock (const string, ENDF *);
+static void   ENDFExceedDataSize (const string, ENDF *, const int, const int);
+
+static double ENDFPadExp (string);
+static void   ENDFDelExp (double, char *);
 
 static string line;
 static string blank = "           ";
@@ -380,30 +391,17 @@ Record ENDFReadINTG(ifstream *fp, ENDF *lib)
   int nd = lib->rdata[idx].l1;
   int nm = lib->rdata[idx].n1;
 
-  int field = nd + 1;
   static int row[] = {0, 0, 18, 13, 11, 9, 8};
 
   int nmax = nm * row[nd];
-  if( lib->checkMAXDATA(nmax,0) ) ENDFExceedDataSize("ReadINTG",lib,nmax,0);
+  if( lib->checkMAXDATA(0,nmax) ) ENDFExceedDataSize("ReadINTG",lib,0,nmax);
 
-  int i = 0;
-  string s;
-  for(int j=0 ; j<nm ; j++){
-    getline(*fp,line);
-    s = line.substr(0,5); lib->iptr[idx][i++] = atoi(s.c_str()); 
-    s = line.substr(5,5); lib->iptr[idx][i++] = atoi(s.c_str());
-
-    int p = FIELD_WIDTH;
-    if(nd == 6) p --;
-    for(int k=0 ; k<row[nd] ; k++){
-      s = line.substr(p,field); p += field;
-      if(s != blank) lib->iptr[idx][i++] = atoi(s.c_str());
-    }
-  }
+  /***  read in INTG-formatted int data into double array */
+  ENDFReadArray(fp,nm,row[nd],nd,lib->xptr[idx]);
 
   /*** calculate next address */
-  lib->iptr[idx+1] = lib->iptr[idx] + i;
-  lib->xptr[idx+1] = lib->xptr[idx];
+  lib->iptr[idx+1] = lib->iptr[idx];
+  lib->xptr[idx+1] = lib->xptr[idx] + nmax;
 
   lib->inclPOS();
 
@@ -468,6 +466,31 @@ int ENDFReadArray(ifstream *fp, int m, int n, int *x)
 
 
 /**********************************************************/
+/*      Read 1-Dim Array (INTG-type int)                  */
+/**********************************************************/
+int ENDFReadArray(ifstream *fp, int m, int n, int d, double *x)
+{
+  string s;
+
+  int i = 0;
+  for(int j=0 ; j<m ; j++){
+    getline(*fp,line);
+    s = line.substr(0,5); x[i++] = atof(s.c_str()); 
+    s = line.substr(5,5); x[i++] = atof(s.c_str());
+
+    int p = FIELD_WIDTH;
+    if(d == 6) p --;
+    for(int k=0 ; k<n ; k++){
+      s = line.substr(p,(d+1)); p += d+1;
+      if(s != blank) x[i++] = atoi(s.c_str());
+    }
+  }
+
+  return (i);
+}
+
+
+/**********************************************************/
 /*      Error Message                                     */
 /**********************************************************/
 void ENDFExceedSubBlock(const string loc, ENDF *lib)
@@ -480,12 +503,12 @@ void ENDFExceedSubBlock(const string loc, ENDF *lib)
 }
 
 
-void ENDFExceedDataSize(const string loc, ENDF *lib, int ni, int nx)
+void ENDFExceedDataSize(const string loc, ENDF *lib, const int ni, const int nx)
 {
   cerr << "too many data-point at " << loc;
   cerr << "  MF = " << lib->getENDFmf();
-  cerr << "  MT = " << lib->getENDFmt() << endl;
-  cerr << "  requested Ni /Nx " << ni << "  " << nx << endl;
+  cerr << "  MT = " << lib->getENDFmt();
+  cerr << "  requested Ni = " << ni << "  Nx = " << nx << endl;
   exit(-1);
 }
 
@@ -668,20 +691,9 @@ Record ENDFWriteINTG(ENDF *lib)
   int nd = cont.l1;
   int nm = cont.n1;
 
-  int field = nd + 1;
   static int row[] = {0, 0, 18, 13, 11, 9, 8};
 
-  int i = 0;
-  for(int j=0 ; j<nm ; j++){
-    cout << setw(5) << lib->iptr[idx][i++];
-    cout << setw(5) << lib->iptr[idx][i++];
-    if(nd != 6) cout << " ";
-
-    for(int k=0 ; k<row[nd] ; k++) cout << setw(field) << lib->iptr[idx][i++];
-    int p = 55 - row[nd] * field;
-    for(int k=0 ; k<p ; k++) cout << " ";
-    ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
-  }
+  ENDFWriteArray(lib,nm,row[nd],nd,lib->xptr[idx]);
 
   return(cont);
 }
@@ -746,6 +758,25 @@ void ENDFWriteArray(ENDF *lib, int np, int *x)
       }
       else cout << blank;
     }
+    ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
+  }
+}
+
+
+/**********************************************************/
+/*      Write 1-Dim Data (INTG-type int)                  */
+/**********************************************************/
+void ENDFWriteArray(ENDF *lib, int m, int n, int d, double *x)
+{
+  int i = 0;
+  for(int j=0 ; j<m ; j++){
+    cout << setw(5) << (int)x[i++];
+    cout << setw(5) << (int)x[i++];
+    if(d != 6) cout << " ";
+
+    for(int k=0 ; k<n ; k++) cout << setw(d+1) << (int)x[i++];
+    int p = 55 - n * (d+1);
+    for(int k=0 ; k<p ; k++) cout << " ";
     ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
   }
 }

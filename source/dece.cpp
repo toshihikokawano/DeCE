@@ -7,6 +7,7 @@
 /******************************************************************************/
 
 #include <iostream>
+#include <iomanip>
 #include <sstream>
 #include <cstdlib>
 #include <cstring>
@@ -30,7 +31,7 @@ static ENDF   *lib[MAX_SECTION];
 static void DeceMain          (string, string, ENDFDict *);
 static void DeceStoreData     (ENDFDict *, ifstream *);
 static void DeceInitOptions   (void);
-static void DeceReadMonitor   (int, int, int, int, int);
+static void DeceReadMonitor   (const int, const int, const int, const int, const int, const int, const int);
 static void DeceHelp          (void);
 static void DeceFreeMemory    (void);
 static void DeceBanner        (void);
@@ -222,7 +223,7 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
     ENDFRead(fp,lib[newsec],dict->mf[i],dict->mt[i]);
     if(dict->mf[i] == 2) ENDFMF2boundary(dict,lib[newsec]);
 
-    DeceReadMonitor(lib[newsec]->getENDFmat(),dict->mf[i],dict->mt[i],newsec,lib[newsec]->getPOS());
+    DeceReadMonitor(lib[newsec]->getENDFmat(),dict->mf[i],dict->mt[i],newsec,lib[newsec]->getPOS(),lib[newsec]->getNI(),lib[newsec]->getNX());
     dict->setID(i,newsec++);
 
     if(newsec >= MAX_SECTION) TerminateCode("Too many sections",newsec);
@@ -242,13 +243,15 @@ void DeceInitOptions()
 /**********************************************************/
 /*      Data Read Monitor                                 */
 /**********************************************************/
-void DeceReadMonitor(int mat, int mf, int mt, int sec, int n)
+void DeceReadMonitor(const int mat, const int mf, const int mt, const int sec, const int n, const int ni, const int nx)
 {
-  message << "MAT:" << mat;
-  message << " MF:" << mf;
-  message << " MT:" << mt;
-  message << " assigned for Section " << sec;
-  message << " sub-blocks " << n;
+  message << "MAT:" << setw(5) << mat;
+  message << " MF:" << setw(3) << mf;
+  message << " MT:" << setw(4) << mt;
+  message << "  assigned for Section " << setw(4) << sec;
+  message << " sub-blocks " << setw(4) << n;
+  message << " : int data " << setw(8) << ni;
+  message << " : dble data " << setw(8) << nx;
   Notice("DeceReadMonitor");
 }
 

@@ -53,7 +53,7 @@ void DeceShowHeaders(ENDFDict *dict)
 
 
 /**********************************************************/
-/*      Print Header Data                                 */
+/*      Edit Header Data                                  */
 /**********************************************************/
 void DeceEditHeader(ENDFDict *dict, string parameter, const double x)
 {
