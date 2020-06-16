@@ -1,3 +1,12 @@
+#ifndef TEXT_WIDTH
+#define TEXT_WIDTH 66
+#endif
+
+#ifndef __CSTRING_H__
+#include <cstring>
+#define __CSTRING_H__
+#endif
+
 /**************************************/
 /*      Class ENDF : Text Field       */
 /**************************************/
@@ -28,18 +37,19 @@ class ENDFText{
 
   int getlen(){ return length; }
 
-  void read(int c, char *src){
-    if(c > length) c = length;
-    for(int i=0 ; i<c ; i++) text[i] = src[i];
-    if(c < length){
+  void read(char *src){
+    int c = strlen(src);
+    if(c >= length){
+      for(int i=0 ; i<length ; i++) text[i] = src[i];
+    }
+    else{
+      for(int i=0 ; i<c ; i++) text[i] = src[i];
       for(int i=c ; i<length ; i++) text[i] = ' ';
     }
   }
 
-  void copy(int c, char *src){
-    if(c >= length + xpos){
-      for(int i=0 ; i<length ; i++) text[i] = src[i+xpos];
-    }
+  void copy(char *src){
+    for(int i=0 ; i<length ; i++) text[i] = src[i+xpos];
   }
 
   void paste(int c, char *dst){

@@ -1,3 +1,23 @@
+2020-06-15  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* manual/header.html: updated
+	* manual/input.html: updated
+	manual updated to include editheader
+
+	* test/decetest.sh: updated
+	* test/input/input18.dece: new file
+	new test input #18 for header manipulation added
+
+	* source/endfio.cpp (ENDFReadMF32): updated
+	* source/decetable32.cpp: updated
+	LRF = 7 implemented, and all functions tested
+
+2020-06-14  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceheader.cpp (DeceShowHeaderText, DeceEditHeaderText)
+	(DeceHeaderReplaceData): new functions
+	moved these functions from tools into the main program
+
 2020-06-13  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.cpp (ENDFReadINTG): modified

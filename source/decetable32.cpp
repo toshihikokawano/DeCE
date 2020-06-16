@@ -12,10 +12,14 @@ using namespace std;
 #include "terminate.h"
 #include "decetable.h"
 
-static int DeceTableMF32LCOMP0(int, int, ENDF *);
-static int DeceTableMF32LCOMP1(int, int, int, ENDF *);
-static int DeceTableMF32LCOMP2(int, int, ENDF *);
-static int DeceTableMF32URR   (int, int, ENDF *);
+static int  DeceTableMF32RRR (int, int, ENDF *);
+static int  DeceTableMF32LCOMP0 (int, int, ENDF *);
+static int  DeceTableMF32LCOMP1LRF3 (int, int, ENDF *);
+static int  DeceTableMF32LCOMP1LRF7 (int,      ENDF *);
+static int  DeceTableMF32LCOMP2LRF3 (int, int, ENDF *);
+static int  DeceTableMF32LCOMP2LRF7 (int, int, ENDF *);
+static void DeceTableMF32PrintCorr (int, int, int, double *, double *, double *);
+static int  DeceTableMF32URR (int, ENDF *);
 
 
 /**********************************************************/
@@ -42,50 +46,63 @@ void DeceTableMF32(ENDF *lib)
     cout << "#   LRU:" << setw(8) << lru << endl;
     cout << "#   LRF:" << setw(8) << lrf << endl;
 
-    if( !(lrf == 1 || lrf == 2 || lrf == 3) ){
+    if( !(lrf == 1 || lrf == 2 || lrf == 3 || lrf == 7) ){
       message << "LRF = " << lrf << " not yet implemented";
       WarningMessage();
       return;
     }
 
+    /*** resolved resonance range */
     if(lru == 1){
+      /*** when NRO !=0, skip NI-type scattering radius covariance */
       if(nro !=0 ){
         cont = lib->rdata[idx++];
         int ni = cont.n2;
         for(int i=0 ; i<ni ; i++) idx ++;
       }
-
-      cont = lib->rdata[idx++];
-      int lcomp = cont.l2;
-      int nls   = cont.n1;
-      int isr   = cont.n2;
-
-      cout << "# LCOMP:" << setw(8) << lcomp << endl;
-      cout << "#   NLS:" << setw(8) << nls << endl;
-      cout << "#   ISR:" << setw(8) << isr << endl;
-
-      if(isr != 0) idx++;
-
-      /*** ENDF/B-V Compatible Resolved Resonance Format */
-      if(lcomp == 0){
-        idx = DeceTableMF32LCOMP0(idx,nls,lib);
-      }
-      /*** General Resolved Resonance Format */
-      else if(lcomp == 1){
-        idx = DeceTableMF32LCOMP1(idx,lru,lrf,lib);
-      }
-      else{
-        idx = DeceTableMF32LCOMP2(idx,lrf,lib);
-      }
+      idx = DeceTableMF32RRR(idx,lrf,lib);
     }
+    /*** unresolved resonance range */
     else{
-      cont = lib->rdata[idx++];
-      int nls = cont.n1;
-      idx = DeceTableMF32URR(idx,nls,lib);
+      idx = DeceTableMF32URR(idx,lib);
     }
+
     cout << endl;
     cout << endl;
   }
+}
+
+
+/**********************************************************/
+/*      Resolved Resonance Parameter Covariance           */
+/**********************************************************/
+int DeceTableMF32RRR(int idx, int lrf, ENDF *lib)
+{
+  Record cont = lib->rdata[idx++];
+  int lcomp = cont.l2;
+  int nls   = cont.n1; int njs = nls;
+  int isr   = cont.n2;
+
+  cout << "# LCOMP:" << setw(8) << lcomp << endl;
+  cout << "#   ISR:" << setw(8) << isr << endl;
+
+  /*** skip scattering radius uncertainty */
+  if(isr != 0) idx++;
+
+  /*** ENDF/B-V Compatible Resolved Resonance Format */
+  if(lcomp == 0){
+    idx = DeceTableMF32LCOMP0(idx,nls,lib);
+  }
+  /*** General Resolved Resonance Format */
+  else if(lcomp == 1){
+    if(lrf == 7) idx = DeceTableMF32LCOMP1LRF7(idx,lib);
+    else         idx = DeceTableMF32LCOMP1LRF3(idx,lrf,lib);
+  }
+  else{
+    if(lrf == 7) idx = DeceTableMF32LCOMP2LRF7(idx,njs,lib);
+    else         idx = DeceTableMF32LCOMP2LRF3(idx,lrf,lib);
+  }
+  return(idx);
 }
 
 
@@ -146,9 +163,9 @@ int DeceTableMF32LCOMP0(int idx, int nls, ENDF *lib)
 
 
 /**********************************************************/
-/*      Resolved Resonance Parameter, LCOMP = 1           */
+/*      Resolved Resonance  LCOMP = 1, LRF = 1,2,3        */
 /**********************************************************/
-int DeceTableMF32LCOMP1(int idx, int lru, int lrf, ENDF *lib)
+int DeceTableMF32LCOMP1LRF3(int idx, int lrf, ENDF *lib)
 {
   Record cont = lib->rdata[idx++];
   int nsrs = cont.n1;
@@ -157,18 +174,19 @@ int DeceTableMF32LCOMP1(int idx, int lru, int lrf, ENDF *lib)
   cout << "#  NSRS:" << setw(8) << nsrs << endl;
   cout << "#  NLRS:" << setw(8) << nlrs << endl;
 
+  /*** short range covariance */
   for(int insrs=0 ; insrs<nsrs ; insrs++){
     cont = lib->rdata[idx];
     int mpar = cont.l1;
     int nrb  = cont.n2;
-    int n    = nrb * mpar;
 
-    cout << "#     INSRS:" << setw(8) << insrs << endl;
     cout << "#      MPAR:" << setw(8) << mpar << endl;
     cout << "#       NRB:" << setw(8) << nrb << endl;
 
+    int n = nrb * mpar;
     double *p = new double [n];
 
+    /*** copy parameters */
     int k = 0;
     for(int i=0; i<nrb; i++){
       int i0 = 6*i;
@@ -190,6 +208,7 @@ int DeceTableMF32LCOMP1(int idx, int lru, int lrf, ENDF *lib)
     double *cptr;
     cptr = &lib->xptr[idx][6*nrb];
 
+    /*** print correlation matrix */
     for(int i0=0; i0<nrb; i0++){
       for(int i1=0; i1<mpar; i1++){
         int i  = i0*mpar + i1;
@@ -218,14 +237,9 @@ int DeceTableMF32LCOMP1(int idx, int lru, int lrf, ENDF *lib)
         cout << endl;
       }
     }
-
     idx++;
 
     delete [] p;
-  }
-
-  if(lru != 2){
-    for(int inlrs=0 ; inlrs<nlrs ; inlrs++) idx++;
   }
 
   return(idx);
@@ -233,16 +247,106 @@ int DeceTableMF32LCOMP1(int idx, int lru, int lrf, ENDF *lib)
 
 
 /**********************************************************/
-/*      Resolved Resonance Parameter, LCOMP = 2           */
+/*      Resolved Resonance  LCOMP = 1, LRF = 7            */
 /**********************************************************/
-int DeceTableMF32LCOMP2(int idx, int lrf, ENDF *lib)
+int DeceTableMF32LCOMP1LRF7(int idx, ENDF *lib)
 {
-  static int    row[]  = {0, 0, 18, 13, 11, 9, 8};
-  static double base[] = {1.0, 1e+1, 1e+2, 1e+3, 1e+4, 1e+5, 1e+6};
+  Record cont = lib->rdata[idx++];
+  int nsrs = cont.n1;
 
+  cout << "#  NSRS:" << setw(8) << nsrs << endl;
+
+  /*** short range covariance */
+  for(int insrs=0 ; insrs<nsrs ; insrs++){
+
+    cont = lib->rdata[idx++];
+    int njsx = cont.l1;
+    cout << "#      NJSX:" << setw(8) << njsx << endl;
+
+    /*** count total number of parameters */
+    int id1 = idx;
+    int n = 0;
+    for(int j=0; j<njsx ; j++){
+      cont = lib->rdata[id1++];
+      int nch = cont.l1;
+      int nrb = cont.l2;
+
+      cout << "#           NCH:" << setw(8) << nch << endl;
+      cout << "#           NRB:" << setw(8) << nrb << endl;
+
+      n += nrb * (nch + 1);
+    }
+
+    cout << "#         NPARB:" << setw(8) << n << endl;
+
+    double *p = new double [n];
+
+    /*** copy parameters */
+    int k = 0;
+    for(int j=0; j<njsx ; j++){
+      cont = lib->rdata[idx];
+      int nch = cont.l1;
+      int nrb = cont.l2;
+
+      int m0 = (nch+1)/6+1; if((nch+1)%6 == 0) m0--;
+      int m1 = m0 * 6;
+
+      for(int i=0 ; i<nrb ; i++){
+        int i0 = i * m1;
+        p[k++] = lib->xptr[idx][i0];
+        for(int c=0 ; c<nch ; c++){
+          p[k++] = lib->xptr[idx][i0 + c + 1];
+        }
+      }
+      idx++;
+    }
+
+    double *cptr;
+    cptr = lib->xptr[idx];
+
+    /*** print correlation matrix */
+    for(int i=0; i<n; i++){
+      int ki = i + i*n - i*(i+1)/2;
+
+      outVal(p[i]);
+      if(p[i] != 0.0) outVal(sqrt(cptr[ki] / p[i] / p[i]));
+      else outVal(0.0);
+
+      for(int j=0; j<=i; j++){
+        int kj = j + j*n - j*(j+1)/2;
+
+        int k  = (j < i) ?  i + j*n - j*(j+1)/2 : j + i*n - i*(i+1)/2;
+
+        int c  = 0;
+        if(cptr[ki]*cptr[kj] != 0.0){
+          c = (int) (cptr[k] / sqrt(cptr[kj]) / sqrt(cptr[ki]) * 1000);
+          if((i == j) && (c == 999)) c = 1000;
+        }
+        cout << setw(5) << c;
+      }
+      cout << endl;
+    }
+
+    idx++;
+
+    delete [] p;
+  }
+
+  return(idx);
+}
+
+
+/**********************************************************/
+/*      Resolved Resonance LCOMP = 2, LRF = 1,2,3         */
+/**********************************************************/
+
+static int    row[]  = {0, 0, 18, 13, 11, 9, 8};
+static double base[] = {1.0, 1e+1, 1e+2, 1e+3, 1e+4, 1e+5, 1e+6};
+
+int DeceTableMF32LCOMP2LRF3(int idx, int lrf, ENDF *lib)
+{
   Record cont = lib->rdata[idx];
-  int nrsa = cont.n2;
-
+  int  nrsa = cont.n2;
   cout << "#  NRSA:" << setw(8) << nrsa << endl;
 
   double *pptr = lib->xptr[idx];
@@ -257,6 +361,7 @@ int DeceTableMF32LCOMP2(int idx, int lrf, ENDF *lib)
   int nm = cont.n1;
 
   cout << "# NDIGT:" << setw(8) << nd << endl;
+  cout << "#   NNN:" << setw(8) << nn << endl;
   cout << "#    NM:" << setw(8) << nm << endl;
 
   int mpar = nn / nrsa;
@@ -288,7 +393,99 @@ int DeceTableMF32LCOMP2(int idx, int lrf, ENDF *lib)
     }
   }
 
+  DeceTableMF32PrintCorr(nn,nm,nd,p,e,lib->xptr[idx]);
+
+  delete [] p;
+  delete [] e;
+
+  idx++;
+
+  return(idx);
+}
+
+
+/**********************************************************/
+/*      Resolved Resonance LCOMP = 2, LRF = 7             */
+/**********************************************************/
+int DeceTableMF32LCOMP2LRF7(int idx, int njs, ENDF *lib)
+{
+  idx ++;
+
+  /*** count total number of parameters */
+  int id1 = idx;
+  int np = 0;
+  for(int j=0; j<njs ; j++){
+    Record cont = lib->rdata[id1++];
+    int nch = cont.n2;
+    double aj = cont.c1;
+    double pj = cont.c2;
+    cont = lib->rdata[id1++];
+    int nrsa = cont.l2;
+
+    int parity = (aj < 0.0) ? -1 : 1;
+    if(aj == 0.0) parity = (int)pj;
+
+    cout << "#        JP:"; outVal(4,1,abs(aj)); cout << ((parity < 0) ? "(-)" : "(+)") << endl;
+    cout << "#       NCH:" << setw(8) << nch << endl;
+    cout << "#      NRSA:" << setw(8) << nrsa << endl;
+
+    np += nrsa * (nch + 1);
+  }
+
+  double *p = new double [np];
+  double *e = new double [np];
+
+  /*** copy parameters */
+  int k = 0;
+  for(int j=0; j<njs ; j++){
+    Record cont = lib->rdata[idx++];
+    int nch = cont.n2;
+    cont = lib->rdata[idx];
+    int nrsa = cont.l2;
+
+    int m0 = (nch+1)/6+1; if((nch+1)%6 == 0) m0--;
+    int m1 = m0 * 6;
+
+    for(int i=0 ; i<nrsa ; i++){
+      int i0 = 2 * i * m1;
+      p[k  ] = lib->xptr[idx][i0];
+      e[k++] = lib->xptr[idx][i0 + m1];
+
+      for(int c=0 ; c<nch ; c++){
+        p[k  ] = lib->xptr[idx][i0      + c + 1];
+        e[k++] = lib->xptr[idx][i0 + m1 + c + 1];
+      }
+    }
+    idx++;
+  }
+
+  Record cont = lib->rdata[idx];
+  int nd = cont.l1;
+  int nn = cont.l2;
+  int nm = cont.n1;
+
+  cout << "# NDIGT:" << setw(8) << nd << endl;
+  cout << "#   NNN:" << setw(8) << nn << endl;
+  cout << "#    NM:" << setw(8) << nm << endl;
+
+  DeceTableMF32PrintCorr(nn,nm,nd,p,e,lib->xptr[idx]);
+
+  delete [] p;
+  delete [] e;
+
+  idx++;
+
+  return(idx);
+}
+
+
+/**********************************************************/
+/*      Print Correlation Matrix for LCOMP = 2            */
+/**********************************************************/
+void DeceTableMF32PrintCorr(int nn, int nm, int nd, double *p, double *e, double *cptr)
+{
   int *cor = new int [nn * (nn+1) /2];
+
   for(int i=0 ; i<nn ; i++){
     for(int j=0 ; j<=i ; j++){
       cor[i*(i+1)/2 + j] = (i == j) ? 1000 : 0;
@@ -297,13 +494,13 @@ int DeceTableMF32LCOMP2(int idx, int lrf, ENDF *lib)
 
   int i = 0;
   for(int j=0 ; j<nm ; j++){
-    int ii = (int)lib->xptr[idx][i++] - 1;
-    int jj = (int)lib->xptr[idx][i++] - 1;
+    int ii = (int)cptr[i++] - 1;
+    int jj = (int)cptr[i++] - 1;
     int k0 = ii*(ii+1)/2 + jj;
     int km = ii*(ii+1)/2 + ii;
 
     for(int k=0 ; k<row[nd] ; k++){
-      int c = (int)lib->xptr[idx][i++];
+      int c = (int)cptr[i++];
 
       int ij = k0 + k;
       if(ij < km) cor[ij] = (int)(1000.0 * c / base[nd]);
@@ -321,24 +518,22 @@ int DeceTableMF32LCOMP2(int idx, int lrf, ENDF *lib)
     cout << endl;
   }
 
-  delete [] p;
-  delete [] e;
-
-  idx++;
-
-  return(idx);
+  delete [] cor;
 }
 
 
 /**********************************************************/
 /*      Unresolved Resonance Parameter Covariance         */
 /**********************************************************/
-int DeceTableMF32URR(int idx, int nls, ENDF *lib)
+int DeceTableMF32URR(int idx, ENDF *lib)
 {
+  Record cont = lib->rdata[idx++];
+  int nls = cont.n1;
+
   int idx0 = idx;
   for(int i=0 ; i<nls ; i++) idx0 ++;
 
-  Record cont = lib->rdata[idx0];
+  cont = lib->rdata[idx0];
   int mpar = cont.l1;
   int npar = cont.n2;
 

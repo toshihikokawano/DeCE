@@ -63,6 +63,8 @@ void   DeceCheckThreshold (ENDFDict *, ENDF **, const bool);
 /*** deceheader.cpp */
 void   DeceShowHeaders  (ENDFDict *);
 void   DeceEditHeader   (ENDFDict *, string, const double);
+void   DeceShowHeaderText (ENDFDict *);
+void   DeceEditHeaderText (ENDFDict *, string, char *);
 void   DeceFixAWR       (ENDFDict *);
 
 /*** decemod6 */

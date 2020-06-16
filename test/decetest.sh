@@ -113,6 +113,10 @@ elif [ $testcase = "17" ]; then
     echo '# subtract it from the total cross section'
 
 ###################################################
+elif [ $testcase = "18" ]; then
+    echo '# Header text data are patched by inputs'
+
+###################################################
 else
     echo '# currently testcase shoud be less than 17'
     exit;

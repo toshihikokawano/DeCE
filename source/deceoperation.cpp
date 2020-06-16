@@ -138,10 +138,15 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceEditHeader(dict,(string)cmd.parm,cmd.x);
   }
 
+  /*** SHOWHEADERTEXT: print text in the header part */
+  else if(ope == "showheadertext"){
+    DeceShowHeaderText(dict);
+  }
+
   /*** EDITHEADERTEXT: modify header text */
-//  else if(ope == "editheadertext"){
-//    DeceEditHeaderText(dict,(string)cmd.parm,(string)cmd.text);
-//  }
+  else if(ope == "editheadertext"){
+    DeceEditHeaderText(dict,(string)cmd.parm,cmd.text);
+  }
 
   /*** FIXAWR: fix AWR in at the top of the file */
   else if(ope == "fixawr"){

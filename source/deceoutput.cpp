@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <cstdlib>
+#include <cstring>
 
 using namespace std;
 
@@ -64,6 +65,9 @@ void DeceRenumber(string fin, string fout, ENDFDict *dic0)
   ENDFScanLibrary(fin,&dic1);
   dic1.setDICThead(head);
   for(int i=0 ; i<3 ; i++) dic1.setDICTcont(i,dic0->getDICTcont(i));
+  if(dic0->getSTDHeader()){
+    for(int i=0 ; i<5 ; i++) strncpy(dic1.text[i],dic0->text[i],TEXT_WIDTH);
+  }
 
   fpin.open(&fin[0]);
   fpout.open(&fout[0]);
@@ -221,6 +225,12 @@ void makeMF1(ifstream *fpin, ENDFDict *dict)
   /*** copy NWD lines from temp file */
   for(int i=0 ; i<dict->getNWD() ; i++){
     getline(*fpin,line);
+
+    /*** when the standard header case, replace the text by those from DICT object */
+    if(dict->getSTDHeader() && (i < 5)){
+      strncpy(&line[0],dict->text[i],TEXT_WIDTH);
+    }
+
     ENDFWriteTEXT(&lib,line);
   }
 

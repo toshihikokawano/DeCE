@@ -14,24 +14,107 @@
 
 <h1> Header Manipulation </h1>
 
-<h2><a name="showheaders">showheaders (print parameters in header)</a></h2>
+<h2><a name="showheaders">showheaders / showheadertext (print parameters in header)</a></h2>
 
 <p>The first 4 lines in a ENDF file contain information on identification, version, 
-and some general properties of the file. The <tt>showheaders</tt> command
-prints these values.
+and some general properties of the file. Additionally, the next 5 lines may contain
+some more information, although these lines are not strictly required by the format.
+The <tt>showheaders</tt> command prints these values and text data.
+
+<pre>
+showheaders
+</pre>
+<pre id="dat">
+header: ZA     2.705900e+04
+header: AWR    5.842690e+01
+header: AWI    1.000000e+00
+header: NLIB              0  library identifier
+header: LREL              0  release number
+header: NVER              8  version number
+header: NSUB             10  sublibrary number
+header: NMOD              0  modification number
+header: LDRV              0  0: primary evaluation, 1: derived
+header: NFOR              6  library format
+header: LRP               1  -1: no MF2, 0: no resonances, 1: resolved and/or unresolved, 2: PENDF
+header: LFI               0  0: no fission, 1: fission
+header: EMAX   2.000000e+07  upper limit energy
+header: TEMP   0.000000e+00  temperature
+header: ELIS   0.000000e+00  excitation energy of target
+header: STA    0.000000e+00  0: stable, 1: unstable
+header: LIS               0  state number of target
+header: LISO              0  isomeric state number
+[0---+----1----+----2----+----3----+----4----+----5----+----6----+-]
+[ 27-Co- 59 LANL,ORNL  EVAL-JAN16 T.Kawano,G.Desaussure+           ]
+[                      DIST-                                       ]
+[----ENDF/B-VIII.0     MATERIAL 2725                               ]
+[-----INCIDENT NEUTRON DATA                                        ]
+[------ENDF-6 FORMAT                                               ]
+</pre>
+
+
+<p>The text data in the last 5 lines can be extracted by
+the <tt>showheadertext</tt> command. This command works only if the header
+section contains these lines, namely the header is given in a standard form.</p>
+
+<pre>
+showheadertext
+</pre>
+<pre id="dat">
+  ZSYMAM: 27-Co- 59
+    ALAB:LANL,ORNL
+    AUTH:T.Kawano,G.Desaussure+
+   REFER:
+   EDATE:EVAL-JAN16
+   DDATE:DIST-
+   RDATE:
+  ENDATE:
+ LIBNAME:ENDF/B-VIII.0
+  SUBLIB:INCIDENT NEUTRON DATA
+  FORMAT:ENDF-6 FORMAT
+</pre>
+
 
 <h2><a name="editheader">editheader (modify header parameter)</a></h2>
 
-<p>To change individual parameter, use <tt>editheader</tt> followed by 
-the parameter name and value. When the version number NVER is set to 10,</p>
+<p>To change an individual parameter in the header section,
+use <tt>editheader</tt> followed by the parameter name and value.</p>
 
 <pre id="syn">
+   editheader <i> ParameterName</i> <i> Value </i>
+</pre>
+
+<p>The parameter names are NLIB, LREL, NVER, NSUB, NMOD, LDRV, NFOR,
+ LRP, LFI, EMAX, TEMP, ELIS, STA, LIS, and LISO. See ENDF-6 manual for
+ the meaning.  ZA, AWR, and AWI are not allowed to change. When the
+ version number NVER is set to 10,</p>
+
+<pre>
    editheader NVER 10
 </pre>
 
-<p>The parameter names are  NLIB, LREL, NVER, NSUB, NMOD, LDRV, NFOR, LRP,
- LFI, EMAX, TEMP, ELIS, STA, LIS, and LISO. See ENDF-6 manual for the meaning.
-ZA, AWR, and AWI are not allowed to change.</p>
+
+<h2><a name="editheadertext">editheadertext (modify header text field)</a></h2>
+
+<p> Similar to <tt>editheader</tt>, the text filed data in the 5
+optional lines can be modified by the <tt>editheadertext</tt>
+command. Again, this command works only if the header section is in
+the standard form.</p>
+
+<pre id="syn">
+   editheadertext <i> TextName </i> <i>"Value"</i>
+</pre>
+
+<p>where the allowed text names are ZSMYAM, ALAB, AUTH, REFER, EDATE,
+DDATE, RDATE, ENDATE, LIBNAME, SUBLIB, and FORMAT. The value must be
+given in the double-quotations.  When a given text is longer than the
+defined field length, the extra letters will be cut. When the given
+text is shorter, blank padding will be made.</p>
+
+<p>To change the laboratory name, </p>
+
+<pre>
+   editheadertext ALAB "LANL"
+</pre>
 
 <hr>
 <a href="resonance.html"> [BACK] </a>

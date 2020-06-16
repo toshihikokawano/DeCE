@@ -1,0 +1,14 @@
+echo "patch header text data"
+editheadertext ALAB "LANL"
+editheadertext EDATE "20200101"
+editheadertext AUTH "A.U. Thor et al."
+editheadertext REFER "J Virtu Phys 2020,1"
+editheadertext DDATE "20200102"
+editheadertext RDATE "20200103"
+editheadertext ENDATE "20200104"
+editheadertext LIBNAME "PrivateLib"
+editheadertext SUBLIB "NEUTRON"
+editheadertext FORMAT "ENDF-X"
+showheadertext
+quit
+

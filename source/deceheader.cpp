@@ -16,12 +16,36 @@ using namespace std;
 #include "constant.h"
 #include "endftext.h"
 
+
+static void DeceHeaderCopyData (char *[]);
+static void DeceHeaderReplaceData (ENDFDict *);
+
 static ENDFText zsymam(11,0,0), alab(11,11,0), edate(11,22,0), auth(33,33,0);
 static ENDFText refer(22,0,1), ddate(11,22,1), rdate(11,33,1), endate(11,55,1);
 static ENDFText libname(18,4,2);
 static ENDFText sublib(TEXT_WIDTH-5,5,3);
 static ENDFText format(TEXT_WIDTH-6,6,4);
 
+
+static bool datacopied = false;
+
+
+/**********************************************************/
+/*      Fix AWR in DICT                                   */
+/**********************************************************/
+void DeceFixAWR(ENDFDict *dict)
+{
+  /*** ZA and AWR from Dictionary */
+  double za   = dict->getZA();    //  1000*Z + A number
+
+  int z = za/1000;
+  int a = za - z*1000;
+
+  double mass = mass_excess(z,a);
+  double awr  = (mass / AMUNIT + a) / MNEUTRON;
+
+  dict->setAWR(awr);
+}
 
 
 /**********************************************************/
@@ -49,6 +73,13 @@ void DeceShowHeaders(ENDFDict *dict)
   cout << "header: STA   " << setw(13) << dict->getSTA() << "  0: stable, 1: unstable" << endl;
   cout << "header: LIS   " << setw(13) << dict->getLIS() << "  state number of target" << endl;
   cout << "header: LISO  " << setw(13) << dict->getLISO() << "  isomeric state number" << endl;
+
+  cout << "[0---+----1----+----2----+----3----+----4----+----5----+----6----+-]" << endl;
+  if(dict->getSTDHeader()){
+    for(int i=0 ; i<5 ; i++){
+      cout << "[" << dict->text[i] << "]" << endl;
+    }
+  }
 }
 
 
@@ -86,20 +117,124 @@ void DeceEditHeader(ENDFDict *dict, string parameter, const double x)
 
 
 /**********************************************************/
-/*      Fix AWR in DICT                                   */
+/*      Show Header Text                                  */
 /**********************************************************/
-void DeceFixAWR(ENDFDict *dict)
+void DeceShowHeaderText(ENDFDict *dict)
 {
-  /*** ZA and AWR from Dictionary */
-  double za   = dict->getZA();    //  1000*Z + A number
+  if(!dict->getSTDHeader()){
+    message << "head text part is not in a standard form";
+    WarningMessage();
+    return;
+  }
 
-  int z = za/1000;
-  int a = za - z*1000;
+  DeceHeaderCopyData(dict->text);
 
-  double mass = mass_excess(z,a);
-  double awr  = (mass / AMUNIT + a) / MNEUTRON;
+  cout << "  ZSYMAM:"; zsymam.print();  cout << endl;
+  cout << "    ALAB:"; alab.print();    cout << endl;
+  cout << "    AUTH:"; auth.print();    cout << endl;
 
-  dict->setAWR(awr);
+  cout << "   REFER:"; refer.print();   cout << endl;
+  cout << "   EDATE:"; edate.print();   cout << endl;
+  cout << "   DDATE:"; ddate.print();   cout << endl;
+  cout << "   RDATE:"; rdate.print();   cout << endl;
+  cout << "  ENDATE:"; endate.print();  cout << endl;
+
+  cout << " LIBNAME:"; libname.print(); cout << endl;
+  cout << "  SUBLIB:"; sublib.print();  cout << endl;
+  cout << "  FORMAT:"; format.print();  cout << endl;
 }
 
+
+/**********************************************************/
+/*      Edit Header Text                                  */
+/**********************************************************/
+void DeceEditHeaderText(ENDFDict *dict, string field, char *text)
+{
+  if(!dict->getSTDHeader()){
+    message << "cannot edit head text part because is not in a standard form";
+    WarningMessage();
+    return;
+  }
+
+  if(!datacopied) DeceHeaderCopyData(dict->text);
+
+  if(     field == "ZSYMAM" ){ zsymam.read( text); }
+  else if(field == "ALAB"   ){ alab.read(   text); }
+  else if(field == "AUTH"   ){ auth.read(   text); }
+
+  else if(field == "REFER"  ){ refer.read(  text); }
+  else if(field == "EDATE"  ){ edate.read(  text); }
+  else if(field == "DDATE"  ){ ddate.read(  text); }
+  else if(field == "RDATE"  ){ rdate.read(  text); }
+  else if(field == "ENDATE" ){ endate.read( text); }
+
+  else if(field == "LIBNAME"){ libname.read(text); }
+  else if(field == "SUBLIB" ){ sublib.read( text); }
+  else if(field == "FORMAT" ){ format.read( text); }
+  else{
+    message << "header text field [ " << field << " ] not defined";
+    WarningMessage();
+  }
+ 
+  DeceHeaderReplaceData(dict);
+}
+
+
+/**********************************************************/
+/*      Copy TEXT Filed Data into Objects                 */
+/**********************************************************/
+void DeceHeaderCopyData(char *line[])
+{
+  zsymam.copy( line[ zsymam.ypos]);
+  alab.copy(   line[   alab.ypos]);
+  edate.copy(  line[  edate.ypos]);
+  auth.copy(   line[   auth.ypos]);
+
+  refer.copy(  line[  refer.ypos]);
+  ddate.copy(  line[  ddate.ypos]);
+  rdate.copy(  line[  rdate.ypos]);
+  endate.copy( line[ endate.ypos]);
+
+  libname.copy(line[libname.ypos]);
+  sublib.copy( line[ sublib.ypos]);
+  format.copy( line[ format.ypos]);
+
+  datacopied = true;
+}
+
+
+/**********************************************************/
+/*      Replace TEXT Data in DICT Object by Given Data    */
+/**********************************************************/
+void DeceHeaderReplaceData(ENDFDict *dict)
+{
+  zsymam.paste( TEXT_WIDTH,dict->text[zsymam.ypos]);
+  alab.paste(   TEXT_WIDTH,dict->text[  alab.ypos]);
+  edate.paste(  TEXT_WIDTH,dict->text[ edate.ypos]);
+  auth.paste(   TEXT_WIDTH,dict->text[  auth.ypos]);
+
+  refer.paste(  TEXT_WIDTH,dict->text[ refer.ypos]);
+  ddate.paste(  TEXT_WIDTH,dict->text[ ddate.ypos]);
+  rdate.paste(  TEXT_WIDTH,dict->text[ rdate.ypos]);
+  endate.paste( TEXT_WIDTH,dict->text[endate.ypos]);
+
+  for(int i=44 ; i<55 ; i++) dict->text[1][i] = ' ';
+
+  libname.paste(TEXT_WIDTH,dict->text[libname.ypos]);
+  sublib.paste( TEXT_WIDTH,dict->text[ sublib.ypos]);
+  format.paste( TEXT_WIDTH,dict->text[ format.ypos]);
+
+  for(int i=0 ; i<4 ; i++) dict->text[2][i] = '-';
+  for(int i=0 ; i<5 ; i++) dict->text[3][i] = '-';
+  for(int i=0 ; i<6 ; i++) dict->text[4][i] = '-';
+
+  sprintf(&dict->text[2][22],"MATERIAL "); dict->text[2][31] = ' ';
+  sprintf(&dict->text[2][31],"%4d",dict->getMAT());
+  for(int i=35 ; i<66 ; i++) dict->text[2][i] = ' ';
+
+//  for(int i=0 ; i<5 ; i++){
+//    dict->text[i][66] = '\0';
+//    cout << dict->text[i] << "<" << endl;
+//  }
+}
 

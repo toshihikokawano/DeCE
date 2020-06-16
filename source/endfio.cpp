@@ -939,7 +939,7 @@ int ENDFReadMF32(ifstream *fp, ENDF *lib)
       /*** SPI, AP, NLS */
       cont = ENDFReadCONT(fp,lib);
       int lcomp = cont.l2;
-      int nls   = cont.n1;
+      int nls   = cont.n1; int njs = nls;
       int isr   = cont.n2;
 
       /*** Compatible Resolved Resonance Subsection Format */
@@ -951,14 +951,30 @@ int ENDFReadMF32(ifstream *fp, ENDF *lib)
       /*** General Resolved Resonance Subsection Format */
       else if(lcomp == 1){
         if(isr != 0){
-          if(lrf == 3) ENDFReadLIST(fp,lib);
-          else         ENDFReadCONT(fp,lib);
+          if(lrf == 3 || lrf == 7){
+            ENDFReadLIST(fp,lib);
+          }
+          else{
+            ENDFReadCONT(fp,lib);
+          }
         }
         cont = ENDFReadCONT(fp,lib);
         int nsrs = cont.n1;  // within a resonance
         int nlrs = cont.n2;  // long-range
-        for(int insrs=0 ; insrs<nsrs ; insrs++) ENDFReadLIST(fp,lib);
-        for(int inlrs=0 ; inlrs<nlrs ; inlrs++) ENDFReadLIST(fp,lib);
+        if(lrf == 7){
+          for(int insrs=0 ; insrs<nsrs ; insrs++){
+            cont = ENDFReadCONT(fp,lib);
+            int njsx = cont.l1;
+            for(int injsx=0 ; injsx<njsx ; injsx++){
+              ENDFReadLIST(fp,lib);
+              ENDFReadLIST(fp,lib);
+            }
+          }
+        }
+        else{
+          for(int insrs=0 ; insrs<nsrs ; insrs++) ENDFReadLIST(fp,lib);
+          for(int inlrs=0 ; inlrs<nlrs ; inlrs++) ENDFReadLIST(fp,lib);
+        }
       }
 
       /*** Resolved Resonance Compact Covariance Format */
@@ -969,6 +985,15 @@ int ENDFReadMF32(ifstream *fp, ENDF *lib)
             else         ENDFReadCONT(fp,lib);
           }
           ENDFReadLIST(fp,lib);
+          ENDFReadINTG(fp,lib);
+        }
+        else if(lrf == 7){
+          if(isr == 1) ENDFReadLIST(fp,lib);
+          ENDFReadLIST(fp,lib);
+          for(int injs=0 ; injs<njs ; injs++){
+            ENDFReadLIST(fp,lib);
+            ENDFReadLIST(fp,lib);
+          }
           ENDFReadINTG(fp,lib);
         }
         else{
@@ -1012,7 +1037,7 @@ void ENDFWriteMF32(ENDF *lib)
 
       cont = ENDFWriteCONT(lib);
       int lcomp = cont.l2;
-      int nls   = cont.n1;
+      int nls   = cont.n1; int njs = nls;
       int isr   = cont.n2;
 
       if(lcomp == 0){
@@ -1021,14 +1046,30 @@ void ENDFWriteMF32(ENDF *lib)
       }
       else if(lcomp == 1){
         if(isr != 0){
-          if(lrf == 3) ENDFWriteLIST(lib);
-          else         ENDFWriteCONT(lib);
+          if(lrf == 3 || lrf == 7){
+            ENDFWriteLIST(lib);
+          }
+          else{
+            ENDFWriteCONT(lib);
+          }
         }
         cont = ENDFWriteCONT(lib);
         int nsrs = cont.n1;
         int nlrs = cont.n2;
-        for(int insrs=0 ; insrs<nsrs ; insrs++) ENDFWriteLIST(lib);
-        for(int inlrs=0 ; inlrs<nlrs ; inlrs++) ENDFWriteLIST(lib);
+        if(lrf == 7){
+          for(int insrs=0 ; insrs<nsrs ; insrs++){
+            cont = ENDFWriteCONT(lib);
+            int njsx = cont.l1;
+            for(int injsx=0 ; injsx<njsx ; injsx++){
+              ENDFWriteLIST(lib);
+              ENDFWriteLIST(lib);
+            }
+          }
+        }
+        else{
+          for(int insrs=0 ; insrs<nsrs ; insrs++) ENDFWriteLIST(lib);
+          for(int inlrs=0 ; inlrs<nlrs ; inlrs++) ENDFWriteLIST(lib);
+        }
       }
       else{
         if( (lrf == 1) || (lrf == 2) || (lrf == 3)){
@@ -1037,6 +1078,15 @@ void ENDFWriteMF32(ENDF *lib)
             else         ENDFWriteCONT(lib);
           }
           ENDFWriteLIST(lib);
+          ENDFWriteINTG(lib);
+        }
+        else if(lrf == 7){
+          if(isr == 1) ENDFWriteLIST(lib);
+          ENDFWriteLIST(lib);
+          for(int injs=0 ; injs<njs ; injs++){
+            ENDFWriteLIST(lib);
+            ENDFWriteLIST(lib);
+          }
           ENDFWriteINTG(lib);
         }
         else{
@@ -1174,9 +1224,7 @@ void ENDFWriteMF35(ENDF *lib)
   Record head = lib->getENDFhead();
   int    nk   = head.n1;
 
-  for(int n=0 ; n<nk ; n++){
-    for(int i=0 ; i<nk ; i++) ENDFWriteLIST(lib);
-  }
+  for(int n=0 ; n<nk ; n++) ENDFWriteLIST(lib);
 
   ENDFWriteSEND(lib);
 }

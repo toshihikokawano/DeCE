@@ -170,6 +170,11 @@ int ENDFScanLibrary(string libname, ENDFDict *dict)
     for(int c=0 ; c<5 ; c++){
       getline(fp,line);
       strncpy(dict->text[c],&line[0],TEXT_WIDTH);
+      int nc = line.length();
+      if(nc < 66){
+        for(int i=nc ; i<66 ; i++) dict->text[c][i] = ' ';
+        dict->text[c][66] = '\0';
+      }
     }
     fp.close();
   }
@@ -371,7 +376,7 @@ Record ENDFReadTAB22(ifstream *fp, ENDF *lib)
 
   lib->inclPOS();
 
-  /*** read TAB1 for each subsection */
+  /*** read TAB2 for each subsection */
   for(int i=0 ; i<ne ; i++) ENDFReadTAB21(fp, lib);
 
   return(lib->rdata[idx]);
@@ -774,7 +779,15 @@ void ENDFWriteArray(ENDF *lib, int m, int n, int d, double *x)
     cout << setw(5) << (int)x[i++];
     if(d != 6) cout << " ";
 
-    for(int k=0 ; k<n ; k++) cout << setw(d+1) << (int)x[i++];
+    for(int k=0 ; k<n ; k++){
+      if(x[i] == 0.0){
+        for(int c=0 ; c <= d ; c++) cout << " ";
+      }
+      else{
+        cout << setw(d+1) << (int)x[i];
+      }
+      i++;
+    }
     int p = 55 - n * (d+1);
     for(int k=0 ; k<p ; k++) cout << " ";
     ENDFPrintRight(lib->getENDFmat(),lib->getENDFmf(),lib->getENDFmt());
