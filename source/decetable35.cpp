@@ -21,7 +21,9 @@ void DeceTableMF35(ENDF *lib)
   int nk  = head.n1;
   int idx = 0;
 
-  cout << nk << endl;
+  cout << "# Energy spectrum Covariance" << endl;
+  cout << "#           NK" << setw(14) << nk << "  number of subsections" << endl;
+  cout << endl;
 
   for(int n=0 ; n<nk ; n++){
     Record cont = lib->rdata[idx];
@@ -32,10 +34,13 @@ void DeceTableMF35(ENDF *lib)
     int    lb = cont.l2; // should be 7
     int    ne = cont.n2;
 
+    cout << "#   Subsection" << setw(14) << n << endl;
     cout << "#           LB" << setw(14) << lb << "  absolute covariance" << endl;
     cout << "#           E1" << setw(14) << e1 << "  lowest incident energy for this subsection" << endl;
     cout << "#           E2" << setw(14) << e2 << "  higheset incident energy" << endl;
     cout << "#           NE" << setw(14) << ne << "  number of outgoing energies" << endl;
+
+    cout << "# Energy       Uncertainty" << endl;
 
     double *eptr, *cptr;
     eptr = lib->xptr[idx];

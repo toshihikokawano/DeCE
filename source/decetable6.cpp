@@ -31,6 +31,7 @@ void DeceTableMF6(ENDF *lib3, ENDF *lib6)
 
   cout << "# Energy and angle distribution" << endl;
   cout << "#           NK" << setw(14) << nk << "  number of subsections" << endl;
+  cout << endl;
 
   /*** for each sub block, make lib for (E,yield) */
   for(int ik=0 ; ik<nk ; ik++){
@@ -40,6 +41,7 @@ void DeceTableMF6(ENDF *lib3, ENDF *lib6)
     int    law  = cont.l2;
     int    np   = cont.n2;
  
+    cout << "#   Subsection" << setw(14) << ik << endl;
     cout << "#          ZAP" << setw(14) << zap << endl;
     cout << "#          LIP" << setw(14) << lip << "  product modifier" << endl;
     cout << "#          LAW" << setw(14) << law << "  distribution law" << endl;
@@ -94,6 +96,7 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
     cout << "#           NA" << setw(14) << na << "  number of angular parameters" << endl;
 
     if(nd > 0){
+      cout << "# Energy       Production" << endl;
       for(int i1=0 ; i1<nd ; i1++){
         outVal(lib6->xptr[idx][2*i1  ]);
         outVal(lib6->xptr[idx][2*i1+1]);
@@ -103,10 +106,10 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
       cout << endl;
     }
 
-    if(da > 0.0 && na > 1){
+    if(da > 0.0 && na >= 1){
       int np = 180.0/da;
       if( np*da == 180.0 ) np++;
-      cout << "#  angle         energy        probability" << endl;
+      cout << "# Angle         Energy        Probability" << endl;
 
       double t = 0.0;
       while(t <= 180.0){
@@ -125,6 +128,13 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
       }
     }
     else{
+      cout << "# Energy      ";
+      if(na == 0) cout << " Spectrum";
+      else{
+        for(int i0=0 ; i0 <= na ; i0++) cout << " PL(" << setw(2) << i0 << ")       ";
+      }
+      cout << endl;
+
       for(int i1=nd ; i1<nep ; i1++){
         outVal(lib6->xptr[idx][(na+2)*i1]);
         for(int i2=1 ; i2<=na+1 ; i2++) outVal(lib6->xptr[idx][(na+2)*i1+i2]);
@@ -169,7 +179,7 @@ int DeceTableMF6Law2(ENDF *lib6, int idx)
         int np = 180/da;
         if( np*da == 180.0 ) np++;
         cout << "#           NP" << setw(14) << np << endl;
-        cout << "# energy        angle         probability" << endl;
+        cout << "# Energy        Angle         Probability" << endl;
         double t = 0.0;
         while(t <= 180.0){
           double f = 0.5;

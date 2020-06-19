@@ -2,16 +2,23 @@ DeCE : The Descriptive Correction of ENDF-6 Format Code
 
    Language C++
    Author   Kawano, T.
-   Version  1.2 (Pyrite)
+   Version  1.2 (Rutile)
 
 DeCE is a C++ program to manipulate ENDF-6 formatted file interactively,
-inspired by the CRECTJ6 code by T. Nakagawa of JAEA (JAERI-DATA/CODE
+inspired by the CRECTJ6 code by T. Nakagawa of JAEA (JAERI-DATA/CODE 
 99-041). DeCE has several features that help ENDF-6 formatting work;
 (1) facilitates all ENDF-6 data file manipulations, for example, add
 two data sections, renormalize data, add/delete data point, (2)
 convert model calculation results into ENDF-6 format, (3) reconstruct
 pointwise cross sections from resonance parameters, (4) convert ENDF-6
 formatted data file into more human friendly format.
+
+The main reference of the code is:
+
+   DeCE: the ENDF-6 data interface and nuclear data evaluation assist code
+   Journal of Nuclear Science and Technology
+   vol.56, issue 11, pages 1029-1035 (2019)
+   https://doi.org/10.1080/00223131.2019.1637797
 
 
 History:
@@ -31,6 +38,7 @@ History:
    1.2.1              : May  2016   open source version
    1.2.2 (Pyrite)     : Mar. 2019   reorganize source files for better reading
    1.2.3 (Rutile)     : Dec. 2019   minor revision
+   1.2.4 (Olivine)    : Jun. 2020   covariance printing improved version
 
 
 Files:

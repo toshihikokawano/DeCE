@@ -35,14 +35,16 @@ void DeceTableMF14(ENDF *lib)
     cout << "#           NI" << setw(14) << ni << "  number of isotropic photon angular distributions" << endl;
     if(ltt == 1){
 
-      cout << "# energy        level from" << endl;
-      for(int i=0 ; i<ni ; i++){
-        outVal(lib->rdata[idx].c1);
-        outVal(lib->rdata[idx].c2);
-        cout << "  isotropic" << endl;
-        idx ++;
+      if(ni > 0){
+        cout << "# Energy        Level From" << endl;
+        for(int i=0 ; i<ni ; i++){
+          outVal(lib->rdata[idx].c1);
+          outVal(lib->rdata[idx].c2);
+          cout << "  isotropic" << endl;
+          idx ++;
+        }
+        cout << endl;
       }
-      cout << endl;
 
       for(int i=0 ; i<nk-ni ; i++){
         double eg = lib->rdata[idx].c1;
@@ -50,7 +52,7 @@ void DeceTableMF14(ENDF *lib)
         int ne = lib->rdata[idx].n2;
         idx ++;
 
-        cout << "# energy        level from" << endl;
+        cout << "# Energy        Level From" << endl;
         outVal(eg);
         outVal(sg);
         cout << endl;
@@ -75,7 +77,7 @@ void DeceTableMF14(ENDF *lib)
     }
 
     else if(ltt == 2){
-      cout << "# energy        level from" << endl;
+      cout << "# Energy        Level From" << endl;
       for(int i=0 ; i<ni ; i++){
         outVal(lib->rdata[idx].c1);
         outVal(lib->rdata[idx].c2);
@@ -90,7 +92,7 @@ void DeceTableMF14(ENDF *lib)
         int ne = lib->rdata[idx].n2;
         idx ++;
 
-        cout << "# energy        level from" << endl;
+        cout << "# Energy        Level From" << endl;
         outVal(eg);
         outVal(sg);
         cout << endl;
@@ -101,7 +103,7 @@ void DeceTableMF14(ENDF *lib)
 
           cout << "#            E"; outVal(e); cout << endl;
           cout << "#           NP" << setw(14) << np << endl;
-          cout << "# energy        angle         probability" << endl;
+          cout << "# Energy        Angle         Probability" << endl;
           for(int l=0 ; l<np ; l++){
             outVal(e);
             outVal(acos(lib->xptr[idx][2*l])/PI * 180.0);

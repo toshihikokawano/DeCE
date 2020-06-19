@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([dece], [1.2.3-Rutile], [kawano@lanl.gov])
+AC_INIT([dece], [1.2.4-Olivine], [kawano@lanl.gov])
 AM_INIT_AUTOMAKE([foreign])
 AC_CONFIG_SRCDIR([])
 AC_CONFIG_HEADERS([config.h])

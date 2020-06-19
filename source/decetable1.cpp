@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <cmath>
 
 using namespace std;
@@ -53,11 +52,12 @@ void  DeceTableMF1MT452(ENDF *lib)
   if(lnu == 1){
     int nc = lib->rdata[1].n1;
     cout << "#           NC" << setw(14) << nc << "  number of polynomial terms" << endl;
-    ENDFPrintLIST(lib,0);
+    ENDFPrintLIST(lib,0,"Order","Coeff");
   }
   /*** tabulated */
   else if(lnu == 2){
-    ENDFPrint1Dim(lib,0);
+    if(mt == 452) ENDFPrint1Dim(lib,0,"Energy","Nu_total");
+    else          ENDFPrint1Dim(lib,0,"Energy","Nu_prompt");
   }
 }
 
@@ -77,10 +77,7 @@ void  DeceTableMF1MT455(ENDF *lib)
   cout << "# Delayed neutron decay constants" << endl;
   cout << "#          NNF" << setw(14) << nnf << "  number of precursor families"  << endl;
   cout << "#   lambda grp   decay const" << endl;
-  for(int i=0 ; i<nnf ; i++){
-    outVal(i); outVal(lib->xptr[0][i]);
-    cout << endl;
-  }
+  ENDFPrintLIST(lib,0,"Lambda Group","Decay Const");
   cout << endl;
   cout << endl;
 
@@ -93,7 +90,7 @@ void  DeceTableMF1MT455(ENDF *lib)
   }
   /*** tabulated */
   else if(lnu == 2){
-    ENDFPrint1Dim(lib,1);
+    ENDFPrint1Dim(lib,1,"Energy","Nu_delayed");
   }
 }
 

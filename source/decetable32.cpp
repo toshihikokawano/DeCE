@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <cmath>
 
 using namespace std;
@@ -32,7 +31,9 @@ void DeceTableMF32(ENDF *lib)
   Record cont = lib->rdata[idx++];
   int    ner  = cont.n1;
 
-  cout << "#   NER:" << setw(8) << ner << endl;
+  cout << "# Resonance Parameter Covanriance Matrix" << endl;
+  cout << "#          NER" << setw(14) << ner << "  number of energy ranges" << endl;
+  cout << endl;
 
   for(int i=0 ; i<ner ; i++){
     cont = lib->rdata[idx++];
@@ -42,10 +43,11 @@ void DeceTableMF32(ENDF *lib)
     int lrf = cont.l2;
     int nro = cont.n1;
 
-    cout << "#    EL:"; outVal(el); cout << endl;
-    cout << "#    EH:"; outVal(eh); cout << endl;
-    cout << "#   LRU:" << setw(8) << lru << endl;
-    cout << "#   LRF:" << setw(8) << lrf << endl;
+    cout << "#   Subsection" << setw(14) << i << endl;
+    cout << "#         Emin"; outVal(el); cout << endl;
+    cout << "#         Emax"; outVal(eh); cout << endl;
+    cout << "#          LRU" << setw(14) << lru << endl;
+    cout << "#          LRF" << setw(14) << lrf << endl;
 
     if( !(lrf == 1 || lrf == 2 || lrf == 3 || lrf == 7) ){
       message << "LRF = " << lrf << " not yet implemented";
@@ -84,11 +86,40 @@ int DeceTableMF32RRR(int idx, int lrf, ENDF *lib)
   int nls   = cont.n1; int njs = nls;
   int isr   = cont.n2;
 
-  cout << "# LCOMP:" << setw(8) << lcomp << endl;
-  cout << "#   ISR:" << setw(8) << isr << endl;
+  cout << "#        LCOMP" << setw(14) << lcomp << "  compatible flag 0:ENDF/B-V, 1:general case, 2:compact format" << endl;
+  cout << "#          ISR" << setw(14) << isr << "  0: no scattering radius uncertainty, 1: data given" << endl;
 
-  /*** skip scattering radius uncertainty */
-  if(isr != 0) idx++;
+  /*** scattering radius uncertainty */
+  if(isr != 0){
+    double ap  = cont.c2;
+    if( (lrf == 1) || (lrf == 2) ){
+      double dap = lib->rdata[idx++].c2;
+      cout << "# AP            DAP" << endl;
+      outVal(ap);
+      outVal(dap);
+      cout << endl;
+    }
+    else if(lrf == 3){
+      int mls = lib->rdata[idx].n1;
+      for(int i=0 ; i<=mls ; i++){
+        cout << "# AP            DAP" << endl;
+        outVal(ap);
+        outVal(lib->xptr[idx][i]);
+        cout << endl;
+      }
+      idx++;
+    }
+    else{
+      int njch = lib->rdata[idx].n1;
+      cout << "# JS            DAP" << endl;
+      for(int j=0 ; j<njs ; j++){
+        outVal(j);
+        for(int i=0 ; i<njch ; i++) outVal(lib->xptr[idx][i]);
+        cout << endl;
+      }
+      idx++;
+    }
+  }
 
   /*** ENDF/B-V Compatible Resolved Resonance Format */
   if(lcomp == 0){
@@ -114,11 +145,14 @@ int DeceTableMF32LCOMP0(int idx, int nls, ENDF *lib)
 {
   double p[4], e[4], c[10];
 
+  cout << "#          NLS" << setw(14) << nls << "  total number of orbital angular momentum" << endl;
+
+
   for(int inls=0 ; inls<nls ; inls++){
     Record cont = lib->rdata[idx];
     int nrs = cont.n2;
-    cout << "#         L:" << setw(8) << inls << endl;
-    cout << "#       NRS:" << setw(8) << nrs << endl;
+    cout << "#      L-value" << setw(14) << inls << endl;
+    cout << "#          NRS" << setw(14) << nrs << "  number of resonances" << endl;
 
     for(int i=0 ; i<nrs ; i++){
       int j = 18*i;
@@ -144,13 +178,19 @@ int DeceTableMF32LCOMP0(int idx, int nls, ENDF *lib)
       e[2] = sqrt(c[5]);
       e[3] = sqrt(c[9]);
 
+      cout << "#    Resonance" << setw(14) << i << endl;
+      cout << "# Parameter    Uncertainty" << endl;
+
       for(int k1=0 ; k1<4 ; k1++){
         outVal(p[k1]);
-        outVal(e[k1]/abs(p[k1]));
+
+        if(p[k1] != 0.0) outVal(e[k1]/abs(p[k1]));
+        else outVal(0.0);
             
         for(int k2=0 ; k2<=k1 ; k2++){
-          int k = c[k1*(k1+1)/2 + k2] / e[k1] / e[k2] * 1000.0;
-          if(k1 == k2) k = 1000;
+          int k = 0;
+          if( (e[k1]*e[k2] != 0.0) ) k = c[k1*(k1+1)/2 + k2] / e[k1] / e[k2] * 1000.0;
+          if( (k1 == k2) && (k == 999) ) k = 1000;
           cout << setw(5) << k;
         }
         cout << endl;
@@ -172,8 +212,8 @@ int DeceTableMF32LCOMP1LRF3(int idx, int lrf, ENDF *lib)
   int nsrs = cont.n1;
   int nlrs = cont.n2;
 
-  cout << "#  NSRS:" << setw(8) << nsrs << endl;
-  cout << "#  NLRS:" << setw(8) << nlrs << endl;
+  cout << "#         NSRS" << setw(14) << nsrs << "  short range covariance" << endl;
+  cout << "#         NLRS" << setw(14) << nlrs << "  long range covariance" << endl;
 
   /*** short range covariance */
   for(int insrs=0 ; insrs<nsrs ; insrs++){
@@ -181,8 +221,9 @@ int DeceTableMF32LCOMP1LRF3(int idx, int lrf, ENDF *lib)
     int mpar = cont.l1;
     int nrb  = cont.n2;
 
-    cout << "#      MPAR:" << setw(8) << mpar << endl;
-    cout << "#       NRB:" << setw(8) << nrb << endl;
+    cout << "# ShortRange  " << insrs << endl;
+    cout << "#         MPAR" << setw(14) << mpar << "  number of parameters (ER, GN, GG, ...)" << endl;
+    cout << "#          NRB" << setw(14) << nrb << "  number of resonances" << endl;
 
     int n = nrb * mpar;
     double *p = new double [n];
@@ -205,6 +246,8 @@ int DeceTableMF32LCOMP1LRF3(int idx, int lrf, ENDF *lib)
         p[k++] = lib->xptr[idx][i0 + 2] - (lib->xptr[idx][i0 + 3] + lib->xptr[idx][i0 + 4] + lib->xptr[idx][i0 + 5]); // GX
       }
     }
+
+    cout << "# Parameter    Uncertainty" << endl;
 
     double *cptr;
     cptr = &lib->xptr[idx][6*nrb];
@@ -255,14 +298,16 @@ int DeceTableMF32LCOMP1LRF7(int idx, ENDF *lib)
   Record cont = lib->rdata[idx++];
   int nsrs = cont.n1;
 
-  cout << "#  NSRS:" << setw(8) << nsrs << endl;
+  cout << "#         NSRS" << setw(14) << nsrs << "  short range covariance" << endl;
 
   /*** short range covariance */
   for(int insrs=0 ; insrs<nsrs ; insrs++){
 
     cont = lib->rdata[idx++];
     int njsx = cont.l1;
-    cout << "#      NJSX:" << setw(8) << njsx << endl;
+
+    cout << "# ShortRange  " << insrs << endl;
+    cout << "#         NJSX" << setw(14) << njsx << "  number of J-Pi groups"  << endl;
 
     /*** count total number of parameters */
     int id1 = idx;
@@ -272,13 +317,13 @@ int DeceTableMF32LCOMP1LRF7(int idx, ENDF *lib)
       int nch = cont.l1;
       int nrb = cont.l2;
 
-      cout << "#           NCH:" << setw(8) << nch << endl;
-      cout << "#           NRB:" << setw(8) << nrb << endl;
+      cout << "#          NCH" << setw(14) << nch << "  number of channels" << endl;
+      cout << "#          NRB" << setw(14) << nrb << "  number of blocks" << endl;
 
       n += nrb * (nch + 1);
     }
 
-    cout << "#         NPARB:" << setw(8) << n << endl;
+    cout << "#         NPARB" << setw(14) << n << "  number of total parameters in this block" << endl;
 
     double *p = new double [n];
 
@@ -301,6 +346,8 @@ int DeceTableMF32LCOMP1LRF7(int idx, ENDF *lib)
       }
       idx++;
     }
+
+    cout << "# Parameter    Uncertainty" << endl;
 
     double *cptr;
     cptr = lib->xptr[idx];
@@ -348,7 +395,7 @@ int DeceTableMF32LCOMP2LRF3(int idx, int lrf, ENDF *lib)
 {
   Record cont = lib->rdata[idx];
   int  nrsa = cont.n2;
-  cout << "#  NRSA:" << setw(8) << nrsa << endl;
+  cout << "#         NRSA" << setw(14) << nrsa << "  total number of resonances" <<  endl;
 
   double *pptr = lib->xptr[idx];
   double *p = new double [nrsa * 4];
@@ -361,9 +408,9 @@ int DeceTableMF32LCOMP2LRF3(int idx, int lrf, ENDF *lib)
   int nn = cont.l2;
   int nm = cont.n1;
 
-  cout << "# NDIGT:" << setw(8) << nd << endl;
-  cout << "#   NNN:" << setw(8) << nn << endl;
-  cout << "#    NM:" << setw(8) << nm << endl;
+  cout << "#        NDIGT" << setw(14) << nd << "  number of digits" << endl;
+  cout << "#          NNN" << setw(14) << nn << "  total number of resonance parameters" << endl;
+  cout << "#           NM" << setw(14) << nm << "  number of INTG data lines" <<  endl;
 
   int mpar = nn / nrsa;
 
@@ -412,6 +459,8 @@ int DeceTableMF32LCOMP2LRF7(int idx, int njs, ENDF *lib)
 {
   idx ++;
 
+  cout << "#          NJS" << setw(14) << njs << "  total number of J-Pi" << endl;
+
   /*** count total number of parameters */
   int id1 = idx;
   int np = 0;
@@ -426,9 +475,9 @@ int DeceTableMF32LCOMP2LRF7(int idx, int njs, ENDF *lib)
     int parity = (aj < 0.0) ? -1 : 1;
     if(aj == 0.0) parity = (int)pj;
 
-    cout << "#        JP:"; outVal(4,1,abs(aj)); cout << ((parity < 0) ? "(-)" : "(+)") << endl;
-    cout << "#       NCH:" << setw(8) << nch << endl;
-    cout << "#      NRSA:" << setw(8) << nrsa << endl;
+    cout << "#     JP-Value"; outVal(4,1,abs(aj)); cout << ((parity < 0) ? "(-)" : "(+)") << endl;
+    cout << "#          NCH" << setw(14) << nch << "  number of channels" << endl;
+    cout << "#         NRSA" << setw(14) << nrsa << "  total number of resonances" <<  endl;
 
     np += nrsa * (nch + 1);
   }
@@ -465,9 +514,10 @@ int DeceTableMF32LCOMP2LRF7(int idx, int njs, ENDF *lib)
   int nn = cont.l2;
   int nm = cont.n1;
 
-  cout << "# NDIGT:" << setw(8) << nd << endl;
-  cout << "#   NNN:" << setw(8) << nn << endl;
-  cout << "#    NM:" << setw(8) << nm << endl;
+  cout << "#        NDIGT" << setw(14) << nd << "  number of digits" << endl;
+  cout << "#          NNN" << setw(14) << nn << "  total number of resonance parameters" << endl;
+  cout << "#           NM" << setw(14) << nm << "  number of INTG data lines" <<  endl;
+
 
   DeceTableMF32PrintCorr(nn,nm,nd,p,e,lib->xptr[idx]);
 
@@ -507,6 +557,8 @@ void DeceTableMF32PrintCorr(int nn, int nm, int nd, double *p, double *e, double
       if(ij < km) cor[ij] = (int)(1000.0 * c / base[nd]);
     }
   }
+
+  cout << "# Parameter    Uncertainty" << endl;
 
   for(int i=0 ; i<nn ; i++){
     outVal(p[i]);
@@ -555,6 +607,8 @@ int DeceTableMF32URR(int idx, ENDF *lib)
     }
     idx++;
   }
+
+  cout << "# Parameter    Uncertainty" << endl;
 
   double *cptr = lib->xptr[idx];
 

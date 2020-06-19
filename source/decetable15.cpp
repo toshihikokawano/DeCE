@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <cmath>
 
 using namespace std;
@@ -29,22 +28,16 @@ void DeceTableMF15(ENDF *lib)
   for(int n=0 ; n<nc ; n++){
     Record cont = lib->rdata[idx];
     int lf = cont.l2;
-    ENDFPrint1Dim(lib,idx);
+    ENDFPrint1Dim(lib,idx,"Energy","Fraction");
     idx ++;
 
     if(lf == 1){
       int ne = lib->rdata[idx++].n2;
       for(int i=0 ; i<ne ; i++){
         double e  = lib->rdata[idx].c2;
-        int    np = lib->rdata[idx].n2;
 
         cout << "#            E"; outVal(e); cout << endl;
-        cout << "#           NP" << setw(13) << np << endl;
-        for(int j=0 ; j<np ; j++){
-          outVal(lib->xptr[idx][2*j  ]);
-          outVal(lib->xptr[idx][2*j+1]);
-          cout << endl;
-        }
+        ENDFPrint1Dim(lib,idx,"Energy","Probability");
         idx++;
 
         cout << endl;

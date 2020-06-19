@@ -128,6 +128,7 @@ void DeceTableMF8MT457(ENDF *lib)
     int    lcon = lib->rdata[idx].l1;
     int    ner  = lib->rdata[idx].n2;
 
+    cout << "#    Radiation" << setw(14) << n << endl;
     cout << "#         STYP" << setw(14) << (int)styp << "  decay radiation type" << endl;
     cout << "#         LCON" << setw(14) << lcon << "  0: no continuum, 1: only continuum, 2: both discrete and continuum" << endl;
     cout << "#          NER" << setw(14) << ner << "  total number of discrete energies" << endl;
@@ -189,6 +190,7 @@ void DeceTableMF8Other(ENDF *lib)
   cout << "#           NS" << setw(14) << ns  << "  number of subsections" << endl;
   cout << "#           NO" << setw(14) << no  << "  0: complete decay chain given, 1: in MT457 of MATP" << endl;
   cout << "#          LIS" << setw(14) << lis << "  target level" << endl;
+  cout << endl;
 
   for(int n=0 ; n<ns ; n++){
     Record cont = lib->rdata[n];
@@ -199,6 +201,7 @@ void DeceTableMF8Other(ENDF *lib)
     int    nd   = cont.n1 / 6;
     int    matp = cont.n2;
 
+    cout << "#   Subsection" << setw(14) << n << endl;
     cout << "#          ZAP"; outVal(zap); cout << "  ZA produced" << endl;
     cout << "#         ELFS"; outVal(elfs); cout << "  excitation energy" << endl;
     cout << "#          LMF" << setw(14) << lmf << "  file number for multiplicity or cross section" << endl;

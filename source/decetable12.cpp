@@ -18,18 +18,19 @@ using namespace std;
 void DeceTableMF12(ENDF *lib)
 {
   Record head = lib->getENDFhead();
-  int    l0   = head.l1;   // 1: multiplicity, 2: transition probability
+  int    lo   = head.l1;   // 1: multiplicity, 2: transition probability
 
   cout << "# Photon production multiplicities and transition probability arrays" << endl;
-  cout << "#           L0" << setw(14) << l0 << "  1: multiplicity, 2: transition probability" << endl;
+  cout << "#           LO" << setw(14) << lo << "  1: multiplicity, 2: transition probability" << endl;
+  cout << endl;
 
-  if(l0 == 1){
+  if(lo == 1){
     int    nk   = head.n1;   // number of subsections
     cout << "#           NK" << setw(14) << nk << "  number of subsections" << endl;
 
     int n0 = 0;
     if(nk > 1){
-      ENDFPrint1Dim(lib,n0);
+      ENDFPrint1Dim(lib,n0,"Energy","TotalYield");
       n0 = 1;
     }
 
@@ -40,6 +41,7 @@ void DeceTableMF12(ENDF *lib)
       int    lp   = cont.l1;
       int    lf   = cont.l1;
 
+      cout << "#   Subsection" << setw(14) << n << endl;
       cout << "#           LP" << setw(14) << lp << "  0: origin unknown, 1: nonprimary photon, 2: primary photons" << endl;
       cout << "#           LF" << setw(14) << lf << "  1: tabulated in File 15, 2: discrete photons" << endl;
       if(eg == 0.0){
@@ -51,10 +53,10 @@ void DeceTableMF12(ENDF *lib)
       }
 
 
-      ENDFPrint1Dim(lib,n);
+      ENDFPrint1Dim(lib,n,"Energy","Yield");
     }
   }
-  else if(l0 == 2){
+  else if(lo == 2){
     int    lg   = head.l2;   // 1: all gamma, 2: complex case
     int    ns   = head.n1;   // number of levels
 
@@ -73,14 +75,16 @@ void DeceTableMF12(ENDF *lib)
 
     cout.setf(ios::scientific, ios::floatfield);
     if(lg == 1){
-        for(int i=0 ; i<nt ; i++){
+      cout << "# Energy        Probability" << endl;
+      for(int i=0 ; i<nt ; i++){
         cout << setprecision(6) << setw(14) << lib->xptr[0][2*i  ];
         cout << setprecision(6) << setw(14) << lib->xptr[0][2*i+1];
         cout << endl;
       }
     }
     else if(lg == 2){
-        for(int i=0 ; i<nt ; i++){
+      cout << "# Energy        Probability   Photon" << endl;
+      for(int i=0 ; i<nt ; i++){
         cout << setprecision(6) << setw(14) << lib->xptr[0][3*i  ];
         cout << setprecision(6) << setw(14) << lib->xptr[0][3*i+1];
         cout << setprecision(6) << setw(14) << lib->xptr[0][3*i+2];

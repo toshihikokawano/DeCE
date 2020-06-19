@@ -1,3 +1,18 @@
+2020-06-18  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable32.cpp: updated
+	* source/decetable.cpp: updated
+	all the decetableNN.cpp files, esp. decetable32, modified to print more information
+
+	* source/endfio.cpp (ENDFPrintLIST): updated
+	(ENDFPrint1Dim): updated
+	can take X and Y axis names
+
+2020-06-17  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* example/example3.cpp: updated
+	another case, where all the data are once stored in memory, is added
+
 2020-06-15  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* manual/header.html: updated

@@ -1233,14 +1233,21 @@ void ENDFWriteMF35(ENDF *lib)
 /**********************************************************/
 /*      Print LIST Data                                   */
 /**********************************************************/
-void ENDFPrintLIST(ENDF *lib, const int idx)
+void ENDFPrintLIST(ENDF *lib, const int idx){ ENDFPrintLIST(lib, idx, "", ""); }
+void ENDFPrintLIST(ENDF *lib, const int idx, string xname, string yname)
 {
+  if( (xname.length() > 0) || (yname.length() > 0) ){
+    cout << left << "# " << setw(12) << xname;
+    cout << left << "  " << setw(12) << yname << endl;
+    cout << right;
+  }
+
   cout.setf(ios::scientific, ios::floatfield);
 
   int n = lib->rdata[idx].n1;
   for(int i=0 ; i<n ; i++){
-    cout << setw(11) << i;
-    cout << setprecision(6) << setw(13) << lib->xptr[idx][i];
+    cout << setw(14) << i;
+    cout << setprecision(6) << setw(14) << lib->xptr[idx][i];
     cout << endl;
   }
 }
@@ -1249,7 +1256,8 @@ void ENDFPrintLIST(ENDF *lib, const int idx)
 /**********************************************************/
 /*      Print 1-Dimensional Data                          */
 /**********************************************************/
-void ENDFPrint1Dim(ENDF *lib, const int idx)
+void ENDFPrint1Dim(ENDF *lib, const int idx){ ENDFPrint1Dim(lib, idx, "", ""); }
+void ENDFPrint1Dim(ENDF *lib, const int idx, string xname, string yname)
 {
   int nr = lib->rdata[idx].n1;
   cout << "#           NR" << setw(14) << nr << "  number of interpolation range" << endl;
@@ -1260,8 +1268,13 @@ void ENDFPrint1Dim(ENDF *lib, const int idx)
     cout << setw(9) << intscheme(lib->iptr[idx][2*ir+1]).c_str();
     cout << "  interpolation" << endl;
 
-    cout.setf(ios::scientific, ios::floatfield);
+    if( (xname.length() > 0) || (yname.length() > 0) ){
+      cout << left << "# " << setw(12) << xname;
+      cout << left << "  " << setw(12) << yname << endl;
+      cout << right;
+    }
 
+    cout.setf(ios::scientific, ios::floatfield);
     for(int ip=i ; ip<lib->iptr[idx][2*ir] ; ip++){
       cout << setprecision(6) << setw(14) << lib->xptr[idx][2*ip  ];
       cout << setprecision(6) << setw(14) << lib->xptr[idx][2*ip+1];

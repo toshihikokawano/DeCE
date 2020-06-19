@@ -5,7 +5,8 @@
         the functions are defined in dece.cpp
  */
 
-#include <ostream>
+//#include <ostream>
+#include <sstream>
 
 #ifndef DECE_TOPLEVEL
 extern ostringstream message;

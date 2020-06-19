@@ -490,4 +490,6 @@ void   ENDFWriteMF34      (ENDF *);
 void   ENDFWriteMF35      (ENDF *);
 
 void   ENDFPrintLIST      (ENDF *, const int);
+void   ENDFPrintLIST      (ENDF *, const int, string, string);
 void   ENDFPrint1Dim      (ENDF *, const int);
+void   ENDFPrint1Dim      (ENDF *, const int, string, string);

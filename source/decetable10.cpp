@@ -24,6 +24,7 @@ void DeceTableMF10(ENDF *lib)
   cout << "# Radioactive nuclide production cross section" << endl;
   cout << "#           NS" << setw(14) << ns  << "  number of subsections" << endl;
   cout << "#          LIS" << setw(14) << lis << "  target level" << endl;
+  cout << endl;
 
   for(int n=0 ; n<ns ; n++){
     Record cont = lib->rdata[n];
@@ -31,10 +32,11 @@ void DeceTableMF10(ENDF *lib)
     double qi   = cont.c2;
     int    lfs  = head.l2;   // level number indicator
 
+    cout << "#   Subsection" << setw(14) << n << endl;
     cout << "#           QM"; outVal(qm); cout << "  mass difference Q-value" << endl;
     cout << "#           QI"; outVal(qi); cout << "  reaction Q-value" << endl;
     cout << "#          LFS" << setw(14) << lfs << "  product level" << endl;
 
-    ENDFPrint1Dim(lib,n);
+    ENDFPrint1Dim(lib,n,"Energy","CrossSection");
   }
 }

@@ -34,9 +34,9 @@ void DeceTableMF3(ENDF *lib)
       tmp.xdata[2*i  ] *= opt.WriteXdataConversion;
       tmp.xdata[2*i+1] *= opt.WriteYdataConversion;
     }
-    ENDFPrint1Dim(&tmp,0);
+    ENDFPrint1Dim(&tmp,0,"Energy","CrossSection");
   }
-  else ENDFPrint1Dim(lib,0);
+  else ENDFPrint1Dim(lib,0,"Energy","CrossSection");
 }
 
 

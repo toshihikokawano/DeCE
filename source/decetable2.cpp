@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <cmath>
 
 using namespace std;
@@ -35,6 +34,7 @@ void DeceTableMF2(ENDF *lib)
   cout << "# Resonance parameters" << endl;
   cout << "#          NER" << setw(14) << ner << "  number of resonance energy ranges" << endl;
   cout << "#          LFW" << setw(14) << lfw << "  average fission width given or not" << endl;
+  cout << endl;
 
   for(int iner=0 ; iner<ner ; iner++){
     cont = lib->rdata[idx++];
@@ -393,7 +393,7 @@ int DeceTableMF2AP(ENDF *lib, int idx)
 {
   cout << endl;
   cout << "# Energy-dependent AP" << endl;
-  ENDFPrint1Dim(lib,idx);
+  ENDFPrint1Dim(lib,idx,"Energy","Radius");
   idx++;
 
   return(idx);

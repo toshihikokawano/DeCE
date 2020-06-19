@@ -1,14 +1,13 @@
 /******************************************************************************/
 /**                                                                          **/
 /**     DeCE : The Descriptive Correction of ENDF-6 Format Code              **/
-/**                                          1.2.2 (Pyrite)  March  2019     **/
+/**                                          1.2.4 (Olivine)  June  2020     **/
 /**                                                            T. Kawano     **/
 /**                                       Los Alamos National Laboratory     **/
 /******************************************************************************/
 
 #include <iostream>
 #include <iomanip>
-#include <sstream>
 #include <cstdlib>
 #include <cstring>
 #include <unistd.h>
@@ -20,7 +19,7 @@ using namespace std;
 #include "global.h"
 #include "terminate.h"
 
-static string version  = "1.2.2 Pyrite (March 2019)";
+static string version  = "1.2.4 Olivine (June 2020)";
 static bool   verbflag = false;
 static bool   justquit = false;
 static bool   renumber = false;
