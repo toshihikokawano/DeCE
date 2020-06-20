@@ -1,3 +1,15 @@
+2020-06-19  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dece.cpp: updated
+	version 1.2.4 Olivine
+
+	* source/decetable34.cpp (DeceTableMF34): modified
+	print covariance matrix instead of correlation when different L-values are given
+	still not sure if they are symmetric
+
+	* source/endflib.cpp (ENDFDelExp): updated
+	print big number (> 1e+10)
+
 2020-06-18  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/decetable32.cpp: updated

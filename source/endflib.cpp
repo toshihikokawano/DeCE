@@ -398,7 +398,7 @@ Record ENDFReadINTG(ifstream *fp, ENDF *lib)
 
   static int row[] = {0, 0, 18, 13, 11, 9, 8};
 
-  int nmax = nm * row[nd];
+  int nmax = nm * (row[nd] + 2);
   if( lib->checkMAXDATA(0,nmax) ) ENDFExceedDataSize("ReadINTG",lib,0,nmax);
 
   /***  read in INTG-formatted int data into double array */
@@ -487,7 +487,7 @@ int ENDFReadArray(ifstream *fp, int m, int n, int d, double *x)
     if(d == 6) p --;
     for(int k=0 ; k<n ; k++){
       s = line.substr(p,(d+1)); p += d+1;
-      if(s != blank) x[i++] = atoi(s.c_str());
+      x[i++] = (double)atoi(s.c_str());
     }
   }
 
@@ -1288,31 +1288,41 @@ void ENDFMF2boundary(ENDFDict *dict, ENDF *lib)
 inline void ENDFDelExp(double x, char *num)
 {
   ostringstream os;
+  os.setf(ios::scientific, ios::floatfield);
 
-  if(fabs(x) < 1.0e-99){
+  double z = fabs(x);
+  /*** too small numbers will be rounded to zero */
+  if(z < 1.0e-99){
     strcpy(num," 0.000000+0");
   }
-  else if(fabs(x) < 1.0e-09){
- // sprintf(num,"% 12.5e",x);
-    os.setf(ios::scientific, ios::floatfield);
+  /*** when the exponent has 2 digits */
+  else if( (z < 1.0e-09) || (1.0e+10 <= z && z < 1.0e+100) ){
     os << setprecision(5) << setw(12) << x;
     string s = os.str();
     strcpy(num,s.c_str());
-    num[ 8] = num[9];
-    num[ 9] = num[10];
-    num[10] = num[11];
-    num[11] = '\0';
+    for(int i=8 ; i<=10 ; i++) num[i] = num[i+1];
+    //  from |+1.12345e+12|
+    //  to   |+1.12345+12|
+  }
+  /*** when the exponent has 3 digits */
+  else if(z >= 1.0e+100){
+    os << setprecision(4) << setw(12) << x;
+    string s = os.str();
+    strcpy(num,s.c_str());
+    for(int i=7 ; i<=10 ; i++) num[i] = num[i+1];
+    //  from |+1.1234e+123|
+    //  to   |+1.1234+123|
   }
   else{
-//  sprintf(num,"% 13.6e",x);
-    os.setf(ios::scientific, ios::floatfield);
     os << setprecision(6) << setw(13) << x;
     string s = os.str();
     strcpy(num,s.c_str());
     num[ 9] = num[10];
     num[10] = num[12];
-    num[11] = '\0';
+    //  from |+1.123456e+01|
+    //  to   |+1.123456+1|
   }
+  num[11] = '\0';
 }
 
 
@@ -1334,13 +1344,13 @@ inline double ENDFPadExp(string str)
   int len = str.size();
   int p1 = 0, p2 = 0, p3 = 0;
 
-  /**** sign */
+  /**** sign: check if this number is positive or negative */
   int sig = 1;
   for(p1 = 0; p1<len ; p1++){
     if(str[p1] == ' ') continue;
-    else if(str[p1]=='+') sig =  1;
-    else if(str[p1]=='-') sig = -1;
-    else if( (str[p1]>='0' && str[p1]<='9') || str[p1]=='.' ) break;
+    else if(str[p1] == '+') sig =  1;
+    else if(str[p1] == '-') sig = -1;
+    else if( (str[p1] >= '0' && str[p1] <= '9') || str[p1]=='.' ) break;
   }
 
   /**** find + or - */

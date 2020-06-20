@@ -926,8 +926,7 @@ int ENDFReadMF32(ifstream *fp, ENDF *lib)
 
     /*** Resolved Resonance */
     if(lru == 1){
-
-      if(nro !=0 ){
+      if(nro != 0){
         /*** Energy Dependent Scattering Radius */
         cont = ENDFReadCONT(fp,lib);
         int ni = cont.n2;
@@ -965,10 +964,8 @@ int ENDFReadMF32(ifstream *fp, ENDF *lib)
           for(int insrs=0 ; insrs<nsrs ; insrs++){
             cont = ENDFReadCONT(fp,lib);
             int njsx = cont.l1;
-            for(int injsx=0 ; injsx<njsx ; injsx++){
-              ENDFReadLIST(fp,lib);
-              ENDFReadLIST(fp,lib);
-            }
+            for(int injsx=0 ; injsx<njsx ; injsx++) ENDFReadLIST(fp,lib);
+            ENDFReadLIST(fp,lib);
           }
         }
         else{
@@ -1029,7 +1026,7 @@ void ENDFWriteMF32(ENDF *lib)
     int nro  = cont.n1;
 
     if(lru == 1){
-      if(nro !=0 ){
+      if(nro != 0){
         cont = ENDFWriteCONT(lib);
         int ni = cont.n2;
         for(int i=0 ; i<ni ; i++) ENDFWriteLIST(lib);
@@ -1060,10 +1057,8 @@ void ENDFWriteMF32(ENDF *lib)
           for(int insrs=0 ; insrs<nsrs ; insrs++){
             cont = ENDFWriteCONT(lib);
             int njsx = cont.l1;
-            for(int injsx=0 ; injsx<njsx ; injsx++){
-              ENDFWriteLIST(lib);
-              ENDFWriteLIST(lib);
-            }
+            for(int injsx=0 ; injsx<njsx ; injsx++) ENDFWriteLIST(lib);
+            ENDFWriteLIST(lib);
           }
         }
         else{
@@ -1171,10 +1166,19 @@ int ENDFReadMF34(ifstream *fp, ENDF *lib, const int mt)
   int    nmt1 = head.n2;  // number of subsections
 
   for(int n=0 ; n<nmt1 ; n++){
-    ENDFReadCONT(fp,lib);
     Record cont = ENDFReadCONT(fp,lib);
-    int ni = cont.n2;
-    for(int i=0 ; i<ni ; i++) ENDFReadLIST(fp,lib);
+    int mt1 = cont.l2;
+    int nl  = cont.n1;
+    int nl1 = cont.n2;
+
+    for(int l=0 ; l<nl ; l++){
+      int l0 = (mt == mt1) ? l : 0;
+      for(int l1=l0 ; l1<nl1 ; l1++){
+        cont = ENDFReadCONT(fp,lib);
+        int ni = cont.n2;
+        for(int n=0 ; n<ni ; n++) ENDFReadLIST(fp,lib);
+      }
+    }
   }
 
   return(lib->getPOS());
@@ -1186,13 +1190,22 @@ void ENDFWriteMF34(ENDF *lib)
   ENDFWriteHEAD(lib);
 
   Record head = lib->getENDFhead();
-  int    nmt  = head.n2;
+  int    nmt1 = head.n2;
 
-  for(int n=0 ; n<nmt ; n++){
-    ENDFWriteCONT(lib);
+  for(int n=0 ; n<nmt1 ; n++){
     Record cont = ENDFWriteCONT(lib);
-    int ni = cont.n2;
-    for(int i=0 ; i<ni ; i++) ENDFWriteLIST(lib);
+    int mt1 = cont.l2;
+    int nl  = cont.n1;
+    int nl1 = cont.n2;
+
+    for(int l=0 ; l<nl ; l++){
+      int l0 = (lib->getENDFmt() == mt1) ? l : 0;
+      for(int l1=l0 ; l1<nl1 ; l1++){
+        cont = ENDFWriteCONT(lib);
+        int ni = cont.n2;
+        for(int n=0 ; n<ni ; n++) ENDFWriteLIST(lib);
+      }
+    }
   }
 
   ENDFWriteSEND(lib);

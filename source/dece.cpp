@@ -214,7 +214,7 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
     else if(dict->mf[i] == 31) size = M;
     else if(dict->mf[i] == 32) size = L;
     else if(dict->mf[i] == 33) size = L;
-    else if(dict->mf[i] == 34) size = M;
+    else if(dict->mf[i] == 34) size = L;
     else if(dict->mf[i] == 35) size = L;
     else continue;
 

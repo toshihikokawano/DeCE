@@ -222,7 +222,7 @@ int DeceTableMF32LCOMP1LRF3(int idx, int lrf, ENDF *lib)
     int nrb  = cont.n2;
 
     cout << "# ShortRange  " << insrs << endl;
-    cout << "#         MPAR" << setw(14) << mpar << "  number of parameters (ER, GN, GG, ...)" << endl;
+    cout << "#         MPAR" << setw(14) << mpar << "  number of parameters par resonance (ER, GN, GG, ...)" << endl;
     cout << "#          NRB" << setw(14) << nrb << "  number of resonances" << endl;
 
     int n = nrb * mpar;
@@ -247,7 +247,7 @@ int DeceTableMF32LCOMP1LRF3(int idx, int lrf, ENDF *lib)
       }
     }
 
-    cout << "# Parameter    Uncertainty" << endl;
+    cout << "#     Parameter     Uncertainty   Correlation" << endl;
 
     double *cptr;
     cptr = &lib->xptr[idx][6*nrb];
@@ -258,6 +258,7 @@ int DeceTableMF32LCOMP1LRF3(int idx, int lrf, ENDF *lib)
         int i  = i0*mpar + i1;
         int ki = i + i*n - i*(i+1)/2;
 
+        cout << setw(5) <<i;
         outVal(p[i]);
         if(p[i] != 0.0) outVal(sqrt(cptr[ki] / p[i] / p[i]));
         else outVal(0.0);
@@ -323,7 +324,7 @@ int DeceTableMF32LCOMP1LRF7(int idx, ENDF *lib)
       n += nrb * (nch + 1);
     }
 
-    cout << "#         NPARB" << setw(14) << n << "  number of total parameters in this block" << endl;
+    cout << "#        NPARB" << setw(14) << n << "  total parameters in this group" << endl;
 
     double *p = new double [n];
 
@@ -347,7 +348,7 @@ int DeceTableMF32LCOMP1LRF7(int idx, ENDF *lib)
       idx++;
     }
 
-    cout << "# Parameter    Uncertainty" << endl;
+    cout << "#     Parameter     Uncertainty   Correlation" << endl;
 
     double *cptr;
     cptr = lib->xptr[idx];
@@ -356,6 +357,7 @@ int DeceTableMF32LCOMP1LRF7(int idx, ENDF *lib)
     for(int i=0; i<n; i++){
       int ki = i + i*n - i*(i+1)/2;
 
+      cout << setw(5) <<i;
       outVal(p[i]);
       if(p[i] != 0.0) outVal(sqrt(cptr[ki] / p[i] / p[i]));
       else outVal(0.0);
@@ -408,11 +410,13 @@ int DeceTableMF32LCOMP2LRF3(int idx, int lrf, ENDF *lib)
   int nn = cont.l2;
   int nm = cont.n1;
 
+  int mpar = nn / nrsa;
+
   cout << "#        NDIGT" << setw(14) << nd << "  number of digits" << endl;
   cout << "#          NNN" << setw(14) << nn << "  total number of resonance parameters" << endl;
   cout << "#           NM" << setw(14) << nm << "  number of INTG data lines" <<  endl;
+  cout << "#         MPAR" << setw(14) << mpar << "  number of parameters per resonance (ER, GN, GG, ...)" <<  endl;
 
-  int mpar = nn / nrsa;
 
   int k = 0;
   for(int i=0; i<nrsa; i++){
@@ -558,9 +562,10 @@ void DeceTableMF32PrintCorr(int nn, int nm, int nd, double *p, double *e, double
     }
   }
 
-  cout << "# Parameter    Uncertainty" << endl;
+  cout << "#     Parameter     Uncertainty   Correlation" << endl;
 
   for(int i=0 ; i<nn ; i++){
+    cout << setw(5) <<i;
     outVal(p[i]);
     if(p[i] == 0.0) outVal(0.0);
     else            outVal(abs(e[i] / p[i]));
