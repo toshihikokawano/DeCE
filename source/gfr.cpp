@@ -104,7 +104,13 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   Pcross crs, cbg;
   double *elab;
   int np = 0;
-  
+
+  if(dict->emaxRe == 0.0){
+    message << "no resonance region given";
+    WarningMessage();
+    return;
+  }
+
   elab = new double [MAX_DBLDATA_LARGE/2];
 
   int kres = dict->getID(2,151);
@@ -141,7 +147,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     }
 
     np = gfrAutoEnergyURR(elab,dict->emaxRR,dict->emaxUR);
-   
+
     for(int i=0 ; i<np ; i++){
 
       /*** unresolved resonance cross sections */

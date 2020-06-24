@@ -18,6 +18,7 @@ dece_SOURCES = \
 	deceoperation.cpp \
 	deceoutput.cpp \
 	decepoint.cpp \
+	deceprocgroup.cpp \
 	deceprocpointwise.cpp \
 	deceread.cpp \
 	decereadjust.cpp \

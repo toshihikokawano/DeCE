@@ -35,6 +35,7 @@ static void DeceOperationGENPROD         (ENDFDict *, ENDF **);
 static void DeceOperationISOANGDIST      (ENDFDict *, ENDF **);
 static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
+static void DeceOperationGROUP           (ENDFDict *, ENDF **);
 
 extern CLine cmd;
 
@@ -196,6 +197,11 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** POINTWISE: create pointwise cross section */
   else if(ope == "pointwise"){
     DeceOperationPOINTWISE(dict,lib);
+  }
+
+  /*** GROUP: create group cross section */
+  else if(ope == "group"){
+    DeceOperationGROUP(dict,lib);
   }
 
 
@@ -559,14 +565,22 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
 /*      reconstruct pointwise cross section from          */
 /*      resonance parameters and merge into MF3           */
 /**********************************************************/
+static bool generatepointwise = false;
 void DeceOperationPOINTWISE(ENDFDict *dict, ENDF *lib[])
 {
   if(dict->getID(2,151) >= 0){
-    DeceCreateLib(dict,3,901);
-    DeceCreateLib(dict,3,902);
-    DeceCreateLib(dict,3,903);
-    DeceCreateLib(dict,3,904);
     DeceGeneratePointwise(dict,lib);
+    generatepointwise = true;
   }
+}
+
+/**********************************************************/
+/* Group                                                  */
+/*      group cross sections                              */
+/**********************************************************/
+void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
+{
+  if(!generatepointwise) DeceOperationPOINTWISE(dict,lib);
+  DeceGenerateGroup(dict,lib,cmd.opt1);
 }
 

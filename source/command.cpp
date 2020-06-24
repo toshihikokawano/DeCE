@@ -166,6 +166,9 @@ string CmdExtractArgument(void)
     cmd.xmax  =      getval(d1);
     cmd.x     =      getval(d1);
   }
+  else if(ope == "group"){
+    cmd.opt1  = (int)getval(d1);
+  }
   else if(ope == "set" || ope == "unset"){
     gettext(d1,cmd.text);
     cmd.x     =      getval(d1);

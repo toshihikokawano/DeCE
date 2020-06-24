@@ -956,8 +956,8 @@ void ENDFPackTAB21(Record cont, int *idat, Record *cdat, int **itab, double **xt
 /**********************************************************/
 void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
 {
-  if(libsrc->getSIZE() != libdst->getSIZE()){
-    cerr << "cannot copy to different size object" << endl;
+  if((int)libsrc->getSIZE() > (int)libdst->getSIZE()){
+    cerr << "cannot copy to smaller size object" << endl;
     exit(-1);
   }
 
@@ -973,10 +973,10 @@ void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
 
   /*** copy all integer and double data */
   for(int i=0 ; i<ni ; i++){ libdst->idata[i] = libsrc->idata[i]; }
-  for(int i=0 ; i<nx ; i++){ libdst->xdata[i] = libsrc->xdata[i]; }
+  for(int i=0 ; i<nx ; i++){ libdst->xdata[i] = libsrc->xdata[i]; cout << i <<" " <<libdst->xdata[i] << endl;}
 
   /*** copy all CONT */
-  for(int i=0 ; i<nb ; i++) libdst->rdata[i] = libsrc->rdata[i];
+  for(int i=0 ; i<nb ; i++){ libdst->rdata[i] = libsrc->rdata[i]; }
 
   /*** re-assign pointers */
   libdst->resetPOS();

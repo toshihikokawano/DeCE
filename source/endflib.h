@@ -61,6 +61,9 @@ class ENDF{
   int       mt;         // ENDF MT number
   Record    head;       // Head Record
   DataSize  size;       // ENDF data size
+  int       isize;      // integer data buffer size
+  int       xsize;      // double data buffer size
+  int       rsize;      // CONT data buffer size
   int       ctr;        // pointer to currently running block
   int       nb;         // total number of blocks
  public:
@@ -86,31 +89,34 @@ class ENDF{
   void memalloc(DataSize datasize){
     if(!allocated){
       if(datasize == S){
-        idata = new int      [MAX_INTDATA_SMALL];
-        xdata = new double   [MAX_DBLDATA_SMALL];
-        iptr  = new int    * [MAX_SUBBLOCK_SMALL];
-        xptr  = new double * [MAX_SUBBLOCK_SMALL];
-        rdata = new Record   [MAX_SUBBLOCK_SMALL];
-        size  = S;
+        isize = MAX_INTDATA_SMALL;
+        xsize = MAX_DBLDATA_SMALL;
+        rsize = MAX_SUBBLOCK_SMALL;
       }
       else if(datasize == L){
-        idata = new int      [MAX_INTDATA_LARGE];
-        xdata = new double   [MAX_DBLDATA_LARGE];
-        iptr  = new int    * [MAX_SUBBLOCK_LARGE];
-        xptr  = new double * [MAX_SUBBLOCK_LARGE];
-        rdata = new Record   [MAX_SUBBLOCK_LARGE];
-        size  = L;
+        isize = MAX_INTDATA_LARGE;
+        xsize = MAX_DBLDATA_LARGE;
+        rsize = MAX_SUBBLOCK_LARGE;
       }
       else{
-        idata = new int      [MAX_INTDATA];
-        xdata = new double   [MAX_DBLDATA];
-        iptr  = new int    * [MAX_SUBBLOCK];
-        xptr  = new double * [MAX_SUBBLOCK];
-        rdata = new Record   [MAX_SUBBLOCK];
-        size  = M;
+        isize = MAX_INTDATA;
+        xsize = MAX_DBLDATA;
+        rsize = MAX_SUBBLOCK;
       }
+      idata = new int      [isize];
+      xdata = new double   [xsize];
+      iptr  = new int    * [rsize];
+      xptr  = new double * [rsize];
+      rdata = new Record   [rsize];
+      size  = datasize;
+
       allocated = true;
     }
+  }
+
+  void memresize(DataSize datasize){
+    memfree();
+    memalloc(datasize);
   }
 
   void memfree(){
@@ -193,28 +199,14 @@ class ENDF{
 
   /*** check if more data can be stored */
   bool checkSUBBLOCK(void){
-    if(size == S){
-      if(nb >= MAX_SUBBLOCK_SMALL) return true;
-    }else if(size == L){
-      if(nb >= MAX_SUBBLOCK_LARGE) return true;
-    }else{
-      if(nb >= MAX_SUBBLOCK      ) return true;
-    }
+    if(nb >=rsize) return true;
     return false;
   }
 
   bool checkMAXDATA(int mi, int mx){
     int ni0 = getNI() + mi;
     int nx0 = getNX() + mx;
-    if(size == S){
-      if((ni0 >= MAX_INTDATA_SMALL) || (nx0 >= MAX_DBLDATA_SMALL)) return true;
-    }
-    else if(size == L){
-      if((ni0 >= MAX_INTDATA_LARGE) || (nx0 >= MAX_DBLDATA_LARGE)) return true;
-    }
-    else{
-      if((ni0 >= MAX_INTDATA)       || (nx0 >= MAX_DBLDATA      )) return true;
-    }
+    if((ni0 >= isize) || (nx0 >= xsize)) return true;
     return false;
   }
 };
