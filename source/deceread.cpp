@@ -24,8 +24,6 @@ static int    mergeCSdata   (int, double *, double *, double, double *, double *
 static double findBoundary  (ENDF *);
 static double loginterpol   (int, double, double *, double *, int *);
 
-static double eps = 1.0e-30;
-
 
 /**********************************************************/
 /*      Read in External Data from a File                 */
@@ -137,7 +135,7 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     int    idat[4];
 
     /*** Make HEAD and CONT */
-    int lnu = (mt == 3) ? 0 : 2; // tabulated nu case
+    int lnu = (mf == 3) ? 0 : 2; // tabulated nu case
     lib->setENDFhead(za,awr,0,lnu,0,0);
     lib->setENDFmat(mat);
     lib->setENDFmf(mf);
@@ -236,6 +234,7 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
   int nc=0;
   while(getline(fp,line)){
     if(line[0] == '#') continue;
+    if(line.length() == 0) continue;
 
     istringstream ss(line);
     ss >> x[nc];
@@ -256,8 +255,10 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
 
   fp.close();
 
-  message << "MF3:MT" << mt << " " << nc << " points [" << x[0] << "," << x[nc-1] << "] imported from " << file;
-  Notice("DeceRead:readCSdata");
+  if(nc >= 1){
+    message << "MF3:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
+    Notice("DeceRead:readCSdata");
+  }
 
   return nc;
 }
@@ -293,9 +294,14 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
 
   int nc = 0;
   while(getline(fp,line)){
+    if(line.length() == 0) continue;
+
     istringstream s2(line);
     s2 >> x[nc];
     for(int i=0 ; i<ofset ; i++) s2 >> y[nc];
+
+    /*** skip blank line */
+    if(x[nc] == 0.0) continue;
 
     x[nc] *= opt.ReadXdataConversion;
     y[nc] *= opt.ReadYdataConversion;
@@ -316,8 +322,10 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   }
   if(zero) nc = 0;
 
-  message << "MF3:MT" << mt << " " << nc << " points imported from " << file;
-  Notice("DeceRead:readISdata");
+  if(nc >= 1){
+    message << "MF3:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
+    Notice("DeceRead:readISdata");
+  }
 
   return nc;
 }
@@ -339,6 +347,7 @@ int readNUdata(char *file, int ofset, double *x, double *y)
   int nc=0;
   while(getline(fp,line)){
     if(line[0] == '#') continue;
+    if(line.length() == 0) continue;
 
     istringstream ss(line);
     ss >> x[nc];
@@ -355,8 +364,10 @@ int readNUdata(char *file, int ofset, double *x, double *y)
 
   fp.close();
 
-  message << "MF3:MT455(6) " << nc << " points [" << x[0] << "," << x[nc-1] << "] imported from " << file;
-  Notice("DeceRead:readNUdata");
+  if(nc >= 1){
+    message << "MF3:MT455(6) " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
+    Notice("DeceRead:readNUdata");
+  }
 
   return nc;
 }
@@ -407,19 +418,21 @@ int geneCSdata1(int n, double *x, double *y, double eth, double eres, double *xd
 
     /*** copy all the rest */
     for(int j=skip ; j<n ; j++){
-      if(y[j] >= eps){
-        xdat[i++] = x[j];
-        xdat[i++] = y[j];
-      }
+      xdat[i++] = x[j];
+      xdat[i++] = y[j];
     }
   }
   /*** if Eth is larger than Eres, omit entire resonance range */
   else{
+    /*** remove points below Eth if given */
+    int skip = 0;
     for(int j=0 ; j<n ; j++){
-      if(y[j] >= eps){
-        xdat[i++] = x[j];
-        xdat[i++] = y[j];
-      }
+      if(x[j] > eth){ skip = j; break; }
+    }
+
+    for(int j=skip ; j<n ; j++){
+      xdat[i++] = x[j];
+      xdat[i++] = y[j];
     }
   }
 
@@ -432,47 +445,57 @@ int geneCSdata1(int n, double *x, double *y, double eth, double eres, double *xd
 /**********************************************************/
 int geneCSdata2(int n, double *x, double *y, double eres, double *xdat)
 {
+  const double e0 = 1.0000e-05; // lowest energy
+  const double e1 = 2.5300e-02; // thermal point
+
   int i = 0;
-
-  /*** Insert thermal point, start at the resonance boundary */
-  xdat[i++] = 1.0000e-05;
-  xdat[i++] = 0.0;
-  xdat[i++] = 2.5300e-02;
-  xdat[i++] = 0.0;
-
-  /*** Duplicated point at Eres
-       We hope Eres is bigger than 0.0253 */
   int skip = 0;
+
+  /*** when resonance region exists */
   if(eres > 0.0){
+    /*** Insert thermal point, start at the resonance boundary */
+    xdat[i++] = e0;
+    xdat[i++] = 0.0;
+    xdat[i++] = e1;
+    xdat[i++] = 0.0;
+
+    /*** duplicated point at Eres, we hope Eres is bigger than 0.0253 */
     xdat[i++] = eres;
     xdat[i++] = 0.0;
 
+    /*** find Y-value at Eres */
     double yint = loginterpol(n,eres,x,y,&skip);
-
-    if(yint > 0.0){
-      xdat[i++] = eres;
-      xdat[i++] = yint;
-    }
+    xdat[i++] = eres;
+    xdat[i++] = yint;
   }
-  /*** Duplicate at x[0] when no resonance case */
+
+  /*** no resonance case */
   else{
-    xdat[i++] = x[0];
-    xdat[i++] = 0.0;
+    xdat[i++] = e0;
+    xdat[i++] = loginterpol(n,e0,x,y,&skip);
+
+    /*** insert data points when energies below thermal are given */
+    for(int j=0 ; j<n ; j++){
+      if( (e0 < x[j]) && (x[j] < e1) ){
+        xdat[i++] = x[j];
+        xdat[i++] = y[j];
+      }
+    }
+
+    xdat[i++] = e1;
+    xdat[i++] = loginterpol(n,e1,x,y,&skip);
+
+    /*** avoid long linear interpolation by duplicating the first data point */
+    if( (xdat[i-1] == 0.0) && (y[skip] > 0.0) ){
+      xdat[i++] = x[skip];
+      xdat[i++] = 0.0;
+    }
   }
 
   /*** copy all the rest */
-  bool onetrip = false;
   for(int j=skip ; j<n ; j++){
-    if(y[j] >= eps){
-      /*** insert 1-point before data start to avoid long interpolation to Eres */
-      if(!onetrip && (j >= 1) && (y[j-1] == 0.0)){
-        xdat[i++] = x[j-1];
-        xdat[i++] = 0.0;
-        onetrip = true;
-      }
-      xdat[i++] = x[j];
-      xdat[i++] = y[j];
-    }
+    xdat[i++] = x[j];
+    xdat[i++] = y[j];
   }
 
   return i;
@@ -498,24 +521,19 @@ int mergeCSdata(int n, double *x, double *y, double eres, double *xdat, double *
   /*** start at the resonance boundary */
   int skip = 0;
   double yint = loginterpol(n,eres,x,y,&skip);
-
-  if(yint > 0.0){
-    xdat[i++] = eres;
-    xdat[i++] = yint;
-  }
+  xdat[i++] = eres;
+  xdat[i++] = yint;
 
   bool onetrip = false;
   for(int j=skip ; j<n ; j++){
-    if(y[j] >= eps){
-      /*** insert 1-point before data start */
-      if(skip>1 && !onetrip && j>=1 && y[j-1]==0.0){
-        xdat[i++] = x[j-1];
-        xdat[i++] = 0.0;
-        onetrip = true;
-      }
-      xdat[i++] = x[j];
-      xdat[i++] = y[j];
+    /*** insert 1-point before data start */
+    if(skip>1 && !onetrip && j>=1 && y[j-1]==0.0){
+      xdat[i++] = x[j-1];
+      xdat[i++] = 0.0;
+      onetrip = true;
     }
+    xdat[i++] = x[j];
+    xdat[i++] = y[j];
   }
 
   return(i/2);
@@ -529,30 +547,34 @@ double loginterpol(int n, double e, double *x, double *y, int *idx)
 {
   double z = 0.0;
 
-  /*** if same energy point is given */
-  if(e == x[0]){
-    z = -1;
+  /*** if E is lower than the given data range, set zero  */
+  if(e < x[0]){
+    z = 0.0;
     *idx = 0;
   }
-  /*** if E < X[], use 1/v dependence */
-  else if(e < x[0]){
-    z = y[0] * sqrt(x[0]/e);
-    *idx = 0;
-  }
-  /*** if outsize, use the same highest value */
+  /*** if higher than the range, use the same highest value */
   else if(e > x[n-1]){
     z = y[n-1];
     *idx = n;
   }
-  /*** otherwise, linear interpolate in log-log */
+  /*** otherwise interpolate */
   else{
     int m = 0;
     for(int i=0 ; i<n-1 ; i++){
       if(x[i] <= e && e < x[i+1]){ m = i; break; }
     }
-    z = (y[m+1]-y[m])/(log(x[m+1])-log(x[m]))*(log(e)-log(x[m])) + y[m];
+    /*** when both points are positive, linear interpolation in log-log space */
+    if( (y[m] > 0.0) && (y[m+1] > 0.0) ){
+      z = (log(y[m+1]) - log(y[m])) / (log(x[m+1]) - log(x[m])) * (log(e) - log(x[m])) + log(y[m]);
+      z = exp(z);
+    }
+    /*** when one point is zero, linear interpolation */
+    else{
+      z = (y[m+1] - y[m]) / (x[m+1] - x[m]) * (e - x[m]) + y[m];
+    }
     *idx = m+1;
   }
+
   return (z);
 }
 
