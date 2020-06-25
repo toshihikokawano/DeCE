@@ -1,3 +1,9 @@
+2020-06-24  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (geneCSdata2): bug fixed
+	data reading for no-resonance region case fixed
+	there are more modifications to this file
+
 2020-06-19  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/dece.cpp: updated
