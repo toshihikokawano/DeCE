@@ -177,7 +177,7 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
     DeceRenumber(tempfile,libout,dict);
 
     /*** remove temoral file */
-//    remove(&tempfile[0]);
+    remove(&tempfile[0]);
   }
 
   fpin.close();
