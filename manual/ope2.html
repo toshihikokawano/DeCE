@@ -20,10 +20,11 @@
    read  <i>MFnumber</i> <i>MTnumber</i> "file_name" [<i>offset</i>]
 </pre>
 
-<p>DeCE can read cross section data from an external data file,
-and store the data into the specified MF,MT section.
+<p>DeCE can read cross section data from external data files,
+and store the data into a specified MF,MT section.
 In the current version, the MF number should be 1 or 3, so that
-only cross section or average number of neutron data can be read.
+only cross section or average number of neutron data can be read
+by the <tt>read</tt> command.
 The file name must be quoted by the quotation marks.</p>
 
 <p>The data in the external data file are in the table format, like</p>
@@ -44,8 +45,8 @@ The file name must be quoted by the quotation marks.</p>
 </pre>
 <p>where the energies are in MeV, and the cross sections in milli-barns.
 When <i>offset</i> is not given, DeCE reads the first column as the energy,
-and the second column as the cross section. When <i>offset=2</i> is specified,
-the third column data are copied.</p> 
+and the second column as the cross section. When <i>offset=2</i> is specified for example,
+the second column data will be skipped and the third column data are copied.</p> 
 
 <p>The unit of the external data can be changed by the <a href="option.html">option</a>
 <tt>ReadXdataConversion</tt> and <tt>ReadYdataConversion</tt>. 
@@ -79,6 +80,37 @@ extract 3 102
 the data below 100 keV are skipped. Ocassionally, though quite rare, 
 DeCE cannot determine the correct resonance upper boundary. Users should 
 be aware of this. </p>
+
+
+<p> For the threshold reactions, such as (n,p) when its Q-vale is negative,
+DeCE calculates the threshold energy and inserts it automatically. However,
+this is not the case for the inelastic scattering (MT=51-91), and 
+the charged particle emissions where the residual nucleus is left in its 
+discrete levels or continuum (MT=600--849). Because there is no simple way to
+infer the discrete level energies, users need to supply the excitation energies
+of the level in the first line. Below an example shows the inelastic scattering
+data case. The second column is for the 1st excitad state (MF=51), the third
+is for the 2nd level (MF=52), and so forth.</p>
+
+<pre id="dat">
+#             5.392800e-02 1.151270e-01 2.069400e-01 7.687000e-01
+ 1.000000e-01 2.390227e+01 0.000000e+00 0.000000e+00 0.000000e+00
+ 1.500000e-01 4.132186e+01 1.817732e+02 0.000000e+00 0.000000e+00
+ 2.000000e-01 5.647943e+01 2.181649e+02 0.000000e+00 0.000000e+00
+ 2.500000e-01 6.495198e+01 2.142788e+02 1.051117e+02 0.000000e+00
+ 3.000000e-01 7.431213e+01 2.259118e+02 1.355723e+02 0.000000e+00
+ 3.500000e-01 8.305242e+01 2.384692e+02 1.570847e+02 0.000000e+00
+ 4.000000e-01 9.095436e+01 2.506187e+02 1.753431e+02 0.000000e+00
+ 4.500000e-01 9.794954e+01 2.618666e+02 1.916406e+02 0.000000e+00
+ 5.000000e-01 1.040448e+02 2.719887e+02 2.063398e+02 0.000000e+00
+ 6.000000e-01 1.137435e+02 2.886047e+02 2.313577e+02 0.000000e+00
+ 7.000000e-01 1.206132e+02 3.006155e+02 2.509487e+02 0.000000e+00
+ 8.000000e-01 1.211393e+02 2.986678e+02 2.571690e+02 5.829093e+01
+
+ 1.950000e+01 1.258428e-03 1.358285e-03 1.358676e-03 1.463803e-03
+ 2.000000e+01 1.174476e-03 1.245705e-03 1.246367e-03 1.323415e-03
+</pre>
+
 
 
 <h2><a name="multiread">multiread (read multiple cross section data from file)</a></h2>
