@@ -130,19 +130,25 @@ int DeceReconstructResonance(ENDFDict *dict, ENDF *lib[], double **xdat)
   }
 
   /*** unresolved resonance cross sections */
-  int np2 = gfrAutoEnergyURR(edat,dict->emaxRR,dict->emaxUR);
+  bool lssf = false;
+  if(dict->emaxRe == dict->emaxUR) lssf = true;
 
-  for(int i=np1 ; i<np1+np2 ; i++){
-    int i2 = i*2;
+  int np2 = 0;
+  if(lssf){
+    np2 = gfrAutoEnergyURR(edat,dict->emaxRR,dict->emaxUR);
 
-    crs = gfrCrossSection(2,edat[i-np1],&sys,lib[kres]);
+    for(int i=np1 ; i<np1+np2 ; i++){
+      int i2 = i*2;
 
-    for(int j=0 ; j<ncx ; j++) xdat[j][i2] = edat[i-np1];
+      crs = gfrCrossSection(2,edat[i-np1],&sys,lib[kres]);
 
-    xdat[0][i2+1] = crs.total;
-    xdat[1][i2+1] = crs.elastic;
-    xdat[2][i2+1] = crs.capture;
-    if(dict->isFission()) xdat[3][i2+1] = crs.fission;
+      for(int j=0 ; j<ncx ; j++) xdat[j][i2] = edat[i-np1];
+
+      xdat[0][i2+1] = crs.total;
+      xdat[1][i2+1] = crs.elastic;
+      xdat[2][i2+1] = crs.capture;
+      if(dict->isFission()) xdat[3][i2+1] = crs.fission;
+    }
   }
 
   int np = np1 + np2;
@@ -183,7 +189,7 @@ int DeceCopyHighEnergyCrossSection(ENDFDict *dict, ENDF *lib[], int np0, double 
         xdat[j][k+2+1] = ENDFInterpolation(lib[dict->getID(3,mtr[j])],x0,false,0);
       }
     }
-    k += 2;
+    k += 4;
   }
 
   /*** use energy grid of total as the common grid */

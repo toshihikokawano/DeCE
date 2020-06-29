@@ -581,6 +581,6 @@ void DeceOperationPOINTWISE(ENDFDict *dict, ENDF *lib[])
 void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
 {
   if(!generatepointwise) DeceOperationPOINTWISE(dict,lib);
-  DeceGenerateGroup(dict,lib,cmd.opt1);
+  DeceGenerateGroup(dict,lib,cmd.opt1,cmd.opt2);
 }
 

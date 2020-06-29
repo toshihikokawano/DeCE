@@ -84,7 +84,7 @@ void   gfrAngDistSmooth (ENDFDict *, ENDF **, double);
 void   DeceGeneratePointwise (ENDFDict *, ENDF **);
 
 /*** deceprocgroup.cpp */
-void   DeceGenerateGroup (ENDFDict *, ENDF **, const int);
+void   DeceGenerateGroup (ENDFDict *, ENDF **, const int,  const int);
 
 /*** decescanindex.cpp */
 void   DeceScanIndex    (ENDFDict *);

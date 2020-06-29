@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+<head>
+<title> DeCE: processing </title>
+<meta http-equiv="content-type" content="text/html;charset=us-ascii">
+<link rel="stylesheet" href="style.css" type="text/css">
+</head>
+<body>
+
+<a href="option.html">  [BACK] </a>
+<a href="index.html">   [UP]   </a>
+<a href="class.html">   [NEXT] </a>
+<hr>
+
+
+<h1> Data Processing </h1>
+
+<p>DeCE has a limited capability for producing group-average reaction
+cross sections.  However, since DeCE is not a nuclear data processing
+code, it should be understood that these functions are for data
+comparison or something similar purpose only.  The accuracy of
+reconstructed cross sections from resonance parameters is not
+guaranteed.</p>
+
+
+<h2><a name="pointwise">pointwise (convert into pointwise cross sections)</a></h2>
+
+<pre id="syn">
+   pointwise
+</pre>
+
+<p>This command converts the resonance parameters into pointwise cross sections,
+so that the cross sections are given in the entire energy range. The conversion
+is performed for the total (MT=1), elastic (2), capture (102), and fission (18).
+In the current version, no charged particle channels nor inelastic scattering will
+be processed, even they are given in the resolved resonance parameters.</p>
+
+<p>The original subsections, MF3, MT1, 2, 18, and 102, will be
+replaced by the reconstructed cross sections, and the high energy
+parts follow. The cross section data can be printed by the
+usual <tt>table</tt> and <tt>extract</tt> commands. </p>
+
+<pre>
+pointwise
+table 3 1
+</pre>
+<pre id="dat">
+#    [ 4025 :  3 :   1 ]    40 -  90
+# Cross section
+#           QM 0.0000000e+00  mass difference Q-value
+#           QI 0.0000000e+00  reaction Q-value
+#           NR             1  number of interpolation range
+#           NP         11690  lin-lin  interpolation
+# Energy        CrossSection
+  1.000000e-05  5.786715e+00
+  1.100000e-05  5.761912e+00
+  1.200000e-05  5.740279e+00
+  ...           ...
+  1.939880e+07  3.364730e+00
+  1.950000e+07  3.358770e+00
+  2.000000e+07  3.329310e+00
+</pre>
+
+
+<h2><a name="group">group (convert into group-average cross sections)</a></h2>
+
+<pre id="syn">
+   group [<i>Ng</i> [<i>Nw</i>]]
+</pre>
+
+<p><i>Ng</i> is an index of the group structure, and <i>Nw</i> defines the weighting function.
+Currently only two group structures and two weighting functions are implemented.</p>
+
+<pre id="prg">
+Ng = 0: SAND-IIa 640 energy group structure
+Ng = 1: LANL 70 energy group structure
+</pre>
+
+<pre id="prg">
+Nw = 0: constant
+Nw = 1: 1/E weighting
+</pre>
+
+<p>When the group structure and weighting function are not provided,
+SAND-IIa with the constant weight is used.</p>
+
+<p><tt>pointwise</tt> must be performed before <tt>group</tt>. Otherwise cross
+sections in the resonance range will be ignored. The printed MT numbers are
+automatically determined by the given MT subsections. </p>
+
+<pre>
+pointwise
+group 1 1
+</pre>
+<pre id="dat">
+# Emin          Emax                     1             2             4            16           102
+  1.067700e+01  6.144210e+01  5.250782e+00  5.250474e+00  0.000000e+00  0.000000e+00  3.070095e-04
+  6.144210e+01  1.013010e+02  5.246507e+00  5.246314e+00  0.000000e+00  0.000000e+00  1.934187e-04
+  1.013010e+02  1.300730e+02  5.243267e+00  5.243105e+00  0.000000e+00  0.000000e+00  1.626474e-04
+  ...
+  1.000000e+07  1.284030e+07  4.071515e+00  2.377243e+00  1.623207e+00  9.748975e-02  7.428526e-04
+  1.284030e+07  1.648720e+07  3.777010e+00  2.100591e+00  8.127038e-01  7.275485e-01  8.853935e-04
+  1.648720e+07  2.000000e+07  3.449234e+00  1.714869e+00  3.657938e-01  1.171327e+00  6.166756e-04
+</pre>
+
+
+<hr>
+<a href="option.html">  [BACK] </a>
+<a href="index.html">   [UP]   </a>
+<a href="class.html">   [NEXT] </a>
+</body>
+</html>

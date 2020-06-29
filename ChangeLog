@@ -1,3 +1,17 @@
+2020-06-28  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* manual/processing.html (DeCE: processing): new file
+	pointwise and group commands
+
+	* source/deceprocpointwise.cpp: updated
+	production of pointwise cross sections stabilized
+
+	* source/deceprocgroup.cpp: new file
+	calculate group average
+	
+	* source/groupstructure.h: new file
+	define group cross section structure, currently SAND-IIa and LANL70
+
 2020-06-24  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceread.cpp (geneCSdata2): bug fixed
