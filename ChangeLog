@@ -1,3 +1,8 @@
+2020-06-29  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (geneCSdata2): modified
+	to avoid round-off error at thermal energy when this data point is given in input
+
 2020-06-28  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* manual/processing.html (DeCE: processing): new file
@@ -5,12 +10,15 @@
 
 	* source/deceprocpointwise.cpp: updated
 	production of pointwise cross sections stabilized
+	develop branch only
 
 	* source/deceprocgroup.cpp: new file
 	calculate group average
+	develop branch only
 	
 	* source/groupstructure.h: new file
 	define group cross section structure, currently SAND-IIa and LANL70
+	develop branch only
 
 2020-06-24  KAWANO Toshihiko  <kawano@lanl.gov>
 
