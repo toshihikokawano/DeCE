@@ -2,7 +2,7 @@ DeCE : The Descriptive Correction of ENDF-6 Format Code
 
    Language C++
    Author   Kawano, T.
-   Version  1.2 (Rutile)
+   Version  1.2 (Olivine)
 
 DeCE is a C++ program to manipulate ENDF-6 formatted file interactively,
 inspired by the CRECTJ6 code by T. Nakagawa of JAEA (JAERI-DATA/CODE 
@@ -65,6 +65,7 @@ Files:
         deceoutput.cpp        output whole ENDF data, renumbered, make new dictionary
         decepoint.cpp         manipulate one-point data
         deceprocpoitwise.cpp  create point-wise cross sections in MF3
+        deceprocgroup.cpp     make a table of group average cross sections
         deceread.cpp          read external file and make a section in MF3
         decereadjust.cpp      rescale partial cross section by the sum
         decescanindex.cpp     print contained MF and MT numbers

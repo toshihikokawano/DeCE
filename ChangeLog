@@ -1,3 +1,8 @@
+2020-06-29  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (geneCSdata2): modified
+	to avoid round-off error at thermal energy when this data point is given in input
+
 2020-06-24  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceread.cpp (geneCSdata2): bug fixed

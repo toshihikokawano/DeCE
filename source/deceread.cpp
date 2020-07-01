@@ -475,15 +475,29 @@ int geneCSdata2(int n, double *x, double *y, double eres, double *xdat)
     xdat[i++] = loginterpol(n,e0,x,y,&skip);
 
     /*** insert data points when energies below thermal are given */
-    for(int j=0 ; j<n ; j++){
-      if( (e0 < x[j]) && (x[j] < e1) ){
-        xdat[i++] = x[j];
-        xdat[i++] = y[j];
+    bool thermal = false;
+    for(skip=0 ; skip<n ; skip++){
+
+      double eps = fabs(x[skip] / e1 -1.0);
+
+      if( (e0 < x[skip]) && (x[skip] < e1) ){
+        xdat[i++] = x[skip];
+        xdat[i++] = y[skip];
+      }
+      /*** if thermal is already given */
+      else if(eps < 1e-10){
+        xdat[i++] = x[skip];
+        xdat[i++] = y[skip];
+        thermal = true;
+        break;
       }
     }
 
-    xdat[i++] = e1;
-    xdat[i++] = loginterpol(n,e1,x,y,&skip);
+    if(!thermal){
+      xdat[i++] = e1;
+      xdat[i++] = loginterpol(n,e1,x,y,&skip);
+    }
+    else skip ++;
 
     /*** avoid long linear interpolation by duplicating the first data point */
     if( (xdat[i-1] == 0.0) && (y[skip] > 0.0) ){
