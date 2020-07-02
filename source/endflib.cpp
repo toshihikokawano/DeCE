@@ -11,6 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <cmath>
+#include <limits>
 
 using namespace std;
 
@@ -1287,13 +1288,23 @@ void ENDFMF2boundary(ENDFDict *dict, ENDF *lib)
 /**********************************************************/
 inline void ENDFDelExp(double x, char *num)
 {
+  double min_val = numeric_limits<double>::min();
   ostringstream os;
   os.setf(ios::scientific, ios::floatfield);
 
   double z = fabs(x);
   /*** too small numbers will be rounded to zero */
-  if(z < 1.0e-99){
+  if(z < min_val){
     strcpy(num," 0.000000+0");
+  }
+  /*** when the negative exponent has 3 digits */
+  else if(z <= 1.0e-99){
+    os << setprecision(4) << setw(12) << x;
+    string s = os.str();
+    strcpy(num,s.c_str());
+    for(int i=7 ; i<=10 ; i++) num[i] = num[i+1];
+    //  from |+1.1234e-123|
+    //  to   |+1.1234-123|
   }
   /*** when the exponent has 2 digits */
   else if( (z < 1.0e-09) || (1.0e+10 <= z && z < 1.0e+100) ){
