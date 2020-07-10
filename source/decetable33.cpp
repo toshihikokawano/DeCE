@@ -174,25 +174,42 @@ int DeceTableMF33NILB5(int idx, ENDF *lib)
   eptr = lib->xptr[idx];
   cptr = &lib->xptr[idx][ne];
 
-  for(int i=0; i<ne-1; i++){
-    int ki = i+i*(ne-1)-i*(i+1)/2;
+  /*** symmetric covariance */
+  if(ls == 1){
+    for(int i=0; i<ne-1; i++){
+      int ki = i+i*(ne-1)-i*(i+1)/2;
 
-    outVal(eptr[i]);
-    outVal(sqrt(cptr[ki]));
+      outVal(eptr[i]);
+      outVal(sqrt(abs(cptr[ki])));
 
-    for(int j=0; j<=i; j++){
-      int kj = j+j*(ne-1)-j*(j+1)/2;
-      int k  = (j < i) ?  i+j*(ne-1)-j*(j+1)/2 : j+i*(ne-1)-i*(i+1)/2;
-      int c  = 0;
-      if(cptr[ki]*cptr[kj] != 0.0){
-        c = (int) (cptr[k] / sqrt(cptr[kj]) / sqrt(cptr[ki]) * 1000);
-        if((i == j) && (c == 999)) c = 1000;
+      for(int j=0; j<=i; j++){
+        int kj = j+j*(ne-1)-j*(j+1)/2;
+        int k  = (j < i) ?  i+j*(ne-1)-j*(j+1)/2 : j+i*(ne-1)-i*(i+1)/2;
+        int c  = 0;
+        if(cptr[ki]*cptr[kj] != 0.0){
+          c = (int) (cptr[k] / sqrt(cptr[kj]) / sqrt(cptr[ki]) * 1000);
+          if((i == j) && (c == 999)) c = 1000;
+        }
+        cout << setw(5) << c;
       }
-      cout << setw(5) << c;
+      cout << endl;
     }
+    outVal(eptr[ne-1]); outVal(0.0); cout << endl;
+  }
+
+  /*** asymmetric case */
+  else{
+    int k = 0;
+    for(int i=0; i<ne-1; i++){
+      outVal(eptr[i]);
+      for(int j=0; j<ne-1; j++) outVal(cptr[k++]);
+      outVal(0.0);
+      cout << endl;
+    }
+    outVal(eptr[ne-1]);
+    outVal(0.0);
     cout << endl;
   }
-  outVal(eptr[ne-1]); outVal(0.0); cout << endl;
 
   cout << endl;
 
@@ -229,7 +246,9 @@ int DeceTableMF33NILB6(int idx, ENDF *lib)
     outVal(0.0);
     cout << endl;
   }
-
+  outVal(eptr1[ner-1]);
+  outVal(0.0);
+  cout << endl;
   cout << endl;
 
   return(idx);
