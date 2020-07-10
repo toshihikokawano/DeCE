@@ -974,7 +974,7 @@ void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
 
   /*** copy all integer and double data */
   for(int i=0 ; i<ni ; i++){ libdst->idata[i] = libsrc->idata[i]; }
-  for(int i=0 ; i<nx ; i++){ libdst->xdata[i] = libsrc->xdata[i]; cout << i <<" " <<libdst->xdata[i] << endl;}
+  for(int i=0 ; i<nx ; i++){ libdst->xdata[i] = libsrc->xdata[i]; }
 
   /*** copy all CONT */
   for(int i=0 ; i<nb ; i++){ libdst->rdata[i] = libsrc->rdata[i]; }

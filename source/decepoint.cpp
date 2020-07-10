@@ -14,6 +14,9 @@ using namespace std;
 
 static void addpoint(ENDF *, const double, const double);
 static void delpoint(ENDF *, const double);
+static void modpoint(ENDF *, const double, const double);
+
+static const double eps = 1.0e-7;
 
 
 /**********************************************************/
@@ -21,7 +24,11 @@ static void delpoint(ENDF *, const double);
 /**********************************************************/
 void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x, double y, string op)
 {
-  if(mf != 3) return;
+  if(mf != 3){
+    message << "Currently "<< op << " command works only for MF3";
+    WarningMessage();
+    return;
+  }
 
   int k0 = dict->getID(3,mt);
 
@@ -55,6 +62,11 @@ void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x
     }
   }
 
+  /*** change one data */
+  if(op == "modpoint"){
+    modpoint(lib[k0],x,y);
+  }
+
 //ENDFWriteHEAD(lib[k0]);
 //ENDFWriteTAB1(lib[k0]);
 //ENDFWriteSEND(lib[k0]);
@@ -70,6 +82,8 @@ void addpoint(ENDF *lib, const double x, const double y)
   int    nr = r.n1;
   int    np = r.n2;
 
+  int irp = 0, ipp = 0;
+
   /*** if the end of array */
   if(x >= lib->xdata[2*(np-1)]){
     lib->xdata[2*np  ] = x;
@@ -78,7 +92,7 @@ void addpoint(ENDF *lib, const double x, const double y)
   }
   /*** general case, find the interval */
   else{
-    int irp = 0, ipp = 0;
+    /*** interpolation range (IRP) and position (IPP) the new data will be inserted */
     int i = 0;
     for(int ir=0 ; ir<nr ; ir++){
       for(int ip=i ; ip<lib->idata[2*ir] ; ip++){
@@ -100,9 +114,12 @@ void addpoint(ENDF *lib, const double x, const double y)
     /*** add a new point */
     lib->xdata[2*ipp  ] = x;
     lib->xdata[2*ipp+1] = y;
-    lib->idata[2*irp] ++;
+
+    /*** increment interpolation ranges after IRP */
+    for(int ir=irp ; ir<nr ; ir++) lib->idata[2*ir] ++;
   }
 
+  /*** increment total number of data points */
   np++;
   r.n2 = np;
   lib->rdata[0] = r;
@@ -110,9 +127,9 @@ void addpoint(ENDF *lib, const double x, const double y)
   /*** update position pointer */ 
   lib->xptr[lib->getPOS()] = &lib->xdata[2*np];
 
-  message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data ";
-  message << setw(13) << setprecision(6) << x;
-  message << setw(13) << setprecision(6) << y << " inserted";
+  message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data (";
+  message << setw(13) << setprecision(6) << x << ",";
+  message << setw(13) << setprecision(6) << y << ") inserted";
   Notice("DecePoint:addpoint");
 }
 
@@ -122,7 +139,6 @@ void addpoint(ENDF *lib, const double x, const double y)
 /**********************************************************/
 void delpoint(ENDF *lib, const double x)
 {
-  const double eps = 1.0e-7;
   Record r  = lib->rdata[0];
   int    nr = r.n1;
   int    np = r.n2;
@@ -146,6 +162,7 @@ void delpoint(ENDF *lib, const double x)
       }
       i = lib->idata[2*ir]-1;
     }
+    if(found) break;
   }
 
   if(!found){
@@ -163,7 +180,9 @@ void delpoint(ENDF *lib, const double x)
     lib->xdata[2*ip  ] = lib->xdata[2*ip+2];
     lib->xdata[2*ip+1] = lib->xdata[2*ip+3];
   }
-  lib->idata[2*irp] --;
+
+  /*** decrement interpolation range after IRP */
+  for(int ir=irp ; ir<nr ; ir++) lib->idata[2*ir] --;
 
   np--;
   r.n2 = np;
@@ -172,8 +191,59 @@ void delpoint(ENDF *lib, const double x)
   /*** update position pointer */ 
   lib->xptr[lib->getPOS()] = &lib->xdata[2*np];
 
-  message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data ";
-  message << setw(13) << setprecision(6) << xd;
-  message << setw(13) << setprecision(6) << yd << " removed";
+  message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data (";
+  message << setw(13) << setprecision(6) << xd << ",";
+  message << setw(13) << setprecision(6) << yd << ") removed";
   Notice("DecePoint:delpoint");
 }
+
+
+/**********************************************************/
+/*      Change One Data Point                             */
+/**********************************************************/
+void modpoint(ENDF *lib, const double x, const double y)
+{
+  Record r  = lib->rdata[0];
+  int    nr = r.n1;
+  int    np = r.n2;
+
+  int ipp = 0;
+
+  int i = 0;
+  bool found = false;
+  for(int ir=0 ; ir<nr ; ir++){
+    for(int ip=i ; ip<lib->idata[2*ir] ; ip++){
+
+      double dx = 0.0;
+      if(x == 0.0) dx = fabs(lib->xdata[2*ip] - x);
+      else dx = fabs(lib->xdata[2*ip] / x - 1.0);
+
+      cout << x << " " << lib->xdata[2*ip] << " " << dx << endl;
+      if(dx < eps){
+        ipp = ip;
+        found = true;
+        break;
+      }
+      if(ip == np-1) break;
+      i = lib->idata[2*ir]-1;
+    }
+    if(found) break;
+  }
+
+  if(!found){
+    message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt();
+    message << " does not have data a point at " << setw(13) << setprecision(6) << x;
+    WarningMessage();
+    return;
+  }
+
+  /*** update data at the given X */
+  lib->xdata[2*ipp+1] = y;
+
+  message << "MF" << lib->getENDFmf() << "MT" <<lib->getENDFmt() << " data (";
+  message << setw(13) << setprecision(6) << x << ",";
+  message << setw(13) << setprecision(6) << y << ") updated";
+  Notice("DecePoint:modpoint");
+}
+
+

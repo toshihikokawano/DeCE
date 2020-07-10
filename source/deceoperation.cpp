@@ -30,7 +30,6 @@ static void DeceOperationCHANGEQVAL      (ENDFDict *, ENDF **);
 static void DeceOperationCHECKTHRESHOLD  (ENDFDict *, ENDF **);
 static void DeceOperationNUTOTAL         (ENDFDict *, ENDF **);
 static void DeceOperationBOUNDCORRECT    (ENDFDict *, ENDF **);
-static void DeceOperationDUPLICATEPOINT  (ENDFDict *, ENDF **);
 static void DeceOperationGENPROD         (ENDFDict *, ENDF **);
 static void DeceOperationISOANGDIST      (ENDFDict *, ENDF **);
 static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
@@ -90,7 +89,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   }
 
   /*** ADDPOINT, DELPOINT: add / remove a point in TAB1 record */
-  else if( (ope == "addpoint") || (ope == "delpoint") ){
+  else if( (ope == "addpoint") || (ope == "delpoint")  || (ope == "modpoint") ){
     DeceOperationPOINT(dict,lib);
   }
 
@@ -165,10 +164,6 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** BOUNDCORRECT: correct energy boundary in continuum in MF6 */
   else if(ope == "boundcorrect"){
     DeceOperationBOUNDCORRECT(dict,lib);
-  }
-  /*** DUPLICATEPOINT: duplicate the last point in MF6 */
-  else if(ope == "duplicatepoint"){
-    DeceOperationDUPLICATEPOINT(dict,lib);
   }
   /*** GENPROD: generate production cross section from MF6 MT5 */
   else if(ope == "genprod"){
@@ -381,9 +376,11 @@ void DeceOperationEXTRACT(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 
 /**********************************************************/
 /* ADDPOINT, DELPOINT                                     */
-/*      insert or delete one (x,y) data point in array    */
+/*      insert, delete, modify one (x,y) data point  y    */
 /* addpoint MF MT Xdata Ydata                             */
-/* delpoint MF MT Xdata Ydata                             */
+/* delpoint MF MT Xdata                                   */
+/* delpoint MF MT Xmin Xmax                               */
+/* modpoint MF MT Xdata Ydata                             */
 /**********************************************************/
 void DeceOperationPOINT(ENDFDict *dict, ENDF *lib[])
 {
@@ -494,18 +491,6 @@ void DeceOperationBOUNDCORRECT(ENDFDict *dict, ENDF *lib[])
 {
   DeceCheckMT(cmd.mt);
   DeceBoundCorrect(dict,lib,cmd.mt);
-}
-
-
-/**********************************************************/
-/* DUPLICATEPOINT                                         */
-/*      duplicate boundary point in MF6                   */
-/* duplicatepoint                                         */
-/**********************************************************/
-void DeceOperationDUPLICATEPOINT(ENDFDict *dict, ENDF *lib[])
-{
-  DeceCheckMT(cmd.mt);
-  DeceDuplicatePoint(dict,lib,cmd.mt,cmd.x);
 }
 
 

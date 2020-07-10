@@ -18,7 +18,7 @@ using namespace std;
 /*      adjust the threshold energy given in MF6          */
 /*      to be the same as it in MF3                       */
 /**********************************************************/
-void DeceBoundCorrect(ENDFDict *dict, ENDF *lib[], const int mt)
+void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
 {
   int k3 = dict->getID(3,mt);
   int k6 = dict->getID(6,mt);
@@ -26,115 +26,148 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib[], const int mt)
   if(k3 < 0) TerminateCode("MT number in MF3 not found",mt);
   if(k6 < 0) TerminateCode("MT number in MF6 not found",mt);
 
-  /*** get the threshold energy, the first element in the array */
-  double x0   = lib[k3]->xdata[0];
+  /*** allocate temporal arrays */
+  int npmax = lib0[k6]->getXSIZE();
+  int nrmax = lib0[k6]->getISIZE();
+  int nbmax = lib0[k6]->getPOS();
 
-  Record head = lib[k6]->getENDFhead();
-  int    nk   = head.n1;
-  int    idx  = 0;
+  int *idat1, *idat2;
+  double **xdat, *zdat;
+  Record *cont;
 
-  for(int n=0 ; n<nk ; n++){
-    int law = lib[k6]->rdata[idx].l2;
-
-    /**** so far works only for LAW = 1, energy-angle dist  */
-    if(law != 1) return;
-
-    lib[k6]->xptr[idx][0] = x0;
-    idx++;
-
-    int np = lib[k6]->rdata[idx].n2;
-    idx++;
-
-    for(int n=0 ; n<np ; n++){
-      if(n == 0){
-        Record r = lib[k6]->rdata[idx];
-        lib[k6]->rdata[idx].setRecord(r.c1, x0, r.l1, r.l2, r.n1, r.n2);
-      }
-      idx++;
-    }
-  }
-}
+  idat1 = new int [nrmax];
+  idat2 = new int [nrmax];
+  zdat = new double [npmax];
+  xdat = new double * [nbmax];
+  cont = new Record [nbmax];
 
 
-/**********************************************************/
-/*      Duplicate Highest Points                          */
-/**********************************************************/
-void DeceDuplicatePoint(ENDFDict *dict, ENDF *lib0[], const int mt, double x)
-{
-  int k = dict->getID(6,mt);
-  if(k < 0) TerminateCode("MT number in MF6 not found",mt);
+  /*** get the energy range in MF3, the first and last elements in the array */
+  int    np0 = lib0[k3]->rdata[0].n2;
+  double x0  = lib0[k3]->xdata[0];
+  double x1  = lib0[k3]->xdata[2*np0-2];
+
+  message << "MF" << lib0[k3]->getENDFmf() << "MT" <<lib0[k3]->getENDFmt() << " has the energy range of [";
+  message << setw(13) << setprecision(6) << x0 << ",";
+  message << setw(13) << setprecision(6) << x1 << "]";
+  Notice("DeceMod6:DeceBoundCorrect");
+
 
   ENDF lib1(L);
-  const int MAXDAT = 100;
-  double **xdat;
-  Record *cont;
-  int    idat[MAXDAT];
-  double zdat[MAXDAT];
 
-  xdat = new double * [MAXDAT];
-  cont = new Record [MAXDAT];
-
-  Record head = lib0[k]->getENDFhead();
+  Record head = lib0[k6]->getENDFhead();
   int    nk   = head.n1;
   int    idx  = 0;
 
-  lib1.setENDFmat( lib0[k]->getENDFmat() );
+  lib1.setENDFmat( lib0[k6]->getENDFmat() );
   lib1.setENDFmf(6);
   lib1.setENDFmt(mt);
   lib1.setENDFhead(head);
 
-  for(int ik=0 ; ik<nk ; ik++){
-    int law  = lib0[k]->rdata[idx].l2;
-    int nr1  = lib0[k]->rdata[idx].n1;
-    int np1  = lib0[k]->rdata[idx].n2;
+  for(int n=0 ; n<nk ; n++){
+    Record ctab1, ctab2;
+    int nr1 = 0, np1 = 0, nr2 = 0 , np2 = 0;
 
-    Record ctab1 = lib0[k]->rdata[idx];
-    for(int i=0 ; i<nr1*2 ; i++){
-      idat[i] = lib0[k]->iptr[idx][i];
-    }
-    for(int i=0 ; i<np1 ; i++){
-       zdat[i*2  ] = lib0[k]->xptr[idx][i*2  ];
-       zdat[i*2+1] = lib0[k]->xptr[idx][i*2+1];
-    }
-    /*** add one point in TAB1 */
-    ctab1.n2 = np1 + 1;
-    idat[0]  = ctab1.n2;
-    zdat[np1*2  ] = x;
-    zdat[np1*2+1] = zdat[np1*2-1];
-    ENDFPackTAB1(ctab1, idat, zdat, &lib1);
+    /*** first TAB1 in MF6 */
+    ctab1 = lib0[k6]->rdata[idx];
+    int zap = (int)ctab1.c1;
+    int law = ctab1.l2;
+    nr1 = ctab1.n1;
+    np1 = ctab1.n2;
 
-    /*** increment index */
+    /*** copy data in TAB1 */
+    for(int i=0 ; i<nr1*2 ; i++){ idat1[i] = lib0[k6]->iptr[idx][i]; }
+    for(int i=0 ; i<np1*2 ; i++){ zdat[i] = lib0[k6]->xptr[idx][i]; }
     idx++;
-    if( (law == 1) || (law == 2) || (law == 5) ){
-      int    nr2  = lib0[k]->rdata[idx].n1;
-      int    np2  = lib0[k]->rdata[idx].n2;
 
-      Record ctab2 = lib0[k]->rdata[idx];
-      for(int i=0 ; i<nr2*2 ; i++){
-        idat[i] = lib0[k]->iptr[idx][i];
-      }
+    if( (law == 1) || (law == 2) || (law == 5) ){
+      ctab2 = lib0[k6]->rdata[idx];
+      nr2 = ctab2.n1;
+      np2 = ctab2.n2;
+
+      /*** copy data in TAB21 */
+      for(int i=0 ; i<nr2*2 ; i++){ idat2[i] = lib0[k6]->iptr[idx][i]; }
       idx++;
  
       for(int i0=0 ; i0<np2 ; i0++){
-        cont[i0] = lib0[k]->rdata[idx];
-        xdat[i0] = lib0[k]->xptr[idx];
+        cont[i0] = lib0[k6]->rdata[idx];
+        xdat[i0] = lib0[k6]->xptr[idx]; // copy pointers only
         idx++;
       }
+    }
 
-      /*** repleat the last LIST */
-      ctab2.n2 = np2 + 1;
-      idat[0]  = ctab2.n2;
-      cont[np2] = lib0[k]->rdata[idx-1];
-      cont[np2].c2 = x;
-      xdat[np2] = lib0[k]->xptr[idx-1];
+    /*** energy range of MF6 */
+    double z0 = zdat[0];
+    double z1 = zdat[2*np1-2];
 
-      ENDFPackTAB2(ctab2, cont, idat, xdat, &lib1);
+    /*** first, adjust the last point */
+    int k1 = np1;
+    if(z1 != x1){
+      /*** when z1 < x1, duplicate the last point */
+      if(z1 < x1){
+        zdat[2*k1  ] = x1;
+        zdat[2*k1+1] = zdat[2*k1-1];
+        cont[k1] = cont[k1-1];
+        cont[k1].c2 = x1;
+        xdat[k1] = xdat[k1-1];
+        k1 ++;
+      }
+      /*** when z1 > x1, truncate at x1 */
+      else{
+        for(k1=np1-1 ; k1>0 ; k1--){ if(zdat[k1*2] < x1) break; }
+        k1 ++;
+        zdat[2*k1  ] = x1;
+        cont[k1].c2 = x1;
+      }
+      np1 = k1;
+
+      message << "ZAP" << setw(8) << zap << " highest energy data changed into (";
+      message << setw(13) << setprecision(6) << zdat[2*k1] << ",";
+      message << setw(13) << setprecision(6) << zdat[2*k1+1] << ")";
+      Notice("DeceMod6:DeceBoundCorrect");
+    }
+
+    /*** then adjust the first energy point */
+    int k0 = 0;
+    if(z0 != x0){
+      /*** when z0 < x0, remove points those are less than x0 */
+      if(z0 < x0){
+        for(k0=1 ; k0<np1 ; k0++){ if(zdat[k0*2] > x0) break; }
+        k0 --;
+      }
+      /*** when z0 > x0, move the first point to x0 */
+      zdat[k0*2] = x0;
+      cont[k0].c2 = x0;
+      np1 -= k0;
+
+      message << "ZAP" << setw(8) << zap << " lowest energy data replaced by (";
+      message << setw(13) << setprecision(6) << zdat[k0*2] << ",";
+      message << setw(13) << setprecision(6) << zdat[k0*2+1] << ")";
+      Notice("DeceMod6:DeceBoundCorrect");
+    }
+
+
+    np2 = np1;
+
+    /*** create new TAB1 */
+    ctab1.n2 = np1;
+    idat1[(nr1-1)*2] = np1;     // we assume there is only one energy-range, NR = 1
+    ENDFPackTAB1(ctab1, idat1, &zdat[k0*2], &lib1);
+
+    if(nr2 > 0){
+      /*** create new TAB2 */
+      ctab2.n2 = np2;
+      idat2[(nr2-1)*2] = np2;
+      ENDFPackTAB2(ctab2, &cont[k0], idat2, &xdat[k0], &lib1);
     }
   }
 
-  ENDFLibCopy(&lib1,lib0[k]);
-//ENDFWrite(lib0[k]);
+  ENDFLibCopy(&lib1,lib0[k6]);
+//ENDFWrite(&lib1);
 
+  delete [] idat1;
+  delete [] idat2;
+  delete [] zdat;
   delete [] xdat;
   delete [] cont;
 }

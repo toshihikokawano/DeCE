@@ -1,3 +1,14 @@
+2020-07-09  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decemod6.cpp (DeceBoundCorrect): updated
+	automatically adjust energy range in MF6 when MF3's range is different
+	DeceDuplicatePoint() obsolete, removed
+
+2020-07-02  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decepoint.cpp (modpoint): new function
+	replace one data point in MF3 by input
+
 2020-06-29  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceread.cpp (geneCSdata2): modified

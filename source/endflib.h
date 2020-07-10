@@ -171,7 +171,11 @@ class ENDF{
     return nx;
   }
 
-  DataSize getSIZE(void) { return size; }
+  DataSize getSIZE(void)  { return size; }
+  int getISIZE(void) { return isize; }
+  int getXSIZE(void) { return xsize; }
+  int getRSIZE(void) { return rsize; }
+
   bool isalloc(void) { return allocated; }
 
   /** when HEAD is set, block counter reset */
