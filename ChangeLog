@@ -1,35 +1,34 @@
+2020-07-12  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFExtract): updated
+	non-ASCII character scanner added
+
+2020-07-10  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable34.cpp (DeceTableMF34): updated
+	* source/decetable33.cpp (DeceTableMF33NILB5): bug fixed
+	LB=5 assymmetric matrix case added
+
 2020-07-09  KAWANO Toshihiko  <kawano@lanl.gov>
 
-	* source/decemod6.cpp (DeceBoundCorrect): updated
-	automatically adjust energy range in MF6 when MF3's range is different
-	DeceDuplicatePoint() obsolete, removed
+        * source/decemod6.cpp (DeceBoundCorrect): updated
+        automatically adjust energy range in MF6 when MF3's range is different
+        DeceDuplicatePoint() obsolete, removed
 
 2020-07-02  KAWANO Toshihiko  <kawano@lanl.gov>
 
-	* source/decepoint.cpp (modpoint): new function
-	replace one data point in MF3 by input
+        * source/decepoint.cpp (modpoint): new function
+        replace one data point in MF3 by input
+
+2020-07-01  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFDelExp): updated
+	M. Paris' cp2020 branch, which fixes too small number problems, merged 
 
 2020-06-29  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceread.cpp (geneCSdata2): modified
 	to avoid round-off error at thermal energy when this data point is given in input
-
-2020-06-28  KAWANO Toshihiko  <kawano@lanl.gov>
-
-	* manual/processing.html (DeCE: processing): new file
-	pointwise and group commands
-
-	* source/deceprocpointwise.cpp: updated
-	production of pointwise cross sections stabilized
-	develop branch only
-
-	* source/deceprocgroup.cpp: new file
-	calculate group average
-	develop branch only
-	
-	* source/groupstructure.h: new file
-	define group cross section structure, currently SAND-IIa and LANL70
-	develop branch only
 
 2020-06-24  KAWANO Toshihiko  <kawano@lanl.gov>
 

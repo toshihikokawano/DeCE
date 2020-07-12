@@ -1039,12 +1039,24 @@ void ENDFExtract(ifstream *fp, int mf, int mt)
   ENDF   lib(L);
   string s1,s2;
 
+  /*** copy HEAD record for given MF,MT */
   ENDFSeekHead(fp,&lib,mf,mt);
   ENDFWriteHEAD(&lib);
 
   while( getline(*fp,line) ){
 
     int n = line.length();
+
+    /*** scan non-printable */
+    for(int i=0 ; i<n ; i++){
+      if(!isprint(line[i])){
+        cerr << "non-ASCII character found in the line of" << endl;
+        cerr << line << endl;
+        exit(-1);
+      }
+    }
+
+    /*** when the line length is less than 75, MAT,MF,MT might be missing */
     if(n < 75){
       cout << left << line;
       n = 65-n;
@@ -1054,13 +1066,16 @@ void ENDFExtract(ifstream *fp, int mf, int mt)
       }
     }
     else{
-      s1 = line.substr(0,66);
-      s2 = line.substr(72,3);
+      s1 = line.substr(0,66);  // data body
+      s2 = line.substr(72,3);  // MT
 
       int mt0 = atoi(s2.c_str());
       if(mt0 == 0) break;
+      /*** write data body */
       cout << s1;
     }
+
+    /*** write MAT,MF,MT */
     ENDFPrintRight(lib.getENDFmat(),mf,mt);
   }
 

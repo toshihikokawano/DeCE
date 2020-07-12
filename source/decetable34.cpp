@@ -91,6 +91,7 @@ void DeceTableMF34(ENDF *lib)
             outVal(eptr[ne-1]);
             outVal(0.0);
             cout << endl;
+            cout << endl;
           }
           else{
             cout << "# Energy       Covariance" << endl;
@@ -104,8 +105,17 @@ void DeceTableMF34(ENDF *lib)
               }
             }
             else{
-              // not implemented yet
+              int k = 0;
+              for(int i=0; i<ne-1; i++){
+                outVal(eptr[i]);
+                for(int j=0; j<ne-1; j++) outVal(cptr[k++]);
+                outVal(0.0);
+                cout << endl;
+              }
             }
+            outVal(eptr[ne-1]);
+            outVal(0.0);
+            cout << endl;
             cout << endl;
           }
 
