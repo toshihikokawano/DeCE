@@ -1043,14 +1043,19 @@ void ENDFExtract(ifstream *fp, int mf, int mt)
   ENDFSeekHead(fp,&lib,mf,mt);
   ENDFWriteHEAD(&lib);
 
+  int lcount = 0;
   while( getline(*fp,line) ){
+    lcount ++;
 
     int n = line.length();
+
+    /*** DOS hack, remove \r if line-break is \r\n */
+    if(line[n-1] == '\r') n --;
 
     /*** scan non-printable */
     for(int i=0 ; i<n ; i++){
       if(!isprint(line[i])){
-        cerr << "non-ASCII character found in the line of" << endl;
+        cerr << "non-ASCII character found in the line " << lcount << " column " << i << endl;
         cerr << line << endl;
         exit(-1);
       }

@@ -33,6 +33,7 @@ void DeceTableMF5(ENDF *lib)
 
     cout << "#   Subsection" << setw(14) << n << endl;
     cout << "#           NE" << setw(14) << nek << endl;
+    cout << "#           LF" << setw(14) << lf << "  1: tabulated, 5,9: evaporation, 7: Maxwellian, 11: Watt, 12: Madland-Nix" << endl;
 
     cout << "# Energy       Fraction" << endl;
     for(int i=0 ; i<nek ; i++){

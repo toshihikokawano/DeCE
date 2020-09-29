@@ -117,7 +117,7 @@ int processMF12(ifstream *fp, ENDF **lib)
   while(1){
     getline(*fp,line);
     if(fp->eof() != 0) break;
-    if( line.length() ==0 ) break;
+    if(line.length() == 0) break;
     if(np > 3) break;
 
     dat1 = line.substr( 5, 4);
