@@ -14,6 +14,8 @@ using namespace std;
 #include "coupling.h"
 #include "terminate.h"
 
+#define printSmat
+
 double gcLorentzianWidth = 0.0, *fact;
 
 Smatrix Smat;
@@ -21,7 +23,7 @@ Smatrix Smat;
 static Pcross  gfrPtCrossFILE    (ifstream *, ENDFDict *, const double);
 static Pcross  gfrBackGroundFILE (ifstream *, ENDF *, const double);
 static Pcross  gfrBackGround     (ENDFDict *, ENDF **, const double);
-
+static void gfrPrintCrossSection (const double, const bool, Pcross);
 
 /**********************************************************/
 /*      GFR Interface, Scan File for the Thermal Value    */
@@ -116,12 +118,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
 
-  cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]    Other[b]";
-  if(dict->isFission()) cout <<"    Fission[b]";
-  cout << endl;
-
-  cout.setf(ios::scientific, ios::floatfield);
-  cout << setprecision(6);
+  gfrPrintCrossSection(-1.0,dict->isFission(),crs);
 
   /*** determine energy grid automatically */
   if((emin == 0.0) && (emax == 0.0)){
@@ -135,15 +132,11 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       /*** background cross section in MF3 */
       cbg = gfrBackGround(dict,lib,elab[i]);
 
+      /*** add background */
       crs = crs + cbg;
 
-      cout << setw(14) << setprecision(7) << elab[i];
-      cout << setw(14) << setprecision(6) << crs.total;
-      cout << setw(14) << crs.elastic;
-      cout << setw(14) << crs.capture;
-      cout << setw(14) << crs.other;
-      if(dict->isFission()) cout << setw(14) << crs.fission;
-      cout << endl;
+      /*** print cross section */
+      gfrPrintCrossSection(elab[i],dict->isFission(),crs);
     }
 
     np = gfrAutoEnergyURR(elab,dict->emaxRR,dict->emaxUR);
@@ -153,13 +146,8 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       /*** unresolved resonance cross sections */
       crs = gfrCrossSection(2,elab[i],&sys,lib[kres]);
 
-      cout << setw(14) << setprecision(7) << elab[i];
-      cout << setw(14) << setprecision(6) << crs.total;
-      cout << setw(14) << crs.elastic;
-      cout << setw(14) << crs.capture;
-      cout << setw(14) << crs.other;
-      if(dict->isFission()) cout << setw(14) << crs.fission;
-      cout << endl;
+      /*** print cross section */
+      gfrPrintCrossSection(elab[i],dict->isFission(),crs);
     }
   }
   /*** equidistant energy grid case */
@@ -176,13 +164,8 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
         crs = crs + cbg;
       }
 
-      cout << setw(14) << setprecision(7) << elab[i];
-      cout << setw(14) << setprecision(6) << crs.total;
-      cout << setw(14) << crs.elastic;
-      cout << setw(14) << crs.capture;
-      cout << setw(14) << crs.other;
-      if(dict->isFission()) cout << setw(14) << crs.fission;
-      cout << endl;
+      /*** print cross section */
+      gfrPrintCrossSection(elab[i],dict->isFission(),crs);
     }
   }
 
@@ -241,8 +224,6 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       if(pleg[0] == 0.0) cout << setw(13) << 0.0;
       else               cout << setw(13) << pleg[l]/pleg[0];
     }
-//  cout << setw(13) << Smat.getElement(0).real() << setw(13) << Smat.getElement(0).imag();
-//  cout << setw(13) << Smat.getElement(1).real() << setw(13) << Smat.getElement(1).imag();
     cout << endl;
   }
 
@@ -304,8 +285,8 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
     wsum[n] = 0.0;
     for(int l=1 ; l<LMAX*2 ; l++) pave[n][l] = 0.0;
   }
-
   
+
   for(int i=1 ; i<=np ; i++){
     double elab = i * de0;
     c = gfrCrossSection(0,elab,&sys,lib[kres]);
@@ -350,6 +331,63 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
   delete [] wsum;
   delete [] pleg;
   factorial_delete();
+}
+
+
+/**********************************************************/
+/*      GFR Print Scattering Matrix of Resonances         */
+/**********************************************************/
+void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
+{
+  const int ndiv = 1000;
+  System sys;
+  Pcross c;
+  Wfunc  wfn;
+  double *elab;
+
+  double emax = dict->emaxRR;
+  double de   = emax / ndiv;
+  double emin = de;
+
+  elab = new double [MAX_DBLDATA_LARGE/2];
+  int np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
+
+  Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
+
+  int kres = dict->getID(2,151);
+  gfrReadHEADData(&sys,lib[kres]);
+
+  cout.setf(ios::scientific, ios::floatfield);
+  cout << setprecision(4);
+  int l = 0, j2 = 0, s2 = 0;
+
+  c = gfrCrossSection(0,elab[0],&sys,lib[kres]);
+  cout <<"# Energy[eV] ";
+  for(int j=0 ; j<Smat.getIndex() ; j++){
+    Smat.getElement(j,&l,&j2,&s2);
+    cout << setw(3) << l;
+    cout << setw(3) << j2 << "/2                ";
+  }
+  cout << endl;
+
+  for(int i=0 ; i<np ; i++){
+    c = gfrCrossSection(0,elab[i],&sys,lib[kres]);
+    cout << setw(13) << elab[i];
+    for(int j=0 ; j<Smat.getIndex() ; j++){
+      cout << setw(12) << Smat.getElement(j).real();
+      cout << setw(12) << Smat.getElement(j).imag();
+    }
+
+    for(l=0 ; l<sys.nl ; l++){
+      double phase = gfrPenetrability(l,sys.alpha,&wfn);
+      cout << setw(12) <<  cos(2*phase);
+      cout << setw(12) << -sin(2*phase);
+    }
+    cout << endl;
+  }
+
+  Smat.memfree();
+  delete [] elab;
 }
 
 
@@ -426,7 +464,6 @@ void gfrReadHEADData(System *sys, ENDF *lib)
 }
 
 
-
 /**********************************************************/
 /*      Background Cross Section in MF3                   */
 /**********************************************************/
@@ -455,3 +492,26 @@ Pcross  gfrBackGround(ENDFDict *dict, ENDF **lib, const double elab)
   return(cbg);
 }
 
+
+/**********************************************************/
+/*      Print Crooss Section                              */
+/**********************************************************/
+static void gfrPrintCrossSection (const double elab, bool fission, Pcross crs)
+{
+  /*** prinr heading */
+  if(elab < 0.0){
+    cout.setf(ios::scientific, ios::floatfield);
+    cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]    Other[b]";
+    if(fission) cout <<"    Fission[b]";
+    cout << endl;
+  }
+  else{
+    cout << setw(14) << setprecision(7) << elab;
+    cout << setw(14) << setprecision(6) << crs.total;
+    cout << setw(14) << crs.elastic;
+    cout << setw(14) << crs.capture;
+    cout << setw(14) << crs.other;
+    if(fission) cout << setw(14) << crs.fission;
+    cout << endl;
+  }
+}

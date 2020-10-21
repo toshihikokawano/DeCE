@@ -181,7 +181,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** RECONSTRUCT: reconstruct cross sections from resonances */
   /*** RECONANGDIST: calculate Legendre coefficients from resonance parameters */
   /*** SMOOTHANGDIST: calculate energy averaged Legendre coefficients in RRR */
-  else if( (ope == "reconstruct") || (ope == "reconangdist") || (ope == "smoothangdist")  ){
+  else if( (ope == "reconstruct") || (ope == "reconangdist") || (ope == "smoothangdist") || (ope == "smatrixelement") ){
     DeceOperationRECONSTRUCT(dict,lib);
   }
 
@@ -540,6 +540,9 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
     }
     else if(ope == "smoothangdist"){
       gfrAngDistSmooth(dict,lib,cmd.xmin);
+    }
+    else if(ope == "smatrixelement"){
+      gfrSmatrixElement(dict, lib);
     }
   }
 }
