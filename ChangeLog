@@ -1,3 +1,8 @@
+2020-10-21  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFLibCopy): modified
+	when larger object is copied, memory size will be re-adjusted
+
 2020-10-20  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/gfr.cpp (gfrPrintCrossSection): new function

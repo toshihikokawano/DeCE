@@ -958,8 +958,7 @@ void ENDFPackTAB21(Record cont, int *idat, Record *cdat, int **itab, double **xt
 void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
 {
   if((int)libsrc->getSIZE() > (int)libdst->getSIZE()){
-    cerr << "cannot copy to smaller size object" << endl;
-    exit(-1);
+    libdst->memresize(libsrc->getSIZE());
   }
 
   int nb = libsrc->getPOS();
