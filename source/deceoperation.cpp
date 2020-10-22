@@ -30,11 +30,11 @@ static void DeceOperationCHANGEQVAL      (ENDFDict *, ENDF **);
 static void DeceOperationCHECKTHRESHOLD  (ENDFDict *, ENDF **);
 static void DeceOperationNUTOTAL         (ENDFDict *, ENDF **);
 static void DeceOperationBOUNDCORRECT    (ENDFDict *, ENDF **);
-static void DeceOperationDUPLICATEPOINT  (ENDFDict *, ENDF **);
 static void DeceOperationGENPROD         (ENDFDict *, ENDF **);
 static void DeceOperationISOANGDIST      (ENDFDict *, ENDF **);
 static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
+static void DeceOperationGROUP           (ENDFDict *, ENDF **);
 
 extern CLine cmd;
 
@@ -89,7 +89,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   }
 
   /*** ADDPOINT, DELPOINT: add / remove a point in TAB1 record */
-  else if( (ope == "addpoint") || (ope == "delpoint") ){
+  else if( (ope == "addpoint") || (ope == "delpoint")  || (ope == "modpoint") ){
     DeceOperationPOINT(dict,lib);
   }
 
@@ -165,10 +165,6 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   else if(ope == "boundcorrect"){
     DeceOperationBOUNDCORRECT(dict,lib);
   }
-  /*** DUPLICATEPOINT: duplicate the last point in MF6 */
-  else if(ope == "duplicatepoint"){
-    DeceOperationDUPLICATEPOINT(dict,lib);
-  }
   /*** GENPROD: generate production cross section from MF6 MT5 */
   else if(ope == "genprod"){
     DeceOperationGENPROD(dict,lib);
@@ -185,7 +181,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** RECONSTRUCT: reconstruct cross sections from resonances */
   /*** RECONANGDIST: calculate Legendre coefficients from resonance parameters */
   /*** SMOOTHANGDIST: calculate energy averaged Legendre coefficients in RRR */
-  else if( (ope == "reconstruct") || (ope == "reconangdist") || (ope == "smoothangdist")  ){
+  else if( (ope == "reconstruct") || (ope == "reconangdist") || (ope == "smoothangdist") || (ope == "smatrixelement") ){
     DeceOperationRECONSTRUCT(dict,lib);
   }
 
@@ -196,6 +192,11 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** POINTWISE: create pointwise cross section */
   else if(ope == "pointwise"){
     DeceOperationPOINTWISE(dict,lib);
+  }
+
+  /*** GROUP: create group cross section */
+  else if(ope == "group"){
+    DeceOperationGROUP(dict,lib);
   }
 
 
@@ -375,9 +376,11 @@ void DeceOperationEXTRACT(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 
 /**********************************************************/
 /* ADDPOINT, DELPOINT                                     */
-/*      insert or delete one (x,y) data point in array    */
+/*      insert, delete, modify one (x,y) data point  y    */
 /* addpoint MF MT Xdata Ydata                             */
-/* delpoint MF MT Xdata Ydata                             */
+/* delpoint MF MT Xdata                                   */
+/* delpoint MF MT Xmin Xmax                               */
+/* modpoint MF MT Xdata Ydata                             */
 /**********************************************************/
 void DeceOperationPOINT(ENDFDict *dict, ENDF *lib[])
 {
@@ -492,18 +495,6 @@ void DeceOperationBOUNDCORRECT(ENDFDict *dict, ENDF *lib[])
 
 
 /**********************************************************/
-/* DUPLICATEPOINT                                         */
-/*      duplicate boundary point in MF6                   */
-/* duplicatepoint                                         */
-/**********************************************************/
-void DeceOperationDUPLICATEPOINT(ENDFDict *dict, ENDF *lib[])
-{
-  DeceCheckMT(cmd.mt);
-  DeceDuplicatePoint(dict,lib,cmd.mt,cmd.x);
-}
-
-
-/**********************************************************/
 /* GENPROD                                                */
 /*      generate particle production cross section in MF3 */
 /* genprod MT ZAP                                         */
@@ -550,6 +541,9 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
     else if(ope == "smoothangdist"){
       gfrAngDistSmooth(dict,lib,cmd.xmin);
     }
+    else if(ope == "smatrixelement"){
+      gfrSmatrixElement(dict, lib);
+    }
   }
 }
 
@@ -559,14 +553,22 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
 /*      reconstruct pointwise cross section from          */
 /*      resonance parameters and merge into MF3           */
 /**********************************************************/
+static bool generatepointwise = false;
 void DeceOperationPOINTWISE(ENDFDict *dict, ENDF *lib[])
 {
   if(dict->getID(2,151) >= 0){
-    DeceCreateLib(dict,3,901);
-    DeceCreateLib(dict,3,902);
-    DeceCreateLib(dict,3,903);
-    DeceCreateLib(dict,3,904);
     DeceGeneratePointwise(dict,lib);
+    generatepointwise = true;
   }
+}
+
+/**********************************************************/
+/* Group                                                  */
+/*      group cross sections                              */
+/**********************************************************/
+void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
+{
+  if(!generatepointwise) DeceOperationPOINTWISE(dict,lib);
+  DeceGenerateGroup(dict,lib,cmd.opt1,cmd.opt2);
 }
 

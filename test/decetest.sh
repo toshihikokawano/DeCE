@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]; then
     echo 'decetest.sh N'
-    echo '   where N = 1 ... 16'
+    echo '   where N = 1 ... 18'
     exit 1
 fi
 

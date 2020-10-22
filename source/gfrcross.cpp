@@ -17,9 +17,6 @@ static void   gfrSubsectionURR   (const int, const int, System *, ENDF *);
 static int    gfrFindEnergyRange (const int, const double, System *);
 
 
-extern const double gcLorentzianWidth;
-extern Smatrix Smat;
-
 /**********************************************************/
 /*      Pointwise Cross Section int Resonance Range       */
 /**********************************************************/

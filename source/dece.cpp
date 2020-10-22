@@ -282,7 +282,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
   }
 
   try{
-    if(mf >= 900){
+    if(mt >= 900){
       lib[newsec] = new ENDF(L); // above 900 used for temporal MTs
     }
     else{

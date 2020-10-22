@@ -81,7 +81,7 @@ string CmdExtractArgument(void)
     CmdExtractString(cmd.text);
     cmd.opt1  = (int)getval(d1);
   }
-  else if(ope == "addpoint" || ope == "delpoint"){
+  else if(ope == "addpoint" || ope == "delpoint" || ope == "modpoint"){
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
     cmd.x     =      getval(d1);
@@ -142,9 +142,12 @@ string CmdExtractArgument(void)
   else if(ope == "boundcorrect"){
     cmd.mt    = (int)getval(d1);
   }
-  else if(ope == "duplicatepoint"){
+  else if(ope == "genprod"){
     cmd.mt    = (int)getval(d1);
-    cmd.x     =      getval(d1);
+    cmd.opt1  = (int)getval(d1);
+  }
+  else if(ope == "isoangdist"){
+    cmd.mt    = (int)getval(d1);
   }
   else if(ope == "editheader"){
     gettext(d1,cmd.parm);
@@ -154,17 +157,14 @@ string CmdExtractArgument(void)
     gettext(d1,cmd.parm);
     CmdExtractString(cmd.text);
   }
-  else if(ope == "genprod"){
-    cmd.mt    = (int)getval(d1);
-    cmd.opt1  = (int)getval(d1);
-  }
-  else if(ope == "isoangdist"){
-    cmd.mt    = (int)getval(d1);
-  }
   else if(ope == "reconstruct" || ope == "reconangdist" || ope == "smoothangdist"){
     cmd.xmin  =      getval(d1);
     cmd.xmax  =      getval(d1);
     cmd.x     =      getval(d1);
+  }
+  else if(ope == "group"){
+    cmd.opt1  = (int)getval(d1);
+    cmd.opt2  = (int)getval(d1);
   }
   else if(ope == "set" || ope == "unset"){
     gettext(d1,cmd.text);

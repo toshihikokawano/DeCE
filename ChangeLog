@@ -1,8 +1,52 @@
+2020-10-21  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFLibCopy): modified
+	when larger object is copied, memory size will be re-adjusted
+
+2020-10-20  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfr.cpp (gfrPrintCrossSection): new function
+	move all printing parts to this function
+	
+	* source/gfr.cpp (gfrSmatrixElement): new function
+	print scattering matrix element
+
+2020-09-10  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (geneCSdata2): updated
+	dont insert thermal point in the charged particle reaction case
+
+2020-09-08  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/masstable.cpp (qvalue): bug fixed
+	MT50 for a charged particle reaction case missing
+
+2020-08-26  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFExtract): updated
+	remove \r when the input is a DOS file
+
+2020-07-12  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFExtract): updated
+	non-ASCII character scanner added
+
 2020-07-10  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/decetable34.cpp (DeceTableMF34): updated
 	* source/decetable33.cpp (DeceTableMF33NILB5): bug fixed
 	LB=5 assymmetric matrix case added
+
+2020-07-09  KAWANO Toshihiko  <kawano@lanl.gov>
+
+        * source/decemod6.cpp (DeceBoundCorrect): updated
+        automatically adjust energy range in MF6 when MF3's range is different
+        DeceDuplicatePoint() obsolete, removed
+
+2020-07-02  KAWANO Toshihiko  <kawano@lanl.gov>
+
+        * source/decepoint.cpp (modpoint): new function
+        replace one data point in MF3 by input
 
 2020-07-01  KAWANO Toshihiko  <kawano@lanl.gov>
 

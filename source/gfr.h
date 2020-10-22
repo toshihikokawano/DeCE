@@ -418,6 +418,16 @@ class Smatrix{
     return(s);
   }
 
+  complex<double> getElement(int k, int *pl, int *pj2, int *ps2){
+    complex<double> s(0.0,0.0);
+    if(allocated && (k < size)){
+      s = element[k].S;
+      *pl  = element[k].l;
+      *pj2 = element[k].j2;
+      *ps2 = element[k].s2;
+    }
+    return(s);
+  }
 };
 
 

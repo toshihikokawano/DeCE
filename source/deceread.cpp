@@ -24,6 +24,8 @@ static int    mergeCSdata   (int, double *, double *, double, double *, double *
 static double findBoundary  (ENDF *);
 static double loginterpol   (int, double, double *, double *, int *);
 
+static bool   charged_particle_file = false;
+
 
 /**********************************************************/
 /*      Read in External Data from a File                 */
@@ -55,6 +57,9 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
   double awr  = dict->getAWR();   //  mass ratio to neutron 1.008665
   double elis = dict->getELIS();  //  target excitation energy
   int    mat  = dict->getMAT();
+
+  /*** determine if the file is for charged particle incident reactions */
+  if(dict->getProj() > 1) charged_particle_file = true;
 
   /*** in the case of cross sections in MF3 */
   if(mf == 3){
@@ -456,8 +461,10 @@ int geneCSdata2(int n, double *x, double *y, double eres, double *xdat)
     /*** Insert thermal point, start at the resonance boundary */
     xdat[i++] = e0;
     xdat[i++] = 0.0;
-    xdat[i++] = e1;
-    xdat[i++] = 0.0;
+    if(!charged_particle_file){
+      xdat[i++] = e1;
+      xdat[i++] = 0.0;
+    }
 
     /*** duplicated point at Eres, we hope Eres is bigger than 0.0253 */
     xdat[i++] = eres;
@@ -474,35 +481,37 @@ int geneCSdata2(int n, double *x, double *y, double eres, double *xdat)
     xdat[i++] = e0;
     xdat[i++] = loginterpol(n,e0,x,y,&skip);
 
-    /*** insert data points when energies below thermal are given */
-    bool thermal = false;
-    for(skip=0 ; skip<n ; skip++){
+    if(!charged_particle_file){
+      /*** insert data points when energies below thermal are given */
+      bool thermal = false;
+      for(skip=0 ; skip<n ; skip++){
 
-      double eps = fabs(x[skip] / e1 -1.0);
+        double eps = fabs(x[skip] / e1 -1.0);
 
-      if( (e0 < x[skip]) && (x[skip] < e1) ){
-        xdat[i++] = x[skip];
-        xdat[i++] = y[skip];
+        if( (e0 < x[skip]) && (x[skip] < e1) ){
+          xdat[i++] = x[skip];
+          xdat[i++] = y[skip];
+        }
+        /*** if thermal is already given */
+        else if(eps < 1e-10){
+          xdat[i++] = x[skip];
+          xdat[i++] = y[skip];
+          thermal = true;
+          break;
+        }
       }
-      /*** if thermal is already given */
-      else if(eps < 1e-10){
-        xdat[i++] = x[skip];
-        xdat[i++] = y[skip];
-        thermal = true;
-        break;
+
+      if(!thermal){
+        xdat[i++] = e1;
+        xdat[i++] = loginterpol(n,e1,x,y,&skip);
       }
-    }
+      else skip ++;
 
-    if(!thermal){
-      xdat[i++] = e1;
-      xdat[i++] = loginterpol(n,e1,x,y,&skip);
-    }
-    else skip ++;
-
-    /*** avoid long linear interpolation by duplicating the first data point */
-    if( (xdat[i-1] == 0.0) && (y[skip] > 0.0) ){
-      xdat[i++] = x[skip];
-      xdat[i++] = 0.0;
+      /*** avoid long linear interpolation by duplicating the first data point */
+      if( (xdat[i-1] == 0.0) && (y[skip] > 0.0) ){
+        xdat[i++] = x[skip];
+        xdat[i++] = 0.0;
+      }
     }
   }
 

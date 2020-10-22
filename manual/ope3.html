@@ -84,6 +84,18 @@ between two given <i>X-data</i> are removed.</p>
 
 
 
+<h2><a name="modpont">modpoint (update one data point by input)</a></h2>
+
+<pre id="syn">
+   modpoint  <i>MFnumber</i> <i>MTnumber</i> <i>X-data</i>  <i>Y-data</i>
+</pre>
+
+<p>The data point at E=<i>X-data</i> in
+the <i>MFnumber</i> <i>MTnumber</i> section will be replaced by 
+(<i>X-data</i>,<i>Y-data</i>). </p>
+
+
+
 <h2><a name="factor">factor (multiply data points by a factor)</a></h2>
 
 <pre id="syn">
@@ -201,20 +213,21 @@ outside the current data range, it will be substituted by the end point.</p>
    boundcorrect <i>MTnumber</i>
 </pre>
 
-<p>This fixes the energy boundary in MF=6 into the value given
-in MF=3.</p>
+<p>This fixes the energy boundary in MF=6 by the value given in MF=3.
+It adjusts the lowerst and highest energies only, and no interpolation
+will be made.</p>
 
 
-<h2><a name="duplicatepoint"> duplicatepoint (repeat the highest point data) </a></h2>
+<h2><a name="genprod"> genprod (generate particle production cross section in MF3) </a></h2>
 
 <pre id="syn">
-   duplicatepoint <i>MTnumber</i> <i>X-data</i>
+   genprod <i>MTnumber</i> <i>ZAP</i>
 </pre>
 
-<p>The last data block given in MF=6 is copied, and set that point
-energy to <i>X-data</i>. This is an easy way to extend the MF=6 data
-that are given up to 20 MeV, in the higher energy region, such as 150
-MeV. </p>
+<p>Calculate particle production cross sections by multiplying the
+MF3 MT5 cross section and production ratio in given in MF=6,
+and store the results in MF3. <i>ZAP</i> is the particle ID,
+1 for neutron, 1001 for proton, etc. </p>
 
 
 <h1><a name="gfr">Resonance Range </a></h1>

@@ -90,7 +90,7 @@ void DeceTableMF2(ENDF *lib)
 
       cout << "#          SPI"; outVal(spi); cout << "  target spin" << endl;
       cout << "#           AP"; outVal(ap); cout << "  scattering radius" << endl;
-      cout << "#         LSSF" << setw(14) << lssf << "  FILE2 used for self-shielding only" << endl;
+      cout << "#         LSSF" << setw(14) << lssf << "  0: cross section calculated from URR parameters, 1:FILE2 used for self-shielding only" << endl;
 
       if(lrf == 1){
         // Case A, not tested

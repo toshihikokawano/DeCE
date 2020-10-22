@@ -107,9 +107,10 @@ am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) dece.$(OBJEXT) \
 	deceheader.$(OBJEXT) decelibread.$(OBJEXT) decemisc.$(OBJEXT) \
 	decemod6.$(OBJEXT) deceoperation.$(OBJEXT) \
 	deceoutput.$(OBJEXT) decepoint.$(OBJEXT) \
-	deceprocpointwise.$(OBJEXT) deceread.$(OBJEXT) \
-	decereadjust.$(OBJEXT) decescanindex.$(OBJEXT) \
-	decetable.$(OBJEXT) decetable1.$(OBJEXT) decetable10.$(OBJEXT) \
+	deceprocgroup.$(OBJEXT) deceprocpointwise.$(OBJEXT) \
+	deceread.$(OBJEXT) decereadjust.$(OBJEXT) \
+	decescanindex.$(OBJEXT) decetable.$(OBJEXT) \
+	decetable1.$(OBJEXT) decetable10.$(OBJEXT) \
 	decetable12.$(OBJEXT) decetable13.$(OBJEXT) \
 	decetable14.$(OBJEXT) decetable15.$(OBJEXT) \
 	decetable2.$(OBJEXT) decetable3.$(OBJEXT) \
@@ -148,25 +149,26 @@ am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coupling.Po \
 	./$(DEPDIR)/decelibread.Po ./$(DEPDIR)/decemisc.Po \
 	./$(DEPDIR)/decemod6.Po ./$(DEPDIR)/deceoperation.Po \
 	./$(DEPDIR)/deceoutput.Po ./$(DEPDIR)/decepoint.Po \
-	./$(DEPDIR)/deceprocpointwise.Po ./$(DEPDIR)/deceqvalue.Po \
-	./$(DEPDIR)/deceread.Po ./$(DEPDIR)/decereadjust.Po \
-	./$(DEPDIR)/decescanindex.Po ./$(DEPDIR)/decetable.Po \
-	./$(DEPDIR)/decetable1.Po ./$(DEPDIR)/decetable10.Po \
-	./$(DEPDIR)/decetable12.Po ./$(DEPDIR)/decetable13.Po \
-	./$(DEPDIR)/decetable14.Po ./$(DEPDIR)/decetable15.Po \
-	./$(DEPDIR)/decetable2.Po ./$(DEPDIR)/decetable3.Po \
-	./$(DEPDIR)/decetable32.Po ./$(DEPDIR)/decetable33.Po \
-	./$(DEPDIR)/decetable34.Po ./$(DEPDIR)/decetable35.Po \
-	./$(DEPDIR)/decetable4.Po ./$(DEPDIR)/decetable5.Po \
-	./$(DEPDIR)/decetable6.Po ./$(DEPDIR)/decetable8.Po \
-	./$(DEPDIR)/decetable9.Po ./$(DEPDIR)/endfio.Po \
-	./$(DEPDIR)/endflib.Po ./$(DEPDIR)/gfr.Po \
-	./$(DEPDIR)/gfrcross.Po ./$(DEPDIR)/gfrcs1.Po \
-	./$(DEPDIR)/gfrcs3.Po ./$(DEPDIR)/gfrcs7.Po \
-	./$(DEPDIR)/gfrcsurr.Po ./$(DEPDIR)/gfrenergy.Po \
-	./$(DEPDIR)/gfrformula.Po ./$(DEPDIR)/gfrlegcoef.Po \
-	./$(DEPDIR)/masstable.Po ./$(DEPDIR)/matrix.Po \
-	./$(DEPDIR)/polycalc.Po ./$(DEPDIR)/polysq.Po
+	./$(DEPDIR)/deceprocgroup.Po ./$(DEPDIR)/deceprocpointwise.Po \
+	./$(DEPDIR)/deceqvalue.Po ./$(DEPDIR)/deceread.Po \
+	./$(DEPDIR)/decereadjust.Po ./$(DEPDIR)/decescanindex.Po \
+	./$(DEPDIR)/decetable.Po ./$(DEPDIR)/decetable1.Po \
+	./$(DEPDIR)/decetable10.Po ./$(DEPDIR)/decetable12.Po \
+	./$(DEPDIR)/decetable13.Po ./$(DEPDIR)/decetable14.Po \
+	./$(DEPDIR)/decetable15.Po ./$(DEPDIR)/decetable2.Po \
+	./$(DEPDIR)/decetable3.Po ./$(DEPDIR)/decetable32.Po \
+	./$(DEPDIR)/decetable33.Po ./$(DEPDIR)/decetable34.Po \
+	./$(DEPDIR)/decetable35.Po ./$(DEPDIR)/decetable4.Po \
+	./$(DEPDIR)/decetable5.Po ./$(DEPDIR)/decetable6.Po \
+	./$(DEPDIR)/decetable8.Po ./$(DEPDIR)/decetable9.Po \
+	./$(DEPDIR)/endfio.Po ./$(DEPDIR)/endflib.Po \
+	./$(DEPDIR)/gfr.Po ./$(DEPDIR)/gfrcross.Po \
+	./$(DEPDIR)/gfrcs1.Po ./$(DEPDIR)/gfrcs3.Po \
+	./$(DEPDIR)/gfrcs7.Po ./$(DEPDIR)/gfrcsurr.Po \
+	./$(DEPDIR)/gfrenergy.Po ./$(DEPDIR)/gfrformula.Po \
+	./$(DEPDIR)/gfrlegcoef.Po ./$(DEPDIR)/masstable.Po \
+	./$(DEPDIR)/matrix.Po ./$(DEPDIR)/polycalc.Po \
+	./$(DEPDIR)/polysq.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -331,6 +333,7 @@ dece_SOURCES = \
 	deceoperation.cpp \
 	deceoutput.cpp \
 	decepoint.cpp \
+	deceprocgroup.cpp \
 	deceprocpointwise.cpp \
 	deceread.cpp \
 	decereadjust.cpp \
@@ -495,6 +498,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceoperation.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceoutput.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decepoint.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceprocgroup.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceprocpointwise.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceqvalue.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceread.Po@am__quote@ # am--include-marker
@@ -699,6 +703,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/deceoperation.Po
 	-rm -f ./$(DEPDIR)/deceoutput.Po
 	-rm -f ./$(DEPDIR)/decepoint.Po
+	-rm -f ./$(DEPDIR)/deceprocgroup.Po
 	-rm -f ./$(DEPDIR)/deceprocpointwise.Po
 	-rm -f ./$(DEPDIR)/deceqvalue.Po
 	-rm -f ./$(DEPDIR)/deceread.Po
@@ -800,6 +805,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/deceoperation.Po
 	-rm -f ./$(DEPDIR)/deceoutput.Po
 	-rm -f ./$(DEPDIR)/decepoint.Po
+	-rm -f ./$(DEPDIR)/deceprocgroup.Po
 	-rm -f ./$(DEPDIR)/deceprocpointwise.Po
 	-rm -f ./$(DEPDIR)/deceqvalue.Po
 	-rm -f ./$(DEPDIR)/deceread.Po

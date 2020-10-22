@@ -957,9 +957,8 @@ void ENDFPackTAB21(Record cont, int *idat, Record *cdat, int **itab, double **xt
 /**********************************************************/
 void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
 {
-  if(libsrc->getSIZE() != libdst->getSIZE()){
-    cerr << "cannot copy to different size object" << endl;
-    exit(-1);
+  if((int)libsrc->getSIZE() > (int)libdst->getSIZE()){
+    libdst->memresize(libsrc->getSIZE());
   }
 
   int nb = libsrc->getPOS();
@@ -977,7 +976,7 @@ void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
   for(int i=0 ; i<nx ; i++){ libdst->xdata[i] = libsrc->xdata[i]; }
 
   /*** copy all CONT */
-  for(int i=0 ; i<nb ; i++) libdst->rdata[i] = libsrc->rdata[i];
+  for(int i=0 ; i<nb ; i++){ libdst->rdata[i] = libsrc->rdata[i]; }
 
   /*** re-assign pointers */
   libdst->resetPOS();
@@ -1039,12 +1038,29 @@ void ENDFExtract(ifstream *fp, int mf, int mt)
   ENDF   lib(L);
   string s1,s2;
 
+  /*** copy HEAD record for given MF,MT */
   ENDFSeekHead(fp,&lib,mf,mt);
   ENDFWriteHEAD(&lib);
 
+  int lcount = 0;
   while( getline(*fp,line) ){
+    lcount ++;
 
     int n = line.length();
+
+    /*** DOS hack, remove \r if line-break is \r\n */
+    if(line[n-1] == '\r') n --;
+
+    /*** scan non-printable */
+    for(int i=0 ; i<n ; i++){
+      if(!isprint(line[i])){
+        cerr << "non-ASCII character found in the line " << lcount << " column " << i << endl;
+        cerr << line << endl;
+        exit(-1);
+      }
+    }
+
+    /*** when the line length is less than 75, MAT,MF,MT might be missing */
     if(n < 75){
       cout << left << line;
       n = 65-n;
@@ -1054,13 +1070,16 @@ void ENDFExtract(ifstream *fp, int mf, int mt)
       }
     }
     else{
-      s1 = line.substr(0,66);
-      s2 = line.substr(72,3);
+      s1 = line.substr(0,66);  // data body
+      s2 = line.substr(72,3);  // MT
 
       int mt0 = atoi(s2.c_str());
       if(mt0 == 0) break;
+      /*** write data body */
       cout << s1;
     }
+
+    /*** write MAT,MF,MT */
     ENDFPrintRight(lib.getENDFmat(),mf,mt);
   }
 

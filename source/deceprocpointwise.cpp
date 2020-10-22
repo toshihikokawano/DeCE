@@ -1,5 +1,5 @@
 /******************************************************************************/
-/**     DeCE Proccessing Point                                               **/
+/**     DeCE Proccessing: Pointwise Cross Section at Union Energy Grid       **/
 /******************************************************************************/
 
 #include <iostream>
@@ -10,232 +10,245 @@ using namespace std;
 
 #include "dece.h"
 #include "gfr.h"
+#include "terminate.h"
 
 
-static void DeceReconstructResonance      (ENDFDict *, ENDF **, int *);
-static void DeceAddHighEnergyCrossSection (ENDFDict *, ENDF **, int *);
-static void DeceCheckNegativeCrossSection (ENDFDict *, ENDF **, int *);
+static int  DeceReconstructResonance (ENDFDict *, ENDF **, double **);
+static int  DeceCopyHighEnergyCrossSection (ENDFDict *, ENDF **, int, double **);
+static void DeceCheckNegativeCrossSection (const int, double **);
 
-static const int n_cross_sec = 4;
+static const int ncx = 4;
+static int mtr[ncx] = {1, 2, 102, 18}; // MT numbers for reconstructed cross sections
 
 /**********************************************************/
 /*      Generate Pointwise Cross Section                  */
+/*      --------                                          */
+/*      Cross sections of total, elastic, capture, and    */
+/*      fission are calculated on a common energy grid    */
 /**********************************************************/
 void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
 {
-  int kid[n_cross_sec];
-
-  /*** 901 - 904 are temporary MTs */
-  for(int i=0 ; i<n_cross_sec ; i++){
-    kid[i] = dict->getID(3,901 + i);
+  double **xdat;
+  xdat = new double * [ncx];
+  for(int j=0 ; j<ncx ; j++){
+    xdat[j] = new double [MAX_DBLDATA_LARGE];
   }
 
-  DeceReconstructResonance(dict,lib,kid);
-  DeceAddHighEnergyCrossSection(dict,lib,kid);
-  DeceCheckNegativeCrossSection(dict,lib,kid);
+  /*** total should always exist */
+  int id = dict->getID(3,1);
+  if(id < 0){
+    message << "MF3 MT1 should exit for processing";
+    WarningMessage();
+    return;
+  }
 
-  DeceDelete(dict,3,1);
-  if(dict->getID(3,  2) >= 0) DeceDelete(dict,3,  2);
-  if(dict->getID(3,102) >= 0) DeceDelete(dict,3,102);
-  if(dict->getID(3, 18) >= 0) DeceDelete(dict,3, 18);
-  else                        DeceDelete(dict,3,904);
+  /*** excluded channels' MT number negative */
+  for(int j=1 ; j<ncx ; j++){
+    if(dict->getID(3,mtr[j]) < 0) mtr[j] *= -1;
+  }
 
-  dict->setLRP(2); // do not use FILE 2 anymore
+  /*** when resonance range exists */
+  int np = 0;
+  if(dict->emaxRe > 0.0){
+    np = DeceReconstructResonance(dict,lib,xdat);
+    np = DeceCopyHighEnergyCrossSection(dict,lib,np,xdat);
+    DeceCheckNegativeCrossSection(np,xdat);
 
-//ENDFWrite(lib[kid[2]]);
+    /*** do not use FILE 2 anymore */
+    dict->setLRP(2);
+    DeceDelete(dict,2,151);
+  }
+  /*** otherwise use the total cross section as the common grid */
+  else{
+    DeceCopyHighEnergyCrossSection(dict,lib,np,xdat);
+  }
+
+  /*** create TAB1 record, and replace MT1 etc */
+  int nr = 1;
+  Record head(dict->getZA(),dict->getAWR(),0,0,0,0);
+  Record cont(0.0, 0.0, 0, 0, nr, np);
+  int idat[2] = {np,2};
+
+  id = dict->getID(3,mtr[0]);
+  lib[id]->memresize(L);
+  lib[id]->setENDFhead(head);
+  lib[id]->resetPOS();
+
+  ENDFPackTAB1(cont,idat,xdat[0],lib[id]);
+  message << "MF3 MT" << mtr[0] << " replaced by resonance contribution + background";
+  Notice("DeceGeneratePointwise");
+//ENDFWrite(lib[id]);
+
+  for(int j=1 ; j<ncx ; j++){
+    if(mtr[j] > 0){
+      id = dict->getID(3,mtr[j]);
+      lib[id]->memresize(L);
+      lib[id]->setENDFhead(head);
+      lib[id]->resetPOS();
+      ENDFPackTAB1(cont,idat,xdat[j],lib[id]);
+      message << "MF3 MT" << mtr[j] << " replaced by resonance contribution + background";
+      Notice("DeceGeneratePointwise");
+//    ENDFWrite(lib[id]);
+    }
+  }
+
+  for(int j=0 ; j<ncx ; j++){
+    delete [] xdat[j];
+  }
+  delete [] xdat;
 }
 
 
 /**********************************************************/
 /*      Reconstructing Pointwise Cross Section in RRR     */
 /**********************************************************/
-void DeceReconstructResonance(ENDFDict *dict, ENDF *lib[], int *kid)
+int DeceReconstructResonance(ENDFDict *dict, ENDF *lib[], double **xdat)
 {
   System sys;
   Pcross crs;
-  double *elab;
+  double *edat;
 
-  elab = new double [MAX_DBLDATA_LARGE/2];
+  edat = new double [MAX_DBLDATA_LARGE/2];
 
   int kres = dict->getID(2,151);
 
   gfrReadHEADData(&sys,lib[kres]);
 
   /*** resolved resonance cross sections and background cross sections */
-  int np1 = gfrAutoEnergyRRR(&sys,lib[kres],elab,dict->emaxRR);
+  int np1 = gfrAutoEnergyRRR(&sys,lib[kres],edat,dict->emaxRR);
+
   for(int i=0 ; i<np1 ; i++){
     int i2 = i*2;
-    crs = gfrCrossSection(1,elab[i],&sys,lib[kres]);
+    crs = gfrCrossSection(1,edat[i],&sys,lib[kres]);
 
-    for(int k=0 ; k<n_cross_sec; k++) lib[kid[k]]->xdata[i2  ] = elab[i];
+    for(int j=0 ; j<ncx ; j++) xdat[j][i2] = edat[i];
 
-    lib[kid[0]]->xdata[i2+1] = crs.total;
-    lib[kid[1]]->xdata[i2+1] = crs.elastic;
-    lib[kid[2]]->xdata[i2+1] = crs.capture;
-    if(dict->isFission()) lib[kid[3]]->xdata[i2+1] = crs.fission;
-
-    if(dict->getID(3,  1) >= 0)
-      lib[kid[0]]->xdata[i2+1] += ENDFInterpolation(lib[dict->getID(3,  1)],elab[i],true,0);
-
-    if(dict->getID(3,  2) >= 0)
-      lib[kid[1]]->xdata[i2+1] += ENDFInterpolation(lib[dict->getID(3,  2)],elab[i],true,0);
-
-    if(dict->getID(3,102) >= 0)
-      lib[kid[2]]->xdata[i2+1] += ENDFInterpolation(lib[dict->getID(3,102)],elab[i],true,0);
-
-    if( dict->isFission() && (dict->getID(3, 18) >= 0) )
-      lib[kid[3]]->xdata[i2+1] += ENDFInterpolation(lib[dict->getID(3, 18)],elab[i],true,0);
+    xdat[0][i2+1] = crs.total;
+    xdat[1][i2+1] = crs.elastic;
+    xdat[2][i2+1] = crs.capture;
+    if(dict->isFission()) xdat[3][i2+1] = crs.fission;
   }
 
   /*** unresolved resonance cross sections */
-  int np2 = gfrAutoEnergyURR(elab,dict->emaxRR,dict->emaxUR);
+  bool lssf = false;
+  if(dict->emaxRe == dict->emaxUR) lssf = true;
 
-  for(int i=np1 ; i<np1+np2 ; i++){
-    int i2 = i*2;
+  int np2 = 0;
+  if(lssf){
+    np2 = gfrAutoEnergyURR(edat,dict->emaxRR,dict->emaxUR);
 
-    crs = gfrCrossSection(2,elab[i-np1],&sys,lib[kres]);
+    for(int i=np1 ; i<np1+np2 ; i++){
+      int i2 = i*2;
 
-    for(int k=0 ; k<n_cross_sec; k++) lib[kid[k]]->xdata[i2  ] = elab[i-np1];
+      crs = gfrCrossSection(2,edat[i-np1],&sys,lib[kres]);
 
-    lib[kid[0]]->xdata[i2+1] = crs.total;
-    lib[kid[1]]->xdata[i2+1] = crs.elastic;
-    lib[kid[2]]->xdata[i2+1] = crs.capture;
-    if(dict->isFission()) lib[kid[3]]->xdata[i2+1] = crs.fission;
+      for(int j=0 ; j<ncx ; j++) xdat[j][i2] = edat[i-np1];
+
+      xdat[0][i2+1] = crs.total;
+      xdat[1][i2+1] = crs.elastic;
+      xdat[2][i2+1] = crs.capture;
+      if(dict->isFission()) xdat[3][i2+1] = crs.fission;
+    }
   }
+
   int np = np1 + np2;
-  
-  Record head(dict->getZA(),dict->getAWR(),0,0,0,0);
 
-  lib[kid[0]]->setENDFhead(head);
-  lib[kid[0]]->rdata[0].setRecord(0.0, 0.0, 0, 0, 1, np);
-  lib[kid[0]]->idata[0] = np;
-  lib[kid[0]]->idata[1] = 2;
-
-  lib[kid[1]]->setENDFhead(head);
-  lib[kid[1]]->rdata[0].setRecord(0.0, 0.0, 0, 0, 1, np);
-  lib[kid[1]]->idata[0] = np;
-  lib[kid[1]]->idata[1] = 2;
-
-  lib[kid[2]]->setENDFhead(head);
-  lib[kid[2]]->rdata[0].setRecord(0.0, 0.0, 0, 0, 1, np);
-  lib[kid[2]]->idata[0] = np;
-  lib[kid[2]]->idata[1] = 2;
-
-  if(dict->isFission()){
-    lib[kid[3]]->setENDFhead(head);
-    lib[kid[3]]->rdata[0].setRecord(0.0, 0.0, 0, 0, 1, np);
-    lib[kid[3]]->idata[0] = np;
-    lib[kid[3]]->idata[1] = 2;
+  /*** add background */
+  for(int i=0 ; i<np ; i++){
+    int i2 = i*2;
+    double e = xdat[0][i2];
+    for(int j=0 ; j<ncx ; j++){
+      if(mtr[j] > 0){
+        xdat[j][i2+1] += ENDFInterpolation(lib[dict->getID(3,mtr[j])],e,true,0);
+      }
+    }
   }
 
-  delete [] elab;
+  delete [] edat;
+
+  return(np);
 }
 
 
 /**********************************************************/
 /*      Add Smooth Part in MT3                            */
 /**********************************************************/
-void DeceAddHighEnergyCrossSection(ENDFDict *dict, ENDF *lib[], int *kid)
+int DeceCopyHighEnergyCrossSection(ENDFDict *dict, ENDF *lib[], int np0, double **xdat)
 {
-  int tid = dict->getID(3,1);
-  int np0 = lib[kid[0]]->rdata[0].n2;
+  int k = 0;
+  double x0 = 0.0;
 
-  /*** duplicate point at resonance boundary */
-  int k = 2 * (np0-1);
-  double x = lib[kid[0]]->xdata[k];
-  double x0 = x;
+  if(np0 > 0){
+    /*** duplicate point at resonance boundary */
+    k  = 2 * (np0-1);
+    x0 = xdat[0][k];
 
-  k += 2;
-  double y = ENDFInterpolation(lib[tid],x,false,0);
+    for(int j=0 ; j<ncx ; j++){
+      if(mtr[j] > 0){
+        xdat[j][k+2  ] = x0;
+        xdat[j][k+2+1] = ENDFInterpolation(lib[dict->getID(3,mtr[j])],x0,false,0);
+      }
+    }
+    k += 4;
+  }
 
-  lib[kid[0]]->xdata[k++] = x;
-  lib[kid[0]]->xdata[k++] = y;
-
-
+  /*** use energy grid of total as the common grid */
+  int tid = dict->getID(3,mtr[0]);
   int i=0;
   int nr = lib[tid]->rdata[0].n1;
   for(int ir=0 ; ir<nr ; ir++){
-    int np = lib[tid]->idata[2*ir  ];
+    int np = lib[tid]->idata[2*ir];
 
     for(int ip=i ; ip<np ; ip++){
-      x = lib[tid]->xdata[2*ip  ];
-      y = lib[tid]->xdata[2*ip+1];
+      double x = lib[tid]->xdata[2*ip  ];
+      double y = lib[tid]->xdata[2*ip+1];
 
       if(x > x0){
-        lib[kid[0]]->xdata[k++] = x;
-        lib[kid[0]]->xdata[k++] = y;
+        xdat[0][k++] = x;
+        xdat[0][k++] = y;
       }
     }
     i = lib[tid]->idata[2*ir]-1;
   }
 
+  /*** get other reactions at the common energy grid */
   int np1 = k/2;
-  lib[kid[0]]->rdata[0].n2 = np1;
-  lib[kid[0]]->idata[0]    = np1;
+  for(int i=np0 ; i<np1 ; i++){
+    int i2 = i*2;
+    double x1 = xdat[0][i2];
 
-  if(dict->getID(3,2) >= 0){
-    for(int i=np0 ; i<np1 ; i++){
-      int i2 = i*2;
-      double e = lib[kid[0]]->xdata[i2];
-      lib[kid[1]]->xdata[i2  ] = e;
-      lib[kid[1]]->xdata[i2+1] = ENDFInterpolation(lib[dict->getID(3,2)],e,false,0);
+    for(int j=1 ; j<ncx ; j++){
+      if(mtr[j] > 0){
+        xdat[j][i2  ] = x1;
+        xdat[j][i2+1] = ENDFInterpolation(lib[dict->getID(3,mtr[j])],x1,false,0);
+      }
     }
-    lib[kid[1]]->rdata[0].n2 = np1;
-    lib[kid[1]]->idata[0]    = np1;
   }
 
-  if(dict->getID(3,102) >= 0){
-    for(int i=np0 ; i<np1 ; i++){
-      int i2 = i*2;
-      double e = lib[kid[0]]->xdata[i2];
-      lib[kid[2]]->xdata[i2  ] = e;
-      lib[kid[2]]->xdata[i2+1] = ENDFInterpolation(lib[dict->getID(3,102)],e,false,0);
-    }
-    lib[kid[2]]->rdata[0].n2 = np1;
-    lib[kid[2]]->idata[0]    = np1;
-  }
-
-  if(dict->isFission() && (dict->getID(3,18) >= 0)){
-    for(int i=np0 ; i<np1 ; i++){
-      int i2 = i*2;
-      double e = lib[kid[0]]->xdata[i2];
-      lib[kid[3]]->xdata[i2  ] = e;
-      lib[kid[3]]->xdata[i2+1] = ENDFInterpolation(lib[dict->getID(3,18)],e,false,0);
-    }
-    lib[kid[3]]->rdata[0].n2 = np1;
-    lib[kid[3]]->idata[0]    = np1;
-  }
+  return(np1);
 }
 
 
 /**********************************************************/
 /*      Check If Negative Cross Section Happened          */
 /**********************************************************/
-void DeceCheckNegativeCrossSection(ENDFDict *dict, ENDF *lib[], int *kid)
+void DeceCheckNegativeCrossSection(const int np, double **xdat)
 {
-  int np = lib[kid[0]]->rdata[0].n2;
   double x, y;
 
   for(int i=0 ; i<np ; i++){
     int i2 = i*2;
-    x = lib[kid[0]]->xdata[i2];
 
-    y = lib[kid[0]]->xdata[i2+1];
-    if(y < 0.0) cerr << "negative total cross section " << y << " detected at " << x << endl;
+    for(int j=0 ; j<ncx ; j++){
+      if(mtr[j] > 0){
+        x = xdat[j][i2  ];
+        y = xdat[j][i2+1];
 
-    if(dict->getID(3,2) >= 0){
-      y = lib[kid[1]]->xdata[i2+1];
-      if(y < 0.0) cerr << "negative elastic cross section " << y << " detected at " << x << endl;
-    }
-
-    if(dict->getID(3,102) >= 0){
-      y = lib[kid[2]]->xdata[i2+1];
-      if(y < 0.0) cerr << "negative capture cross section " << y << " detected at " << x << endl;
-    }
-
-    if(dict->getID(3,18) >= 0){
-      y = lib[kid[3]]->xdata[i2+1];
-      if(y < 0.0) cerr << "negative fission cross section " << y << " detected at " << x << endl;
+        if(y < 0.0){
+          message << "negative section " << y << " detected at " << x << " in MT " << mtr[j];
+          WarningMessage();
+        }
+      }
     }
   }
 }
