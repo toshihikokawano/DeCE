@@ -1,7 +1,9 @@
-/*
-   dece.h : 
-        prototype definition for DeCE functions
- */
+/******************************************************************************/
+/**                                                                          **/
+/**     DeCE Main Header                                                     **/
+/**             define DeCE functions                                        **/
+/**                                                                          **/
+/******************************************************************************/
 
 #include <fstream>
 
@@ -91,7 +93,7 @@ void   DeceGenerateGroup (ENDFDict *, ENDF **, const int,  const int);
 void   DeceScanIndex    (ENDFDict *);
 
 /*** deceglobaloption.cpp */
-void   DeceGlobalOption (string, string, const double);
+void   DeceGlobalOption (string, string, string, const double);
 
 /*** deceoutput.cpp */
 void   DeceOutput       (ifstream *, ENDFDict *, ENDF **);

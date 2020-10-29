@@ -1,3 +1,32 @@
+2020-10-29  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* test/decetest.sh (testcase): updated
+	* test/input/input19.dece: new file
+	test for "set OutPut file" added
+
+	* source/groupstructure.h: updated
+	VITAMINE-J 175 group structure added
+
+2020-10-28  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/global.h (class GlobalOption): updated
+	* source/deceglobaloption.cpp (optionSet): new function
+	* source/deceoperation.cpp (DeceOutPutRedirectFile)
+	(DeceOutPutResume): new functions
+	global option "OutPut" added, and when this option is set,
+	STDOUT is redirected to an extenal file
+
+	* source/dece.cpp (DeceStoreData): updated
+	DeceInitOptions() deleted, command-line -n option removed,
+	since provided by the set command
+	version 1.2.5 Jadeite
+
+	* source/endflib.h: updated
+	* source/endflib.cpp (ENDFLibPeek): updated
+	allocated memory buffers in each object are dynamically
+	changed depending on the data size
+	DataSize type removed
+
 2020-10-21  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.cpp (ENDFLibCopy): modified

@@ -1,8 +1,8 @@
-/*
-   gfr.h : 
-        class and prototype definition for GFR
- */
-
+/******************************************************************************/
+/**                                                                          **/
+/**     GFR :   Resonance Parameter Utilities                                **/
+/**                                                                          **/
+/******************************************************************************/
 
 //const double gcKfactor = 0.21908;
 const double gcKfactor = 0.2196771;

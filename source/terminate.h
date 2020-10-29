@@ -1,9 +1,10 @@
-/*
-   terminate.h : 
-        prototype of function to print out warning messages, 
-        and to terminate code execution.
-        the functions are defined in dece.cpp
- */
+/******************************************************************************/
+/**                                                                          **/
+/**     Program Termination                                                  **/
+/**             functions to print out warning messages,                     **/
+/**             and to terminate code execution.                             **/
+/**                                                                          **/
+/******************************************************************************/
 
 //#include <ostream>
 #include <sstream>

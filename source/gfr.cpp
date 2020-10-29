@@ -71,7 +71,7 @@ double gfrGetOnePoint(ifstream *fp, ENDFDict *dict, const int mt, const double e
 /**********************************************************/
 Pcross gfrPtCrossFILE(ifstream *fp, ENDFDict *dict, const double elab)
 {
-  ENDF   librs(L),libbg(L);
+  ENDF   librs,libbg;
   System sys;
   Pcross crs, cbg;
 
@@ -113,7 +113,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     return;
   }
 
-  elab = new double [MAX_DBLDATA_LARGE/2];
+  elab = new double [MAX_DBLDATA/2];
 
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
@@ -183,7 +183,7 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   Pcross c;
   double *elab, *pleg;
 
-  elab = new double [MAX_DBLDATA_LARGE/2];
+  elab = new double [MAX_DBLDATA/2];
   pleg = new double [LMAX*2];
 
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
@@ -339,9 +339,8 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
 /**********************************************************/
 void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
 {
-  const int ndiv = 1000;
+  const int ndiv = 10000;
   System sys;
-  Pcross c;
   Wfunc  wfn;
   double *elab;
 
@@ -349,7 +348,7 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
   double de   = emax / ndiv;
   double emin = de;
 
-  elab = new double [MAX_DBLDATA_LARGE/2];
+  elab = new double [MAX_DBLDATA/2];
   int np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
 
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
@@ -361,17 +360,21 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
   cout << setprecision(4);
   int l = 0, j2 = 0, s2 = 0;
 
-  c = gfrCrossSection(0,elab[0],&sys,lib[kres]);
+  gfrCrossSection(0,elab[0],&sys,lib[kres]);
+
   cout <<"# Energy[eV] ";
   for(int j=0 ; j<Smat.getIndex() ; j++){
     Smat.getElement(j,&l,&j2,&s2);
     cout << setw(3) << l;
     cout << setw(3) << j2 << "/2                ";
   }
+  cout <<" Hard-Sphere ";
   cout << endl;
 
   for(int i=0 ; i<np ; i++){
-    c = gfrCrossSection(0,elab[i],&sys,lib[kres]);
+
+    gfrCrossSection(0,elab[i],&sys,lib[kres]);
+
     cout << setw(13) << elab[i];
     for(int j=0 ; j<Smat.getIndex() ; j++){
       cout << setw(12) << Smat.getElement(j).real();
@@ -383,6 +386,7 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
       cout << setw(12) <<  cos(2*phase);
       cout << setw(12) << -sin(2*phase);
     }
+
     cout << endl;
   }
 

@@ -128,7 +128,7 @@ int gfrAutoEnergyRRR(System *sys, ENDF *lib2, double *elab, const double ebr)
 //  cout << k <<" " << ex[1] << " " << cs[1].elastic << endl;
 
     nstep ++;
-    if(nstep >= MAX_DBLDATA_LARGE/2){
+    if(nstep >= MAX_DBLDATA/2){
       cerr << "too many energy points in GFR" << endl;
       break;
     }

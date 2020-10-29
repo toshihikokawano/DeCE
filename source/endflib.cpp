@@ -105,7 +105,7 @@ int ENDFScanLibrary(string libname, ENDFDict *dict)
   ifstream fp;
   string   s;
   int      mf0=0, mt0=0, mf1=1, mt1=451, overrun = 0;
-  ENDF     lib(S);
+  ENDF     lib;
 
   /*** open tape */
   fp.open(&libname[0]); if(!fp) return(-1);
@@ -247,7 +247,7 @@ Record ENDFReadLIST(ifstream *fp, ENDF *lib)
   lib->rdata[idx] = ENDFNextCONT(fp);
   int nc = lib->rdata[idx].n1;
 
-  if( lib->checkMAXDATA(0,nc) ) ENDFExceedDataSize("ReadLIST",lib,0,nc);
+  if( lib->checkDataSize(0,nc) ) ENDFExceedDataSize("ReadLIST",lib,0,nc);
 
   /*** read in double data array */
   ENDFReadArray(fp, 0, nc, lib->xptr[idx]);
@@ -275,7 +275,7 @@ Record ENDFReadTAB1(ifstream *fp, ENDF *lib)
   int nr = 2*lib->rdata[idx].n1;
   int np = 2*lib->rdata[idx].n2;
 
-  if( lib->checkMAXDATA(nr,np) ) ENDFExceedDataSize("ReadTAB1",lib,nr,np);
+  if( lib->checkDataSize(nr,np) ) ENDFExceedDataSize("ReadTAB1",lib,nr,np);
 
   /*** read in int and double data array */
   ENDFReadArray(fp, 0, nr, lib->iptr[idx]);
@@ -304,7 +304,7 @@ Record ENDFReadTAB2(ifstream *fp, ENDF *lib)
   int nr = lib->rdata[idx].n1;
   int np = lib->rdata[idx].n2;
 
-  if( lib->checkMAXDATA(2*nr,0) ) ENDFExceedDataSize("ReadTAB2",lib,2*nr,0);
+  if( lib->checkDataSize(2*nr,0) ) ENDFExceedDataSize("ReadTAB2",lib,2*nr,0);
 
   /*** read in int data array */
   ENDFReadArray(fp, 0, 2*nr, lib->iptr[idx]);
@@ -335,7 +335,7 @@ Record ENDFReadTAB21(ifstream *fp, ENDF *lib)
   int nr = lib->rdata[idx].n1;
   int np = lib->rdata[idx].n2;
 
-  if( lib->checkMAXDATA(2*nr,0) ) ENDFExceedDataSize("ReadTAB21",lib,2*nr,0);
+  if( lib->checkDataSize(2*nr,0) ) ENDFExceedDataSize("ReadTAB21",lib,2*nr,0);
 
   /*** read in int data array */
   ENDFReadArray(fp, 0, 2*nr, lib->iptr[idx]);
@@ -366,7 +366,7 @@ Record ENDFReadTAB22(ifstream *fp, ENDF *lib)
   int nr = lib->rdata[idx].n1;
   int ne = lib->rdata[idx].n2;
 
-  if( lib->checkMAXDATA(2*nr,0) ) ENDFExceedDataSize("ReadTAB22",lib,2*nr,0);
+  if( lib->checkDataSize(2*nr,0) ) ENDFExceedDataSize("ReadTAB22",lib,2*nr,0);
 
   /*** read in int data array */
   ENDFReadArray(fp, 0, 2*nr, lib->iptr[idx]);
@@ -400,7 +400,7 @@ Record ENDFReadINTG(ifstream *fp, ENDF *lib)
   static int row[] = {0, 0, 18, 13, 11, 9, 8};
 
   int nmax = nm * (row[nd] + 2);
-  if( lib->checkMAXDATA(0,nmax) ) ENDFExceedDataSize("ReadINTG",lib,0,nmax);
+  if( lib->checkDataSize(0,nmax) ) ENDFExceedDataSize("ReadINTG",lib,0,nmax);
 
   /***  read in INTG-formatted int data into double array */
   ENDFReadArray(fp,nm,row[nd],nd,lib->xptr[idx]);
@@ -508,13 +508,13 @@ void ENDFExceedSubBlock(const string loc, ENDF *lib)
   exit(-1);
 }
 
-
 void ENDFExceedDataSize(const string loc, ENDF *lib, const int ni, const int nx)
 {
   cerr << "too many data-point at " << loc;
   cerr << "  MF = " << lib->getENDFmf();
   cerr << "  MT = " << lib->getENDFmt();
   cerr << "  requested Ni = " << ni << "  Nx = " << nx << endl;
+  cerr << lib->getRSIZE() << " " << lib->getXSIZE() << " " << lib->getISIZE() << endl;
   exit(-1);
 }
 
@@ -846,7 +846,7 @@ void ENDFPackLIST(Record cont, double *xdat, ENDF *lib)
   lib->rdata[idx] = cont;
   int nc = lib->rdata[idx].n1;
 
-  if( lib->checkMAXDATA(0,nc) ) ENDFExceedDataSize("PackLIST",lib,0,nc);
+  if( lib->checkDataSize(0,nc) ) ENDFExceedDataSize("PackLIST",lib,0,nc);
 
   /*** store double data array */
   for(int i=0 ; i<nc ; i++) lib->xptr[idx][i] = xdat[i];
@@ -872,7 +872,7 @@ void ENDFPackTAB1(Record cont, int *idat, double *xdat, ENDF *lib)
   int nr = 2*lib->rdata[idx].n1;
   int np = 2*lib->rdata[idx].n2;
 
-  if( lib->checkMAXDATA(nr,np) ) ENDFExceedDataSize("PackTAB1",lib,nr,np);
+  if( lib->checkDataSize(nr,np) ) ENDFExceedDataSize("PackTAB1",lib,nr,np);
 
   /*** store int and double data array */
   for(int i=0 ; i<nr ; i++) lib->iptr[idx][i] = idat[i];
@@ -899,7 +899,7 @@ void ENDFPackTAB2(Record cont, Record *cdat, int *idat, double **xtab, ENDF *lib
   int nr = lib->rdata[idx].n1;
   int np = lib->rdata[idx].n2;
 
-  if( lib->checkMAXDATA(2*nr,0) ) ENDFExceedDataSize("PackTAB2",lib,2*nr,0);
+  if( lib->checkDataSize(2*nr,0) ) ENDFExceedDataSize("PackTAB2",lib,2*nr,0);
 
   /*** store int data array */
   for(int i=0 ; i<2*nr ; i++) lib->iptr[idx][i] = idat[i];
@@ -927,7 +927,7 @@ void ENDFPackTAB21(Record cont, int *idat, Record *cdat, int **itab, double **xt
   int nr = lib->rdata[idx].n1;
   int np = lib->rdata[idx].n2;
 
-  if( lib->checkMAXDATA(2*nr,0) ) ENDFExceedDataSize("PackTAB21",lib,2*nr,0);
+  if( lib->checkDataSize(2*nr,0) ) ENDFExceedDataSize("PackTAB21",lib,2*nr,0);
 
   /*** store int data array */
   for(int i=0 ; i<2*nr ; i++) lib->iptr[idx][i] = idat[i];
@@ -957,9 +957,8 @@ void ENDFPackTAB21(Record cont, int *idat, Record *cdat, int **itab, double **xt
 /**********************************************************/
 void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)
 {
-  if((int)libsrc->getSIZE() > (int)libdst->getSIZE()){
-    libdst->memresize(libsrc->getSIZE());
-  }
+  /*** readjust the memory size of destination object */
+  libdst->memresize(libsrc->getRSIZE(),libsrc->getISIZE(),libsrc->getXSIZE());
 
   int nb = libsrc->getPOS();
   int ni = libsrc->getNI();
@@ -1008,23 +1007,55 @@ void ENDFLibPeek(ENDF *lib)
   cout <<" HEAD  : ";
   ENDFWriteRecord(head);
   cout << endl;
-  cout <<" POS   : " << setw(11) << lib->getPOS() << endl;
+  cout <<" POS   : " << setw(11) << lib->getPOS() << setw(11) << lib->getRSIZE() << endl;
   cout <<" CTR   : " << setw(11) << lib->getCTR() << endl;
+  cout <<" NINT  : " << setw(11) << lib->getNI() << setw(11) << lib->getISIZE() << endl;
+  cout <<" NDBL  : " << setw(11) << lib->getNX() << setw(11) << lib->getXSIZE() << endl;
+
   /*** each block */
   if(lib->getPOS() == 1){
-    cout <<" CONT  : ";
-    ENDFWriteRecord(lib->rdata[0]);
-    cout << endl;
-    cout <<" NINT  : " << setw(11) << lib->getNI() << endl;
-    cout <<" NDBL  : " << setw(11) << lib->getNX() << endl;
+    cout <<" CONT  : "; ENDFWriteRecord(lib->rdata[0]); cout << endl;
+
+    if(lib->getNI() > 0){
+      cout << "      address         content" << endl;
+      for(int j=0 ; j<lib->getNI() ; j++){
+        cout << setw(5) << j << setw(15) << lib->iptr[0]+j;
+        cout << setprecision(5) << setw(13) << lib->iptr[0][j] << endl;
+      }
+    }
+
+    if(lib->getNX() > 0){
+        cout << "      address         content" << endl;
+      for(int j=0 ; j<lib->getNX() ; j++){
+        cout << setw(5) << j << setw(15) << lib->xptr[0]+j;
+        cout << setprecision(5) << setw(13) << lib->xptr[0][j] << endl;
+      }
+    }
   }
   else{
     for(int i=0 ; i<lib->getPOS() ; i++){
-      cout <<" CONT  : ";
-      ENDFWriteRecord(lib->rdata[i]);
-      cout << endl;
-      cout <<" NINT  : " << setw(11) << lib->iptr[i+1] - lib->iptr[i] << endl;
-      cout <<" NDBL  : " << setw(11) << lib->xptr[i+1] - lib->xptr[i] << endl;
+
+      cout <<" CONT  : "; ENDFWriteRecord(lib->rdata[i]); cout << endl;
+
+      int ni = lib->iptr[i+1] - lib->iptr[i];
+      cout <<" NINT  : " << setw(11) << ni << endl;
+      if(ni > 0){
+        cout << "      address         content" << endl;
+        for(int j=0 ; j<ni ; j++){
+          cout << setw(5) << j << setw(15) << lib->iptr[i]+j;
+          cout << setprecision(5) << setw(13) << lib->iptr[i][j] << endl;
+        }
+      }
+
+      int nx = lib->xptr[i+1] - lib->xptr[i];
+      cout <<" NDBL  : " << setw(11) << nx << endl;
+      if(nx > 0){
+        cout << "      address         content" << endl;
+        for(int j=0 ; j<nx ; j++){
+          cout << setw(5) << j << setw(15) << lib->xptr[i]+j;
+          cout << setprecision(5) << setw(13) << lib->xptr[i][j] << endl;
+        }
+      }
     }
   }
 }
@@ -1035,7 +1066,7 @@ void ENDFLibPeek(ENDF *lib)
 /**********************************************************/
 void ENDFExtract(ifstream *fp, int mf, int mt)
 {
-  ENDF   lib(L);
+  ENDF   lib;
   string s1,s2;
 
   /*** copy HEAD record for given MF,MT */

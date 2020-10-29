@@ -104,11 +104,13 @@ void DeceCalc452(ENDFDict *dict, ENDF *lib[])
   lib[k0]->setENDFmt(452);
 
   /*** create a temporaly MF3-like library for delayed-nu */
-  ENDF lib455(M);
+  ENDF lib455;
   lib455.setENDFmf(mf);
   lib455.setENDFmt(455);
   lib455.setENDFhead(hd);
   lib455.rdata[0] = lib[k1]->rdata[1]; // in order to skip LIST
+
+  lib455.checkDataSize(lib455.rdata[0].n1,lib455.rdata[0].n2);
 
   for(int i=0 ; i<lib455.rdata[0].n1 ; i++){
     lib455.idata[i*2  ] = lib[k1]->iptr[1][i*2  ];

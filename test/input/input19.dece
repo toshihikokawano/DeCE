@@ -1,0 +1,22 @@
+echo "redirect output to an external file"
+
+# print options
+showoptions
+
+# generate pointwise cross sections from 1keV to 500keV, print on screen
+reconstruct 1000 500000 1000
+
+# change output into a file
+set OutPut "output/temp.dat"
+
+showoptions
+
+# pointwise cross sections again, but store in the file
+reconstruct 1000 500000 1000
+
+# restore STDOUT
+unset OutPut
+showoptions
+
+quit
+

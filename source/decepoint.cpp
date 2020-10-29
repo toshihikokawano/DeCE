@@ -46,8 +46,7 @@ void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x
   else if(op == "delpoint"){
     if(x < y){
       /*** when range of delete given */
-      DataSize size = lib[k0]->getSIZE();
-      ENDF tmp(size);
+      ENDF tmp;
       ENDFLibCopy(lib[k0],&tmp);
 
       for(int ip=0 ; ip<np ; ip++){

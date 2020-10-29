@@ -1,10 +1,15 @@
-/*
-   command.h : 
-        prototype definition for functions in command.cpp
- */
+/******************************************************************************/
+/**                                                                          **/
+/**     Commands and Options                                                 **/
+/**             extract given comand and its options                         **/
+/**                                                                          **/
+/******************************************************************************/
 
 #define MAX_TEXTLENGTH 256
 
+/**************************************/
+/*      Class CLine : Command Line    */
+/**************************************/
 class CLine{
  public:
   char   line[MAX_TEXTLENGTH];

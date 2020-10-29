@@ -205,7 +205,7 @@ void fixdictionary(ifstream *fp, ENDFDict *dict)
 void makeMF1(ifstream *fpin, ENDFDict *dict)
 {
   string    line;
-  ENDF      lib(S);
+  ENDF      lib;
   int       mf = 1, mt = 451;
 
   /*** header part */

@@ -1,10 +1,13 @@
-/*
-   global.h : 
-        global variables, can be changed by the "set" command
- */
+/******************************************************************************/
+/**                                                                          **/
+/**     Code Options                                                         **/
+/**             define global variables, which can be changed                **/
+/**             by the "set" command                                         **/
+/**                                                                          **/
+/******************************************************************************/
 
 /**************************************/
-/*      Code Options                  */
+/*      Class GlobalOption            */
 /**************************************/
 class GlobalOption{
  public:
@@ -14,6 +17,7 @@ class GlobalOption{
   double ReadYdataConversion   ;    // conversion factor of cross section
   double WriteXdataConversion  ;    // conversion factor when tabulating energy
   double WriteYdataConversion  ;    // conversion factor when tabulating cross section
+  string OutPut                ;    // file name table/extract output will be written
 
   GlobalOption(){
     LineNumber           =  false;
@@ -22,6 +26,7 @@ class GlobalOption{
     ReadYdataConversion  =  0.001;  // default in milli-barn
     WriteXdataConversion =  1.0;    // default in eV
     WriteYdataConversion =  1.0;    // default in barn
+    OutPut               =  "";     // default output STDOUT
   }
 };
 

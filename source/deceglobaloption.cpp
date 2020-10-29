@@ -15,17 +15,21 @@ using namespace std;
 static void optionPrint (void);
 static void optionToggle (string, string);
 static void optionSet (string, string, const double);
+static void optionSet (string, string, string);
 
 /**********************************************************/
 /*      set / unset global options                        */
 /**********************************************************/
-void DeceGlobalOption(string ope, string option, const double x)
+void DeceGlobalOption(string ope, string option, string value, const double x)
 {
   /*** print current setting */
   if(ope == "showoptions") optionPrint();
 
   /*** toggle options */
   else if(option == "LineNumber") optionToggle(ope,option);
+
+  /*** set text */
+  else if(option == "OutPut") optionSet(ope,option,value);
 
   /*** set a value */
   else optionSet(ope,option,x);
@@ -62,6 +66,24 @@ void optionToggle(string ope, string option)
 /**********************************************************/
 /*      global options, value setting                     */
 /**********************************************************/
+void optionSet(string ope, string option, string value)
+{
+  if(ope == "set"){
+    if(option == "OutPut"){
+      opt.OutPut = value;
+      message << "option " << option << " set to " << value;
+    }
+  }
+  else if(ope == "unset"){
+    if(option == "OutPut"){
+      opt.OutPut = "";
+      message << "option " << option << " unset";
+    }
+  }
+
+  Notice("optionSet");
+}
+
 void optionSet(string ope, string option, const double x)
 {
   if(ope == "unset"){
@@ -103,4 +125,7 @@ void optionPrint()
   cout << "option: ReadYdataConversion  " << setw(13) << opt.ReadYdataConversion << endl;
   cout << "option: WriteXdataConversion " << setw(13) << opt.WriteXdataConversion << endl;
   cout << "option: WriteYdataConversion " << setw(13) << opt.WriteYdataConversion << endl;
+  cout << "option: OutPut               ";
+  if(opt.OutPut.length() == 0) cout << setw(13) << "-none-" << endl;
+  else                         cout << setw(13) << opt.OutPut << endl;
 }

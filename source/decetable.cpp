@@ -71,8 +71,8 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt)
       (mf == 34) ||
       (mf == 35) ){
 
-    ENDF lib(L);
-    ENDF sup(M);
+    ENDF lib;
+    ENDF sup;
     int  c = 0;
 
     switch(mf){
@@ -124,7 +124,7 @@ void DeceDataPoint(ifstream *fp, const int mf, const int mt, const double e)
   }
 
   double y = 0.0;
-  ENDF lib(L);
+  ENDF lib;
   if(mf == 1){
     ENDFReadMF1(fp,&lib,mt);
     Record head = lib.getENDFhead();

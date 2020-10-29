@@ -27,8 +27,7 @@ void DeceTableMF3(ENDF *lib)
   cout << "#           QI"; outVal(qi); cout << "  reaction Q-value" << endl;
 
   if((opt.WriteXdataConversion != 1.0) || (opt.WriteYdataConversion != 1.0)){
-    DataSize size = lib->getSIZE();
-    ENDF tmp(size);
+    ENDF tmp;
     ENDFLibCopy(lib,&tmp);
     for(int i=0 ; i<tmp.getNX()/2; i++){
       tmp.xdata[2*i  ] *= opt.WriteXdataConversion;

@@ -1,7 +1,9 @@
-/*
-   decetable.h : 
-        prototype of functions to tabulate data
- */
+/******************************************************************************/
+/**                                                                          **/
+/**     DeCE TABLE                                                           **/
+/**             functions for tabulating ENDF contents                       **/
+/**                                                                          **/
+/******************************************************************************/
 
 /**************************************/
 /*      decetable.cpp                 */
@@ -25,6 +27,11 @@ void   DeceTableMF32     (ENDF *);
 void   DeceTableMF33     (ENDF *);
 void   DeceTableMF34     (ENDF *);
 void   DeceTableMF35     (ENDF *);
+
+
+/**************************************/
+/*      general output format         */
+/**************************************/
 
 static inline void outVal(int x)
 { cout << setw(10) << x << "    "; }

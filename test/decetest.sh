@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]; then
     echo 'decetest.sh N'
-    echo '   where N = 1 ... 18'
+    echo '   where N = 1 ... 19'
     exit 1
 fi
 
@@ -117,8 +117,12 @@ elif [ $testcase = "18" ]; then
     echo '# Header text data are patched by inputs'
 
 ###################################################
+elif [ $testcase = "19" ]; then
+    echo '# Output redirected to external file'
+
+###################################################
 else
-    echo '# currently testcase shoud be less than 17'
+    echo '# currently testcase shoud be less than 20'
     exit;
 fi
 

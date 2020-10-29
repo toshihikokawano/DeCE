@@ -53,7 +53,7 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
   Notice("DeceMod6:DeceBoundCorrect");
 
 
-  ENDF lib1(L);
+  ENDF lib1;
 
   Record head = lib0[k6]->getENDFhead();
   int    nk   = head.n1;

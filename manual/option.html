@@ -28,11 +28,12 @@ However, you can still activate the line number option by setting
    unset LineNumber
 </pre>
 
-<p>Currently there are 6 options implemented in
+<p>Currently there are 7 options implemented in
 DeCE. Besides <tt>LineNumber</tt> above,
-we have 5 options that require an optional value, such as
+we have 6 options that require an optional value, such as
 <pre id="syn">
    set AngleStep 10
+   set OutPut "externalfile.dat"
 </pre>
 <p>here the angle increment is set to 10 degree when printing the
 scattering angular distribution.</p>
@@ -43,6 +44,7 @@ scattering angular distribution.</p>
    <dt><b>ReadYdataConversion</b> <dd>cross section unit conversion</dd>
    <dt><b>WriteXdataConversion</b> <dd>energy unit conversion when cross section data are tabulated </dd>
    <dt><b>WriteYdataConversion</b> <dd>cross section unit for tabulation </dd>
+   <dt><b>OutPut</b> <dd>file name to which the output will be redirected </dd>
 </dl>
 
 <p><tt>read</tt> and <tt>multiread</tt> commands import data from an
@@ -56,6 +58,13 @@ work only for the <tt>table</tt> command applied to MF3. The printed
 energies and cross sections will be multiplied by these factors.  For
 example, when <tt>WriteYdataConversion</tt> is 1000, the output cross
 sections are in milli-barns, intead of the default of barns.</p>
+
+<p>Setting <tt>OutPut</tt> changes the DeCE output from screen to a file.
+The file name is given as an option of this command (must be double-quoted.) 
+When the file exists, the output will be appended. This is effective 
+for the command <tt>table</tt> and <tt>extract</tt>. When <tt> unset OutPut </tt>,
+DeCE prints data on the screen.</p>
+
 
 <hr>
 <a href="header.html">  [BACK] </a>

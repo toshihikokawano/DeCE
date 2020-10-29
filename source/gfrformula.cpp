@@ -11,7 +11,7 @@ using namespace std;
 #include "endflib.h"
 #include "gfr.h"
 
-static inline complex<double> breit_wigner_profile  (double, double, double);
+static inline complex<double> breit_wigner_profile  (complex<double>, double, double);
 static inline double          arrange_matrixSLBW    (double, double *, BWResonance *);
 static inline double          arrange_matrixRM      (double, double *, RMResonance *);
 static inline void            invert_matrix         (complex<double> *);
@@ -64,7 +64,8 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
     if( (res[k0].l == l) && (res[k0].j2 == j2) ){
       double de  = res[k0].gn * (res[k0].s - real(wfn->d)) / (2*res[k0].p);
       double gt0 = arrange_matrixSLBW(imag(wfn->d),x0,&res[k0]);
-      p   = breit_wigner_profile(e,res[k0].er+de,gt0);
+
+      p = breit_wigner_profile(complex<double>(e,gcLorentzianWidth),res[k0].er+de,gt0);
 
       z.total   += (real(p) * real(wfn->phase2) - imag(p) * imag(wfn->phase2))*x0[0]/gt0;
       z.fission +=  real(p)*(x0[1]*x0[1])/gt0/gt0;
@@ -83,7 +84,7 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
       r += x0[0]*w*p/gt0;
 
       /*** sum i Gn /(Ek + Delta - E -iG/2) */
-      t += complex<double>(0.0,x0[0]) / complex<double>(res[k0].er+de-e,-gt0/2.0);
+      t += complex<double>(0.0,x0[0]) / complex<double>(res[k0].er + de - e,-gt0/2.0 - gcLorentzianWidth);
     }
   }
 
@@ -117,7 +118,7 @@ Pcross gfrBreitWigner(const int kmax, const int l, const int j2, const double e,
   for(int k0=0 ; k0<kmax ; k0++){
     if( (res[k0].l == l) && (res[k0].j2 == j2) ){
       double gt0 = arrange_matrixSLBW(imag(wfn->d),x0,&res[k0]);
-      p = breit_wigner_profile(e,res[k0].er,gt0);
+      p = breit_wigner_profile(complex<double>(e,gcLorentzianWidth),res[k0].er,gt0);
 
       z.total += (real(p) * real(wfn->phase2) - imag(p) * imag(wfn->phase2))*x0[0]/gt0;
 
@@ -317,10 +318,12 @@ double arrange_matrixRM(double d, double *x, RMResonance *res)
 /**********************************************************/
 /*      Resonance Shape                                   */
 /**********************************************************/
-inline complex<double> breit_wigner_profile(double e, double e0, double g)
+inline complex<double> breit_wigner_profile(complex<double> e, double e0, double g)
 {
-  double x = (e-e0)*(e-e0)+g*g/4.0;
-  complex<double> bw = complex<double>(g*g/4.0 /x, (e-e0)*g/2.0 /x);
+  complex<double> x  = complex<double>(0.0, g / 2.0);
+  complex<double> y  = e - complex<double>(e0,0.0) + x;
+  complex<double> bw = x / y;
+
   return(bw);
 }
 

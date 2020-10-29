@@ -31,7 +31,7 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
   double **xdat;
   xdat = new double * [ncx];
   for(int j=0 ; j<ncx ; j++){
-    xdat[j] = new double [MAX_DBLDATA_LARGE];
+    xdat[j] = new double [MAX_DBLDATA];
   }
 
   /*** total should always exist */
@@ -70,7 +70,7 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
   int idat[2] = {np,2};
 
   id = dict->getID(3,mtr[0]);
-  lib[id]->memresize(L);
+  lib[id]->memresize(MAX_SUBBLOCK,MAX_INTDATA,MAX_DBLDATA);
   lib[id]->setENDFhead(head);
   lib[id]->resetPOS();
 
@@ -82,7 +82,7 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
   for(int j=1 ; j<ncx ; j++){
     if(mtr[j] > 0){
       id = dict->getID(3,mtr[j]);
-      lib[id]->memresize(L);
+      lib[id]->memresize(MAX_SUBBLOCK,MAX_INTDATA,MAX_DBLDATA);
       lib[id]->setENDFhead(head);
       lib[id]->resetPOS();
       ENDFPackTAB1(cont,idat,xdat[j],lib[id]);
@@ -108,7 +108,7 @@ int DeceReconstructResonance(ENDFDict *dict, ENDF *lib[], double **xdat)
   Pcross crs;
   double *edat;
 
-  edat = new double [MAX_DBLDATA_LARGE/2];
+  edat = new double [MAX_DBLDATA/2];
 
   int kres = dict->getID(2,151);
 
