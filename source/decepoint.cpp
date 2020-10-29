@@ -218,7 +218,6 @@ void modpoint(ENDF *lib, const double x, const double y)
       if(x == 0.0) dx = fabs(lib->xdata[2*ip] - x);
       else dx = fabs(lib->xdata[2*ip] / x - 1.0);
 
-      cout << x << " " << lib->xdata[2*ip] << " " << dx << endl;
       if(dx < eps){
         ipp = ip;
         found = true;

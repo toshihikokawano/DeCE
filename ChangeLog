@@ -1,3 +1,8 @@
+2020-10-29  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decepoint.cpp (modpoint): bug fixed
+	unnecessary debugging line removed
+
 2020-10-21  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.cpp (ENDFLibCopy): modified
