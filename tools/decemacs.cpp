@@ -33,7 +33,7 @@ int main(int argc, char *argv[])
 
   string   libname = "";
   ifstream fpin;
-  ENDF     lib(L);
+  ENDF     lib;
   double   *x,*y,t = 0.0, awr = 0.0;
   int      n = 0;
 

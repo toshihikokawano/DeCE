@@ -46,7 +46,7 @@ int main(int argc, char *argv[])
 
   ifstream fpin;
   string   libname = "", datname = "";
-  ENDF     lib(L);
+  ENDF     lib;
 
   datname = argv[1];
   libname = argv[2];

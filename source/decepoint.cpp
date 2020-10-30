@@ -41,7 +41,7 @@ void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x
   if(op == "addpoint"){
     /*** check memory size if an extra point can be added */
     if(lib[k0]->checkDataSize(0,1)){
-      message << "cannot add more points since the data size reached at maximum of " << MAX_DBLDATA;
+      message << "cannot add more points since the data size reached the maximum of " << MAX_DBLDATA;
       WarningMessage();
       return;
     }
@@ -62,7 +62,8 @@ void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x
           delpoint(lib[k0],z);
         }
       }
-    }else{
+    }
+    else{
       /*** when one point given */
       delpoint(lib[k0],x);
     }

@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
   ifstream fpin;
   string   libname = "";
-  ENDF     lib3(M),lib4(L);
+  ENDF     lib3, lib4;
 
   libname = argv[1];
 

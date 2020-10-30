@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 {
   ifstream fpin;
   string   libname = "", eclname = "", reacid = "";
-  ENDF     lib(M);
+  ENDF     lib;
 
   /*** command line options */
   int p = 0;
@@ -157,7 +157,7 @@ int main(int argc, char *argv[])
 void processMF6(int ne, ENDF *lib3)
 {
   double emin,emax;
-  ENDF   lib(L);
+  ENDF   lib;
 
   lib.setENDFmat(mat);
   lib.setENDFmf(6);

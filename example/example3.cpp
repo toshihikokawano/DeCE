@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 
       if(dict.mf[i] == mf){
 #ifdef ON_MEMORY
-        ENDF lib(L); // allocate the largest object
+        ENDF lib; // allocate a new object
 
         /*** read data in the source file, and write them */
         ENDFRead(&fpin,&lib,mf,dict.mt[i]);
