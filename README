@@ -60,6 +60,7 @@ Files:
         deceglobaloption.cpp  set/unset global options
         deceheader.cpp        manipulate header part in MF1
         decelibread.cpp       import a subsection from external ENDF file
+        decememory.cpp        print internal memory usage
         decemisc.cpp          some mathematical functions
         decemod6.cpp          manipulate sections in MF6
         deceoperation.cpp     perform each given operation

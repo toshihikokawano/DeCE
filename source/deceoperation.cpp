@@ -227,6 +227,11 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     Notice("NOTE");
   }
 
+  /*** MEMORYUSAGE: print memory usage */
+  else if(ope == "memoryusage"){
+    DeceMemoryUsage(dict,lib);
+  }
+
   /*** Unknown command */
   else TerminateCode("command not found",ope);
 }

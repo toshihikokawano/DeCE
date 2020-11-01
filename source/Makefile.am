@@ -13,6 +13,7 @@ dece_SOURCES = \
 	deceglobaloption.cpp \
 	deceheader.cpp \
 	decelibread.cpp \
+	decememory.cpp \
 	decemisc.cpp \
 	decemod6.cpp \
 	deceoperation.cpp \

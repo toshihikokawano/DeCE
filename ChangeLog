@@ -1,3 +1,8 @@
+2020-11-01  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decememory.cpp: new file
+	print memory usage for each MF/MT subsection, and total memory
+
 2020-10-29  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* test/decetest.sh (testcase): updated

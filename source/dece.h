@@ -21,7 +21,7 @@ void   DeceOperation    (ENDFDict *, ENDF **, ifstream *);
 
 /*** dececalc.cpp */
 void   DeceCalc         (ENDFDict *, ENDF **, const int, const int, const int, const char);
-void   DeceCalc452      (ENDFDict *dict, ENDF *lib[]);
+void   DeceCalc452      (ENDFDict *, ENDF **);
 
 /*** decedelete.cpp */
 void   DeceDelete       (ENDFDict *, const int, const int);
@@ -94,6 +94,9 @@ void   DeceScanIndex    (ENDFDict *);
 
 /*** deceglobaloption.cpp */
 void   DeceGlobalOption (string, string, string, const double);
+
+/*** decememory.cpp */
+void   DeceMemoryUsage  (ENDFDict *, ENDF **);
 
 /*** deceoutput.cpp */
 void   DeceOutput       (ifstream *, ENDFDict *, ENDF **);
