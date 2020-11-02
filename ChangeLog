@@ -1,5 +1,19 @@
 2020-11-01  KAWANO Toshihiko  <kawano@lanl.gov>
 
+	* source/global.h (class GlobalOption): updated
+	* source/deceglobaloption.cpp (DeceCheckReadRange): new function
+	* source/deceglobaloption.cpp (DeceCheckEditRange): new function
+	new global options, ReadRangeMin/Max, EditRangeMin/Max added
+
+	* source/deceangdist.cpp: updated
+	* source/deceread.cpp: updated
+	* source/deceapplyfunc.cpp (DeceApplyFunc): updated
+	include DeceCheckReadRange and DeceCheckEditRange
+
+	* test/input/input20.dece: new file
+	* test/input/input21.dece: new file
+	test for these new global options
+
 	* source/decememory.cpp: new file
 	print memory usage for each MF/MT subsection, and total memory
 

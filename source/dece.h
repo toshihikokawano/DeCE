@@ -94,6 +94,8 @@ void   DeceScanIndex    (ENDFDict *);
 
 /*** deceglobaloption.cpp */
 void   DeceGlobalOption (string, string, string, const double);
+bool   DeceCheckReadRange (const double);
+bool   DeceCheckEditRange (const double);
 
 /*** decememory.cpp */
 void   DeceMemoryUsage  (ENDFDict *, ENDF **);

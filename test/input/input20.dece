@@ -1,0 +1,15 @@
+echo "read all data points"
+read 3 1  "data/CoHCrossSection.dat"
+extract 3 1
+
+set ReadRangeMin 1e+6
+echo "read again but only above 1 MeV"
+read 3 1  "data/CoHCrossSection.dat"
+extract 3 1
+
+set ReadRangeMax 1e+7
+echo "read again, from 1 to 10 MeV"
+read 3 1  "data/CoHCrossSection.dat"
+extract 3 1
+
+quit

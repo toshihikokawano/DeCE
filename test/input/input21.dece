@@ -1,0 +1,23 @@
+echo "read (n,p) cross section"
+read 3 103 "data/CoHParticleProduction.dat"
+duplicate 3 103 95
+duplicate 3 103 96
+duplicate 3 103 97
+
+echo "apply Fermi function to (n,p), all energy points"
+applyfunc1 3 95 1.0 10.0 1.5
+
+echo "above 5 MeV"
+set EditRangeMin 5e+6
+applyfunc1 3 96 1.0 10.0 1.5
+
+echo "in the energy range 8 -- 12 MeV"
+set EditRangeMin 8e+6
+set EditRangeMax 1.2e+7
+applyfunc1 3 97 1.0 10.0 1.5
+
+table 3 103
+table 3 95
+table 3 96
+table 3 97
+quit

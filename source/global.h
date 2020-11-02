@@ -17,6 +17,10 @@ class GlobalOption{
   double ReadYdataConversion   ;    // conversion factor of cross section
   double WriteXdataConversion  ;    // conversion factor when tabulating energy
   double WriteYdataConversion  ;    // conversion factor when tabulating cross section
+  double ReadRangeMin          ;    // data reading range, low-side
+  double ReadRangeMax          ;    // data reading range, high-side
+  double EditRangeMin          ;    // data modification range, low-side
+  double EditRangeMax          ;    // data modification range, high-side
   string OutPut                ;    // file name table/extract output will be written
 
   GlobalOption(){
@@ -26,6 +30,10 @@ class GlobalOption{
     ReadYdataConversion  =  0.001;  // default in milli-barn
     WriteXdataConversion =  1.0;    // default in eV
     WriteYdataConversion =  1.0;    // default in barn
+    ReadRangeMin         =  0.0;    // default, all data will be read
+    ReadRangeMax         =  0.0;    // default, all data will be read
+    EditRangeMin         =  0.0;    // default, all data will be modified
+    EditRangeMax         =  0.0;    // default, all data will be modified
     OutPut               =  "";     // default output STDOUT
   }
 };

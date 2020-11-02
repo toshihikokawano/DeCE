@@ -200,7 +200,6 @@ class ENDF{
   /*** check if more data can be stored,
        return true if memory allocation failed */
   bool checkSUBBLOCK(void){
-//    cout << "  NB = " << nb << "  rsize = " << rsize << endl;
     if(nb >= rsize-1){
       if(increaseSUBBLOCK() < 0) return true;
     }
@@ -210,8 +209,6 @@ class ENDF{
   /*** check if INT or DBL data need more space,
        return true if memory allocation failed */
   bool checkDataSize(int mi, int mx){
-//    cout << "  NX = " << getNX() << " request " << mx << "  xsize = " << xsize << endl;
-//    cout << "  NI = " << getNI() << " request " << mi << "  isize = " << isize << endl;
     int ni0 = getNI() + mi;
     int nx0 = getNX() + mx;
 
@@ -240,10 +237,6 @@ class ENDF{
 
       /*** clear new pointers, exept i = NB */
       for(int i=nb+1 ; i<rsize ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
-
-//      for(int i=0 ; i<rsize ; i++) cout << i << " " << iptr[i] << endl;
-//      cout << "RSIZE " << rsize << endl;
-//      cout << "TRAP " << iptr[nb] - iptr[0] << endl;
     }
     return rsize;
   }
@@ -258,7 +251,6 @@ class ENDF{
       /*** increase INT buffer size until requested data can be stored */
       while(ni1 < ni0){
         ni1 *= MULT_MEMSIZE;
-//        cout << "NI0 = " << ni0 << "  NI1 = " << ni1 << endl;
       }
       isize = ni1;
       if(isize >= MAX_INTDATA) return -1;
@@ -273,7 +265,6 @@ class ENDF{
       for(int i=1 ; i<=nb ; i++){
         ofset = iptr[i] - base;   // calculate number of elements of idata[i][n]
         iptr[i] = &idata[ofset];  // point idata[i][n]+1
-//        cout << "IDATA " << i <<" " << ofset << " " << idata[ofset] << endl;
       }
     }
     return isize;
@@ -289,7 +280,6 @@ class ENDF{
       /*** increase DBL buffer size until requested data can be stored */
       while(nx1 < nx0){
         nx1 *= MULT_MEMSIZE;
-//        cout << "NX0 = " << nx0 << "  NX1 = " << nx1 << endl;
       }
       xsize = nx1;
       if(xsize >= MAX_DBLDATA) return -1;
@@ -304,7 +294,6 @@ class ENDF{
       for(int i=1 ; i<=nb ; i++){
         ofset = xptr[i] - base;   // calculate number of elements of xdata[i][n]
         xptr[i] = &xdata[ofset];  // point xdata[i][n]+1
-//        cout << "XDATA " << i <<" " << ofset << " " << xdata[ofset] << endl;
       }
     }
     return xsize;

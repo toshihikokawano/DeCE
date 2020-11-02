@@ -254,6 +254,9 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
     /*** convert cross section unit into barns */
     y[nc] *= opt.ReadYdataConversion;
 
+    /*** skip data if range is set by options */
+    if(DeceCheckReadRange(x[nc])) continue;
+
     nc++;
     if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
   }
@@ -311,6 +314,9 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
     x[nc] *= opt.ReadXdataConversion;
     y[nc] *= opt.ReadYdataConversion;
 
+    /*** skip data if range is set by options */
+    if(DeceCheckReadRange(x[nc])) continue;
+
     if( (mt >= 600) || (y[nc] > 0.0) ) nc++;
     if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
   }
@@ -362,6 +368,9 @@ int readNUdata(char *file, int ofset, double *x, double *y)
     if(x[nc] == 0.0) continue;
 
     x[nc] *= opt.ReadXdataConversion;
+
+    /*** skip data if range is set by options */
+    if(DeceCheckReadRange(x[nc])) continue;
 
     nc++;
     if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");

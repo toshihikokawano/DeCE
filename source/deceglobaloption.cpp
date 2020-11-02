@@ -37,6 +37,42 @@ void DeceGlobalOption(string ope, string option, string value, const double x)
 
 
 /**********************************************************/
+/*      Check Data Reading Range                          */
+/**********************************************************/
+bool DeceCheckReadRange(const double x)
+{
+  bool outofrange = false;
+
+  /*** skip data if range is set by options */
+  if(opt.ReadRangeMin > 0.0){
+    if(x < opt.ReadRangeMin) outofrange = true;
+  }
+  if(opt.ReadRangeMax > 0.0){
+    if(x > opt.ReadRangeMax) outofrange = true;
+  }
+  return outofrange;
+}
+
+
+/**********************************************************/
+/*      Check Data Editing Range                          */
+/**********************************************************/
+bool DeceCheckEditRange(const double x)
+{
+  bool outofrange = false;
+
+  /*** skip data if range is set by options */
+  if(opt.EditRangeMin > 0.0){
+    if(x < opt.EditRangeMin) outofrange = true;
+  }
+  if(opt.EditRangeMax > 0.0){
+    if(x > opt.EditRangeMax) outofrange = true;
+  }
+  return outofrange;
+}
+
+
+/**********************************************************/
 /*      global options, set or unset                      */
 /**********************************************************/
 void optionToggle(string ope, string option)
@@ -96,6 +132,10 @@ void optionSet(string ope, string option, const double x)
   else if(option == "ReadYdataConversion")  opt.ReadYdataConversion  = x;
   else if(option == "WriteXdataConversion") opt.WriteXdataConversion = x;
   else if(option == "WriteYdataConversion") opt.WriteYdataConversion = x;
+  else if(option == "ReadRangeMin")         opt.ReadRangeMin         = x;
+  else if(option == "ReadRangeMax")         opt.ReadRangeMax         = x;
+  else if(option == "EditRangeMin")         opt.EditRangeMin         = x;
+  else if(option == "EditRangeMax")         opt.EditRangeMax         = x;
   else if(option == "AngleStep"){
     if((0.0 <= x) && (x < 180.0) ) opt.AngleStep = x;
     else{
@@ -125,7 +165,14 @@ void optionPrint()
   cout << "option: ReadYdataConversion  " << setw(13) << opt.ReadYdataConversion << endl;
   cout << "option: WriteXdataConversion " << setw(13) << opt.WriteXdataConversion << endl;
   cout << "option: WriteYdataConversion " << setw(13) << opt.WriteYdataConversion << endl;
+  cout << "option: ReadRangeMin         " << setw(13) << opt.ReadRangeMin << endl;
+  cout << "option: ReadRangeMax         " << setw(13) << opt.ReadRangeMax << endl;
+  cout << "option: EditRangeMin         " << setw(13) << opt.EditRangeMin << endl;
+  cout << "option: EditRangeMax         " << setw(13) << opt.EditRangeMax << endl;
+
   cout << "option: OutPut               ";
   if(opt.OutPut.length() == 0) cout << setw(13) << "-none-" << endl;
   else                         cout << setw(13) << opt.OutPut << endl;
 }
+
+

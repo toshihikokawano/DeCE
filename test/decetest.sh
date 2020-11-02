@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]; then
     echo 'decetest.sh N'
-    echo '   where N = 1 ... 19'
+    echo '   where N = 1 ... 20'
     exit 1
 fi
 
@@ -121,8 +121,16 @@ elif [ $testcase = "19" ]; then
     echo '# Output redirected to external file'
 
 ###################################################
+elif [ $testcase = "20" ]; then
+    echo '# Set energy range for data reading'
+
+###################################################
+elif [ $testcase = "21" ]; then
+    echo '# Set energy range for data modification by functions'
+
+###################################################
 else
-    echo '# currently testcase shoud be less than 20'
+    echo '# given testcase outside range'
     exit;
 fi
 

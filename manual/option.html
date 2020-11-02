@@ -66,6 +66,37 @@ for the command <tt>table</tt> and <tt>extract</tt>. When <tt> unset OutPut </tt
 DeCE prints data on the screen.</p>
 
 
+<h1> Memory Usage </h1>
+
+<h2><a name="memoryusage">memoryusage (print memory usage table)</a></h2>
+
+<pre id="syn">
+   memoryusage
+</pre>
+
+<p>This command prints a table of used computer memory for each subsection. 
+<b>Allocated</b> is the size of allocated memoy in byte, and <b>Used</b>
+is the memory size actually data are stored.</p>
+
+<pre id="dat">
+  MF  MT   Record                  Integer                 Double                  Total
+           Allocated        Used   Allocated        Used   Allocated        Used   Allocated        Used
+--------------------------------------------------------------------------------------------------------
+   2 151         640         480          40           0       25600       13056       26280       13536
+   3   1         320          64          40           8       25600       19008       25960       19080
+
+...
+
+  33 600         320          96          40           0         800          48        1160         144
+  33 800         320          96          40           0         800          24        1160         120
+--------------------------------------------------------------------------------------------------------
+   Total                                                                             8017520     6352624
+</pre>
+
+<p>For example, MF/MT=3/1 may be in the TAB1 data, where two integral numbers
+represent a set of interpolation ranges. Since the integer buffer contains 
+these two numbers, the used memory is 4 x 2 = 8 bytes.</p>
+
 <hr>
 <a href="header.html">  [BACK] </a>
 <a href="index.html">   [UP]   </a>

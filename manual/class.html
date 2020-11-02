@@ -81,32 +81,33 @@ is defined as follows:</p>
 <pre id="prg">
   class ENDF{
    private:
-     bool      allocated;   // memory allocation flag
-     int       mat    ;     // ENDF MAT number
-     int       mf     ;     // ENDF MF number
-     int       mt     ;     // ENDF MT number
-     Record    head   ;     // Head Record
-     DataSize  size   ;     // ENDF data size
-     int       ctr    ;     // pointer to currently running block
-     int       nb     ;     // pointer to current block
+    bool      allocated;  // memory allocation flag
+    int       mat;        // ENDF MAT number
+    int       mf;         // ENDF MF number
+    int       mt;         // ENDF MT number
+    Record    head;       // Head Record
+    int       isize;      // integer data buffer size
+    int       xsize;      // double data buffer size
+    int       rsize;      // CONT data buffer size
+    int       ctr;        // pointer to currently running block
+    int       nb;         // total number of blocks
    public:
-     int       *idata ;     // integer data
-     double    *xdata ;     // floating point data
-     int      **iptr  ;     // int pointer for the 2-dim array
-     double   **xptr  ;     // double pointer for the 2-dim array
-     Record    *rdata ;     // pointer for 2-dim data CONT
+    int       *idata;     // integer data buffer
+    double    *xdata;     // floating-point (double) data buffer
+    int      **iptr;      // int pointer for the 2-dim array
+    double   **xptr;      // double pointer for the 2-dim array
+    Record    *rdata;     // CONT data buffer
   };
 </pre>
 
 <p>The MAT/MF/MT triplet, which is an ID of this section, is kept in
-private. The HEAD record is also private. The DataSize is the size of
-this object specified by S, M, or L.  In the current implementation in
-DeCE, albeit memory access is dynamical, the object memory size is
-determined when instanced, hence not able to change.  To save the
-memory, the object will be categorized into three depending on a
-memory demand. For instance, the resonance parametres need a lot of
-memory, which categolized into L, while the nuclear decay data could
-be limited to the S size.</p>
+private. The HEAD record is also private. DeCe allocate three buffers,
+rdata for Rerord data, idata for integer data, and xdata for
+floating-point (double) data. DeCE allocates small size memory for
+these buffers when an object is instanced. Then the memory size will
+be increased automatically as needed. In case one of these buffers
+reaches the maximum size, which is defined in endflib.h, code will be
+terminated.</p>
 
 
 <p>The two integers, <tt>NB</tt> and <tt>CTR</tt>, are hidden
@@ -205,22 +206,23 @@ new section is created.</p>
 <pre id="prg">
   class ENDFDict{
    private:
-    int       mat     ;     // ENDF MAT number
-    int       sec     ;     // number of sections
-    Record    head    ;     // Tape HEAD Record
-    Record    cont[3] ;     // CONT Records
-    char      *cbuf   ;     // buffer for TEXT lines and TPID
+    int       mat;          // ENDF MAT number
+    int       sec;          // number of sections
+    Record    head;         // Tape HEAD Record
+    Record    cont[3];      // CONT Records
+    char      *cbuf;        // buffer for TEXT lines and TPID
+    bool      stdheader;    // flag for standard header
    public:
-    int       *mf     ;     // ENDF MF number
-    int       *mt     ;     // ENDF MT number
-    int       *nc     ;     // Line count
-    int       *mod    ;     // MOD number
-    int       *id     ;     // ID for ENDF data on memory
-    char     *tpid    ;     // Tape ID 
-    Record   *text]5] ;     // text data field
-    double    emaxRR  ;     // energy boundary of resolved resonance region
-    double    emaxUR  ;     // energy boundary of unresolved resonance region
-    double    emaxRe  ;     // either emaxRR or emaxUR depending on LSSF flag
+    int       *mf;          // ENDF MF number
+    int       *mt;          // ENDF MT number
+    int       *nc;          // Line count
+    int       *mod;         // MOD number
+    int       *id;          // ID for ENDF data on memory
+    char     *tpid;         // Tape ID 
+    Record   *text]5];      // text data field
+    double    emaxRR;       // energy boundary of resolved resonance region
+    double    emaxUR;       // energy boundary of unresolved resonance region
+    double    emaxRe;       // either emaxRR or emaxUR depending on LSSF flag
   };
 </pre>
 
