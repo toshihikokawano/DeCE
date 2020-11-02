@@ -2,6 +2,7 @@ bin_PROGRAMS = dece
 dece_SOURCES = \
 	command.cpp \
 	coupling.cpp \
+	coulomb.cpp \
 	dece.cpp \
 	deceangdist.cpp \
 	deceapplyfunc.cpp \
@@ -61,6 +62,7 @@ dece_SOURCES = \
 	command.h \
 	constant.h \
 	coupling.h \
+	coulomb.h \
 	dece.h \
 	decemisc.h \
 	decetable.h \

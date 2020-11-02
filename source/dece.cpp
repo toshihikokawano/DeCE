@@ -33,7 +33,7 @@ static void DeceHelp          (void);
 static void DeceFreeMemory    (void);
 static void DeceBanner        (void);
 
-#undef PeekObject
+#undef PeekObject // for debugging
 
 /**********************************************************/
 /*      Global Parameters                                 */

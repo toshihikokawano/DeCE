@@ -99,18 +99,19 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) dece.$(OBJEXT) \
-	deceangdist.$(OBJEXT) deceapplyfunc.$(OBJEXT) \
-	dececalc.$(OBJEXT) decechangeint.$(OBJEXT) \
-	decedelete.$(OBJEXT) deceextract.$(OBJEXT) \
-	decefactor.$(OBJEXT) deceglobaloption.$(OBJEXT) \
-	deceheader.$(OBJEXT) decelibread.$(OBJEXT) \
-	decememory.$(OBJEXT) decemisc.$(OBJEXT) decemod6.$(OBJEXT) \
-	deceoperation.$(OBJEXT) deceoutput.$(OBJEXT) \
-	decepoint.$(OBJEXT) deceprocgroup.$(OBJEXT) \
-	deceprocpointwise.$(OBJEXT) deceread.$(OBJEXT) \
-	decereadjust.$(OBJEXT) decescanindex.$(OBJEXT) \
-	decetable.$(OBJEXT) decetable1.$(OBJEXT) decetable10.$(OBJEXT) \
+am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) \
+	coulomb.$(OBJEXT) dece.$(OBJEXT) deceangdist.$(OBJEXT) \
+	deceapplyfunc.$(OBJEXT) dececalc.$(OBJEXT) \
+	decechangeint.$(OBJEXT) decedelete.$(OBJEXT) \
+	deceextract.$(OBJEXT) decefactor.$(OBJEXT) \
+	deceglobaloption.$(OBJEXT) deceheader.$(OBJEXT) \
+	decelibread.$(OBJEXT) decememory.$(OBJEXT) decemisc.$(OBJEXT) \
+	decemod6.$(OBJEXT) deceoperation.$(OBJEXT) \
+	deceoutput.$(OBJEXT) decepoint.$(OBJEXT) \
+	deceprocgroup.$(OBJEXT) deceprocpointwise.$(OBJEXT) \
+	deceread.$(OBJEXT) decereadjust.$(OBJEXT) \
+	decescanindex.$(OBJEXT) decetable.$(OBJEXT) \
+	decetable1.$(OBJEXT) decetable10.$(OBJEXT) \
 	decetable12.$(OBJEXT) decetable13.$(OBJEXT) \
 	decetable14.$(OBJEXT) decetable15.$(OBJEXT) \
 	decetable2.$(OBJEXT) decetable3.$(OBJEXT) \
@@ -140,35 +141,36 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coupling.Po \
-	./$(DEPDIR)/dece.Po ./$(DEPDIR)/deceangdist.Po \
-	./$(DEPDIR)/deceapplyfunc.Po ./$(DEPDIR)/dececalc.Po \
-	./$(DEPDIR)/decechangeint.Po ./$(DEPDIR)/decedelete.Po \
-	./$(DEPDIR)/deceextract.Po ./$(DEPDIR)/decefactor.Po \
-	./$(DEPDIR)/deceglobaloption.Po ./$(DEPDIR)/deceheader.Po \
-	./$(DEPDIR)/decelibread.Po ./$(DEPDIR)/decememory.Po \
-	./$(DEPDIR)/decemisc.Po ./$(DEPDIR)/decemod6.Po \
-	./$(DEPDIR)/deceoperation.Po ./$(DEPDIR)/deceoutput.Po \
-	./$(DEPDIR)/decepoint.Po ./$(DEPDIR)/deceprocgroup.Po \
-	./$(DEPDIR)/deceprocpointwise.Po ./$(DEPDIR)/deceqvalue.Po \
-	./$(DEPDIR)/deceread.Po ./$(DEPDIR)/decereadjust.Po \
-	./$(DEPDIR)/decescanindex.Po ./$(DEPDIR)/decetable.Po \
-	./$(DEPDIR)/decetable1.Po ./$(DEPDIR)/decetable10.Po \
-	./$(DEPDIR)/decetable12.Po ./$(DEPDIR)/decetable13.Po \
-	./$(DEPDIR)/decetable14.Po ./$(DEPDIR)/decetable15.Po \
-	./$(DEPDIR)/decetable2.Po ./$(DEPDIR)/decetable3.Po \
-	./$(DEPDIR)/decetable32.Po ./$(DEPDIR)/decetable33.Po \
-	./$(DEPDIR)/decetable34.Po ./$(DEPDIR)/decetable35.Po \
-	./$(DEPDIR)/decetable4.Po ./$(DEPDIR)/decetable5.Po \
-	./$(DEPDIR)/decetable6.Po ./$(DEPDIR)/decetable8.Po \
-	./$(DEPDIR)/decetable9.Po ./$(DEPDIR)/endfio.Po \
-	./$(DEPDIR)/endflib.Po ./$(DEPDIR)/gfr.Po \
-	./$(DEPDIR)/gfrcross.Po ./$(DEPDIR)/gfrcs1.Po \
-	./$(DEPDIR)/gfrcs3.Po ./$(DEPDIR)/gfrcs7.Po \
-	./$(DEPDIR)/gfrcsurr.Po ./$(DEPDIR)/gfrenergy.Po \
-	./$(DEPDIR)/gfrformula.Po ./$(DEPDIR)/gfrlegcoef.Po \
-	./$(DEPDIR)/masstable.Po ./$(DEPDIR)/matrix.Po \
-	./$(DEPDIR)/polycalc.Po ./$(DEPDIR)/polysq.Po
+am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coulomb.Po \
+	./$(DEPDIR)/coupling.Po ./$(DEPDIR)/dece.Po \
+	./$(DEPDIR)/deceangdist.Po ./$(DEPDIR)/deceapplyfunc.Po \
+	./$(DEPDIR)/dececalc.Po ./$(DEPDIR)/decechangeint.Po \
+	./$(DEPDIR)/decedelete.Po ./$(DEPDIR)/deceextract.Po \
+	./$(DEPDIR)/decefactor.Po ./$(DEPDIR)/deceglobaloption.Po \
+	./$(DEPDIR)/deceheader.Po ./$(DEPDIR)/decelibread.Po \
+	./$(DEPDIR)/decememory.Po ./$(DEPDIR)/decemisc.Po \
+	./$(DEPDIR)/decemod6.Po ./$(DEPDIR)/deceoperation.Po \
+	./$(DEPDIR)/deceoutput.Po ./$(DEPDIR)/decepoint.Po \
+	./$(DEPDIR)/deceprocgroup.Po ./$(DEPDIR)/deceprocpointwise.Po \
+	./$(DEPDIR)/deceqvalue.Po ./$(DEPDIR)/deceread.Po \
+	./$(DEPDIR)/decereadjust.Po ./$(DEPDIR)/decescanindex.Po \
+	./$(DEPDIR)/decetable.Po ./$(DEPDIR)/decetable1.Po \
+	./$(DEPDIR)/decetable10.Po ./$(DEPDIR)/decetable12.Po \
+	./$(DEPDIR)/decetable13.Po ./$(DEPDIR)/decetable14.Po \
+	./$(DEPDIR)/decetable15.Po ./$(DEPDIR)/decetable2.Po \
+	./$(DEPDIR)/decetable3.Po ./$(DEPDIR)/decetable32.Po \
+	./$(DEPDIR)/decetable33.Po ./$(DEPDIR)/decetable34.Po \
+	./$(DEPDIR)/decetable35.Po ./$(DEPDIR)/decetable4.Po \
+	./$(DEPDIR)/decetable5.Po ./$(DEPDIR)/decetable6.Po \
+	./$(DEPDIR)/decetable8.Po ./$(DEPDIR)/decetable9.Po \
+	./$(DEPDIR)/endfio.Po ./$(DEPDIR)/endflib.Po \
+	./$(DEPDIR)/gfr.Po ./$(DEPDIR)/gfrcross.Po \
+	./$(DEPDIR)/gfrcs1.Po ./$(DEPDIR)/gfrcs3.Po \
+	./$(DEPDIR)/gfrcs7.Po ./$(DEPDIR)/gfrcsurr.Po \
+	./$(DEPDIR)/gfrenergy.Po ./$(DEPDIR)/gfrformula.Po \
+	./$(DEPDIR)/gfrlegcoef.Po ./$(DEPDIR)/masstable.Po \
+	./$(DEPDIR)/matrix.Po ./$(DEPDIR)/polycalc.Po \
+	./$(DEPDIR)/polysq.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -317,6 +319,7 @@ top_srcdir = @top_srcdir@
 dece_SOURCES = \
 	command.cpp \
 	coupling.cpp \
+	coulomb.cpp \
 	dece.cpp \
 	deceangdist.cpp \
 	deceapplyfunc.cpp \
@@ -376,6 +379,7 @@ dece_SOURCES = \
 	command.h \
 	constant.h \
 	coupling.h \
+	coulomb.h \
 	dece.h \
 	decemisc.h \
 	decetable.h \
@@ -482,6 +486,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coulomb.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coupling.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dece.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceangdist.Po@am__quote@ # am--include-marker
@@ -688,6 +693,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/command.Po
+	-rm -f ./$(DEPDIR)/coulomb.Po
 	-rm -f ./$(DEPDIR)/coupling.Po
 	-rm -f ./$(DEPDIR)/dece.Po
 	-rm -f ./$(DEPDIR)/deceangdist.Po
@@ -791,6 +797,7 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/command.Po
+	-rm -f ./$(DEPDIR)/coulomb.Po
 	-rm -f ./$(DEPDIR)/coupling.Po
 	-rm -f ./$(DEPDIR)/dece.Po
 	-rm -f ./$(DEPDIR)/deceangdist.Po

@@ -123,6 +123,8 @@ Files:
         coupling.cpp
         matrix.h              matrix inversion
         matrix.cpp
+        coulomb.h             Coulomb function
+        coulimb.cpp
 
       [Mass Table]
         masstable.h
