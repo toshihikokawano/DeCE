@@ -1,3 +1,13 @@
+2020-11-09  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/coulomb.h: new file
+	* source/coulomb.cpp: new file
+	* source/gfr.cpp (gfrPrintCrossSection): updated
+	* source/gfr.h (class GFRcross): new class
+	* source/gfrcs7.cpp: updated
+	charged particle channels added to LRF=7, R-matrix limited
+	Coulomb function source code incorporated
+
 2020-11-01  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/global.h (class GlobalOption): updated
