@@ -18,6 +18,8 @@ const int MAX_RESONANCE = 5000;
 const int NRANGE        =   10;
 const int LMAX          =    5;
 const int MAX_PAIRS     =   10;
+const int MAX_XSEC      =  100;
+
 
 /**************************************/
 /*      Class Resonance               */
@@ -157,7 +159,7 @@ class RMLParameter{
       delete [] rade;
       delete [] radt;
       delete [] er;
-      for(int i=0 ; i<nres ; i++) delete [] gam[i];
+      for(int i=0 ; i<nch ; i++) delete [] gam[i];
       delete [] gam;
 
       allocated = false;
@@ -174,8 +176,8 @@ class RMLParameter{
       rade   = new double [n];
       radt   = new double [n];
       er     = new double [m];
-      gam    = new double * [m];
-      for(int i=0 ; i<nres ; i++) gam[i] = new double [n];
+      gam    = new double * [n];
+      for(int i=0 ; i<nch ; i++) gam[i] = new double [m];
 
       allocated = true;
     }
@@ -192,6 +194,7 @@ class System{
   unsigned int target_Z    ;
   int    target_spin2      ; /* target spin x 2 */
   int    target_parity     ; /* target parity */
+  int    incident_spin2    ; /* incident particle spin x 2 */
   double reduced_mass      ; /* reduced mass */
   double radius            ; /* channel_radius [fm] */
   double ecms              ; /* C.M.S. energy */
@@ -223,6 +226,7 @@ class System{
     target_Z     = 0;
     target_spin2 = 0;
     target_parity= 0;
+    incident_spin2 = 0;
     reduced_mass = 0.0;
     radius       = 0.0;
     ecms         = 0.0;
@@ -269,23 +273,142 @@ class System{
 /**************************************/
 class Wfunc{
  public:
-  complex<double> d      ;
-  complex<double> phase  ;
-  complex<double> phase2 ;
+  complex<double> d;       // penetrability, (G'+iF')/(G+iF)
+  complex<double> phase;   // hard-sphare phase
+  complex<double> phase2;  // 2 x phase
+  complex<double> phaseC;  // Coulomb phase
 };
 
 
 /**************************************/
-/*      Class Point Cross Sections    */
+/*      Resonance Cross Sections      */
+/**************************************/
+class GFRcross{
+ private:
+  int    nch;       // number of reaction channels
+  bool   allocated; // memory allocation flag
+ public:
+  double energy;    // LAB energy
+  int    *type;     // reaction type ( = MT number )
+  double *xsec;     // cross section
+
+  GFRcross(){
+    nch = 0;
+    energy = 0.0;
+    allocated = false;
+  }
+
+  GFRcross(const int n){
+    nch = n;
+    if(nch > MAX_XSEC) nch = MAX_XSEC;
+    energy = 0.0;
+    allocated = false;
+    memalloc(nch);
+    clear();
+  }
+
+  ~GFRcross(){
+    memfree();
+  }
+
+  void memalloc(const int n){
+    if(!allocated){
+      nch = n;
+      type = new int [n];
+      xsec = new double [n];
+      allocated = true;
+    }
+  }
+
+  void memfree(){
+    if(allocated){
+      delete [] type;
+      delete [] xsec;
+      allocated = false;
+    }
+  }
+
+  void clear(){
+    if(allocated){
+      for(int i=0 ; i<nch ; i++) xsec[i] = 0.0;
+    }
+  }
+
+  void set(const int t, const double d){
+    for(int i=0 ; i<nch ; i++){
+      if(type[i] == t) xsec[i] = d;
+    }
+  }
+
+  void add(const int t, const double d){
+    for(int i=0 ; i<nch ; i++){
+      if(type[i] == t) xsec[i] += d;
+    }
+  }
+
+  double get(const int t){
+    double d = 0.0;
+    for(int i=0 ; i<nch ; i++){
+      if(type[i] == t){ d = xsec[i]; break; }
+    }
+    return d;
+  }
+
+  int getNch(){ return nch; }
+
+  double total(){
+    double total = 0.0;
+    for(int i=0 ; i<nch ; i++) total += xsec[i];
+    return total;
+  }
+
+  GFRcross operator+(GFRcross x){
+    int nx = x.getNch();
+    GFRcross y;
+    if(nx == nch){
+      y.memalloc(nx);
+      for(int i=0 ; i<nch ; i++){
+        y.type[i] = type[i];
+        if(type[i] == 0) continue;
+        for(int j=0 ; j<nx ; j++){
+          if(type[i] == x.type[j]){ y.xsec[i] = xsec[i] + x.xsec[j]; break; }
+        }
+      }
+    }
+    return y;
+  }
+
+  GFRcross operator-(GFRcross x){
+    int nx = x.getNch();
+    GFRcross y;
+    if(nx == nch){
+      y.memalloc(nx);
+      for(int i=0 ; i<nch ; i++){
+        y.type[i] = type[i];
+        if(type[i] == 0) continue;
+        for(int j=0 ; j<nx ; j++){
+          if(type[i] == x.type[j]){ y.xsec[i] = xsec[i] - x.xsec[j]; break; }
+        }
+      }
+    }
+    return y;
+  }
+};
+
+
+/**************************************/
+/*      One Point Cross Sections      */
 /**************************************/
 class Pcross{
  public:
-  double energy   ;
-  double total    ;
-  double elastic  ;
-  double capture  ;
-  double fission  ;
-  double other    ;
+  double energy;
+  double total;
+  double elastic;
+  double capture;
+  double fission;
+  double proton;
+  double alpha;
+  double other;
 
   Pcross(){
     clear();
@@ -297,11 +420,13 @@ class Pcross{
     elastic  = 0.0;
     capture  = 0.0;
     fission  = 0.0;
+    proton   = 0.0;
+    alpha    = 0.0;
     other    = 0.0;
   }
 
   void setTotal(){
-    total = elastic + capture + fission + other;
+    total = elastic + capture + fission + proton + alpha + other;
   }
 
   Pcross operator+(Pcross x){
@@ -310,6 +435,8 @@ class Pcross{
     y.elastic = elastic + x.elastic;
     y.capture = capture + x.capture;
     y.fission = fission + x.fission;
+    y.proton  = proton  + x.proton;
+    y.alpha   = alpha   + x.alpha;
     y.other   = other   + y.other;
     return y;
   }
@@ -320,6 +447,8 @@ class Pcross{
     y.elastic = elastic - x.elastic;
     y.capture = capture - x.capture;
     y.fission = fission - x.fission;
+    y.proton  = proton  - x.proton;
+    y.alpha   = alpha   - x.alpha;
     y.other   = other   - y.other;
     return y;
   }
@@ -444,6 +573,7 @@ Pcross  gfrCrossSection           (const int, const double, System *, ENDF *);
 void    gfrSetEnergy              (const double, System *);
 double  gfrPenetrability          (const int, const double, Wfunc *);
 complex<double> gfrLfunction      (const int, const double, const double, const double);
+complex<double> gfrLfunctionCoul  (const int, const double, const double, const double, const double);
 
 
 /**************************************/
@@ -461,7 +591,7 @@ Pcross  gfrCrossSection3          (const int, const double, System *, ENDF *);
 /**************************************/
 /*      gfrcs7.cpp                    */
 /**************************************/
-Pcross  gfrCrossSection7          (const int, const double, System *, ENDF *);
+Pcross  gfrCrossSection7         (const int, const double, System *, ENDF *);
 
 
 /**************************************/

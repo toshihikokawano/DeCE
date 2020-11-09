@@ -12,26 +12,33 @@ using namespace std;
 
 #include "endflib.h"
 #include "gfr.h"
+#include "coulomb.h"
 #include "constant.h"
 #include "matrix.h"
 
-static int    gfrLoadParticlePairs (int, System *, ParPair *, ENDF *);
-static int    gfrLoadRMLParameters (int, System *, RMLParameter *, ENDF *);
-static Pcross gfrRMatrixLimited    (const int, double, System *, ParPair *, RMLParameter *);
-static int    arrange_matrixRML    (int, int, int *, int *, double **, Wfunc *, double *, ParPair *, RMLParameter *);
+static int gfrLoadParticlePairs (int, System *, ParPair *, ENDF *);
+static int gfrLoadRMLParameters (int, System *, RMLParameter *, ENDF *);
+static void gfrRMatrixLimited (const double, System *, ParPair *, RMLParameter *);
+static void gfrStoreRMLPenetrability (System *, ParPair *, RMLParameter *);
+static int arrange_matrixRML (const int, double **, Wfunc *, ParPair *, RMLParameter *);
 
 extern Smatrix Smat;
+
+static complex<double> *rm, *sm, *wm, *phi0, *phiC;
+static double *gm, **pen;
+static Wfunc *wf;
+static int *mtid, *dptr, msize = 0;
+static GFRcross sig;
+
+#undef DEBUG
 
 /**********************************************************/
 /*      Pointwise Cross Section in Resonance Range        */
 /**********************************************************/
 Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib)
 {
-  Pcross sig;
   RMLParameter *res;
-  ParPair      *ppr;
-
-  gfrSetEnergy(elab, sys);
+  ParPair *ppr;
 
   /*** two particle pair data */
   ppr = new ParPair [MAX_PAIRS];
@@ -41,196 +48,323 @@ Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib
   res = new RMLParameter [sys->nj];
   gfrLoadRMLParameters(sys->idx[ner],sys,res,lib);
 
-  /*** look for max L and Nch */
-  int lmax = 0, cmax = 0;
-  for(int j=0 ; j<sys->nj ; j++){
+  /*** look for max number of channels for matrix size N(N+1)/2 */
+  int chmax = 0;
+  for(int j=0 ; j<sys->nj ; j++) if(chmax < res[j].nch) chmax = res[j].nch;
 
-    if(cmax < res[j].nch) cmax = res[j].nch;
+  /*** memory allocation */
+  msize = chmax * (chmax+1) / 2;
 
-    /*** find neutron channel for this spin group */
-    for(int c=0 ; c<res[j].nch ; c++){
-      if(ppr[res[j].pidx[c]].mt == 2){
-        if(lmax < res[j].l[c]) lmax = res[j].l[c];
-      }
-    }
+  wf = new Wfunc [chmax];
+  rm = new complex<double> [msize];   // R-matrix
+  sm = new complex<double> [msize];   // S-matrix
+  wm = new complex<double> [msize];   // W = I +2i X
+  gm = new double [msize];            // Gammas
+  mtid = new int [chmax];             // MT numbers for each channel
+  dptr = new int [chmax];             // pointer to the ENDF data row
+  pen = new double * [chmax];         // penetrability [c x Nres]
+  for(int i=0 ; i<chmax ; i++){
+    pen[i] = new double [MAX_RESONANCE];
   }
-  sys->nl = lmax+1;
+  phi0 = new complex<double> [chmax]; // hard-sphare phase factor
+  phiC = new complex<double> [chmax]; // Coulomb phase factor
 
   /*** calculate cross section */
-  sig = gfrRMatrixLimited(cmax,elab,sys,ppr,res);
+  sig.memalloc(sys->npair);
+  gfrRMatrixLimited(elab,sys,ppr,res);
 
+  Pcross s;
+
+  s.energy  = elab;
+  s.total   = sig.total();
+  s.elastic = sig.get(2);
+  s.capture = sig.get(102);
+  s.fission = sig.get(18);
+
+  /*** sum partial proton and alpha cross sections if given */
+  s.proton = 0.0;
+  if(sig.get(103) > 0.0) s.proton = sig.get(103);
+  else if(sig.get(600) > 0.0){
+    for(int m = 600 ; m<=649 ; m++) s.proton += sig.get(m);
+  }
+
+  s.alpha = 0.0;
+  if(sig.get(107) > 0.0) s.alpha = sig.get(107);
+  else if(sig.get(800) > 0.0){
+    for(int m = 800 ; m<=849 ; m++) s.alpha +=  sig.get(m);
+  }
+
+  sig.memfree();
 
   delete [] ppr;
   delete [] res;
 
-  return(sig);
+  delete [] wf;
+  delete [] rm;
+  delete [] sm;
+  delete [] wm;
+  delete [] gm;
+  delete [] mtid;
+  delete [] dptr;
+  for(int i=0 ; i<chmax ; i++){
+    delete [] pen[i];
+  }
+  delete [] pen;
+  delete [] phi0;
+  delete [] phiC;
+
+  return(s);
 }
 
 
-
-Pcross gfrRMatrixLimited(const int cmax, double e, System *sys, ParPair *ppr, RMLParameter *res)
+/**********************************************************/
+/*      Main Calculatioin of RML Formula                  */
+/**********************************************************/
+void gfrRMatrixLimited(const double elab, System *sys, ParPair *ppr, RMLParameter *res)
 {
-  const int max_elastic_channel = 2;
+  GFRcross z(sys->npair);
+  int nch, mch, cpt;
 
-  Pcross sig,z;
-  complex<double> *rmat, *smat, *wmat;
-  Wfunc  wf[max_elastic_channel];
-  int    nch, mch, cpt, *mtid, elidx[max_elastic_channel];
-  double *gmat, *pen[max_elastic_channel];
+  /*** elastic channel as the incoming-particle channel */
+  for(int p=0 ; p<sys->npair ; p++){
+    if(ppr[p].mt == 2){
+      /*** incident and target spins */
+      sys->incident_spin2 = ppr[p].spin2[0];
+      sys->target_spin2   = ppr[p].spin2[1];
+      sys->target_parity  = ppr[p].parity[1];
 
-  const int msize = cmax * (cmax+1) / 2;
-  rmat = new complex<double> [msize];
-  smat = new complex<double> [msize];
-  wmat = new complex<double> [msize];
-  gmat = new double [msize];
-  mtid = new int [msize];
-  for(int i=0 ; i<max_elastic_channel ; i++){
-    pen[i] = new double [MAX_RESONANCE];
+      /*** reduced mass and CMS energy */
+      sys->reduced_mass   =  ppr[p].mass[0] * ppr[p].mass[1] 
+                          / (ppr[p].mass[0] + ppr[p].mass[1]);
+      sys->ecms = elab * sys->reduced_mass;
+      sys->wave_number = sqrt(sys->reduced_mass) * gcKfactor * sqrt(sys->ecms * 1.0e-06);
+      break;
+    }
   }
 
-  double x1 = PI/(sys->wave_number*sys->wave_number) * 0.01 / ((sys->target_spin2+1)*2);
+  /*** set reaction type in GFRcross class */
+  for(int p=0 ; p<sys->npair ; p++) sig.type[p] = z.type[p] = ppr[p].mt;
+
+  /*** kinematic factor */
+  double x1 = PI / (sys->wave_number*sys->wave_number) * 0.01
+                 / ((sys->target_spin2 + 1.0) * (sys->incident_spin2 + 1.0));
 
   /*** for all spin groups */
   Smat.resetIndex();
   for(int j=0 ; j<sys->nj ; j++){
 
-    double x3 = (res[j].j2 + 1.0)*x1;
+    /*** (2J+1) g Pi/k^2 */
+    double x3 = (res[j].j2 + 1.0) * x1;
 
-    /*** look for elastic channels */
-    int nel = 0;
-    for(int c=0 ; c<res[j].nch ; c++) if( ppr[res[j].pidx[c]].mt == 2 ) elidx[nel++] = c;
-
-    /*** incident channel radius and hard-sphere phase */
-    for(int i=0 ; i<nel ; i++){
-      int    l   = res[j].l[elidx[i]];
-      double apt = res[j].radt[elidx[i]];
-      double phi = gfrPenetrability(l,sys->wave_number*apt,&wf[i]);
-      wf[i].phase  = complex<double>(cos(  phi), -sin(  phi));
-
-      /*** penetrability at the resonance energy, calculate L(Er) = S(Er) + iP(Er) */
-      if(sys->gammaunit_flag == 0){
-        for(int k=0 ; k<res[j].nres ; k++){
-          complex<double> q = gfrLfunction(l,res[j].er[k],sys->reduced_mass,apt);
-          pen[i][k] = q.imag();
-        }
-      }
-    }
+    /*** channel radius and hard-sphere phase */
+    gfrStoreRMLPenetrability(sys,ppr,&res[j]);
 
     /*** R-matrix elements */
-    mch = 0; nch = 0, cpt = 0;
-    for(int i=0 ; i<msize ; i++) smat[i] = rmat[i] = wmat[i] = complex<double>(0.0,0.0);
+    mch = 0; nch = 0; cpt = 0;
+    for(int i=0 ; i<msize ; i++) sm[i] = rm[i] = wm[i] = complex<double>(0.0,0.0);
     for(int k=0 ; k<res[j].nres ; k++){
-      nch = arrange_matrixRML(k,nel,elidx,mtid,pen,wf,gmat,ppr,&res[j]);
-      mch = (nch-1)*nch / 2;     // capture eliminated
-      cpt = (nch+1)*nch / 2 - 1; // index of capture width, Gamma_g
+
+      /*** store width parameters in the matrix */
+      nch = arrange_matrixRML(k,pen,wf,ppr,&res[j]);
+      mch = nch - 1;                 // capture eliminated total channels
+      cpt = (nch + 1) * nch / 2 - 1; // index of capture width, Gamma_g
 
       /*** capture width found at the last element */
-      complex<double> w(res[j].er[k]-e, -gmat[cpt]/2.0);
+      complex<double> w(res[j].er[k] - elab, -gm[cpt]/2.0);
       w = 1.0 / w;
-      for(int i=0 ; i<mch ; i++) rmat[i] += gmat[i]*w;
+      for(int i=0 ; i<mch*(mch+1)/2 ; i++) rm[i] += gm[i] * w; // R-matrix
     }
 
-    for(int i=0 ; i<mch ; i++){
-      wmat[i] = complex<double>(imag(rmat[i])/2.0,-real(rmat[i])/2.0);
+    /*** W = delta - i/2 R = I - K */
+    for(int i=0 ; i<mch*(mch+1)/2 ; i++){
+      wm[i] = complex<double>(imag(rm[i])/2.0,-real(rm[i])/2.0);
     }
-    for(int i=0 ; i<nch-1 ; i++) wmat[(i+2)*(i+1)/2-1] += 1.0;
+    for(int i=0 ; i<mch ; i++) wm[(i+2)*(i+1)/2-1] += 1.0;
 
-    MatrixInverse(nch-1,wmat);
+    /*** (I - K)^{-1} */
+    MatrixInverse(mch,wm);
 
-    /*** S-matrix elements */
-    complex<double> ph0(0.0,0.0), ph1(0.0,0.0), pzero(0.0,0.0);
+    /*** S-matrix elements = exp^{-(pc + pc')} [2 (I-K)^{-1} - delta(cc')] */
     for(int i0=0 ; i0<mch ; i0++){
-      ph0 = (i0 < nel) ? wf[i0].phase : pzero;
-
+      complex<double> p0 = phi0[i0] * phiC[i0];
+      
       for(int i1=0 ; i1<=i0 ; i1++){
-        ph1 = (i1 < nel) ? wf[i1].phase : pzero;
+        complex<double> p1 = phi0[i1] * phiC[i1];
 
         int ij = i0*(i0+1)/2 + i1;
-        if(i0 == i1) smat[ij] = ph0 * ph1 * (2.0*wmat[ij]-1.0);
-        else         smat[ij] = ph0 * ph1 * 2.0*wmat[ij];
+        if(i0 == i1) sm[ij] = p0 * p1 * (2.0*wm[ij] - 1.0);
+        else         sm[ij] = p0 * p1 *  2.0*wm[ij];
       }
     }
 
     /*** cross section */
     z.clear();
+    double sigtot = 0.0;
+
+    /*** elastic scattering case */
     for(int i0=0 ; i0<mch ; i0++){
-
-      if(i0 < nel){
+      if(mtid[i0] == 2){
         int ij = (i0+2)*(i0+1)/2 - 1;
-        z.total   += (1.0 - real(smat[ij]))*2.0;
-        z.elastic += (1.0-real(smat[ij]))*(1.0-real(smat[ij])) + imag(smat[ij])*imag(smat[ij]);
-      }
+        z.add(mtid[i0],norm(phiC[i0] - sm[ij]));
+        /*** for neutron, total cross section is defined */
+        if(phiC[i0].imag() == 0.0) sigtot += (1.0 - real(sm[ij]))*2.0;
+      } 
+    }
 
-      else{
-        for(int i1=0 ; i1<nch ; i1++){
-          int ij = i0*(i0+1)/2 + i1;
-          double cx = real(smat[ij])*real(smat[ij]) + imag(smat[ij])*imag(smat[ij]);
+    /*** all other channels */
+    for(int i0=0 ; i0<mch ; i0++){    if(mtid[i0] != 2) continue;  // incoming channel = elastic
+      for(int i1=0 ; i1<mch ; i1++){  if(mtid[i1] == 2) continue;  // outgoing channel = other
 
-          if(mtid[i0] == 18) z.fission += cx;
-          else               z.other   += cx;
-        }
+        int ij = i1*(i1+1)/2 + i0;
+        double cx = real(sm[ij])*real(sm[ij]) + imag(sm[ij])*imag(sm[ij]);
+        z.add(mtid[i1],cx);
       }
     }
 
-    z.capture  = z.total - z.elastic - z.fission - z.other;
+    /*** calculate eliminated capture cross section */
+    double x = 0.0;
+    for(int i0 = 0 ; i0<mch ; i0++){
+      if(mtid[i0] != 1) x += z.get(mtid[i0]); // skip total cross section
+    }
+    z.set(102, sigtot - x);
 
-    sig.total    += x3*z.total;
-    sig.elastic  += x3*z.elastic;
-    sig.capture  += x3*z.capture;
-    sig.fission  += x3*z.fission;
+    for(int i0 = 0 ; i0<nch ; i0++){
+      sig.add(mtid[i0], x3 * z.get(mtid[i0]));
+    }
 
     /*** copy S-matrix elements for elastic */
-    for(int i=0 ; i<nel ; i++){
-
-      int ss = (int)abs(res[j].s2[elidx[i]]) - sys->target_spin2;
-
-      Smat.setElement(res[j].l[elidx[i]], res[j].j2, ss, smat[(i+2)*(i+1)/2-1]);
-      Smat.inclIndex();
+    for(int i=0 ; i<mch ; i++){
+      if(mtid[i] == 2){
+        int ss = (int)abs(res[j].s2[dptr[i]]) - sys->target_spin2;
+        Smat.setElement(res[j].l[dptr[i]], res[j].j2, ss, sm[(i+2)*(i+1)/2-1]);
+        Smat.inclIndex();
+      }
     }
-  }
-  
-  delete [] rmat;
-  delete [] smat;
-  delete [] wmat;
-  delete [] gmat;
-  delete [] mtid;
-  for(int i=0 ; i<max_elastic_channel ; i++){
-    delete [] pen[i];
-  }
-
-  return(sig);
+   }
 }
 
+
+/**********************************************************/
+/*      Calculate Phase Shift and Penetrability at Res.   */
+/**********************************************************/
+void gfrStoreRMLPenetrability(System *sys, ParPair *ppr, RMLParameter *res)
+{
+  /*** set default penetration factor */
+  for(int c=0 ; c<res->nch ; c++){
+    for(int k=0 ; k<res->nres ; k++) pen[c][k] = 1.0;
+  }
+
+  for(int c=0 ; c<res->nch ; c++){
+
+    int    l   = res->l[c];    // orbital angular momentum
+    double ape = res->rade[c]; // effective channel radius
+    double apt = res->radt[c]; // true channel radius
+
+    double mu  =  ppr[res->pidx[c]].mass[0] * ppr[res->pidx[c]].mass[1] 
+               / (ppr[res->pidx[c]].mass[0] + ppr[res->pidx[c]].mass[1]); // exit channel reduced mass
+    double eb  = sys->ecms + ppr[res->pidx[c]].qvalue;                    // exit channel energy
+    double k2  = gcKfactor*gcKfactor * mu * eb * 1.0e-06;                 // exit channel wave number squared
+    double kw  = (eb <= 0.0) ? -sqrt(-k2) : sqrt(k2);                     // exit wave number
+    int    zzp = ppr[res->pidx[c]].znum[0] * ppr[res->pidx[c]].znum[1];   // charge product
+    double eta = PERMITTIV * COULOMBSQ * zzp * sqrt(AMUNIT * mu / (2.0 * abs(eb) * 1e-6)) / VLIGHT / HBAR;
+
+    /*** flag for penetrability calculation */
+    bool pencalc = false;
+    if(ppr[res->pidx[c]].fpen == 1) pencalc = true;
+    else if(ppr[res->pidx[c]].fpen == -1) pencalc = false;
+    else{
+      /*** dont calculate when fission or capture */
+      if(ppr[res->pidx[c]].mt == 18 || ppr[res->pidx[c]].mt == 102) pencalc = false;
+      else pencalc = true;
+    }
+    if(!pencalc) continue;
+
+
+    /*** potential scattering sphere phase shift, use effective radius APE */
+    double phi = 0.0, wc = 0.0;
+    double rho = kw * ape;
+    /*** neutron case, wf includes G'+iF' in wf.d */
+    if(zzp == 0) phi = gfrPenetrability(l,rho,&wf[c]);
+    /*** charged particle case */
+    else{
+      complex<double> C0, C1;
+      coulomb(l,rho,eta,&C0,&C1);  // C0 = G + iF, C1 = G' + iF'
+      /*** phi = acos G / sqrt(G^2 + F^2) */
+      phi = acos(C0.real() / abs(C0));
+      wc  = coulomb_phaseshift(l,eta);
+      wf[c].d = rho * C1 / C0;
+    }
+    wf[c].phase  = complex<double>(cos(-phi), sin(-phi));  // exp^i{-phi}
+    wf[c].phaseC = complex<double>(cos( wc ), sin(wc  ));  // exp^{iw}
+
+    /*** penetrability at the resonance energy, calculate L(Er) = S(Er) + iP(Er), use true radius APT */
+    if(sys->gammaunit_flag == 0){
+      for(int k=0 ; k<res->nres ; k++){
+        complex<double> q;
+        if(zzp == 0) q = gfrLfunction(l,abs(res->er[k]),mu,apt);
+        else         q = gfrLfunctionCoul(l,abs(res->er[k]),mu,apt,eta);
+        pen[c][k] = q.imag();
+      }
+    }
+#ifdef DEBUG
+    cout << setw(3) << c << setw(3) << res->pidx[c] << setw(4) <<  ppr[res->pidx[c]].mt << setw(3) << l;
+    cout << setw(2) << ppr[res->pidx[c]].fpen;
+    cout << setprecision(3) << setw(11) << ape << setw(11) << apt;
+    cout << "  mu:" << setw(11) << mu;
+    cout << "   E:" << setw(11) << eb;
+    cout << "   k:" << setw(11) << kw;
+    cout << " eta:" << setw(11) << eta;
+    cout << " ph0:" << setw(11) << - phi;
+    cout << " phC:" << setw(11) << wc;
+    cout << "   P:" << setw(11) << wf[c].d.imag() << endl;
+#endif
+  }
+}
 
 
 /**********************************************************/
 /*      Matrix Element Re-arrangement for RM              */
 /**********************************************************/
-int arrange_matrixRML(int k, int nel, int *elidx, int *mt, double **pen,
-                      Wfunc *wf, double *x, ParPair *ppr, RMLParameter *res)
+int arrange_matrixRML(const int k, double **pen, Wfunc *wf, ParPair *ppr, RMLParameter *res)
 {
+  complex<double> pzero(0.0,0.0);
+
   /*** diagonal elements */
-  /*** neutron elastic should be first */
+  /*** elastic should be first */
   int idx = 0;
-  for(int i=0 ; i<nel ; i++){
-    x[(idx+2)*(idx+1)/2 - 1]  = res->gam[k][elidx[i]] * imag(wf[i].d)/ pen[i][k];
-    mt[idx] = 2;
-    idx ++;
+  for(int c=0 ; c<res->nch ; c++){
+    if(ppr[res->pidx[c]].mt == 2){
+      int i = (idx+2)*(idx+1)/2 - 1;
+      gm[i] = res->gam[c][k] * imag(wf[c].d)/ pen[c][k]; // Gamma x P(E) / P(Eres)
+      mtid[idx] = 2;
+      dptr[idx] = c;
+      phi0[idx] = wf[c].phase;
+      phiC[idx] = wf[c].phaseC;
+      idx ++;
+    }
   }
 
   /*** other channels */
   for(int c=0 ; c<res->nch ; c++){
     if((ppr[res->pidx[c]].mt == 2) || (ppr[res->pidx[c]].mt == 102)) continue;
-    x[(idx+2)*(idx+1)/2 - 1] = res->gam[k][c];
-    mt[idx] = ppr[res->pidx[c]].mt;
+    int i = (idx+2)*(idx+1)/2 - 1;
+    gm[i] = res->gam[c][k];
+    mtid[idx] = ppr[res->pidx[c]].mt;
+    dptr[idx] = c;
+    phi0[idx] = wf[c].phase;
+    phiC[idx] = wf[c].phaseC;
     idx ++;
   }
 
   /*** capture channel last */
   for(int c=0 ; c<res->nch ; c++){
     if(ppr[res->pidx[c]].mt == 102){
-      x[(idx+2)*(idx+1)/2 - 1] = res->gam[k][c];
-      mt[idx] = ppr[res->pidx[c]].mt;
+      int i = (idx+2)*(idx+1)/2 - 1;
+      gm[i] = res->gam[c][k];
+      mtid[idx] = ppr[res->pidx[c]].mt;
+      dptr[idx] = c;
+      phi0[idx] = pzero;
+      phiC[idx] = pzero;
       idx ++;
     }
   }
@@ -239,25 +373,28 @@ int arrange_matrixRML(int k, int nel, int *elidx, int *mt, double **pen,
   /*** off-diagonal elements */
   for(int i=1 ; i<nch ; i++){
     int di = (i+2)*(i+1)/2 - 1; // index for diagonal element
-    int si = (x[di] < 0.0) ? -1 : 1;
+    int si = (gm[di] < 0.0) ? -1 : 1;
 
     for(int j=0 ; j<=i-1 ; j++){
       int dj = (j+2)*(j+1)/2 - 1;
-      int sj = (x[dj] < 0.0) ? -1 : 1;
+      int sj = (gm[dj] < 0.0) ? -1 : 1;
 
       int k = (i+1)*i/2 + j;
-      x[k] = sqrt( abs(x[di]) * abs(x[dj]) ) * si * sj;
+      gm[k] = sqrt( abs(gm[di]) * abs(gm[dj]) ) * si * sj;
     }
   }
 
-  /*** diagonal elements */
-  double gt = 0.0;
+  /*** make all diagonal elements positive */
+  double gt = 0.0; // total width
   for(int i=0 ; i<nch ; i++){
     int di = (i+2)*(i+1)/2 - 1;
-    x[di] = abs(x[di]);
-    gt += x[di];
+    gm[di] = abs(gm[di]);
+    gt += gm[di];
+//    cout << setw(4) << mtid[i] << setw(11) << gt;
+//    for(int j=0 ; j<=i ; j++) cout << setw(11) << gm[(i+1)*i/2 + j];
+//    cout << endl;
   }
-  
+
   return(nch);
 }
 
@@ -368,7 +505,7 @@ int gfrLoadRMLParameters(int idx, System *sys, RMLParameter *res, ENDF *lib)
     for(int i=0 ; i<nres ; i++){
       int k = 6*nline*i;
       res[j].er[i] = lib->xptr[idx][k];
-      for(int c=0 ; c<nch ; c++) res[j].gam[i][c] = lib->xptr[idx][k+c+1];
+      for(int c=0 ; c<nch ; c++) res[j].gam[c][i] = lib->xptr[idx][k+c+1];
     }
     idx ++;
   }

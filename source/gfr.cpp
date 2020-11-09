@@ -23,7 +23,7 @@ Smatrix Smat;
 static Pcross  gfrPtCrossFILE    (ifstream *, ENDFDict *, const double);
 static Pcross  gfrBackGroundFILE (ifstream *, ENDF *, const double);
 static Pcross  gfrBackGround     (ENDFDict *, ENDF **, const double);
-static void gfrPrintCrossSection (const double, const bool, Pcross);
+static void gfrPrintCrossSection (const double, Pcross);
 
 /**********************************************************/
 /*      GFR Interface, Scan File for the Thermal Value    */
@@ -35,18 +35,7 @@ void gfrScanThermal(ifstream *fp, ENDFDict *dict, double elab)
   if(elab <= 0.0) elab = eth;
 
   Pcross crs = gfrPtCrossFILE(fp,dict,elab);
-
-  cout.setf(ios::scientific, ios::floatfield);
-  cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]";
-  if(dict->isFission()) cout <<"    Fission[b]";
-  cout << endl;
-
-  cout << setw(14) << setprecision(6) << elab;
-  cout << setw(14) << setprecision(6) << crs.total;
-  cout << setw(14) << crs.elastic;
-  cout << setw(14) << crs.capture;
-  if(dict->isFission()) cout << setw(14) << crs.fission;
-  cout << endl;
+  gfrPrintCrossSection(elab,crs);
 }
 
 
@@ -118,7 +107,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
 
-  gfrPrintCrossSection(-1.0,dict->isFission(),crs);
+  gfrPrintCrossSection(-1.0,crs);
 
   /*** determine energy grid automatically */
   if((emin == 0.0) && (emax == 0.0)){
@@ -136,7 +125,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       crs = crs + cbg;
 
       /*** print cross section */
-      gfrPrintCrossSection(elab[i],dict->isFission(),crs);
+      gfrPrintCrossSection(elab[i],crs);
     }
 
     np = gfrAutoEnergyURR(elab,dict->emaxRR,dict->emaxUR);
@@ -147,7 +136,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       crs = gfrCrossSection(2,elab[i],&sys,lib[kres]);
 
       /*** print cross section */
-      gfrPrintCrossSection(elab[i],dict->isFission(),crs);
+      gfrPrintCrossSection(elab[i],crs);
     }
   }
   /*** equidistant energy grid case */
@@ -165,7 +154,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       }
 
       /*** print cross section */
-      gfrPrintCrossSection(elab[i],dict->isFission(),crs);
+      gfrPrintCrossSection(elab[i],crs);
     }
   }
 
@@ -446,8 +435,8 @@ void gfrReadHEADData(System *sys, ENDF *lib)
       else if(sys->lrf[i] == 7){
         cont = lib->rdata[idx];
         int njs = cont.n1;
-        idx += njs;
         idx ++;
+        idx += njs;
       }
     }
 
@@ -500,13 +489,12 @@ Pcross  gfrBackGround(ENDFDict *dict, ENDF **lib, const double elab)
 /**********************************************************/
 /*      Print Crooss Section                              */
 /**********************************************************/
-static void gfrPrintCrossSection (const double elab, bool fission, Pcross crs)
+static void gfrPrintCrossSection (const double elab, Pcross crs)
 {
   /*** prinr heading */
   if(elab < 0.0){
     cout.setf(ios::scientific, ios::floatfield);
-    cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]    Other[b]";
-    if(fission) cout <<"    Fission[b]";
+    cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]    Fission[b]    Proton[b]     Alpha[b]      Other[b]";
     cout << endl;
   }
   else{
@@ -514,8 +502,10 @@ static void gfrPrintCrossSection (const double elab, bool fission, Pcross crs)
     cout << setw(14) << setprecision(6) << crs.total;
     cout << setw(14) << crs.elastic;
     cout << setw(14) << crs.capture;
+    cout << setw(14) << crs.fission;
+    cout << setw(14) << crs.proton;
+    cout << setw(14) << crs.alpha;
     cout << setw(14) << crs.other;
-    if(fission) cout << setw(14) << crs.fission;
     cout << endl;
   }
 }

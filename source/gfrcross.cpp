@@ -11,6 +11,7 @@ using namespace std;
 #include "endflib.h"
 #include "gfr.h"
 #include "constant.h"
+#include "coulomb.h"
 
 static void   gfrSubsectionRRR   (const int, const double, System *, ENDF *);
 static void   gfrSubsectionURR   (const int, const int, System *, ENDF *);
@@ -210,6 +211,24 @@ complex<double> gfrLfunction(const int l, const double er, const double mu, cons
     gfrPenetrability(l,alpha,&wfn);
     q = wfn.d;
   }
+
+  return(q);
+}
+
+
+/**********************************************************/
+/*      Coulomb Penetrability                             */
+/**********************************************************/
+complex<double> gfrLfunctionCoul(const int l, const double er, const double mu, const double ap, const double eta)
+{
+  Wfunc  wfn;
+  double alpha = gcKfactor * sqrt(fabs(er) * 1.0e-06 * mu) * ap;
+
+  complex<double> C0, C1;
+  coulomb(l,alpha,eta,&C0,&C1);
+
+  /*** L = rho (G'+iF') / (G+iF) */
+  complex<double> q = alpha * C1 / C0;
 
   return(q);
 }
