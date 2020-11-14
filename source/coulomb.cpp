@@ -16,8 +16,9 @@ using namespace std;
 
 static const int    MAX_L              =     60;
 static const double CRITERIA_ITERATION =  1e-24;
-static const int    MAX_ITERATION      =  10000;
+static const int    MAX_ITERATION      =  50000;
 static const double TINY_NUMBER        =  1e-64;
+static const double VALUE_CUTOFF       =  1e-24;
 
 static void  omCoulombBarnett (const int, const double, const double, complex<double> *, complex<double> *);
 static void  omCoulombFRatio  (const int, const double, const double, double *);
@@ -41,7 +42,7 @@ void coulomb(const int l, const double rho, const double eta, complex<double> *C
   complex<double> *C1 = new complex<double>[lmax1+1]; // G'+ iF'
 
   /*** closed channel */
-  if(eta < 0.0){
+  if(rho < 0.0){
     omCoulombClosed(l, rho, eta, C0, C1);
   }
   /*** Barnett-Aoki algorithm */
@@ -65,7 +66,7 @@ void coulomb_function(const int lmax, const double rho, const double eta, comple
   complex<double> *C1 = new complex<double>[lmax1+1]; // G'+ iF'
 
   /*** closed channel */
-  if(eta < 0.0){
+  if(rho < 0.0){
     omCoulombClosed(lmax1, rho, eta, C0, C1);
   }
   /*** Barnett-Aoki algorithm */
@@ -97,6 +98,15 @@ double coulomb_phaseshift(const int l, const double eta)
   if(l > 0){
     for(int n=1 ; n<=l ; n++) w += atan(eta / (double)n);
   }
+/*
+  double y1 = eta;
+  double y2 = y1*y1;
+  double y3 = 16.0 + y2;
+  double y4 = y3*y3;
+  w = -y1+y1*log(y3)/2.+3.5*atan(y1/4.)-(atan(y1)+atan(y1/2.)+atan(y1/3.))
+          -y1*(1.+(y2-48.)/(30.*y4)+(y2*y2-160.*y2+1280.)/(105.*y4*y4))
+          /(12.*y3);
+*/
   return w;
 }
 
@@ -149,28 +159,37 @@ void omCoulombBarnett(int lmax, double rho, double eta, complex<double> *c0, com
     f0 = omCoulombPowerSeries(eta, rho);
   }
 
-  double f1 = f0 * fw[2];                                      // F(0)' = F0 * (F'/F)
-  double g0 = (1 - w.imag() * f0 * f0) / (f1 - w.real() * f0); // G = (F' - pF)/q (avoid q=0 case)
-  double g1 = w.real() * g0 - w.imag() * f0;                   // G' = pG - qF
+  /*** when we cannot calculate F0, default */
+  if(f0 == 0.0){
+    for(int l=0 ; l<=lmax ; l++){
+      c0[l] = complex<double>( 1.0,0.0);
+      c1[l] = complex<double>(-1.0,0.0);
+    }
+  }
+  else{
+    double f1 = f0 * fw[2];                                      // F(0)' = F0 * (F'/F)
+    double g0 = (1 - w.imag() * f0 * f0) / (f1 - w.real() * f0); // G = (F' - pF)/q (avoid q=0 case)
+    double g1 = w.real() * g0 - w.imag() * f0;                   // G' = pG - qF
 
-  c0[0] = complex<double>(g0,f0);
-  c1[0] = complex<double>(g1,f1);
+    c0[0] = complex<double>(g0,f0);
+    c1[0] = complex<double>(g1,f1);
 
-  /*** normalization factor of F, Fnorm = F / F(calc) */
-  double fnorm = f0 / fw[1];
+    /*** normalization factor of F, Fnorm = F / F(calc) */
+    double fnorm = f0 / fw[1];
 
-  /*** upward recursion relation, Eq.(26) */
-  for(int l=1 ; l<=lmax ; l++){
-    double r = c0[l].real();
-    double s = c1[l].real();
+    /*** upward recursion relation, Eq.(26) */
+    for(int l=1 ; l<=lmax ; l++){
+      double r = c0[l].real();
+      double s = c1[l].real();
 
-    g0 = (s * c0[l-1].real() - c1[l-1].real()) / r;
-    g1 = r * c0[l-1].real() - g0 * s;
-    f0 = fnorm * c0[l].imag();   // because F are not normalized
-    f1 = r * c0[l-1].imag() - f0 * s;
+      g0 = (s * c0[l-1].real() - c1[l-1].real()) / r;
+      g1 = r * c0[l-1].real() - g0 * s;
+      f0 = fnorm * c0[l].imag();   // because F are not normalized
+      f1 = r * c0[l-1].imag() - f0 * s;
 
-    c0[l] = complex<double>(g0,f0);
-    c1[l] = complex<double>(g1,f1);
+      c0[l] = complex<double>(g0,f0);
+      c1[l] = complex<double>(g1,f1);
+    }
   }
 
   return;
@@ -211,7 +230,7 @@ void omCoulombFRatio(const int lambda, const double eta, const double rho, doubl
   }while(++itr < MAX_ITERATION);
 
   if(!conv){
-    cerr << "continued fraction calculation for F(l+1)/F(l) didn't converge" << endl;
+    cerr << "continued fraction calculation for F(l+1)/F(l) didnt converge for eta = " << eta << " rho = " << rho << endl;
     exit(-1);
   }
 
@@ -286,6 +305,7 @@ complex<double> omCoulombWRatio(const int lambda, const double eta, const double
     complex<double>z1 = z0 + h1;
 
     double c = abs(norm(z0)/norm(z1) - 1.0);
+
     if(c < CRITERIA_ITERATION){
       conv = true;
       break;
@@ -298,7 +318,7 @@ complex<double> omCoulombWRatio(const int lambda, const double eta, const double
   }while(++itr < MAX_ITERATION);
 
   if(!conv){
-    cerr << "continued fraction calculation for G'+iF'/G+iF didn't converge" << endl;
+    cerr << "continued fraction calculation for Gp+iFp / G+iF didnt converge for eta = " << eta << " rho = " << rho << endl;
     exit(-1);
   }
 
@@ -322,6 +342,8 @@ double omCoulombPowerSeries(const double eta, const double rho)
 
   double f0 = b0 + b1;
 
+  if(f0 < VALUE_CUTOFF) return 0.0;
+
   int l = 2;
   bool conv = false;
   int itr = 0;
@@ -342,7 +364,7 @@ double omCoulombPowerSeries(const double eta, const double rho)
   }while(++itr < MAX_ITERATION);
 
   if(!conv){
-    cerr << "power seriese expansion didn't converge" << endl;
+    cerr << "power seriese expansion didnt converge for eta = " << eta << " rho = " << rho << endl;
     exit(-1);
   }
 

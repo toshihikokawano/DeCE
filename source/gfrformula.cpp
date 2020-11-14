@@ -23,7 +23,7 @@ extern Smatrix Smat;
 /*      Single Level Breit-Wigner                         */
 /**********************************************************/
 Pcross gfrSLBreitWigner(const int kmax, const int l, const int j2, const double e,
-                        Wfunc *wfn, BWResonance *res)
+                        ChannelWaveFunc *wfn, BWResonance *res)
 {
   const int msize = 10;
   Pcross  z;
@@ -34,7 +34,7 @@ Pcross gfrSLBreitWigner(const int kmax, const int l, const int j2, const double 
   for(int k=0 ; k<kmax ; k++){
     if( (res[k].l == l) && (res[k].j2 == j2) ){
 
-      double gt = arrange_matrixSLBW(imag(wfn->d),x,&res[k]);
+      double gt = arrange_matrixSLBW(wfn->P(),x,&res[k]);
       double w  = e - res[k].er;
       double d  = w*w + 0.25*gt*gt;
       
@@ -53,7 +53,7 @@ Pcross gfrSLBreitWigner(const int kmax, const int l, const int j2, const double 
 /*      MLBW defined in ENDF                              */
 /**********************************************************/
 Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int j2,
-                            const double e, Wfunc *wfn, BWResonance *res)
+                            const double e, ChannelWaveFunc *wfn, BWResonance *res)
 {
   const int msize = 10;
   Pcross  z;
@@ -62,8 +62,8 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
 
   for(int k0=0 ; k0<kmax ; k0++){
     if( (res[k0].l == l) && (res[k0].j2 == j2) ){
-      double de  = res[k0].gn * (res[k0].s - real(wfn->d)) / (2*res[k0].p);
-      double gt0 = arrange_matrixSLBW(imag(wfn->d),x0,&res[k0]);
+      double de  = res[k0].gn * (res[k0].s - wfn->S()) / (2*res[k0].p);
+      double gt0 = arrange_matrixSLBW(wfn->P(),x0,&res[k0]);
 
       p = breit_wigner_profile(complex<double>(e,gcLorentzianWidth),res[k0].er+de,gt0);
 
@@ -74,7 +74,7 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
       w = complex<double>(0.0,0.0);
       for(int k1=0 ; k1<kmax ; k1++){
         if( (res[k1].l == l) && (res[k1].j2 == j2) ){
-          double gt1 = arrange_matrixSLBW(imag(wfn->d),x1,&res[k1]);
+          double gt1 = arrange_matrixSLBW(wfn->P(),x1,&res[k1]);
           y = complex<double>(res[k1].er-res[k0].er, -(gt0+gt1)*0.5);
           y = 1.0 /y;
           w += y*x1[0];
@@ -105,7 +105,7 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
 /*      General Multilevel Breit-Wigner                   */
 /**********************************************************/
 Pcross gfrBreitWigner(const int kmax, const int l, const int j2, const double e,
-                      Wfunc *wfn, BWResonance *res)
+                      ChannelWaveFunc *wfn, BWResonance *res)
 {
   const int msize = 10;
   Pcross  z;
@@ -117,7 +117,7 @@ Pcross gfrBreitWigner(const int kmax, const int l, const int j2, const double e,
 
   for(int k0=0 ; k0<kmax ; k0++){
     if( (res[k0].l == l) && (res[k0].j2 == j2) ){
-      double gt0 = arrange_matrixSLBW(imag(wfn->d),x0,&res[k0]);
+      double gt0 = arrange_matrixSLBW(wfn->P(),x0,&res[k0]);
       p = breit_wigner_profile(complex<double>(e,gcLorentzianWidth),res[k0].er,gt0);
 
       z.total += (real(p) * real(wfn->phase2) - imag(p) * imag(wfn->phase2))*x0[0]/gt0;
@@ -125,7 +125,7 @@ Pcross gfrBreitWigner(const int kmax, const int l, const int j2, const double e,
       for(int i=0 ; i<msize ; i++)  w[i] = complex<double>(0.0,0.0);
       for(int k1=0 ; k1<kmax ; k1++){
         if( (res[k1].l == l) && (res[k1].j2 == j2) ){
-          double gt1 = arrange_matrixSLBW(imag(wfn->d),x1,&res[k1]);
+          double gt1 = arrange_matrixSLBW(wfn->P(),x1,&res[k1]);
           y = complex<double>(res[k1].er-res[k0].er, -(gt0+gt1)*0.5);
           y = 1.0 /y;
           for(int i=0 ; i<msize ; i++) w[i] += y*x1[i];
@@ -153,7 +153,7 @@ Pcross gfrBreitWigner(const int kmax, const int l, const int j2, const double e,
 /**********************************************************/
 Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
                      const int tspin2, 
-                     const double e, Wfunc *wfn, RMResonance *res)
+                     const double e, ChannelWaveFunc *wfn, RMResonance *res)
 {
   const int msize = 6;
   complex<double> smat[msize],rmat[msize],wmat[msize];
@@ -172,7 +172,7 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
         int sr  = (res[k].j2 < 0) ? -1 : 1;
                       
         if( (j2r == j2) && (sr == s2) ){
-          arrange_matrixRM(imag(wfn->d),x,&res[k]);
+          arrange_matrixRM(wfn->P(),x,&res[k]);
           complex<double> w(res[k].er-e, -res[k].gg/2.0 - gcLorentzianWidth);
           w = 1.0 / w;
           for(int i=0 ; i<msize ; i++)  rmat[i] += w*x[i];
@@ -182,7 +182,7 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
       else{
         if(res[k].j2 == j2){
           if((l > 0) && (s2 != -1) && (tspin2 != 0)) continue;
-          arrange_matrixRM(imag(wfn->d),x,&res[k]);
+          arrange_matrixRM(wfn->P(),x,&res[k]);
           complex<double> w(res[k].er-e, -res[k].gg/2.0 - gcLorentzianWidth);
           w = 1.0 / w;
           for(int i=0 ; i<msize ; i++)  rmat[i] += w*x[i];
@@ -222,7 +222,7 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
 /*      Collision Matrix for MLBW                         */
 /**********************************************************/
 Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const int j2,
-                             const double e, Wfunc *wfn, BWResonance *res)
+                             const double e, ChannelWaveFunc *wfn, BWResonance *res)
 {
   const int msize = 10;
   complex<double> w, tmat[msize], smat[msize];
@@ -231,8 +231,8 @@ Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const in
   for(int i=0 ; i<msize ; i++)  tmat[i] = complex<double>(0.0,0.0);
   for(int k=0 ; k<kmax ; k++){
     if( (res[k].l == l) && (res[k].j2 == j2) ){
-      double de  = res[k].gn * (res[k].s - real(wfn->d)) / (2*res[k].p);
-      double gt  = arrange_matrixSLBW(imag(wfn->d),x,&res[k]);
+      double de  = res[k].gn * (res[k].s - wfn->S()) / (2*res[k].p);
+      double gt  = arrange_matrixSLBW(wfn->P(),x,&res[k]);
       w = complex<double>(res[k].er + de - e, -gt/2.0 - gcLorentzianWidth);
       for(int i=0 ; i<msize ; i++) tmat[i] += complex<double>(0.0,x[i]) / w;
     }

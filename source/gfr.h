@@ -131,24 +131,24 @@ class RMLParameter{
  private:
   bool   allocated;
  public:
-  int     j2      ; /* resonance spin x2 */
-  int     parity  ; /* parity */
-  int     nch     ; /* number of channels */
-  int     nres    ; /* number of resonances */
-  int     *l      ; /* channel angular momentum */
-  int     *s2     ; /* channel spin x2 */
-  int     *pidx   ; /* particle pair index */
-  double  *rade   ; /* effective channel radius */
-  double  *radt   ; /* true channel radius */
-  double  *er     ; /* resonance energy */
-  double **gam    ; /* partial width */
+  int     j2;                 // resonance spin x2
+  int     parity;             // parity
+  int     nchannel;           // number of channels
+  int     nresonance;         // number of resonances
+  int     *l;                 // channel angular momentum
+  int     *s2;                // channel spin x2
+  int     *pidx;              // particle pair index
+  double  *radius_effective;  // effective channel radius
+  double  *radius_true;       // true channel radius
+  double  *energy;            // resonance energy
+  double **gamma;             // partial width
 
   RMLParameter(){
-    j2     = 0;
-    parity = 0;
-    nch    = 0;
-    nres   = 0;
-    allocated = false;
+    j2         = 0;
+    parity     = 0;
+    nchannel   = 0;
+    nresonance = 0;
+    allocated  = false;
   }
 
   ~RMLParameter(){
@@ -156,11 +156,11 @@ class RMLParameter{
       delete [] l;
       delete [] s2;
       delete [] pidx;
-      delete [] rade;
-      delete [] radt;
-      delete [] er;
-      for(int i=0 ; i<nch ; i++) delete [] gam[i];
-      delete [] gam;
+      delete [] radius_effective;
+      delete [] radius_true;
+      delete [] energy;
+      for(int i=0 ; i<nchannel ; i++) delete [] gamma[i];
+      delete [] gamma;
 
       allocated = false;
     }
@@ -168,19 +168,48 @@ class RMLParameter{
 
   void memalloc(int n, int m){
     if(!allocated){
-      nch    = n;
-      nres   = m;
-      l      = new int [n];
-      s2     = new int [n];
-      pidx   = new int [n];
-      rade   = new double [n];
-      radt   = new double [n];
-      er     = new double [m];
-      gam    = new double * [n];
-      for(int i=0 ; i<nch ; i++) gam[i] = new double [m];
+      nchannel   = n;
+      nresonance = m;
+      l    = new int [n];
+      s2   = new int [n];
+      pidx = new int [n];
+      radius_effective = new double [n];
+      radius_true      = new double [n];
+      energy = new double [m];
+      gamma  = new double * [n];
+      for(int i=0 ; i<nchannel ; i++) gamma[i] = new double [m];
 
       allocated = true;
     }
+  }
+};
+
+
+/**************************************/
+/*      RML Energy-Dependent Data     */
+/**************************************/
+class RMLChannel{
+ public:
+  double reduced_mass;        // reduced mass
+  double ecms;                // CMS energy
+  double wave_number;         // wave number
+  double coulomb;             // Coulomb parmaeter
+  double alpha_effective;     // k a(effective) 
+  double alpha_true;          // k a(true)
+  double mratio;              // mass ratio, (M+m)/M to convert into LAB
+  bool   charge;              // flag for charged particle channel
+  bool   open;                // flag for open channel
+
+  RMLChannel(){
+    reduced_mass    = 0.0;
+    ecms            = 0.0;
+    wave_number     = 0.0;
+    coulomb         = 0.0;
+    alpha_effective = 0.0;
+    alpha_true      = 0.0;
+    mratio          = 1.0;
+    open            = true;
+    charge          = false;
   }
 };
 
@@ -190,36 +219,36 @@ class RMLParameter{
 /**************************************/
 class System{
  public:
-  unsigned int target_A    ;
-  unsigned int target_Z    ;
-  int    target_spin2      ; /* target spin x 2 */
-  int    target_parity     ; /* target parity */
-  int    incident_spin2    ; /* incident particle spin x 2 */
-  double reduced_mass      ; /* reduced mass */
-  double radius            ; /* channel_radius [fm] */
-  double ecms              ; /* C.M.S. energy */
-  double wave_number       ; /* wave number */
-  double alpha             ; /* alpha = kR */
-  int    nrange            ; /* number of energy range */
-  int    nl                ; /* number of orbital angular momentum */
-  int    nj                ; /* number of J states */
-  int    npair             ; /* number of two-particle pairs */
-  int    format            ; /* format, should be 3 */
-  int    avefission_flag   ; /* averaged fission width given */
-  int    selfshield_flag   ; /* self-shielding flag */
-  int    gammaunit_flag    ; /* IFG= 0: in eV, 1: in sqrt(eV) */
-  int    relativ_flag      ; /* relativistic flag */
+  unsigned int target_A;
+  unsigned int target_Z;
+  int    target_spin2;        // target spin x 2
+  int    target_parity;       // target parity
+  int    incident_spin2;      // incident particle spin x 2
+  double reduced_mass;        // reduced mass
+  double radius;              // channel_radius [fm]
+  double ecms;                // CMS energy
+  double wave_number;         // wave number
+  double alpha;               // alpha = kR
+  int    nrange;              // number of energy range
+  int    nl;                  // number of orbital angular momentum
+  int    nj;                  // number of J states
+  int    npair;               // number of two-particle pairs
+  int    format;              // format, should be 3
+  int    avefission_flag;     // averaged fission width given
+  int    selfshield_flag;     // self-shielding flag
+  int    gammaunit_flag;      // IFG= 0: in eV, 1: in sqrt(eV)
+  int    relativ_flag;        // relativistic flag
 
-  int    *idx              ; /* pointer to the data block */
-  int    *lru              ; /* resolved or unresolved */
-  int    *lrf              ; /* resonance formula */
-  int    *naps             ; /* NAPS channel radius control */
-  int    *nro              ; /* NRO energy dependent radii flag */
-  double *emin             ; /* Emin for the range */
-  double *emax             ; /* Emax for the range */
+  int    *idx;                // pointer to the data block
+  int    *lru;                // resolved or unresolved
+  int    *lrf;                // resonance formula
+  int    *naps;               // NAPS channel radius control
+  int    *nro ;               // NRO energy dependent radii flag
+  double *emin;               // Emin for the range
+  double *emax;               // Emax for the range
 
-  int     nfw              ;
-  double *fwx              ;
+  int     nfw;                // energy-dependent fission width, energy points
+  double *fwx;                // fission widths
 
   System(){
     target_A     = 0;
@@ -269,14 +298,54 @@ class System{
 
 
 /**************************************/
-/*      Class Hankel Function         */
+/*      Class Channel Wave Function   */
 /**************************************/
-class Wfunc{
+class ChannelWaveFunc{
  public:
-  complex<double> d;       // penetrability, (G'+iF')/(G+iF)
-  complex<double> phase;   // hard-sphare phase
-  complex<double> phase2;  // 2 x phase
-  complex<double> phaseC;  // Coulomb phase
+  complex<double> H;       // Hanlel function, G+iF
+  complex<double> D;       // derivative Hanlel function, G'+iF'
+  complex<double> L;       // L-function, (G'+iF')/(G+iF) * rho
+  complex<double> phase;   // hard-sphare phase, exp(-phi)
+  complex<double> phase2;  // 2 x phase, exp(-2 phi)
+  complex<double> phaseC;  // Coulomb phase, exp(-phi_c)
+  double          a;       // channel radius
+  double          p;       // phase
+
+  ChannelWaveFunc(){
+    H      = complex<double>(0.0,0.0);
+    D      = complex<double>(0.0,0.0);
+    L      = complex<double>(1.0,0.0);
+    phase  = complex<double>(0.0,0.0);
+    phase2 = complex<double>(0.0,0.0);
+    phaseC = complex<double>(0.0,0.0);
+    a      = 0.0;
+    p      = 0.0;
+  }
+
+  /*** set all functions by a, H = G+iF, and H' = G'+iF' */
+  void setData(const double x, complex<double> y1, complex<double> y2){
+    a = x;
+    H = y1;
+    D = y2;
+    L = a * D / H;
+  }
+
+  /*** set phase factors by H */
+  void setPhase(complex<double> y){
+    double x = abs(y);
+    if(y != 0.0) p = acos(y.real() / x); // atan(F / G) = acos(G / sqrt(G^2+F^2))
+    else         p = 0.0;
+    phase  = complex<double>(cos( -p), -sin(  p)); // exp^{-ip}
+    phase2 = complex<double>(cos(2*p), -sin(2*p)); // exp^{-2ip}
+  }
+
+  void setCoulombPhase(double z){
+    phaseC = complex<double>(cos(  z),  sin(  z)); // exp^{iz}
+  }
+
+  /*** get penetrabilitiy and shift factor */
+  double P(){ return L.imag(); }
+  double S(){ return L.real(); }
 };
 
 
@@ -317,6 +386,7 @@ class GFRcross{
       type = new int [n];
       xsec = new double [n];
       allocated = true;
+      clear();
     }
   }
 
@@ -329,6 +399,15 @@ class GFRcross{
   }
 
   void clear(){
+    if(allocated){
+      for(int i=0 ; i<nch ; i++){
+        type[i] = 0;
+        xsec[i] = 0.0;
+      }
+    }
+  }
+
+  void zero(){
     if(allocated){
       for(int i=0 ; i<nch ; i++) xsec[i] = 0.0;
     }
@@ -356,42 +435,10 @@ class GFRcross{
 
   int getNch(){ return nch; }
 
-  double total(){
-    double total = 0.0;
-    for(int i=0 ; i<nch ; i++) total += xsec[i];
-    return total;
-  }
-
-  GFRcross operator+(GFRcross x){
-    int nx = x.getNch();
-    GFRcross y;
-    if(nx == nch){
-      y.memalloc(nx);
-      for(int i=0 ; i<nch ; i++){
-        y.type[i] = type[i];
-        if(type[i] == 0) continue;
-        for(int j=0 ; j<nx ; j++){
-          if(type[i] == x.type[j]){ y.xsec[i] = xsec[i] + x.xsec[j]; break; }
-        }
-      }
-    }
-    return y;
-  }
-
-  GFRcross operator-(GFRcross x){
-    int nx = x.getNch();
-    GFRcross y;
-    if(nx == nch){
-      y.memalloc(nx);
-      for(int i=0 ; i<nch ; i++){
-        y.type[i] = type[i];
-        if(type[i] == 0) continue;
-        for(int j=0 ; j<nx ; j++){
-          if(type[i] == x.type[j]){ y.xsec[i] = xsec[i] - x.xsec[j]; break; }
-        }
-      }
-    }
-    return y;
+  double sum(){
+    double sum = 0.0;
+    for(int i=0 ; i<nch ; i++) sum += xsec[i];
+    return sum;
   }
 };
 
@@ -571,9 +618,8 @@ void    gfrReadHEADData           (System *, ENDF *);
 /**************************************/
 Pcross  gfrCrossSection           (const int, const double, System *, ENDF *);
 void    gfrSetEnergy              (const double, System *);
-double  gfrPenetrability          (const int, const double, Wfunc *);
-complex<double> gfrLfunction      (const int, const double, const double, const double);
-complex<double> gfrLfunctionCoul  (const int, const double, const double, const double, const double);
+void    gfrPenetrability          (const int, const double, ChannelWaveFunc *);
+complex<double> gfrLfunction      (const int, const double, const double);
 
 
 /**************************************/
@@ -603,12 +649,12 @@ Pcross  gfrCrossSectionURR        (const int, const double, System *, ENDF *);
 /**************************************/
 /*      gfrformula.cpp                */
 /**************************************/
-Pcross  gfrSLBreitWigner          (const int, const int, const int, const double, Wfunc *, BWResonance *);
-Pcross  gfrMLBreitWignerENDF      (const int, const int, const int, const int, const double, Wfunc *, BWResonance *);
-Pcross  gfrMLBreitWigner          (const int, const int, const int, const double, Wfunc *, BWResonance *);
+Pcross  gfrSLBreitWigner          (const int, const int, const int, const double, ChannelWaveFunc *, BWResonance *);
+Pcross  gfrMLBreitWignerENDF      (const int, const int, const int, const int, const double, ChannelWaveFunc *, BWResonance *);
+Pcross  gfrMLBreitWigner          (const int, const int, const int, const double, ChannelWaveFunc *, BWResonance *);
 
-Pcross  gfrBreitWignerUmatrix     (const int, const int, const int, const int, const double, Wfunc *, BWResonance *, const int);
-Pcross  gfrReichMoore             (const int, const int, const int, const int, const int, const double, Wfunc *, RMResonance *);
+Pcross  gfrBreitWignerUmatrix     (const int, const int, const int, const int, const double, ChannelWaveFunc *, BWResonance *, const int);
+Pcross  gfrReichMoore             (const int, const int, const int, const int, const int, const double, ChannelWaveFunc *, RMResonance *);
 
 
 /**************************************/

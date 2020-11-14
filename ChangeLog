@@ -1,3 +1,15 @@
+2020-11-14  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfr.h (class ChannelWaveFunc): modified
+	(class RMLChannel): new class
+	class Wfunc renamed, and updated
+	RMLChannel stores channel info
+
+	* source/gfrcross.cpp (gfrPenetrability): modified
+	Hankel functions are stored by setData method,
+	and setPhase copies only phase parameters
+
+
 2020-11-09  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/coulomb.h: new file

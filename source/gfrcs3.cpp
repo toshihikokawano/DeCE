@@ -22,7 +22,7 @@ extern Smatrix Smat;
 /**********************************************************/
 Pcross gfrCrossSection3(const int ner, const double elab, System *sys, ENDF *lib)
 {
-  Wfunc  wfn;
+  ChannelWaveFunc wfn;
   Pcross sig, z;
   RMResonance *res = NULL;
 
@@ -33,7 +33,8 @@ Pcross gfrCrossSection3(const int ner, const double elab, System *sys, ENDF *lib
 
   double ap = (sys->naps[ner] == 0) ? gfrENDFChannelRadius(sys->target_A) : sys->radius;
   for(int k=0 ; k<kmax ; k++){
-    complex<double> q = gfrLfunction(res[k].l,res[k].er,sys->reduced_mass,ap);
+    double alpha = gcKfactor * sqrt(fabs(res[k].er) * 1.0e-06 * sys->reduced_mass) * ap;
+    complex<double> q = gfrLfunction(res[k].l,alpha,0.0);
     res[k].s = q.real();
     res[k].p = q.imag();
   }
@@ -45,9 +46,8 @@ Pcross gfrCrossSection3(const int ner, const double elab, System *sys, ENDF *lib
   Smat.resetIndex();
   for(int l=0 ; l<sys->nl ; l++){
 
-    double phase = gfrPenetrability(l,sys->alpha,&wfn);
-    wfn.phase  = complex<double>(cos(  phase), -sin(  phase));
-    wfn.phase2 = complex<double>(cos(2*phase), -sin(2*phase));
+    /*** penetrability at incident energy */
+    gfrPenetrability(l,sys->alpha,&wfn);
 
     /*** if NAPS = 0, calculate L+iS at 0.123 AWRI**1/3 + 0.08,
          but hard-sphere phase is still at alpha = ka */

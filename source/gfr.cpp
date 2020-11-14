@@ -330,7 +330,7 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
 {
   const int ndiv = 10000;
   System sys;
-  Wfunc  wfn;
+  ChannelWaveFunc wfn;
   double *elab;
 
   double emax = dict->emaxRR;
@@ -371,9 +371,9 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
     }
 
     for(l=0 ; l<sys.nl ; l++){
-      double phase = gfrPenetrability(l,sys.alpha,&wfn);
-      cout << setw(12) <<  cos(2*phase);
-      cout << setw(12) << -sin(2*phase);
+      gfrPenetrability(l,sys.alpha,&wfn);
+      cout << setw(12) <<  wfn.phase2.real();
+      cout << setw(12) <<  wfn.phase2.imag();
     }
 
     cout << endl;

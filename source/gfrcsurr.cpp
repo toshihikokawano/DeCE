@@ -17,7 +17,7 @@ using namespace std;
 static int gfrURetrieveParameter (const int, int, ENDF *, URResonance *);
 static int gfrUFindRange         (double, URResonance *, bool *);
 static Pcross gfrCrossSectionURR (int, int, int, System *, URResonance *);
-static Pcross gfrBreitWignerURR  (int, double, double, Wfunc *, URResonance *);
+static Pcross gfrBreitWignerURR  (int, double, double, ChannelWaveFunc *, URResonance *);
 static double gfrMoldauer        (int, double *, double *, double *);
 static Pcross gfrUInterpolation  (double, Pcross, Pcross);
 
@@ -170,7 +170,7 @@ int gfrUFindRange(double elab, URResonance *res, bool *itp)
 /**********************************************************/
 Pcross gfrCrossSectionURR(int km, int ke, int ner, System *sys, URResonance *res)
 {
-  Wfunc  wfn;
+  ChannelWaveFunc wfn;
   Pcross sig, z;
 
   sig.energy = res[0].bw[ke].er; // we hope energy grids are always the same.
@@ -183,9 +183,7 @@ Pcross gfrCrossSectionURR(int km, int ke, int ner, System *sys, URResonance *res
 
   for(int l=0 ; l<sys->nl ; l++){
 
-    double phase = gfrPenetrability(l,sys->alpha,&wfn);
-    wfn.phase  = complex<double>(cos(  phase), -sin(  phase));
-    wfn.phase2 = complex<double>(cos(2*phase), -sin(2*phase));
+    gfrPenetrability(l,sys->alpha,&wfn);
 
     if(sys->naps[ner] == 0) gfrPenetrability(l,x2,&wfn);
 
@@ -226,12 +224,12 @@ Pcross gfrCrossSectionURR(int km, int ke, int ner, System *sys, URResonance *res
 /**********************************************************/
 /*      Breit-Wigner form in Unresolved Range             */
 /**********************************************************/
-Pcross gfrBreitWignerURR(int ke, double gj, double x, Wfunc *wfn, URResonance *res)
+Pcross gfrBreitWignerURR(int ke, double gj, double x, ChannelWaveFunc *wfn, URResonance *res)
 {
   Pcross  z;
   double tr[4],df[4],wf[4];
 
-  double gf = imag(wfn->d) / x * sqrt(res->bw[ke].er);
+  double gf = wfn->P() / x * sqrt(res->bw[ke].er);
   double gn = res->bw[ke].gn * gf;
   double gt = gn + res->bw[ke].gg + res->bw[ke].gf + res->bw[ke].gx;
   double s2 = imag(wfn->phase) * imag(wfn->phase);

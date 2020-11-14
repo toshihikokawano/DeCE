@@ -160,10 +160,10 @@ void gfrSubsectionURR(const int lrf, const int idx, System *sys, ENDF *lib)
 /*     ****                                               */
 /*        h     = G+iF = O                                */
 /*        d     = (G+iF)' = O'                            */
-/*        wfn.d = a (G+iF)'/(G+iF) = L                    */
+/*        wfn.L = a (G+iF)'/(G+iF) = L                    */
 /*        phase = atan(Im O/Re O) = atan F/G              */
 /**********************************************************/
-double gfrPenetrability(const int l, const double a, Wfunc *wfn)
+void gfrPenetrability(const int l, const double a, ChannelWaveFunc *wfn)
 {
   complex<double> h,d;
 
@@ -176,7 +176,7 @@ double gfrPenetrability(const int l, const double a, Wfunc *wfn)
     h = complex<double>( g0,f0);
     d = complex<double>(-f0,g0);
   }
-  else if(l==1){
+  else if(l == 1){
     h = complex<double>(g1,f1);
     d = complex<double>(-f1-g0/(a*a),g1-f0/(a*a));
   }
@@ -190,47 +190,33 @@ double gfrPenetrability(const int l, const double a, Wfunc *wfn)
     d = complex<double>(g0-l/a*g1, f0-l/a*f1);
   }
 
-  wfn->d = a*d/h;
-
-  double phase = atan( imag(h) / real(h) );
-
-  return(phase);
+  wfn->setData(a,h,d);
+  wfn->setPhase(h);
 }
 
 
 /**********************************************************/
 /*     Penetrability at Resoance Energy                   */
 /**********************************************************/
-complex<double> gfrLfunction(const int l, const double er, const double mu, const double ap)
+complex<double> gfrLfunction(const int l, const double alpha, const double eta)
 {
-  Wfunc  wfn;
-  double alpha = gcKfactor * sqrt(fabs(er) * 1.0e-06 * mu) * ap;
-
+  ChannelWaveFunc wfn;
   complex<double> q(0.0, alpha);
-  if(l > 0){
-    gfrPenetrability(l,alpha,&wfn);
-    q = wfn.d;
+
+  if(eta == 0.0){
+    if(l > 0){
+      gfrPenetrability(l,alpha,&wfn);
+      q = wfn.L;
+    }
   }
+  else{
+    complex<double> C0, C1;
+    coulomb(l,alpha,eta,&C0,&C1);
+
+    /*** L = rho (G'+iF') / (G+iF) */
+    q = alpha * C1 / C0;
+  }  
 
   return(q);
 }
-
-
-/**********************************************************/
-/*      Coulomb Penetrability                             */
-/**********************************************************/
-complex<double> gfrLfunctionCoul(const int l, const double er, const double mu, const double ap, const double eta)
-{
-  Wfunc  wfn;
-  double alpha = gcKfactor * sqrt(fabs(er) * 1.0e-06 * mu) * ap;
-
-  complex<double> C0, C1;
-  coulomb(l,alpha,eta,&C0,&C1);
-
-  /*** L = rho (G'+iF') / (G+iF) */
-  complex<double> q = alpha * C1 / C0;
-
-  return(q);
-}
-
 
