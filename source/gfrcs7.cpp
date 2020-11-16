@@ -16,74 +16,57 @@ using namespace std;
 #include "constant.h"
 #include "matrix.h"
 
-static int    RMLLoadParticlePairs (int, System *, ParPair *, ENDF *);
-static int    RMLLoadRMLParameters (int, System *, RMLParameter *, ENDF *);
-static void   RMLMainCalc (const double, System *, ParPair *, RMLParameter *, GFRcross *);
-static void   RMLMatrices (const double, const int, ParPair *, RMLParameter *);
-static void   RMLCrossSection (const int, RMLChannel *, GFRcross *);
+static void   RMLAllocateMemory (const int, System *, ENDF *);
+static void   RMLFreeMemory (const int);
 
-static double RMLIncidentChannel (const double, System *, ParPair *);
-static void   RMLStoreChannelParameter (System *, ParPair *, RMLParameter *, RMLChannel *);
-static void   RMLStorePenetrability (System *, ParPair *, RMLParameter *, RMLChannel *);
-static void   RMLStorePhaseShift (ParPair *, RMLParameter *, RMLChannel *);
-static int    RMLArrangeMatrix (const int, ParPair *, RMLParameter *);
+static int    RMLLoadParticlePairs (int, System *, ENDF *);
+static int    RMLLoadResonanceParameters (int, System *, ENDF *);
+static void   RMLMainCalc (const double, System *, GFRcross *);
+static void   RMLMatrices (const double, const int, RMLParameter *, double **, ChannelWaveFunc *, int *, int *, complex<double> *, complex<double> *, complex<double> *, complex<double> *);
+static void   RMLCrossSection (const int, RMLChannel *, GFRcross *, int *, int *, complex<double> *, complex<double> *, complex<double> *);
+static int    RMLArrangeMatrix (const int, RMLParameter *, double **, ChannelWaveFunc *, int *, int *, double *, complex<double> *, complex<double> *);
+
+static void   RMLStorePenetrability (System *, RMLParameter *, RMLChannel *, double **);
+static double RMLIncidentChannel (const double, System *);
+static void   RMLStoreChannelParameter (System *, RMLParameter *, RMLChannel *);
+static void   RMLStorePhaseShift (RMLParameter *, RMLChannel *, ChannelWaveFunc *);
 
 extern Smatrix Smat;
 
-static complex<double> *rm, *sm, *wm, *phi0, *phiC;
-static double *gm, **pen;
-static ChannelWaveFunc *wf;
-static int *mtid, *dptr, msize = 0;
+static RMLParameter *res;
+static ParPair *ppr;
+static double ***pen;
+static int msize = 0, chmax = 0;
+static bool dataload = false;
 
-#undef DEBUG_INCH
+#undef DEBUG_MATRIX
+#undef DEBUG_WIDTH
+#undef DEBUG_PENNETRABILITY
+#undef DEBUG_INCIDENT
 #undef DEBUG_CHANNEL
 #undef DEBUG_PHASE
-#undef DEBUG_WIDTH
-#undef DEBUG_MATRIX
-#undef DEBUG_PEN
+#undef DEBUG_PAIR
+#undef DEBUG_RESONANCE
 
 /**********************************************************/
 /*      Pointwise Cross Section in Resonance Range        */
 /**********************************************************/
 Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib)
 {
-  GFRcross sig;
-  RMLParameter *res;
-  ParPair *ppr;
+  if(sys->isFirstCall()){
+    if(dataload) RMLFreeMemory(sys->nj);
 
-  /*** two particle pair data */
-  ppr = new ParPair [MAX_PAIRS];
-  RMLLoadParticlePairs(sys->idx[ner],sys,ppr,lib);
-
-  /*** resonance parameters for each spin group */
-  res = new RMLParameter [sys->nj];
-  RMLLoadRMLParameters(sys->idx[ner],sys,res,lib);
-
-  /*** look for max number of channels for matrix size N(N+1)/2 */
-  int chmax = 0;
-  for(int j=0 ; j<sys->nj ; j++) if(chmax < res[j].nchannel) chmax = res[j].nchannel;
-
-  /*** memory allocation */
-  msize = chmax * (chmax+1) / 2;
-
-  wf = new ChannelWaveFunc [chmax];
-  rm = new complex<double> [msize];   // R-matrix
-  sm = new complex<double> [msize];   // S-matrix
-  wm = new complex<double> [msize];   // W = I +2i X
-  gm = new double [msize];            // Gammas
-  mtid = new int [chmax];             // MT numbers for each channel
-  dptr = new int [chmax];             // pointer to the ENDF data row
-  pen = new double * [chmax];         // penetrability [c x Nres]
-  for(int i=0 ; i<chmax ; i++){
-    pen[i] = new double [MAX_RESONANCE];
+    RMLAllocateMemory(ner,sys,lib);
+    dataload = true;
   }
-  phi0 = new complex<double> [chmax]; // hard-sphare phase factor
-  phiC = new complex<double> [chmax]; // Coulomb phase factor
 
   /*** calculate cross section */
+  GFRcross sig;
+
   sig.memalloc(sys->npair);
   sig.clear();
-  RMLMainCalc(elab,sys,ppr,res,&sig);
+
+  RMLMainCalc(elab,sys,&sig);
 
   Pcross s;
 
@@ -99,68 +82,127 @@ Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib
   else if(sig.get(600) > 0.0){
     for(int m = 600 ; m<=649 ; m++) s.proton += sig.get(m);
   }
+  if(s.proton < 1e-99) s.proton = 0.0;
 
   s.alpha = 0.0;
   if(sig.get(107) > 0.0) s.alpha = sig.get(107);
   else if(sig.get(800) > 0.0){
     for(int m = 800 ; m<=849 ; m++) s.alpha +=  sig.get(m);
   }
+  if(s.alpha < 1e-99) s.alpha = 0.0;
 
   sig.memfree();
 
-  delete [] ppr;
-  delete [] res;
-
-  delete [] wf;
-  delete [] rm;
-  delete [] sm;
-  delete [] wm;
-  delete [] gm;
-  delete [] mtid;
-  delete [] dptr;
-  for(int i=0 ; i<chmax ; i++) delete [] pen[i];
-  delete [] pen;
-  delete [] phi0;
-  delete [] phiC;
+  sys->OnceCalled();
+  if(sys->isLastCall()) RMLFreeMemory(sys->nj);
 
   return(s);
 }
 
 
 /**********************************************************/
+/*      Allocate Memory and Load Parameters               */
+/**********************************************************/
+void RMLAllocateMemory(const int ner, System *sys, ENDF *lib)
+{
+  if(dataload) return;
+
+  /*** two particle pair data */
+  ppr = new ParPair [MAX_PAIRS];
+  RMLLoadParticlePairs(sys->idx[ner],sys,lib);
+
+  /*** resonance parameters for each spin group */
+  res = new RMLParameter [sys->nj];
+  RMLLoadResonanceParameters(sys->idx[ner],sys,lib);
+
+  /*** look for max number of channels for matrix size N(N+1)/2 */
+  for(int j=0 ; j<sys->nj ; j++) if(chmax < res[j].nchannel) chmax = res[j].nchannel;
+
+  /*** memory allocation */
+  msize = chmax * (chmax+1) / 2;
+
+  pen = new double ** [sys->nj];      // penetrability [Nj x c x Nres]
+  for(int j=0 ; j<sys->nj; j++){
+    pen[j] = new double * [chmax];
+    for(int i=0 ; i<chmax ; i++){
+      pen[j][i] = new double [res[j].nresonance];
+    }
+  }
+}
+
+
+/**********************************************************/
+/*      Free Allocated Memory                             */
+/**********************************************************/
+void RMLFreeMemory(const int nj)
+{
+  if(!dataload) return;
+
+  delete [] ppr;
+  delete [] res;
+
+  for(int j=0 ; j<nj; j++){
+    for(int i=0 ; i<chmax ; i++) delete [] pen[j][i];
+    delete [] pen[j];
+  }
+  delete [] pen;
+
+  dataload = false;
+}
+
+
+/**********************************************************/
 /*      Main Calculatioin of RML Formula                  */
 /**********************************************************/
-void RMLMainCalc(const double elab, System *sys, ParPair *ppr, RMLParameter *res, GFRcross *sig)
+void RMLMainCalc(const double elab, System *sys, GFRcross *sig)
 {
   GFRcross z(sys->npair);
   RMLChannel *chn = new RMLChannel [sys->npair];
+  complex<double> *sm = new complex<double> [msize];   // S-matrix
+  ChannelWaveFunc *wf = new ChannelWaveFunc [chmax];   // G and F
+  complex<double> *phi0 = new complex<double> [chmax]; // hard-sphare phase factor
+  complex<double> *phiC = new complex<double> [chmax]; // Coulomb phase factor
+  complex<double> *xm   = new complex<double> [msize]; // X-matrix x 2i
+
+
+  int *mtid = new int [chmax]; // MT numbers for each channel
+  int *dptr = new int [chmax]; // pointer to the ENDF data row
 
   /*** set reaction type in GFRcross class */
   for(int p=0 ; p<sys->npair ; p++) sig->type[p] = z.type[p] = ppr[p].mt;
 
   /*** find incident channel and kinetic parameters */
-  double x1 = RMLIncidentChannel(elab,sys,ppr);
+  double x1 = RMLIncidentChannel(elab,sys);
+
+  if(sys->isFirstCall()){
+    /*** pre-calculate penetrabilities */
+    for(int j=0 ; j<sys->nj ; j++){
+
+      /*** channel parameters */
+      RMLStoreChannelParameter(sys,&res[j],chn);
+
+      /*** penetrabilities at resonance energies */
+      RMLStorePenetrability(sys,&res[j],chn,pen[j]);
+    }
+  }
 
   /*** for all spin groups */
   Smat.resetIndex();
   for(int j=0 ; j<sys->nj ; j++){
 
     /*** channel parameters */
-    RMLStoreChannelParameter(sys,ppr,&res[j],chn);
-
-    /*** penetrabilities at resonance energies */
-    RMLStorePenetrability(sys,ppr,&res[j],chn);
+    RMLStoreChannelParameter(sys,&res[j],chn);
 
     /*** hard-sphere phase */
-    RMLStorePhaseShift(ppr,&res[j],chn);
+    RMLStorePhaseShift(&res[j],chn,wf);
 
     /*** R and S-matrices */
     int nch = res[j].nchannel;
     int mch = nch - 1;  // capture eliminated total channels
-    RMLMatrices(elab,mch,ppr,&res[j]);
+    RMLMatrices(elab,mch,&res[j],pen[j],wf,mtid,dptr,sm,xm,phi0,phiC);
 
     /*** cross section */
-    RMLCrossSection(mch,chn,&z);
+    RMLCrossSection(mch,chn,&z,mtid,dptr,sm,xm,phiC);
 
     double x2 = (res[j].j2 + 1.0) * x1; // (2J+1) g Pi/k^2
     for(int i0 = 0 ; i0<nch ; i0++){
@@ -178,29 +220,46 @@ void RMLMainCalc(const double elab, System *sys, ParPair *ppr, RMLParameter *res
   }
 
   delete [] chn;
+  delete [] sm;
+  delete [] wf;
+  delete [] phi0;
+  delete [] phiC;
+  delete [] xm;
+  delete [] mtid;
+  delete [] dptr;
 }
 
 
 /**********************************************************/
 /*      Calculate R and S Matres                          */
 /**********************************************************/
-void RMLMatrices(const double elab, const int mch, ParPair *ppr, RMLParameter *res)
+#undef METHOD_A
+void RMLMatrices(const double elab, const int mch, RMLParameter *r, double **p, ChannelWaveFunc *wf, int *mtid, int *dptr, complex<double> *sm, complex<double> *xm, complex<double> *phi0, complex<double> *phiC)
 {
-  for(int i=0 ; i<msize ; i++) sm[i] = rm[i] = wm[i] = complex<double>(0.0,0.0);
+  complex<double> *wm   = new complex<double> [msize];   // W = I +2i X
+  complex<double> *rm   = new complex<double> [msize];   // R-matrix
+  double          *gm   = new double          [msize];   // Gammas
+  double          *pm   = new double          [msize];   // P
+
+  for(int i=0 ; i<msize ; i++){
+    sm[i] = rm[i] = wm[i] = complex<double>(0.0,0.0);
+    gm[i] = 0.0;
+  }
 
   /*** for all resonances */
-  for(int k=0 ; k<res->nresonance ; k++){
+  for(int k=0 ; k<r->nresonance ; k++){
 
     /*** store width parameters in the matrix */
-    RMLArrangeMatrix(k,ppr,res);
+    RMLArrangeMatrix(k,r,p,wf,mtid,dptr,gm,phi0,phiC);
 
     /*** capture width found at the last element */
     int cpt = (mch + 2) * (mch + 1) / 2 - 1; // index of capture width, Gamma_g
-    complex<double> w(res->energy[k] - elab, -gm[cpt]/2.0);
+    complex<double> w(r->energy[k] - elab, -gm[cpt]/2.0);
     w = 1.0 / w;
     for(int i=0 ; i<mch*(mch+1)/2 ; i++) rm[i] += gm[i] * w; // R-matrix
   }
 
+#ifdef METHOD_A
   /*** W = delta - i/2 R = I - K */
   for(int i=0 ; i<mch*(mch+1)/2 ; i++){
     wm[i] = complex<double>(imag(rm[i])/2.0,-real(rm[i])/2.0);
@@ -222,6 +281,64 @@ void RMLMatrices(const double elab, const int mch, ParPair *ppr, RMLParameter *r
       else         sm[ij] = p0 * p1 *  2.0*wm[ij];
     }
   }
+#else
+  for(int i=0 ; i<mch ; i++) pm[i] = wf[dptr[i]].P();
+
+  /*** W = {L^{-1} - R}^{-1} */
+  for(int i=0 ; i<mch ; i++){
+    for(int j=0 ; j<=i ; j++){
+      int ij = i*(i+1)/2 + j;
+      rm[ij] = rm[ij] / (2.0 * sqrt(pm[i] * pm[j]));
+
+      if(i == j) wm[ij] = 1.0/complex<double>(0.0,pm[i]) - rm[ij];
+      else       wm[ij] = - rm[ij];
+    }
+  }
+  MatrixInverse(mch,wm);
+
+  /*** X = W R */
+  for(int i=0 ; i<mch ; i++){
+    for(int j=0 ; j<=i ; j++){
+      int ij = i*(i+1)/2 + j;
+      xm[ij] = complex<double>(0.0,0.0);
+      for(int k=0 ; k<mch ; k++){
+        int ik = i*(i+1)/2 + k;  if(k > i) ik = k*(k+1)/2 + i;
+        int kj = k*(k+1)/2 + j;  if(j > k) kj = j*(j+1)/2 + k;
+        xm[ij] += wm[ik] * rm[kj];
+      }
+    }
+  }
+
+  /*** 2i X = 2i P^{1/2}L^{-1} WR P^{1/2} */
+  for(int i=0 ; i<mch ; i++){
+    complex<double> a = 2.0/sqrt(pm[i]);
+    for(int j=0 ; j<=i ; j++){
+      int ij = i*(i+1)/2 + j;
+      xm[ij] *= a * sqrt(pm[j]);
+    }
+  }
+
+  /*** S-matrix elements = exp^{-(pc + pc')} [delta(cc') + 2iX] */
+  for(int i0=0 ; i0<mch ; i0++){
+    complex<double> p0 = phi0[i0] * phiC[i0];
+
+    for(int i1=0 ; i1<=i0 ; i1++){
+      complex<double> p1 = phi0[i1] * phiC[i1];
+
+      int ij = i0*(i0+1)/2 + i1;
+      if(i0 == i1) sm[ij] = p0 * p1 * (xm[ij] + 1.0);
+      else         sm[ij] = p0 * p1 *  xm[ij];
+    }
+  }
+
+  for(int i0=0 ; i0<mch ; i0++){
+    for(int i1=0 ; i1<=i0 ; i1++){
+      int ij = i0*(i0+1)/2 + i1;
+      xm[ij] = xm[ij] / complex<double>(0.0,2.0);
+    }
+  }
+
+#endif
 
 #ifdef DEBUG_MATRIX
   cout << setprecision(12);
@@ -235,248 +352,52 @@ void RMLMatrices(const double elab, const int mch, ParPair *ppr, RMLParameter *r
     cout << endl;
   }
 #endif
+
+  delete [] wm;
+  delete [] rm;
+  delete [] gm;
+  delete [] pm;
 }
 
 
 /**********************************************************/
 /*      Calculate Cross Sections from S-Matrix            */
 /**********************************************************/
-void RMLCrossSection(const int mch, RMLChannel *chn, GFRcross *z)
+void RMLCrossSection(const int mch, RMLChannel *chn, GFRcross *z, int *mtid, int *dptr, complex<double> *sm, complex<double> *xm, complex<double> *phiC)
 {
   z->zero();
   double sigtot = 0.0;
 
   /*** elastic scattering case */
+  double sigc = 0.0;
   for(int i0=0 ; i0<mch ; i0++){
     if(mtid[i0] == 2){
-      int ij = (i0+2)*(i0+1)/2 - 1;
+      int ii = (i0+2)*(i0+1)/2 - 1;
 
       /*** add elastic scattering */
-      z->add(mtid[i0],norm(phiC[i0] - sm[ij]));
+      z->add(mtid[i0],norm(phiC[i0] - sm[ii]));
 
       /*** for neutron, total cross section is defined */
-      if(chn[dptr[i0]].coulomb == 0.0) sigtot += (1.0 - real(sm[ij]))*2.0;
+      if(chn[dptr[i0]].coulomb == 0.0) sigtot += (1.0 - real(sm[ii]))*2.0;
+
+      double cx = 0.0;
+      for(int i1=0 ; i1<mch ; i1++){
+        int ij = i1*(i1+1)/2 + i0;
+        cx += norm(xm[ij]);
+      }
+      sigc += 4*(xm[ii].imag() - cx);
     } 
   }
+
+  /*** eliminated capture cross section */
+  z->set(102, sigc);
 
   /*** all other channels */
   for(int i0=0 ; i0<mch ; i0++){    if(mtid[i0] != 2) continue;  // incoming channel = elastic
     for(int i1=0 ; i1<mch ; i1++){  if(mtid[i1] == 2) continue;  // outgoing channel = other
-
       if(!chn[dptr[i1]].open) continue;
-
-      int ij = i1*(i1+1)/2 + i0;
-      double cx = real(sm[ij])*real(sm[ij]) + imag(sm[ij])*imag(sm[ij]);
-      z->add(mtid[i1],cx);
+      z->add(mtid[i1],norm(sm[i1*(i1+1)/2 + i0]));
     }
-  }
-
-  /*** calculate eliminated capture cross section */
-  double x = 0.0;
-  for(int i0 = 0 ; i0<mch ; i0++){
-    if(mtid[i0] != 1) x += z->get(mtid[i0]); // skip total cross section
-  }
-  z->set(102, sigtot - x);
-}
-
-
-/**********************************************************/
-/*      Incident Channal Kinetic Parameters               */
-/**********************************************************/
-double RMLIncidentChannel(const double elab, System *sys, ParPair *ppr)
-{
-  /*** elastic channel as the incoming-particle channel */
-  for(int p=0 ; p<sys->npair ; p++){
-    if(ppr[p].mt == 2){
-      /*** incident and target spins */
-      sys->incident_spin2 = ppr[p].spin2[0];
-      sys->target_spin2   = ppr[p].spin2[1];
-      sys->target_parity  = ppr[p].parity[1];
-
-      /*** reduced mass and CMS energy */
-      sys->reduced_mass   =  ppr[p].mass[0] * ppr[p].mass[1] 
-                          / (ppr[p].mass[0] + ppr[p].mass[1]) * MNEUTRON;
-      sys->ecms = elab * ppr[p].mass[1] / (ppr[p].mass[0] + ppr[p].mass[1]);
-
-      sys->wave_number = sqrt(2.0 * AMUNIT * sys->reduced_mass * sys->ecms * 1e-6) / VLIGHT / HBAR;
-      break;
-    }
-  }
-
-  double x = PI / (sys->wave_number*sys->wave_number) * 0.01
-                / ((sys->target_spin2 + 1.0) * (sys->incident_spin2 + 1.0));
-
-#ifdef DEBUG_INCH
-  cout << "#  2i: " << setw(4) << sys->incident_spin2;
-  cout << "   2I: " << setw(4) << sys->target_spin2;
-  cout << setprecision(4);
-  cout << "   mu: " << setw(11) << sys->reduced_mass;
-  cout << " Ecms: " << setw(11) << sys->ecms;
-  cout << "    k: " << setw(11) << sys->wave_number << endl;
-#endif
-
-  return x;
-}
-
-
-/**********************************************************/
-/*      Calculate Channel Parameters                      */
-/**********************************************************/
-void RMLStoreChannelParameter(System *sys, ParPair *ppr, RMLParameter *res, RMLChannel *chn)
-{
-  for(int c=0 ; c<res->nchannel ; c++){
-
-    /*** exit channel reduced mass, masses are given as ratios to neutron */
-    chn[c].reduced_mass =  ppr[res->pidx[c]].mass[0] * ppr[res->pidx[c]].mass[1] 
-                        / (ppr[res->pidx[c]].mass[0] + ppr[res->pidx[c]].mass[1]) * MNEUTRON;
-
-    /*** save mass ratio */
-    chn[c].mratio = (ppr[res->pidx[c]].mass[0] + ppr[res->pidx[c]].mass[1]) / ppr[res->pidx[c]].mass[1];
-
-    /*** exit channel energy */
-    chn[c].ecms = sys->ecms + ppr[res->pidx[c]].qvalue;
-    chn[c].open = (chn[c].ecms > 0.0) ? true : false;
-
-    /*** exit channel wave number, sqrt(c2) is slightly different from 0.21968 */
-    double c2 = 2.0 * AMUNIT / (VLIGHTSQ * HBARSQ);
-    double k2 = c2 * chn[c].reduced_mass * chn[c].ecms * 1e-6;
-
-    chn[c].wave_number = (chn[c].ecms <= 0.0) ? -sqrt(-k2) : sqrt(k2); 
-
-    /*** Coulomb parameter */
-    int zz = ppr[res->pidx[c]].znum[0] * ppr[res->pidx[c]].znum[1];
-    chn[c].coulomb = PERMITTIV * COULOMBSQ * zz
-                   * sqrt(AMUNIT * chn[c].reduced_mass / (2.0 * abs(chn[c].ecms) * 1e-6)) / VLIGHT / HBAR;
-    chn[c].charge = (zz > 0) ? true : false;
-
-    /*** alpha for effective and true channel radii */
-    chn[c].alpha_effective = chn[c].wave_number * res->radius_effective[c];
-    chn[c].alpha_true      = chn[c].wave_number * res->radius_true[c];
-
-#ifdef DEBUG_CHANNEL
-    cout << "# " << setw(3) << c << setw(2) << ppr[res->pidx[c]].znum[0];
-    cout << setw(2) << chn[c].open;
-    cout << setprecision(3);
-    cout <<   " mu: " << setw(10) << chn[c].reduced_mass;
-    cout << " Ecms: " << setw(10) << chn[c].ecms;
-    cout <<    " k: " << setw(10) << chn[c].wave_number;
-    cout <<   " k2: " << setw(10) << k2;
-    cout <<  " eta: " << setw(10) << chn[c].coulomb;
-    cout << "  Tru: " << setw(10) << res->radius_true[c]      << setw(10) << chn[c].alpha_true;
-    cout << "  Eff: " << setw(10) << res->radius_effective[c] << setw(10) << chn[c].alpha_effective << endl;
-#endif
-  }
-}
-
-
-/**********************************************************/
-/*      Calculate Penetrability at Resonance Energy       */
-/**********************************************************/
-void RMLStorePenetrability(System *sys, ParPair *ppr, RMLParameter *res, RMLChannel *chn)
-{
-  double c2 = 2.0 * AMUNIT / (VLIGHTSQ * HBARSQ);
-
-  /*** mass ratio, (M + m)/M, for incident channel */
-  double mr = 1.0;
-  for(int c=0 ; c<res->nchannel ; c++){
-    if(ppr[res->pidx[c]].mt == 2){
-      mr = chn[c].mratio;
-      break;
-    }
-  }
-
-  for(int c=0 ; c<res->nchannel ; c++){
-    int idx = res->pidx[c];
-
-    /*** set default penetration factor */
-    for(int k=0 ; k<res->nresonance ; k++) pen[c][k] = 1.0;
-
-    /*** flag for penetrability calculation */
-    bool pencalc = false;
-    if(ppr[idx].fpen == 1) pencalc = true;
-    else if(ppr[idx].fpen == -1) pencalc = false;
-    else{
-      /*** dont calculate when fission or capture */
-      if(ppr[idx].mt == 18 || ppr[idx].mt == 102) pencalc = false;
-      else pencalc = true;
-    }
-    if(!pencalc) continue;
-
-    if(sys->gammaunit_flag == 0){
-      for(int k=0 ; k<res->nresonance ; k++){
-
-        /*** resonance energy is LAB */
-        double ecm = abs(res->energy[k] / mr + ppr[idx].qvalue);
-        double rho = sqrt(c2 * chn[c].reduced_mass * ecm * 1e-6) * res->radius_true[c];
-        double eta = 0.0;
-        if(chn[c].coulomb != 0.0) eta = chn[c].coulomb * sqrt( abs(chn[c].ecms / ecm) );
-
-        complex<double> q = gfrLfunction(res->l[c],rho,eta);
-        pen[c][k] = q.imag();  // P = imag(L)
-
-#ifdef DEBUG_PEN
-        cout << setw(3) << c << setw(3) << k << setw(3) << res->l[c];
-        cout <<setprecision(3);
-        cout << setw(11) << res->energy[k];
-        cout << setw(11) << ecm;
-        cout << setw(11) << rho;
-        cout << setw(11) << eta;
-        cout << setw(11) << pen[c][k] << endl;
-#endif
-      }
-    }
-  }
-}
-
-
-/**********************************************************/
-/*      Calculate Phase Shift                             */
-/**********************************************************/
-void RMLStorePhaseShift(ParPair *ppr, RMLParameter *res, RMLChannel *chn)
-{
-  for(int c=0 ; c<res->nchannel ; c++){
-
-    int idx = res->pidx[c];
-
-    if(ppr[idx].mt == 18 || ppr[idx].mt == 102) continue;
-
-    /*** neutron case, wf includes G'+iF' in wf.d */
-    if(chn[c].coulomb == 0.0){
-      ChannelWaveFunc tmp;
-      /*** penetrability calculated with the true radius */
-      gfrPenetrability(res->l[c],chn[c].alpha_true,&wf[c]);
-
-      /*** hard-sphare phase by the effective radius */
-      gfrPenetrability(res->l[c],chn[c].alpha_effective,&tmp);
-      wf[c].setPhase(tmp.H);
-      wf[c].setCoulombPhase(0.0);
-    }
-
-    /*** charged particle case */
-    else{
-      /*** C0 = G + iF, C1 = G' + iF' */
-      complex<double> C0, C1;
-      coulomb(res->l[c],chn[c].alpha_true,chn[c].coulomb,&C0,&C1);
-      wf[c].setData(chn[c].alpha_effective,C0,C1);
-
-      /*** hard-sphase phase */
-      coulomb(res->l[c],chn[c].alpha_effective,chn[c].coulomb,&C0,&C1);
-      wf[c].setPhase(C0);
-
-      /*** Coulomb phase */
-      wf[c].setCoulombPhase(coulomb_phaseshift(res->l[c],chn[c].coulomb));
-    }
-
-#ifdef DEBUG_PHASE
-    cout << setw(3) << c << setw(3) << idx << setw(4) <<  ppr[idx].mt << setw(3) << res->l[c];
-    cout << setw(2) << ppr[idx].fpen;
-    cout << setprecision(4);
-    cout << "   ph0: " << setw(11) << wf[c].p;
-    cout << "   eta: " << setw(11) << chn[c].coulomb;
-    cout << "   phC: " << setw(11) << wf[c].phaseC.real() << setw(11) << wf[c].phaseC.imag();
-    cout << "     P: " << setw(11) << wf[c].P();
-    cout << "     S: " << setw(11) << wf[c].S() << endl;
-#endif
   }
 }
 
@@ -484,17 +405,17 @@ void RMLStorePhaseShift(ParPair *ppr, RMLParameter *res, RMLChannel *chn)
 /**********************************************************/
 /*      Matrix Element Re-arrangement for RM              */
 /**********************************************************/
-int RMLArrangeMatrix(const int k, ParPair *ppr, RMLParameter *res)
+int RMLArrangeMatrix(const int k, RMLParameter *r, double **p, ChannelWaveFunc *wf, int *mtid, int *dptr, double *gm, complex<double> *phi0, complex<double> *phiC)
 {
   complex<double> pzero(0.0,0.0);
 
   /*** diagonal elements */
   /*** elastic should be first */
   int idx = 0;
-  for(int c=0 ; c<res->nchannel ; c++){
-    if(ppr[res->pidx[c]].mt == 2){
+  for(int c=0 ; c<r->nchannel ; c++){
+    if(ppr[r->pidx[c]].mt == 2){
       int i = (idx+2)*(idx+1)/2 - 1;
-      gm[i] = res->gamma[c][k] * wf[c].P() /  pen[c][k]; // Gamma x P(E) / P(Eres)
+      gm[i] = r->gamma[c][k] * wf[c].P() /  p[c][k]; // Gamma x P(E) / P(Eres)
       mtid[idx] = 2;
       dptr[idx] = c;
       phi0[idx] = wf[c].phase;
@@ -504,11 +425,11 @@ int RMLArrangeMatrix(const int k, ParPair *ppr, RMLParameter *res)
   }
 
   /*** other channels */
-  for(int c=0 ; c<res->nchannel ; c++){
-    if((ppr[res->pidx[c]].mt == 2) || (ppr[res->pidx[c]].mt == 102)) continue;
+  for(int c=0 ; c<r->nchannel ; c++){
+    if((ppr[r->pidx[c]].mt == 2) || (ppr[r->pidx[c]].mt == 102)) continue;
     int i = (idx+2)*(idx+1)/2 - 1;
-    gm[i] = (pen[c][k] == 0.0) ? 0.0 : res->gamma[c][k] * wf[c].P() /  pen[c][k];
-    mtid[idx] = ppr[res->pidx[c]].mt;
+    gm[i] = (p[c][k] == 0.0) ? 0.0 : r->gamma[c][k] * wf[c].P() /  p[c][k];
+    mtid[idx] = ppr[r->pidx[c]].mt;
     dptr[idx] = c;
     phi0[idx] = wf[c].phase;
     phiC[idx] = wf[c].phaseC;
@@ -516,11 +437,11 @@ int RMLArrangeMatrix(const int k, ParPair *ppr, RMLParameter *res)
   }
 
   /*** capture channel last */
-  for(int c=0 ; c<res->nchannel ; c++){
-    if(ppr[res->pidx[c]].mt == 102){
+  for(int c=0 ; c<r->nchannel ; c++){
+    if(ppr[r->pidx[c]].mt == 102){
       int i = (idx+2)*(idx+1)/2 - 1;
-      gm[i] = res->gamma[c][k];
-      mtid[idx] = ppr[res->pidx[c]].mt;
+      gm[i] = r->gamma[c][k];
+      mtid[idx] = ppr[r->pidx[c]].mt;
       dptr[idx] = c;
       phi0[idx] = pzero;
       phiC[idx] = pzero;
@@ -566,9 +487,210 @@ int RMLArrangeMatrix(const int k, ParPair *ppr, RMLParameter *res)
 
 
 /**********************************************************/
+/*      Calculate Penetrability at Resonance Energy       */
+/**********************************************************/
+void RMLStorePenetrability(System *sys, RMLParameter *r, RMLChannel *chn, double **p)
+{
+  double c2 = 2.0 * AMUNIT / (VLIGHTSQ * HBARSQ);
+
+  /*** mass ratio, (M + m)/M, for incident channel */
+  double mr = 1.0;
+  for(int c=0 ; c<r->nchannel ; c++){
+    if(ppr[r->pidx[c]].mt == 2){
+      mr = chn[c].mratio;
+      break;
+    }
+  }
+
+  for(int c=0 ; c<r->nchannel ; c++){
+    int idx = r->pidx[c];
+
+    /*** set default penetration factor */
+    for(int k=0 ; k<r->nresonance ; k++) p[c][k] = 1.0;
+
+    /*** flag for penetrability calculation */
+    bool pencalc = false;
+    if(ppr[idx].fpen == 1) pencalc = true;
+    else if(ppr[idx].fpen == -1) pencalc = false;
+    else{
+      /*** dont calculate when fission or capture */
+      if(ppr[idx].mt == 18 || ppr[idx].mt == 102) pencalc = false;
+      else pencalc = true;
+    }
+    if(!pencalc) continue;
+
+    if(sys->gammaunit_flag == 0){
+      for(int k=0 ; k<r->nresonance ; k++){
+
+        /*** resonance energy is LAB */
+        double ecm = abs(r->energy[k] / mr + ppr[idx].qvalue);
+        double rho = sqrt(c2 * chn[c].reduced_mass * ecm * 1e-6) * r->radius_true[c];
+        double eta = 0.0;
+        if(chn[c].coulomb != 0.0) eta = chn[c].coulomb * sqrt( abs(chn[c].ecms / ecm) );
+
+        complex<double> q = gfrLfunction(r->l[c],rho,eta);
+        p[c][k] = q.imag();  // P = imag(L)
+
+#ifdef DEBUG_PENNETRABILITY
+        cout << setw(3) << c << setw(3) << k << setw(3) << r->l[c];
+        cout <<setprecision(3);
+        cout << setw(11) << r->energy[k];
+        cout << setw(11) << ecm;
+        cout << setw(11) << rho;
+        cout << setw(11) << eta;
+        cout << setw(11) << p[c][k] << endl;
+#endif
+      }
+    }
+  }
+}
+
+
+/**********************************************************/
+/*      Incident Channal Kinetic Parameters               */
+/**********************************************************/
+double RMLIncidentChannel(const double elab, System *sys)
+{
+  /*** elastic channel as the incoming-particle channel */
+  for(int p=0 ; p<sys->npair ; p++){
+    if(ppr[p].mt == 2){
+      /*** incident and target spins */
+      sys->incident_spin2 = ppr[p].spin2[0];
+      sys->target_spin2   = ppr[p].spin2[1];
+      sys->target_parity  = ppr[p].parity[1];
+
+      /*** reduced mass and CMS energy */
+      sys->reduced_mass   =  ppr[p].mass[0] * ppr[p].mass[1] 
+                          / (ppr[p].mass[0] + ppr[p].mass[1]) * MNEUTRON;
+      sys->ecms = elab * ppr[p].mass[1] / (ppr[p].mass[0] + ppr[p].mass[1]);
+
+      sys->wave_number = sqrt(2.0 * AMUNIT * sys->reduced_mass * sys->ecms * 1e-6) / VLIGHT / HBAR;
+      break;
+    }
+  }
+
+  double x = PI / (sys->wave_number*sys->wave_number) * 0.01
+                / ((sys->target_spin2 + 1.0) * (sys->incident_spin2 + 1.0));
+
+#ifdef DEBUG_INCIDENT
+  cout << "#  2i: " << setw(4) << sys->incident_spin2;
+  cout << "   2I: " << setw(4) << sys->target_spin2;
+  cout << setprecision(4);
+  cout << "   mu: " << setw(11) << sys->reduced_mass;
+  cout << " Ecms: " << setw(11) << sys->ecms;
+  cout << "    k: " << setw(11) << sys->wave_number << endl;
+#endif
+
+  return x;
+}
+
+
+/**********************************************************/
+/*      Calculate Channel Parameters                      */
+/**********************************************************/
+void RMLStoreChannelParameter(System *sys, RMLParameter *r, RMLChannel *chn)
+{
+  for(int c=0 ; c<r->nchannel ; c++){
+
+    /*** exit channel reduced mass, masses are given as ratios to neutron */
+    chn[c].reduced_mass =  ppr[r->pidx[c]].mass[0] * ppr[r->pidx[c]].mass[1] 
+                        / (ppr[r->pidx[c]].mass[0] + ppr[r->pidx[c]].mass[1]) * MNEUTRON;
+
+    /*** save mass ratio */
+    chn[c].mratio = (ppr[r->pidx[c]].mass[0] + ppr[r->pidx[c]].mass[1]) / ppr[r->pidx[c]].mass[1];
+
+    /*** exit channel energy */
+    chn[c].ecms = sys->ecms + ppr[r->pidx[c]].qvalue;
+    chn[c].open = (chn[c].ecms > 0.0) ? true : false;
+
+    /*** exit channel wave number, sqrt(c2) is slightly different from 0.21968 */
+    double c2 = 2.0 * AMUNIT / (VLIGHTSQ * HBARSQ);
+    double k2 = c2 * chn[c].reduced_mass * chn[c].ecms * 1e-6;
+
+    chn[c].wave_number = (chn[c].ecms <= 0.0) ? -sqrt(-k2) : sqrt(k2); 
+
+    /*** Coulomb parameter */
+    int zz = ppr[r->pidx[c]].znum[0] * ppr[r->pidx[c]].znum[1];
+    chn[c].coulomb = PERMITTIV * COULOMBSQ * zz
+                   * sqrt(AMUNIT * chn[c].reduced_mass / (2.0 * abs(chn[c].ecms) * 1e-6)) / VLIGHT / HBAR;
+    chn[c].charge = (zz > 0) ? true : false;
+
+    /*** alpha for effective and true channel radii */
+    chn[c].alpha_effective = chn[c].wave_number * r->radius_effective[c];
+    chn[c].alpha_true      = chn[c].wave_number * r->radius_true[c];
+
+#ifdef DEBUG_CHANNEL
+    cout << "# " << setw(3) << c << " z:" << setw(2) << ppr[r->pidx[c]].znum[0];
+    cout << setw(2) << chn[c].open;
+    cout << setprecision(3);
+    cout <<   " mu: " << setw(10) << chn[c].reduced_mass;
+    cout << " Ecms: " << setw(10) << chn[c].ecms;
+    cout <<    " k: " << setw(10) << chn[c].wave_number;
+    cout <<   " k2: " << setw(10) << k2;
+    cout <<  " eta: " << setw(10) << chn[c].coulomb;
+    cout << "  Tru: " << setw(10) << r->radius_true[c]      << setw(10) << chn[c].alpha_true;
+    cout << "  Eff: " << setw(10) << r->radius_effective[c] << setw(10) << chn[c].alpha_effective << endl;
+#endif
+  }
+}
+
+
+/**********************************************************/
+/*      Calculate Phase Shift                             */
+/**********************************************************/
+void RMLStorePhaseShift(RMLParameter *r, RMLChannel *chn, ChannelWaveFunc *wf)
+{
+  for(int c=0 ; c<r->nchannel ; c++){
+
+    int idx = r->pidx[c];
+
+    if(ppr[idx].mt == 18 || ppr[idx].mt == 102) continue;
+
+    /*** neutron case, wf includes G'+iF' in wf.d */
+    if(chn[c].coulomb == 0.0){
+      ChannelWaveFunc tmp;
+      /*** penetrability calculated with the true radius */
+      gfrPenetrability(r->l[c],chn[c].alpha_true,&wf[c]);
+
+      /*** hard-sphare phase by the effective radius */
+      gfrPenetrability(r->l[c],chn[c].alpha_effective,&tmp);
+      wf[c].setPhase(tmp.H);
+      wf[c].setCoulombPhase(0.0);
+    }
+
+    /*** charged particle case */
+    else{
+      /*** C0 = G + iF, C1 = G' + iF' */
+      complex<double> C0, C1;
+      coulomb(r->l[c],chn[c].alpha_true,chn[c].coulomb,&C0,&C1);
+      wf[c].setData(chn[c].alpha_effective,C0,C1);
+
+      /*** hard-sphase phase */
+      coulomb(r->l[c],chn[c].alpha_effective,chn[c].coulomb,&C0,&C1);
+      wf[c].setPhase(C0);
+
+      /*** Coulomb phase */
+      wf[c].setCoulombPhase(coulomb_phaseshift(r->l[c],chn[c].coulomb));
+    }
+
+#ifdef DEBUG_PHASE
+    cout << setw(3) << c << setw(3) << idx << setw(4) <<  ppr[idx].mt << setw(3) << r->l[c];
+    cout << setw(2) << ppr[idx].fpen;
+    cout << setprecision(4);
+    cout << "   ph0: " << setw(11) << wf[c].p;
+    cout << "   eta: " << setw(11) << chn[c].coulomb;
+    cout << "   phC: " << setw(11) << wf[c].phaseC.real() << setw(11) << wf[c].phaseC.imag();
+    cout << "     P: " << setw(11) << wf[c].P();
+    cout << "     S: " << setw(11) << wf[c].S() << endl;
+#endif
+  }
+}
+
+
+/**********************************************************/
 /*     Read Particle Pair Section                         */
 /**********************************************************/
-int RMLLoadParticlePairs(int idx, System *sys, ParPair *ppr, ENDF *lib)
+int RMLLoadParticlePairs(int idx, System *sys, ENDF *lib)
 {
   /*** first line */
   sys->gammaunit_flag = lib->rdata[idx].l1; // IFG: 0, maybe
@@ -621,6 +743,16 @@ int RMLLoadParticlePairs(int idx, System *sys, ParPair *ppr, ENDF *lib)
       }
     }
   }
+#ifdef DEBUG_PAIR
+  for(int i=0 ; i<sys->npair ; i++){
+    cout << setprecision(3);
+    cout << "# MT : " << setw(4) << ppr[i].mt << "  Q: " << setw(11) << ppr[i].qvalue << endl;
+    for(int j=0 ; j<2 ; j++){
+      cout << " M: " << setw(11) << ppr[i].mass[j] << " Z: " << setw(4) << ppr[i].znum[j];
+      cout << " I: " << setw(4) << ppr[i].spin2[j] << " p: " << setw(4) << ppr[i].parity[j] << endl;
+    }
+  }
+#endif
 
   return sys->npair;
 }
@@ -629,7 +761,7 @@ int RMLLoadParticlePairs(int idx, System *sys, ParPair *ppr, ENDF *lib)
 /**********************************************************/
 /*     Copy All Resoance Parameters                       */
 /**********************************************************/
-int RMLLoadRMLParameters(int idx, System *sys, RMLParameter *res, ENDF *lib)
+int RMLLoadResonanceParameters(int idx, System *sys, ENDF *lib)
 {
   idx += 2; // skip first and second CONTs
 
@@ -652,10 +784,10 @@ int RMLLoadRMLParameters(int idx, System *sys, RMLParameter *res, ENDF *lib)
     }
 
     res[j].memalloc(nch,nres);
-    restot += nres;
+    restot += res[j].nresonance;
     
     /*** for each channel */
-    for(int c=0 ; c<nch ; c++){
+    for(int c=0 ; c<res[j].nchannel ; c++){
       int k = 6*c;
       res[j].pidx[c] = lib->xptr[idx][k] - 1;          // PPI: pair index
       res[j].l[c]    = lib->xptr[idx][k+1];            //   L: orbital angular momentum
@@ -666,15 +798,29 @@ int RMLLoadRMLParameters(int idx, System *sys, RMLParameter *res, ENDF *lib)
     idx ++;
 
     /*** for each resonance */
-    int nline = nch/6 + 1; // required number of lines for each resonance
-    for(int i=0 ; i<nres ; i++){
+    int nline = res[j].nchannel/6 + 1; // required number of lines for each resonance
+    for(int i=0 ; i<res[j].nresonance ; i++){
       int k = 6*nline*i;
       res[j].energy[i] = lib->xptr[idx][k];
-      for(int c=0 ; c<nch ; c++) res[j].gamma[c][i] = lib->xptr[idx][k+c+1];
+      for(int c=0 ; c<res[j].nchannel ; c++) res[j].gamma[c][i] = lib->xptr[idx][k+c+1];
     }
     idx ++;
   }
 
+#ifdef DEBUG_RESONANCE
+  for(int j=0 ; j<sys->nj ; j++){
+    cout << "# J2 : " << setw(4) << res[j].j2 << setw(6) << res[j].nresonance << endl;
+    cout << setprecision(3);
+    for(int i=0 ; i<res[j].nresonance ; i++){
+      cout << setw(11) << res[j].energy[i];
+      for(int c=0 ; c<res[j].nchannel ; c++){
+        cout << setw(11) << res[j].gamma[c][i];
+      }
+      cout << endl;
+    }
+  }
+#endif
+
+
   return restot;
 }
-

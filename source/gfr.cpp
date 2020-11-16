@@ -113,10 +113,11 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   if((emin == 0.0) && (emax == 0.0)){
 
     np = gfrAutoEnergyRRR(&sys,lib[kres],elab,dict->emaxRR);
-
+    sys.FirstCall();
     for(int i=0 ; i<np ; i++){
 
       /*** resonance cross sections */
+      if(i == np-1) sys.LastCall();
       crs = gfrCrossSection(1,elab[i],&sys,lib[kres]);
       /*** background cross section in MF3 */
       cbg = gfrBackGround(dict,lib,elab[i]);
@@ -146,6 +147,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     for(int i=0 ; i<np ; i++){
 
       /*** resonance cross sections */
+      if(i == np-1) sys.LastCall();
       crs = gfrCrossSection(0,elab[i],&sys,lib[kres]);
       if(elab[i] < dict->emaxRR){
         /*** background cross section in MF3 */

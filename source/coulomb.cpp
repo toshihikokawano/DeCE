@@ -18,6 +18,7 @@ static const int    MAX_L              =     60;
 static const double CRITERIA_ITERATION =  1e-24;
 static const int    MAX_ITERATION      =  50000;
 static const double TINY_NUMBER        =  1e-64;
+static const double HUGE_NUMBER        =  1e+64;
 static const double VALUE_CUTOFF       =  1e-24;
 
 static void  omCoulombBarnett (const int, const double, const double, complex<double> *, complex<double> *);
@@ -162,8 +163,8 @@ void omCoulombBarnett(int lmax, double rho, double eta, complex<double> *c0, com
   /*** when we cannot calculate F0, default */
   if(f0 == 0.0){
     for(int l=0 ; l<=lmax ; l++){
-      c0[l] = complex<double>( 1.0,0.0);
-      c1[l] = complex<double>(-1.0,0.0);
+      c0[l] = complex<double>( HUGE_NUMBER,TINY_NUMBER);
+      c1[l] = complex<double>(-HUGE_NUMBER,TINY_NUMBER);
     }
   }
   else{

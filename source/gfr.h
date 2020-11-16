@@ -218,6 +218,9 @@ class RMLChannel{
 /*      Class System                  */
 /**************************************/
 class System{
+ private:
+  bool   first_call;          // flag for multiple energy, start new calculation
+  bool   last_call;           // reset loaded data
  public:
   unsigned int target_A;
   unsigned int target_Z;
@@ -251,6 +254,8 @@ class System{
   double *fwx;                // fission widths
 
   System(){
+    first_call   = true;
+    last_call    = false;
     target_A     = 0;
     target_Z     = 0;
     target_spin2 = 0;
@@ -294,6 +299,12 @@ class System{
     delete [] emin;
     delete [] emax;
   }
+
+  bool isFirstCall(){ return first_call; }
+  bool isLastCall(){ return last_call; }
+  void FirstCall(){ first_call = true; }
+  void OnceCalled(){ first_call = false; }
+  void LastCall(){ last_call = true; }
 };
 
 
