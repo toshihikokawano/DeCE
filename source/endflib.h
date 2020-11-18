@@ -21,7 +21,7 @@ static const int MULT_MEMSIZE  =       2;  // multiplication of memory size
 static const int MAX_SECTION   =    1000;  // max number of sections defined by MF/MT
 static const int MAX_SUBBLOCK  =  100000;  // limit max number of sub-blocks (3.2MB)
 static const int MAX_INTDATA   =  500000;  // integer data max size of 2 MB
-static const int MAX_DBLDATA   = 2500000;  // set double data memory buffer of 200 MB
+static const int MAX_DBLDATA   = 5000000;  // set double data memory buffer of 400 MB
 
 
 /**************************************/

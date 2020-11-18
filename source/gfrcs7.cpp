@@ -39,20 +39,22 @@ static double ***pen;
 static int msize = 0, chmax = 0;
 static bool dataload = false;
 
-#undef DEBUG_MATRIX
-#undef DEBUG_WIDTH
-#undef DEBUG_PENNETRABILITY
+#undef DEBUG_PAIR
+#undef DEBUG_RESONANCE
+#undef DEBUG_PENETRABILITY
 #undef DEBUG_INCIDENT
 #undef DEBUG_CHANNEL
 #undef DEBUG_PHASE
-#undef DEBUG_PAIR
-#undef DEBUG_RESONANCE
+#undef DEBUG_WIDTH
+#undef DEBUG_MATRIX
 
 /**********************************************************/
 /*      Pointwise Cross Section in Resonance Range        */
 /**********************************************************/
 Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib)
 {
+  const double sigcut = 1e-99;
+
   if(sys->isFirstCall()){
     if(dataload) RMLFreeMemory(sys->nj);
 
@@ -77,19 +79,26 @@ Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib
   s.fission = sig.get(18);
 
   /*** sum partial proton and alpha cross sections if given */
+  s.inelastic = 0.0;
+  if(sig.get(4) > 0.0) s.inelastic = sig.get(4);
+  else if(sig.get(51) > 0.0){
+    for(int m = 51 ; m<=91 ; m++) s.inelastic += sig.get(m);
+  }
+  if(s.inelastic < sigcut) s.inelastic = 0.0;
+
   s.proton = 0.0;
   if(sig.get(103) > 0.0) s.proton = sig.get(103);
   else if(sig.get(600) > 0.0){
     for(int m = 600 ; m<=649 ; m++) s.proton += sig.get(m);
   }
-  if(s.proton < 1e-99) s.proton = 0.0;
+  if(s.proton < sigcut) s.proton = 0.0;
 
   s.alpha = 0.0;
   if(sig.get(107) > 0.0) s.alpha = sig.get(107);
   else if(sig.get(800) > 0.0){
     for(int m = 800 ; m<=849 ; m++) s.alpha +=  sig.get(m);
   }
-  if(s.alpha < 1e-99) s.alpha = 0.0;
+  if(s.alpha < sigcut) s.alpha = 0.0;
 
   sig.memfree();
 
@@ -107,13 +116,15 @@ void RMLAllocateMemory(const int ner, System *sys, ENDF *lib)
 {
   if(dataload) return;
 
+  int idx =sys->idx[ner] + 1;
+
   /*** two particle pair data */
   ppr = new ParPair [MAX_PAIRS];
-  RMLLoadParticlePairs(sys->idx[ner],sys,lib);
+  RMLLoadParticlePairs(idx,sys,lib);
 
   /*** resonance parameters for each spin group */
   res = new RMLParameter [sys->nj];
-  RMLLoadResonanceParameters(sys->idx[ner],sys,lib);
+  RMLLoadResonanceParameters(idx,sys,lib);
 
   /*** look for max number of channels for matrix size N(N+1)/2 */
   for(int j=0 ; j<sys->nj ; j++) if(chmax < res[j].nchannel) chmax = res[j].nchannel;
@@ -156,13 +167,13 @@ void RMLFreeMemory(const int nj)
 /**********************************************************/
 void RMLMainCalc(const double elab, System *sys, GFRcross *sig)
 {
-  GFRcross z(sys->npair);
-  RMLChannel *chn = new RMLChannel [sys->npair];
-  complex<double> *sm = new complex<double> [msize];   // S-matrix
-  ChannelWaveFunc *wf = new ChannelWaveFunc [chmax];   // G and F
+  GFRcross z(sig->getNch());
+  RMLChannel      *chn  = new RMLChannel      [chmax]; // channel data
+  complex<double> *sm   = new complex<double> [msize]; // S-matrix
+  complex<double> *xm   = new complex<double> [msize]; // X-matrix x 2i
+  ChannelWaveFunc *wf   = new ChannelWaveFunc [chmax]; // G and F
   complex<double> *phi0 = new complex<double> [chmax]; // hard-sphare phase factor
   complex<double> *phiC = new complex<double> [chmax]; // Coulomb phase factor
-  complex<double> *xm   = new complex<double> [msize]; // X-matrix x 2i
 
 
   int *mtid = new int [chmax]; // MT numbers for each channel
@@ -205,8 +216,10 @@ void RMLMainCalc(const double elab, System *sys, GFRcross *sig)
     RMLCrossSection(mch,chn,&z,mtid,dptr,sm,xm,phiC);
 
     double x2 = (res[j].j2 + 1.0) * x1; // (2J+1) g Pi/k^2
-    for(int i0 = 0 ; i0<nch ; i0++){
-      sig->add(mtid[i0], x2 * z.get(mtid[i0]));
+
+    for(int i0 = 0 ; i0<z.getNch() ; i0++){
+      int mt = z.type[i0];
+      sig->add(mt, x2 * z.get(mt));
     }
 
     /*** copy S-matrix elements for elastic */
@@ -221,10 +234,10 @@ void RMLMainCalc(const double elab, System *sys, GFRcross *sig)
 
   delete [] chn;
   delete [] sm;
+  delete [] xm;
   delete [] wf;
   delete [] phi0;
   delete [] phiC;
-  delete [] xm;
   delete [] mtid;
   delete [] dptr;
 }
@@ -288,7 +301,9 @@ void RMLMatrices(const double elab, const int mch, RMLParameter *r, double **p, 
   for(int i=0 ; i<mch ; i++){
     for(int j=0 ; j<=i ; j++){
       int ij = i*(i+1)/2 + j;
-      rm[ij] = rm[ij] / (2.0 * sqrt(pm[i] * pm[j]));
+      double p = pm[i] * pm[j];
+
+      rm[ij] = (p != 0.0) ? rm[ij] / (2.0 * sqrt(p)) : 0.0;
 
       if(i == j) wm[ij] = 1.0/complex<double>(0.0,pm[i]) - rm[ij];
       else       wm[ij] = - rm[ij];
@@ -311,10 +326,11 @@ void RMLMatrices(const double elab, const int mch, RMLParameter *r, double **p, 
 
   /*** 2i X = 2i P^{1/2}L^{-1} WR P^{1/2} */
   for(int i=0 ; i<mch ; i++){
-    complex<double> a = 2.0/sqrt(pm[i]);
+    double ai = (pm[i] != 0.0) ? 2.0/sqrt(pm[i]) : 0.0;
     for(int j=0 ; j<=i ; j++){
+      double aj = (pm[j] != 0.0) ? sqrt(pm[j]) : 0.0;
       int ij = i*(i+1)/2 + j;
-      xm[ij] *= a * sqrt(pm[j]);
+      xm[ij] *= ai * aj;
     }
   }
 
@@ -345,9 +361,9 @@ void RMLMatrices(const double elab, const int mch, RMLParameter *r, double **p, 
   for(int i0=0 ; i0<mch ; i0++){
     for(int i1=0 ; i1<=i0 ; i1++){
       int ij = i0*(i0+1)/2 + i1;
-      cout << setw(20) << rm[ij].real() << setw(20) << rm[ij].imag();
-//    cout << setw(20) << wm[ij].real() << setw(20) << wm[ij].imag();
-//    cout << setw(20) << sm[ij].real() << setw(20) << sm[ij].imag();
+//    cout << " " << setw(20) << rm[ij].real() << setw(20) << rm[ij].imag();
+//    cout << " " << setw(20) << wm[ij].real() << setw(20) << wm[ij].imag();
+      cout << " " << setw(20) << sm[ij].real() << setw(20) << sm[ij].imag();
     }
     cout << endl;
   }
@@ -531,7 +547,7 @@ void RMLStorePenetrability(System *sys, RMLParameter *r, RMLChannel *chn, double
         complex<double> q = gfrLfunction(r->l[c],rho,eta);
         p[c][k] = q.imag();  // P = imag(L)
 
-#ifdef DEBUG_PENNETRABILITY
+#ifdef DEBUG_PENETRABILITY
         cout << setw(3) << c << setw(3) << k << setw(3) << r->l[c];
         cout <<setprecision(3);
         cout << setw(11) << r->energy[k];
@@ -621,15 +637,14 @@ void RMLStoreChannelParameter(System *sys, RMLParameter *r, RMLChannel *chn)
 
 #ifdef DEBUG_CHANNEL
     cout << "# " << setw(3) << c << " z:" << setw(2) << ppr[r->pidx[c]].znum[0];
-    cout << setw(2) << chn[c].open;
+    cout << setw(2) << ( (chn[c].open) ? 'o' : 'x' );
     cout << setprecision(3);
     cout <<   " mu: " << setw(10) << chn[c].reduced_mass;
     cout << " Ecms: " << setw(10) << chn[c].ecms;
     cout <<    " k: " << setw(10) << chn[c].wave_number;
-    cout <<   " k2: " << setw(10) << k2;
     cout <<  " eta: " << setw(10) << chn[c].coulomb;
-    cout << "  Tru: " << setw(10) << r->radius_true[c]      << setw(10) << chn[c].alpha_true;
-    cout << "  Eff: " << setw(10) << r->radius_effective[c] << setw(10) << chn[c].alpha_effective << endl;
+    cout << "  Tru: " << setw(10) << r->radius_true[c]      << setw(11) << chn[c].alpha_true;
+    cout << "  Eff: " << setw(10) << r->radius_effective[c] << setw(11) << chn[c].alpha_effective << endl;
 #endif
   }
 }
@@ -646,8 +661,8 @@ void RMLStorePhaseShift(RMLParameter *r, RMLChannel *chn, ChannelWaveFunc *wf)
 
     if(ppr[idx].mt == 18 || ppr[idx].mt == 102) continue;
 
-    /*** neutron case, wf includes G'+iF' in wf.d */
-    if(chn[c].coulomb == 0.0){
+    /*** open neutron channel, wf includes G'+iF' in wf.d */
+    if(chn[c].coulomb == 0.0 && chn[c].open){
       ChannelWaveFunc tmp;
       /*** penetrability calculated with the true radius */
       gfrPenetrability(r->l[c],chn[c].alpha_true,&wf[c]);
@@ -658,7 +673,7 @@ void RMLStorePhaseShift(RMLParameter *r, RMLChannel *chn, ChannelWaveFunc *wf)
       wf[c].setCoulombPhase(0.0);
     }
 
-    /*** charged particle case */
+    /*** charged particle or closed neutron channel case */
     else{
       /*** C0 = G + iF, C1 = G' + iF' */
       complex<double> C0, C1;
@@ -670,7 +685,8 @@ void RMLStorePhaseShift(RMLParameter *r, RMLChannel *chn, ChannelWaveFunc *wf)
       wf[c].setPhase(C0);
 
       /*** Coulomb phase */
-      wf[c].setCoulombPhase(coulomb_phaseshift(r->l[c],chn[c].coulomb));
+      if(chn[c].coulomb != 0.0) wf[c].setCoulombPhase(coulomb_phaseshift(r->l[c],chn[c].coulomb));
+      else wf[c].setCoulombPhase(0.0);
     }
 
 #ifdef DEBUG_PHASE
@@ -820,7 +836,6 @@ int RMLLoadResonanceParameters(int idx, System *sys, ENDF *lib)
     }
   }
 #endif
-
 
   return restot;
 }

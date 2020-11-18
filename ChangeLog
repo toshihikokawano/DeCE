@@ -1,3 +1,22 @@
+2020-11-17  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrcs7.cpp: updated
+	code structure re-organized, and inelastic channel included
+	(gfrResonancePenetrability): new function
+	* source/gfrcs3.cpp: updated
+	(gfrResonancePenetrability): new function
+	penetrability calculation depdending on NRO and NAPS moved to new functions
+	these two are alomost the same
+
+	* source/gfrcs1.cpp: updated
+	* source/gfrcsurr.cpp: updated
+	* source/gfr.h: updated
+	* source/gfr.cpp: updated
+	cross section calculations for some NRO/NAPS combinations updated
+
+	* source/gfrenergy.cpp (gfrAutoEnergyURR): modified
+	energy grid for a special case where only URR parameters are given added
+
 2020-11-14  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/gfr.h (class ChannelWaveFunc): modified

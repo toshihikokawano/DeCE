@@ -390,7 +390,7 @@ int DeceTableMF2URC(ENDF *lib, int idx)
 
       cout << "# J       "; outVal(4,1,aj); cout << endl;
       cout << "#           NE" << setw(14) << ne-1 << "  nubmber of energy points" << endl;
-      cout << "# Deg. Freedom  other         neutron       gamma"<<endl;
+      cout << "# Deg. Freedom                other         neutron       gamma"<<endl;
       outVal(lib->xptr[idx][0]);
       outVal(lib->xptr[idx][1]);
       outVal(lib->xptr[idx][2]);

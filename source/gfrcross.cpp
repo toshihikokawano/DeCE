@@ -35,18 +35,22 @@ Pcross gfrCrossSection(const int urr, const double elab, System *sys, ENDF *lib)
   /*** potential scattering only case, return zero */
   if(lru == 0) return(sig);
 
+  int idx = sys->idx[ner] + 1;
+  if(sys->nro[ner] == 1) idx ++;
+
   /*** resolved resonance region */
-  else if(lru == 1){
+  if(lru == 1){
+
     if(lrf == 1){
-      gfrSubsectionRRR(sys->idx[ner],elab,sys,lib);
+      gfrSubsectionRRR(idx,elab,sys,lib);
       sig = gfrCrossSection1(1,ner,elab,sys,lib);
     }
     else if(lrf == 2){
-      gfrSubsectionRRR(sys->idx[ner],elab,sys,lib);
+      gfrSubsectionRRR(idx,elab,sys,lib);
       sig = gfrCrossSection1(2,ner,elab,sys,lib);
     }
     else if(lrf == 3){
-      gfrSubsectionRRR(sys->idx[ner],elab,sys,lib);
+      gfrSubsectionRRR(idx,elab,sys,lib);
       sig = gfrCrossSection3(ner,elab,sys,lib);
     }
     else if(lrf == 7){
@@ -56,7 +60,8 @@ Pcross gfrCrossSection(const int urr, const double elab, System *sys, ENDF *lib)
 
   /*** unresolved resonance region */
   else if(lru == 2){
-    gfrSubsectionURR(lrf,sys->idx[ner],sys,lib);
+  
+    gfrSubsectionURR(lrf,idx,sys,lib);
 
     /*** if LSSF = 1, do not calculate cross section */
     if(sys->selfshield_flag != 1){
@@ -98,6 +103,13 @@ void gfrSubsectionRRR(const int idx, const double elab, System *sys, ENDF *lib)
   sys->target_spin2 = (int)(2.0*cont.c1);  // 2 x target spin
   sys->radius       = cont.c2 * 10.0;      // scattering radius in fm
   sys->nl           = cont.n1;             // number of orbital angular momentum
+
+  for(int l=0 ; l<sys->nl ; l++){
+    sys->apl[l] = lib->rdata[idx+l+1].c2 * 10.0;
+  }
+
+  /*** in case AP is not given but APLs are, copy APL[0] */
+  if((sys->radius == 0.0) && (sys->apl[0] > 0.0)) sys->radius = sys->apl[0];
 
   gfrSetEnergy(elab, sys);
 }

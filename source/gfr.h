@@ -246,7 +246,8 @@ class System{
   int    *lru;                // resolved or unresolved
   int    *lrf;                // resonance formula
   int    *naps;               // NAPS channel radius control
-  int    *nro ;               // NRO energy dependent radii flag
+  int    *nro;                // NRO energy dependent radii flag
+  double *apl;                // L-dependent radius;
   double *emin;               // Emin for the range
   double *emax;               // Emax for the range
 
@@ -281,11 +282,13 @@ class System{
     lrf  = new int [NRANGE];
     naps = new int [NRANGE];
     nro  = new int [NRANGE];
+    apl  = new double [NRANGE];
     emin = new double [NRANGE];
     emax = new double [NRANGE];
 
     for(int i=0 ; i<NRANGE ; i++){
       idx[i] = lru[i] = lrf[i] = naps[i] = nro[i] = 0;
+      apl[i] = 0.0;
       emin[i] = emax[i] = 0.0;
     }
   }
@@ -296,6 +299,7 @@ class System{
     delete [] lrf;
     delete [] naps;
     delete [] nro;
+    delete [] apl;
     delete [] emin;
     delete [] emax;
   }
@@ -462,6 +466,7 @@ class Pcross{
   double energy;
   double total;
   double elastic;
+  double inelastic;
   double capture;
   double fission;
   double proton;
@@ -473,41 +478,44 @@ class Pcross{
   }
 
   void clear(){
-    energy   = 0.0;
-    total    = 0.0;
-    elastic  = 0.0;
-    capture  = 0.0;
-    fission  = 0.0;
-    proton   = 0.0;
-    alpha    = 0.0;
-    other    = 0.0;
+    energy    = 0.0;
+    total     = 0.0;
+    elastic   = 0.0;
+    inelastic = 0.0;
+    capture   = 0.0;
+    fission   = 0.0;
+    proton    = 0.0;
+    alpha     = 0.0;
+    other     = 0.0;
   }
 
   void setTotal(){
-    total = elastic + capture + fission + proton + alpha + other;
+    total = elastic + inelastic + capture + fission + proton + alpha + other;
   }
 
   Pcross operator+(Pcross x){
     Pcross y;
-    y.total   = total   + x.total;
-    y.elastic = elastic + x.elastic;
-    y.capture = capture + x.capture;
-    y.fission = fission + x.fission;
-    y.proton  = proton  + x.proton;
-    y.alpha   = alpha   + x.alpha;
-    y.other   = other   + y.other;
+    y.total     = total     + x.total;
+    y.elastic   = elastic   + x.elastic;
+    y.inelastic = inelastic + x.inelastic;
+    y.capture   = capture   + x.capture;
+    y.fission   = fission   + x.fission;
+    y.proton    = proton    + x.proton;
+    y.alpha     = alpha     + x.alpha;
+    y.other     = other     + y.other;
     return y;
   }
 
   Pcross operator-(Pcross x){
     Pcross y;
-    y.total   = total   - x.total;
-    y.elastic = elastic - x.elastic;
-    y.capture = capture - x.capture;
-    y.fission = fission - x.fission;
-    y.proton  = proton  - x.proton;
-    y.alpha   = alpha   - x.alpha;
-    y.other   = other   - y.other;
+    y.total     = total     - x.total;
+    y.elastic   = elastic   - x.elastic;
+    y.inelastic = inelastic - x.inelastic;
+    y.capture   = capture   - x.capture;
+    y.fission   = fission   - x.fission;
+    y.proton    = proton    - x.proton;
+    y.alpha     = alpha     - x.alpha;
+    y.other   =   other     - y.other;
     return y;
   }
 };

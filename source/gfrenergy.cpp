@@ -178,30 +178,57 @@ int gfrAutoEnergyURR(double *elab, const double ebr, const double ebu)
   int k = 0;
   double e0 = ebr;
   double e2 = ebu;
+  double e1 = 0.0;
 
-  elab[k++] = ebr;
+  /*** when e0 is zero, no resolved resonance is given */
+  if(e0 == 0.0){
+    e0 = 1e-5;
+    elab[k++] = e0;
+    elab[k++] = 0.0253;
+
+    do{
+      e1 = e0 * 2.0; 
+      elab[k] = e1;  if(k >= MAX_DBLDATA/2-2 || e1 > e2) break;
+      k++;
+
+      e1 = e0 * 5.0; 
+      elab[k] = e1;  if(k >= MAX_DBLDATA/2-2 || e1 > e2) break;
+      k++;
+
+      e0 *= 10.0;
+    }while(e0 < e2);
+
+    elab[k++] = e2;
+
+    gfrSortResonanceEnergies(elab,k);
+
+  }
+  else{
+    elab[k++] = e0;
   
-  /*** find the order of the first point */
-  int q0 = (int)(log(e0)/log(10.0));
-  int r0 = (int)(e0 /pow(10.0,(double)q0));
+    /*** find the order of the first point */
+    int q0 = (int)(log(e0)/log(10.0));
+    int r0 = (int)(e0 /pow(10.0,(double)q0));
 
-  /*** find the order of the last point */
-  int q2 = (int)(log(e2)/log(10.0));
+    /*** find the order of the last point */
+    int q2 = (int)(log(e2)/log(10.0));
 
-  /*** determine energy interval */
-  double de = 1.0;
-  if((q0 == q2) && (q0 >0)) de = pow(10.0,(double)(q0-1));
-  else de = pow(10.0,(double)q0);
+    /*** determine energy interval */
+    double de = 1.0;
+    if((q0 == q2) && (q0 >0)) de = pow(10.0,(double)(q0-1));
+    else de = pow(10.0,(double)q0);
 
-  double e1 = r0 * pow(10,(double)q0);
-  if(e1 <= e0) e1 = (r0+1) * pow(10,(double)q0);
+    e1 = r0 * pow(10,(double)q0);
+    if(e1 <= e0) e1 = (r0+1) * pow(10,(double)q0);
 
-  do{
-    elab[k++] = e1;
+    do{
+      elab[k++] = e1;
+      if(k >= MAX_DBLDATA/2-2) break;
     e1 += de;
-  }while(e1 < ebu);
+    }while(e1 < e2);
 
-  elab[k++] = ebu;
+    elab[k++] = e2;
+  }
 
   return(k);
 }

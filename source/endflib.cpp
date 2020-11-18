@@ -504,7 +504,7 @@ void ENDFExceedSubBlock(const string loc, ENDF *lib)
   cerr << "too many sub-block at " << loc;
   cerr << "  MF = " << lib->getENDFmf();
   cerr << "  MT = " << lib->getENDFmt() << endl;
-  cerr << "  current block count " << lib->getPOS() << endl;
+  cerr << "  current block count / maximum = " << lib->getPOS() << " / " << MAX_SUBBLOCK << endl;
   exit(-1);
 }
 
@@ -513,8 +513,8 @@ void ENDFExceedDataSize(const string loc, ENDF *lib, const int ni, const int nx)
   cerr << "too many data-point at " << loc;
   cerr << "  MF = " << lib->getENDFmf();
   cerr << "  MT = " << lib->getENDFmt();
-  cerr << "  requested Ni = " << ni << "  Nx = " << nx << endl;
-  cerr << lib->getRSIZE() << " " << lib->getXSIZE() << " " << lib->getISIZE() << endl;
+  cerr << "  : Ni current / requested / maximum = " << lib->getNI() << " / " << ni << " / " << MAX_INTDATA;
+  cerr << "  : Nx current / requested / maximum = " << lib->getNX() << " / " << nx << " / " << MAX_DBLDATA << endl;
   exit(-1);
 }
 
