@@ -267,8 +267,8 @@ Pcross gfrBreitWignerURR(int ke, double gj, double elab, double alpha, ChannelWa
   tr[3] = res->bw[ke].gx;
 
   df[0] = res->dfn;  if(df[0] == 0.0) df[0] =  1.0; // ad hoc
-  df[1] = res->dff;  if(df[1] == 0.0) df[2] =  4.0; // ad hoc
-  df[2] = res->dfg;  if(df[2] == 0.0) df[2] = 20.0; // ad hoc
+  df[1] = res->dff;  if(df[1] == 0.0) df[1] =  4.0; // ad hoc
+  df[2] = res->dfg;  if(df[2] == 0.0) df[2] =  2.0; // ad hoc
   df[3] = res->dfx;
  
  

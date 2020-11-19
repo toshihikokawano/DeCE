@@ -347,9 +347,10 @@ class ChannelWaveFunc{
 
   /*** set phase factors by H */
   void setPhase(complex<double> y){
-    double x = abs(y);
-    if(y != 0.0) p = acos(y.real() / x); // atan(F / G) = acos(G / sqrt(G^2+F^2))
-    else         p = 0.0;
+    if(y.real() != 0.0){
+      p = atan(y.imag() / y.real());
+    }
+    else p = 0.0;
     phase  = complex<double>(cos( -p), -sin(  p)); // exp^{-ip}
     phase2 = complex<double>(cos(2*p), -sin(2*p)); // exp^{-2ip}
   }

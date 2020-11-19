@@ -66,7 +66,12 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
       double gt0 = arrange_matrixSLBW(wfn->P(),x0,&res[k0]);
 
       p = breit_wigner_profile(complex<double>(e,gcLorentzianWidth),res[k0].er+de,gt0);
-
+/*
+      cout << l << " " << real(p) * real(wfn->phase2);
+      cout << " " << imag(p) * imag(wfn->phase2);
+      cout << " " << real(p) << " " << imag(p);
+      cout << " " << real(wfn->phase2) << " " << imag(wfn->phase2) << endl;
+*/
       z.total   += (real(p) * real(wfn->phase2) - imag(p) * imag(wfn->phase2))*x0[0]/gt0;
       z.fission +=  real(p)*(x0[1]*x0[1])/gt0/gt0;
       z.capture +=  real(p)* x0[3]*x0[3] /gt0/gt0;
@@ -158,9 +163,12 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
   const int msize = 6;
   complex<double> smat[msize],rmat[msize],wmat[msize];
   double x[msize];
+  Pcross z;
 
   bool sdep = false; // channel spin dependent
-  for(int k=0 ; k<kmax ; k++){ if(res[k].j2 < 0) sdep = true; }
+  for(int k=0 ; k<kmax ; k++){
+    if((res[k].j2 < 0) and (res[k].l == l)){ sdep = true; break; }
+  }
 
   /*** R-matrix elements */
   for(int i=0 ; i<msize ; i++)  smat[i] = rmat[i] = wmat[i] = complex<double>(0.0,0.0);
@@ -170,7 +178,6 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
       if(sdep){
         int j2r = (int)abs(res[k].j2);
         int sr  = (res[k].j2 < 0) ? -1 : 1;
-                      
         if( (j2r == j2) && (sr == s2) ){
           arrange_matrixRM(wfn->P(),x,&res[k]);
           complex<double> w(res[k].er-e, -res[k].gg/2.0 - gcLorentzianWidth);
@@ -191,11 +198,13 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
     }
   }
 
+  /*** W = delta - i/2 R = I - K */
   for(int i=0 ; i<msize ; i++){
     wmat[i] = complex<double>(imag(rmat[i])/2.0,-real(rmat[i])/2.0);
     if(i==0 || i==2 || i==5) wmat[i] += 1.0;
   }
 
+  /*** (I - K)^{-1} */
   invert_matrix(wmat);
 
   /*** S-matrix elements */
@@ -206,8 +215,6 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
   Smat.setElement(l,j2,s2,smat[0]);
 
   /*** cross sections from S-matrix */
-  Pcross  z;
-
   z.total    = (1.0-real(smat[0]))*2.0;
   z.elastic  = (1.0-real(smat[0]))*(1.0-real(smat[0])) + imag(smat[0])*imag(smat[0]);
   z.fission  = real(smat[1])*real(smat[1]) + imag(smat[1])*imag(smat[1])

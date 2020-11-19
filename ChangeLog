@@ -1,3 +1,9 @@
+2020-11-18  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrformula.cpp (gfrReichMoore): bug fixed
+	in the case channel spin is given, but J is uniquely determined,
+	skip the channel spin dependent part
+
 2020-11-17  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/gfrcs7.cpp: updated

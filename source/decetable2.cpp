@@ -116,9 +116,11 @@ void DeceTableMF2(ENDF *lib)
 int DeceTableMF2RRR(ENDF *lib, int lrf, int idx)
 {
   Record cont = lib->rdata[idx];
+  double apl  = cont.c2;
   int    nrs  = cont.n2;
 
-  cout << "#          NRS" << setw(14) << nrs << "  number of resonances"<< endl;
+  cout << "#          NRS" << setw(14) << nrs << "  number of resonances" << endl;
+  if(apl > 0.0) cout << "#          APL" << setw(14) << apl << "  L-dependent scattering radius" << endl;
   cout << "# E             J    ";
   if((lrf == 1) || (lrf == 2))
     cout << "G(total)      G(neutron)    G(gamma)      G(fission)" << endl;

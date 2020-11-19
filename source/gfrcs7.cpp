@@ -16,20 +16,19 @@ using namespace std;
 #include "constant.h"
 #include "matrix.h"
 
-static void   RMLAllocateMemory (const int, System *, ENDF *);
-static void   RMLFreeMemory (const int);
-
+static Pcross RMLCopyCrossSection (const double, GFRcross *);
 static int    RMLLoadParticlePairs (int, System *, ENDF *);
 static int    RMLLoadResonanceParameters (int, System *, ENDF *);
 static void   RMLMainCalc (const double, System *, GFRcross *);
 static void   RMLMatrices (const double, const int, RMLParameter *, double **, ChannelWaveFunc *, int *, int *, complex<double> *, complex<double> *, complex<double> *, complex<double> *);
 static void   RMLCrossSection (const int, RMLChannel *, GFRcross *, int *, int *, complex<double> *, complex<double> *, complex<double> *);
 static int    RMLArrangeMatrix (const int, RMLParameter *, double **, ChannelWaveFunc *, int *, int *, double *, complex<double> *, complex<double> *);
-
 static void   RMLStorePenetrability (System *, RMLParameter *, RMLChannel *, double **);
 static double RMLIncidentChannel (const double, System *);
 static void   RMLStoreChannelParameter (System *, RMLParameter *, RMLChannel *);
 static void   RMLStorePhaseShift (RMLParameter *, RMLChannel *, ChannelWaveFunc *);
+static void   RMLAllocateMemory (const int, System *, ENDF *);
+static void   RMLFreeMemory (const int);
 
 extern Smatrix Smat;
 
@@ -53,8 +52,7 @@ static bool dataload = false;
 /**********************************************************/
 Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib)
 {
-  const double sigcut = 1e-99;
-
+  /*** when this is the first call, allocate memory, and keep them until the last call */
   if(sys->isFirstCall()){
     if(dataload) RMLFreeMemory(sys->nj);
 
@@ -64,44 +62,16 @@ Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib
 
   /*** calculate cross section */
   GFRcross sig;
-
   sig.memalloc(sys->npair);
   sig.clear();
 
   RMLMainCalc(elab,sys,&sig);
 
-  Pcross s;
+  /*** Mapping MT numbers in GFR object to cross section data */
+  Pcross s = RMLCopyCrossSection(elab,&sig);
 
-  s.energy  = elab;
-  s.total   = sig.sum();
-  s.elastic = sig.get(2);
-  s.capture = sig.get(102);
-  s.fission = sig.get(18);
-
-  /*** sum partial proton and alpha cross sections if given */
-  s.inelastic = 0.0;
-  if(sig.get(4) > 0.0) s.inelastic = sig.get(4);
-  else if(sig.get(51) > 0.0){
-    for(int m = 51 ; m<=91 ; m++) s.inelastic += sig.get(m);
-  }
-  if(s.inelastic < sigcut) s.inelastic = 0.0;
-
-  s.proton = 0.0;
-  if(sig.get(103) > 0.0) s.proton = sig.get(103);
-  else if(sig.get(600) > 0.0){
-    for(int m = 600 ; m<=649 ; m++) s.proton += sig.get(m);
-  }
-  if(s.proton < sigcut) s.proton = 0.0;
-
-  s.alpha = 0.0;
-  if(sig.get(107) > 0.0) s.alpha = sig.get(107);
-  else if(sig.get(800) > 0.0){
-    for(int m = 800 ; m<=849 ; m++) s.alpha +=  sig.get(m);
-  }
-  if(s.alpha < sigcut) s.alpha = 0.0;
-
+  /*** release allocated memories */
   sig.memfree();
-
   sys->OnceCalled();
   if(sys->isLastCall()) RMLFreeMemory(sys->nj);
 
@@ -110,55 +80,44 @@ Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib
 
 
 /**********************************************************/
-/*      Allocate Memory and Load Parameters               */
+/*      Copy Calculated Result to Pcross Object           */
 /**********************************************************/
-void RMLAllocateMemory(const int ner, System *sys, ENDF *lib)
+Pcross RMLCopyCrossSection(const double elab, GFRcross *sig)
 {
-  if(dataload) return;
+  const double sigcut = 1e-99;
+  Pcross s;
 
-  int idx =sys->idx[ner] + 1;
+  s.clear();
+  s.energy  = elab;
+  s.total   = sig->sum();     // total cross section
+  s.elastic = sig->get(2);    // elastic scattering
+  s.capture = sig->get(102);  // capture cross section
+  s.fission = sig->get(18);   // fission cross section
 
-  /*** two particle pair data */
-  ppr = new ParPair [MAX_PAIRS];
-  RMLLoadParticlePairs(idx,sys,lib);
-
-  /*** resonance parameters for each spin group */
-  res = new RMLParameter [sys->nj];
-  RMLLoadResonanceParameters(idx,sys,lib);
-
-  /*** look for max number of channels for matrix size N(N+1)/2 */
-  for(int j=0 ; j<sys->nj ; j++) if(chmax < res[j].nchannel) chmax = res[j].nchannel;
-
-  /*** memory allocation */
-  msize = chmax * (chmax+1) / 2;
-
-  pen = new double ** [sys->nj];      // penetrability [Nj x c x Nres]
-  for(int j=0 ; j<sys->nj; j++){
-    pen[j] = new double * [chmax];
-    for(int i=0 ; i<chmax ; i++){
-      pen[j][i] = new double [res[j].nresonance];
-    }
+  /*** sum partial proton, alpha, and inelastic scattering cross sections if given */
+  /*** since we don't know which MT number is assigned to the reaction channel,
+       either MT = 4 or MT = 51, 52, ..., scan all MT numbers for inelastic */
+  if(sig->get(4) > 0.0) s.inelastic = sig->get(4);
+  else if(sig->get(51) > 0.0){
+    for(int m = 51 ; m<=91 ; m++) s.inelastic += sig->get(m);
   }
-}
 
-
-/**********************************************************/
-/*      Free Allocated Memory                             */
-/**********************************************************/
-void RMLFreeMemory(const int nj)
-{
-  if(!dataload) return;
-
-  delete [] ppr;
-  delete [] res;
-
-  for(int j=0 ; j<nj; j++){
-    for(int i=0 ; i<chmax ; i++) delete [] pen[j][i];
-    delete [] pen[j];
+  if(sig->get(103) > 0.0) s.proton = sig->get(103);
+  else if(sig->get(600) > 0.0){
+    for(int m = 600 ; m<=649 ; m++) s.proton += sig->get(m);
   }
-  delete [] pen;
 
-  dataload = false;
+  if(sig->get(107) > 0.0) s.alpha = sig->get(107);
+  else if(sig->get(800) > 0.0){
+    for(int m = 800 ; m<=849 ; m++) s.alpha += sig->get(m);
+  }
+
+  /*** truncate too small cross section */
+  if(s.inelastic < sigcut) s.inelastic = 0.0;
+  if(s.proton    < sigcut) s.proton = 0.0;
+  if(s.alpha     < sigcut) s.alpha = 0.0;
+
+  return s;
 }
 
 
@@ -838,4 +797,57 @@ int RMLLoadResonanceParameters(int idx, System *sys, ENDF *lib)
 #endif
 
   return restot;
+}
+
+
+/**********************************************************/
+/*      Allocate Memory and Load Parameters               */
+/**********************************************************/
+void RMLAllocateMemory(const int ner, System *sys, ENDF *lib)
+{
+  if(dataload) return;
+
+  int idx =sys->idx[ner] + 1;
+
+  /*** two particle pair data */
+  ppr = new ParPair [MAX_PAIRS];
+  RMLLoadParticlePairs(idx,sys,lib);
+
+  /*** resonance parameters for each spin group */
+  res = new RMLParameter [sys->nj];
+  RMLLoadResonanceParameters(idx,sys,lib);
+
+  /*** look for max number of channels for matrix size N(N+1)/2 */
+  for(int j=0 ; j<sys->nj ; j++) if(chmax < res[j].nchannel) chmax = res[j].nchannel;
+
+  /*** memory allocation */
+  msize = chmax * (chmax+1) / 2;
+
+  pen = new double ** [sys->nj];      // penetrability [Nj x c x Nres]
+  for(int j=0 ; j<sys->nj; j++){
+    pen[j] = new double * [chmax];
+    for(int i=0 ; i<chmax ; i++){
+      pen[j][i] = new double [res[j].nresonance];
+    }
+  }
+}
+
+
+/**********************************************************/
+/*      Free Allocated Memory                             */
+/**********************************************************/
+void RMLFreeMemory(const int nj)
+{
+  if(!dataload) return;
+
+  delete [] ppr;
+  delete [] res;
+
+  for(int j=0 ; j<nj; j++){
+    for(int i=0 ; i<chmax ; i++) delete [] pen[j][i];
+    delete [] pen[j];
+  }
+  delete [] pen;
+
+  dataload = false;
 }

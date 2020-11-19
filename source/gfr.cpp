@@ -136,8 +136,12 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
       /*** unresolved resonance cross sections */
       crs = gfrCrossSection(2,elab[i],&sys,lib[kres]);
+
+      /*** when the highest side, we take the lower side point, otherwise high side */
+      bool dupflag = (i == np-1) ? true : false;
+
       /*** background cross section in MF3 */
-      cbg = gfrBackGround(dict,lib,elab[i],false);
+      cbg = gfrBackGround(dict,lib,elab[i],dupflag);
 
       /*** add background */
       crs = crs + cbg;

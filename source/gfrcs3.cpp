@@ -50,7 +50,7 @@ Pcross gfrCrossSection3(const int ner, const double elab, System *sys, ENDF *lib
     /*** this part, it is not so clear which AP should be used */
     if(sys->apl[l] > 0.0){
       alpha_phi = sys->wave_number * sys->apl[l];
-      if(sys->naps[ner] != 0) alpha_pen = alpha_phi;
+//    if(sys->naps[ner] != 0) alpha_pen = alpha_phi;
     }
 
     /*** calculate phi and P */
