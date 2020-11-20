@@ -52,6 +52,12 @@ static bool dataload = false;
 /**********************************************************/
 Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib)
 {
+  if(sys->isLastCall()){
+    if(dataload) RMLFreeMemory(sys->nj);
+    Pcross s;
+    return(s);
+  }
+
   /*** when this is the first call, allocate memory, and keep them until the last call */
   if(sys->isFirstCall()){
     if(dataload) RMLFreeMemory(sys->nj);
@@ -73,7 +79,6 @@ Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib
   /*** release allocated memories */
   sig.memfree();
   sys->OnceCalled();
-  if(sys->isLastCall()) RMLFreeMemory(sys->nj);
 
   return(s);
 }

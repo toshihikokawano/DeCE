@@ -1,3 +1,14 @@
+2020-11-19  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrcross.cpp (gfrSubsectionURR): modified
+	* source/gfrcsurr.cpp: updated
+	URR for LRF=1 cases added, but LRF = 0, LFW = 1 case never tested
+
+	* source/gfrcs1.cpp: updated
+	* source/gfrcs3.cpp: updated
+	pre-calculate penetrabilities at resonance energies
+	and keep the resonance object until LastCall() is invoked
+
 2020-11-18  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/gfrformula.cpp (gfrReichMoore): bug fixed

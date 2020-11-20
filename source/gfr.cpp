@@ -35,6 +35,7 @@ void gfrScanThermal(ifstream *fp, ENDFDict *dict, double elab)
   if(elab <= 0.0) elab = eth;
 
   Pcross crs = gfrPtCrossFILE(fp,dict,elab);
+  gfrPrintCrossSection(-1.0,crs);
   gfrPrintCrossSection(elab,crs);
 }
 
@@ -76,7 +77,8 @@ Pcross gfrPtCrossFILE(ifstream *fp, ENDFDict *dict, const double elab)
   gfrReadHEADData(&sys,&librs);
 
   /*** resonance contribution */
-  crs = gfrCrossSection(0,elab,&sys,&librs);
+  sys.FirstCall();  crs = gfrCrossSection(0,elab,&sys,&librs);
+  sys.LastCall();         gfrCrossSection(0,0.0 ,&sys,&librs); // free allocated memory
 
   /*** background contribution */
   cbg = gfrBackGroundFILE(fp,&libbg,elab,true);
@@ -118,9 +120,9 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     for(int i=0 ; i<np ; i++){
 
       /*** resonance cross sections */
-      if(i == np-1) sys.LastCall();
       crs = gfrCrossSection(1,elab[i],&sys,lib[kres]);
       /*** background cross section in MF3 */
+
       cbg = gfrBackGround(dict,lib,elab[i],true);
 
       /*** add background */
@@ -132,6 +134,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
     np = gfrAutoEnergyURR(elab,dict->emaxRR,dict->emaxUR);
 
+    sys.FirstCall();
     for(int i=0 ; i<np ; i++){
 
       /*** unresolved resonance cross sections */
@@ -154,10 +157,10 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   else{
     np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
 
+    sys.FirstCall();
     for(int i=0 ; i<np ; i++){
 
       /*** resonance cross sections */
-      if(i == np-1) sys.LastCall();
       crs = gfrCrossSection(0,elab[i],&sys,lib[kres]);
       if(elab[i] < dict->emaxUR){
         /*** background cross section in MF3 */
@@ -168,6 +171,9 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       /*** print cross section */
       gfrPrintCrossSection(elab[i],crs);
     }
+    sys.LastCall();
+    gfrCrossSection(0,0.0,&sys,lib[kres]);
+
   }
 
   delete [] elab;
@@ -456,7 +462,30 @@ void gfrReadHEADData(System *sys, ENDF *lib)
     /*** Unresolved Resonance Region */
     else if(sys->lru[i] == 2){
 
-      if(sys->lrf[i] == 2){
+      if(sys->lrf[i] == 1){
+        /*** case A */
+        if(sys->avefission_flag == 0){
+          cont = lib->rdata[idx++];
+          int nls = cont.n1;
+          for(int inls=0 ; inls<nls ; inls++){
+            cont = lib->rdata[idx++];
+            int njs = cont.n1;
+            idx += njs;
+          }
+        }
+        /*** case B */
+        else{
+          cont = lib->rdata[idx++];
+          int nls = cont.n2;
+          for(int inls=0 ; inls<nls ; inls++){
+            cont = lib->rdata[idx++];
+            int njs = cont.n1;
+            idx += njs;
+          }
+        }
+      }
+      /*** case C */
+      else{
         cont = lib->rdata[idx++];
         int nls = cont.n1;
         for(int inls=0 ; inls<nls ; inls++){
@@ -465,7 +494,6 @@ void gfrReadHEADData(System *sys, ENDF *lib)
           idx += njs;
         }
       }
-      else TerminateCode("LRU=2, LRF=1, not implemented yet");
     }
   }
 }

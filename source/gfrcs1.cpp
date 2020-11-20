@@ -14,9 +14,17 @@ using namespace std;
 #include "gfr.h"
 #include "constant.h"
 
-static int gfrLoadBWResonances (int, System *, BWResonance *, ENDF *);
-static void gfrResonancePenetrability (const int, System *, const int, BWResonance *, double, double *, double *, ENDF *);
+static Pcross BWMainCalc (const double, const int, System *);
+static int    BWLoadResonances (int, System *, ENDF *);
+static void   BWScatteringRadius (const int, System *, const double, ENDF *);
+static void   BWResonancePenetrability (const int, System *, ENDF *);
+
 extern Smatrix Smat;
+
+static double ap_pen = 0.0, ap_phi = 0.0;
+static int kmax = 0;
+static BWResonance *res;
+static bool dataload = false;
 
 #undef DEBUG_RESONANCE
 
@@ -25,20 +33,52 @@ extern Smatrix Smat;
 /**********************************************************/
 Pcross gfrCrossSection1(const int lrf, const int ner, const double elab, System *sys, ENDF *lib)
 {
+  /*** release allocated memory */
+  if(sys->isLastCall()){
+    if(dataload){
+      delete [] res;
+      kmax = 0;
+      dataload = false;
+    }
+    Pcross s;
+    return(s);
+  }
+
+  /*** set AP and rho */
+  BWScatteringRadius(ner,sys,elab,lib);
+
+  /*** when this is the first call, allocate memory, and keep them until the last call */
+  if(sys->isFirstCall()){
+    if(dataload){
+      delete [] res;
+      kmax = 0;
+      dataload = false;
+    }
+
+    res = new BWResonance [MAX_RESONANCE];
+
+    /*** load resonance parameters into Resonance class */
+    int idx =sys->idx[ner] + 2;
+    if(sys->nro[ner] == 1) idx ++;
+    kmax = BWLoadResonances(idx,sys,lib);
+    BWResonancePenetrability(ner,sys,lib);
+    dataload = true;
+    sys->OnceCalled();
+  }
+
+  Pcross sig = BWMainCalc(elab,lrf,sys);
+
+  return(sig);
+}
+
+
+/**********************************************************/
+/*      Main Calculatioin of Breit-Wigner Formula         */
+/**********************************************************/
+Pcross BWMainCalc(const double elab,  const int lrf, System *sys)
+{
   ChannelWaveFunc wfn;
   Pcross sig, z;
-  BWResonance *res = NULL;
-
-  res = new BWResonance[MAX_RESONANCE];
-
-  /*** load resonance parameters into Resonance class */
-  int idx =sys->idx[ner] + 2;
-  if(sys->nro[ner] == 1) idx ++;
-  int kmax = gfrLoadBWResonances(idx,sys,res,lib);
-
-  double ap_pen = 0.0, ap_phi = 0.0;
-
-  gfrResonancePenetrability(ner,sys,kmax,res,elab,&ap_pen,&ap_phi,lib);
 
   double x1 = PI/(sys->wave_number*sys->wave_number) * 0.01 / ((sys->target_spin2+1)*2);
   double alpha_pen = sys->wave_number * ap_pen;
@@ -81,7 +121,6 @@ Pcross gfrCrossSection1(const int lrf, const int ner, const double elab, System 
     }
   }
 
-  delete [] res;
   return(sig);
 }
 
@@ -89,7 +128,7 @@ Pcross gfrCrossSection1(const int lrf, const int ner, const double elab, System 
 /**********************************************************/
 /*     Copy All Resoance Parameters                       */
 /**********************************************************/
-int gfrLoadBWResonances(int idx, System *sys, BWResonance *res, ENDF *lib)
+int BWLoadResonances(int idx, System *sys, ENDF *lib)
 {
   int k = 0;
 
@@ -136,12 +175,11 @@ int gfrLoadBWResonances(int idx, System *sys, BWResonance *res, ENDF *lib)
 
 
 /**********************************************************/
-/*     Penetrability at Each Resoance                     */
+/*     AP and Rho depending on NRO and NAPS               */
 /**********************************************************/
-void gfrResonancePenetrability(const int ner, System *sys, const int kmax, BWResonance *res, double elab, double *a0, double *a1, ENDF *lib)
+void BWScatteringRadius(const int ner, System *sys, const double elab, ENDF *lib)
 {
   int apidx = 0;
-  double ap_pen = 0.0, ap_phi = 0.0;
 
   if(sys->nro[ner] == 1) apidx = sys->idx[ner] + 1;
 
@@ -160,6 +198,17 @@ void gfrResonancePenetrability(const int ner, System *sys, const int kmax, BWRes
     else if(sys->naps[ner] == 1) ap_pen = ap_phi;
     else                         ap_pen = sys->radius;
   }
+}
+
+
+/**********************************************************/
+/*     Penetrability at Each Resoance                     */
+/**********************************************************/
+void BWResonancePenetrability(const int ner, System *sys, ENDF *lib)
+{
+  int apidx = 0;
+
+  if(sys->nro[ner] == 1) apidx = sys->idx[ner] + 1;
 
   /*** penetrability at each resonance */
   for(int k=0 ; k<kmax ; k++){
@@ -173,8 +222,5 @@ void gfrResonancePenetrability(const int ner, System *sys, const int kmax, BWRes
     res[k].s = q.real();
     res[k].p = q.imag();
   }
-
-  *a0 = ap_pen;
-  *a1 = ap_phi;
 }
 

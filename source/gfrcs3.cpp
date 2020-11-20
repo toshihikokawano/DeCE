@@ -14,9 +14,17 @@ using namespace std;
 #include "gfr.h"
 #include "constant.h"
 
-static int gfrLoadRMResonances (int, System *, RMResonance *, ENDF *);
-static void gfrResonancePenetrability (const int, System *, const int, RMResonance *, double, double *, double *, ENDF *);
+static Pcross RMMainCalc (const double, System *);
+static int    RMLoadResonances (int, System *, ENDF *);
+static void   RMScatteringRadius (const int, System *, const double, ENDF *);
+static void   RMResonancePenetrability (const int, System *, ENDF *);
+
 extern Smatrix Smat;
+
+static double ap_pen = 0.0, ap_phi = 0.0;
+static int kmax = 0;
+static RMResonance *res;
+static bool dataload = false;
 
 #undef DEBUG_RESONANCE
 
@@ -25,19 +33,50 @@ extern Smatrix Smat;
 /**********************************************************/
 Pcross gfrCrossSection3(const int ner, const double elab, System *sys, ENDF *lib)
 {
+  /*** release allocated memory */
+  if(sys->isLastCall()){
+    if(dataload){
+      delete [] res;
+      kmax = 0;
+      dataload = false;
+    }
+    Pcross s;
+    return(s);
+  }
+
+  /*** set AP and rho */
+  RMScatteringRadius(ner,sys,elab,lib);
+  if(sys->isFirstCall()){
+    if(dataload){
+      delete [] res;
+      kmax = 0;
+      dataload = false;
+    }
+
+    res = new RMResonance [MAX_RESONANCE];
+
+    /*** load resonance parameters into Resonance class */
+    int idx =sys->idx[ner] + 2;
+    if(sys->nro[ner] == 1) idx ++;
+    kmax = RMLoadResonances(idx,sys,lib);
+    RMResonancePenetrability(ner,sys,lib);
+    dataload = true;
+    sys->OnceCalled();
+  }
+
+  Pcross sig = RMMainCalc(elab,sys);
+
+  return(sig);
+}
+
+
+/**********************************************************/
+/*      Main Calculatioin of Reich Moore Formula          */
+/**********************************************************/
+Pcross RMMainCalc(const double elab, System *sys)
+{
   ChannelWaveFunc wfn;
   Pcross sig, z;
-  RMResonance *res = NULL;
-
-  res = new RMResonance[MAX_RESONANCE];
-
-  /*** load resonance parameters into Resonance class */
-  int idx =sys->idx[ner] + 2;
-  if(sys->nro[ner] == 1) idx ++;
-  int kmax = gfrLoadRMResonances(idx,sys,res,lib);
-
-  double ap_pen = 0.0, ap_phi = 0.0;
-  gfrResonancePenetrability(ner,sys,kmax,res,elab,&ap_pen,&ap_phi,lib);
 
   double x1 = PI/(sys->wave_number*sys->wave_number) * 0.01 / ((sys->target_spin2+1)*2);
   double alpha_pen = sys->wave_number * ap_pen;
@@ -84,7 +123,6 @@ Pcross gfrCrossSection3(const int ner, const double elab, System *sys, ENDF *lib
     }
   }
 
-  delete [] res;
   return(sig);
 }
 
@@ -92,7 +130,7 @@ Pcross gfrCrossSection3(const int ner, const double elab, System *sys, ENDF *lib
 /**********************************************************/
 /*     Copy All Resoance Parameters                       */
 /**********************************************************/
-int gfrLoadRMResonances(int idx, System *sys, RMResonance *res, ENDF *lib)
+int RMLoadResonances(int idx, System *sys, ENDF *lib)
 {
   int k = 0;
 
@@ -138,10 +176,9 @@ int gfrLoadRMResonances(int idx, System *sys, RMResonance *res, ENDF *lib)
 /**********************************************************/
 /*     Penetrability at Each Resoance                     */
 /**********************************************************/
-void gfrResonancePenetrability(const int ner, System *sys, const int kmax, RMResonance *res, double elab, double *a0, double *a1, ENDF *lib)
+void RMScatteringRadius(const int ner, System *sys, const double elab, ENDF *lib)
 {
   int apidx = 0;
-  double ap_pen = 0.0, ap_phi = 0.0;
 
   if(sys->nro[ner] == 1) apidx = sys->idx[ner] + 1;
 
@@ -160,6 +197,17 @@ void gfrResonancePenetrability(const int ner, System *sys, const int kmax, RMRes
     else if(sys->naps[ner] == 1) ap_pen = ap_phi;
     else                         ap_pen = sys->radius;
   }
+}
+
+
+/**********************************************************/
+/*     Penetrability at Each Resoance                     */
+/**********************************************************/
+void RMResonancePenetrability(const int ner, System *sys, ENDF *lib)
+{
+  int apidx = 0;
+
+  if(sys->nro[ner] == 1) apidx = sys->idx[ner] + 1;
 
   /*** penetrability at each resonance */
   for(int k=0 ; k<kmax ; k++){
@@ -173,8 +221,5 @@ void gfrResonancePenetrability(const int ner, System *sys, const int kmax, RMRes
     res[k].s = q.real();
     res[k].p = q.imag();
   }
-
-  *a0 = ap_pen;
-  *a1 = ap_phi;
 }
 

@@ -26,7 +26,7 @@ Pcross gfrCrossSection(const int urr, const double elab, System *sys, ENDF *lib)
   Pcross sig;
 
   /*** find an energy range for a given incident energy */
-  int ner = gfrFindEnergyRange(urr,elab,sys);
+  int ner = (sys->isLastCall()) ? 0 : gfrFindEnergyRange(urr,elab,sys);
   if(ner < 0) return(sig);
  
   int lru = sys->lru[ner];
