@@ -105,10 +105,11 @@ Pcross BWMainCalc(const double elab,  const int lrf, System *sys)
       int jmin = abs(2*l-ss);
       int jmax =     2*l+ss ;
       for(int jj=jmin ; jj<=jmax ; jj+=2){
-        double x3 = (jj+1)*x1;
+        double x3 = (jj + 1.0) * x1;
 
         if(lrf == 1) z = gfrSLBreitWigner(kmax,l,jj,elab,&wfn,res);
         else         z = gfrMLBreitWignerENDF(kmax,l,ss-smin-1,jj,elab,&wfn,res);
+//      else         z = gfrMLBreitWigner(kmax,l,jj,elab,&wfn,res);
 
         sig.total    += x3*z.total;
         sig.elastic  += x3*z.elastic;
@@ -207,16 +208,19 @@ void BWScatteringRadius(const int ner, System *sys, const double elab, ENDF *lib
 void BWResonancePenetrability(const int ner, System *sys, ENDF *lib)
 {
   int apidx = 0;
+  double c2 = 2.0 * AMUNIT / (VLIGHTSQ * HBARSQ);
+  double mu = sys->reduced_mass * MNEUTRON;
 
   if(sys->nro[ner] == 1) apidx = sys->idx[ner] + 1;
 
   /*** penetrability at each resonance */
   for(int k=0 ; k<kmax ; k++){
-    double rho = ap_pen;
+    double r = ap_pen;
     if((sys->nro[ner] == 1) && (sys->naps[ner] == 1)){
-      rho = ENDFInterpolation(lib,fabs(res[k].er),true,apidx);
+      r = ENDFInterpolation(lib,fabs(res[k].er),true,apidx);
     }
-    double alpha = gcKfactor * sqrt(fabs(res[k].er) * 1.0e-06 * sys->reduced_mass) * rho;
+    double ecm = res[k].er * mu;
+    double alpha = sqrt(c2 * mu * abs(ecm) * 1e-6) * r;
 
     complex<double> q = gfrLfunction(res[k].l,alpha,0.0);
     res[k].s = q.real();

@@ -108,7 +108,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
-
+  cout << sys.emin[0] << endl;
   gfrPrintCrossSection(-1.0,crs);
 
   /*** determine energy grid automatically */
@@ -121,9 +121,12 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
       /*** resonance cross sections */
       crs = gfrCrossSection(1,elab[i],&sys,lib[kres]);
-      /*** background cross section in MF3 */
 
-      cbg = gfrBackGround(dict,lib,elab[i],true);
+      /*** background cross section in MF3
+           althouh a rare case, when RRR has a low-side limit,
+           we take the second point in the background  */
+      bool dupflag = (elab[i] == sys.emin[0]) ? false : true;
+      cbg = gfrBackGround(dict,lib,elab[i],dupflag);
 
       /*** add background */
       crs = crs + cbg;

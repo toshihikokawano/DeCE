@@ -206,16 +206,19 @@ void RMScatteringRadius(const int ner, System *sys, const double elab, ENDF *lib
 void RMResonancePenetrability(const int ner, System *sys, ENDF *lib)
 {
   int apidx = 0;
+  double c2 = 2.0 * AMUNIT / (VLIGHTSQ * HBARSQ);
+  double mu = sys->reduced_mass * MNEUTRON;
 
   if(sys->nro[ner] == 1) apidx = sys->idx[ner] + 1;
 
   /*** penetrability at each resonance */
   for(int k=0 ; k<kmax ; k++){
-    double rho = ap_pen;
+    double r = ap_pen;
     if((sys->nro[ner] == 1) && (sys->naps[ner] == 1)){
-      rho = ENDFInterpolation(lib,fabs(res[k].er),true,apidx);
+      r = ENDFInterpolation(lib,fabs(res[k].er),true,apidx);
     }
-    double alpha = gcKfactor * sqrt(fabs(res[k].er) * 1.0e-06 * sys->reduced_mass) * rho;
+    double ecm = res[k].er * mu;
+    double alpha = sqrt(c2 * mu * abs(ecm) * 1e-6) * r;
 
     complex<double> q = gfrLfunction(res[k].l,alpha,0.0);
     res[k].s = q.real();
