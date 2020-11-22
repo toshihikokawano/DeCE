@@ -11,7 +11,7 @@
      DeCE (Jadeite) Manual </h1>
 
 <p style="text-align:center;">
-<img src="DeCE.png" width="340" height="320" alt="DeCE Logo" title="DeCE" style="margin-top:20px;margin-bottom:20px;padding:0px;"/>
+<img src="DeCE.png" width="340" height="320" alt="DeCE Logo" title="DeCE" style="margin-top:20px;margin-bottom:20px;padding:0px;">
 </p>
 
 <p style="text-align:center;"> November, 2020 </p>
@@ -215,7 +215,7 @@
 <h1> Introduction </h1>
 <h2><a name="general"> General Information </a></h2>
 
-<img src="program.png" width="320" height="240" alt="desktop" title="desktop" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;float:right;"/>
+<img src="program.png" width="320" height="240" alt="desktop" title="desktop" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;float:right;">
 
 <p>DeCE is an ENDF-6 formatted file manipulation program, similar to
 STANEF by C.L. Dunford et al. (BNL), or FIXUP in PREPRO by D.E. Cullen
@@ -231,8 +231,8 @@ than one materials, in which each of the materials is specified by a
 different MAT number.  However, DeCE expects that an input ENDF-6 file
 includes only one MAT number.</p>
 
-<p>DeCE is capable for doing the items below. Here the word "section" means a
-data block specified by a combination of MF and MT numbers. </p>
+<p>The capability of DeCE is shown below. Here the word "section" means a
+data block specified by a combination of MF and MT numbers.</p>
 
 <ul>
   <li> extract one section from a file, and display it
@@ -272,13 +272,27 @@ bug fixes. Adularia, which was built in 2015, has several upgrades in
 the resonance region. DeCE was released as open source software in
 2016. In 2019 the source code was re-organized aiming at better
 readability, and released as the version Pyrite. Some test cases are
-also provided in this version. In winter in the same year, some minor
-updates were made, and released as the version Rutile. 
-In 2020, two versions of DeCE were released.
+also provided in this version. In winter in the same year, a few minor
+updates were made, and released as the version Rutile. </p>
+
+<p>In 2020, two versions of DeCE were released.
 The covariance printing capability has been upgraded in June,
-sspecially for the resonance parameter covariances. This version is Olivine.
+especially for the resonance parameter covariances. This version is Olivine.
 In November, a more efficient memory allocation method was employed.
-A new version name, Jadeite, was assigned.</p>
+In the past, there were hard-coded size limits for each object,
+which prevented flexible dynamical size change. The new version employs
+a common technique of variable memory buffer, where the buffer size 
+is dynamically enlarged as needed. To avoid unrealistic memory allocation,
+DeCE still has a data size limit, which is defined in endflib.h.
+A new version name, Jadeite, was assigned. Jadeite also includes
+the more stabilized resonance reconstruction functionality by 
+adding a Coulomb function for charged particle channels.</p>
+
+<p style="text-align:center;">
+<img src="decereconst1.png" width="400" height="280" alt="cross section reconstructed" title="cross section reconstructed" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;">
+
+<img src="decereconst2.png" width="400" height="280" alt="cross section reconstructed" title="cross section reconstructed" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;">
+</p>
 
 
 <h2><a name="reference"> Reference </a></h2>
