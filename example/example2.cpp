@@ -21,7 +21,7 @@ static double y[NELAB]
 
 int main(void)
 {
-  ENDF   lib(M), cpy(M);  // objects
+  ENDF   lib, cpy;  // objects
 
   /*** data to be stored */
   double za  = 3.307400e+4;

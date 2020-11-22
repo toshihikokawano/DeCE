@@ -25,7 +25,7 @@ static const double eps = 1.0e-7;
 void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x, double y, string op)
 {
   if(mf != 3){
-    message << "Currently "<< op << " command works only for MF3";
+    message << "currently "<< op << " command works only for MF3";
     WarningMessage();
     return;
   }
@@ -39,6 +39,13 @@ void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x
 
   /*** insert one point */
   if(op == "addpoint"){
+    /*** check memory size if an extra point can be added */
+    if(lib[k0]->checkDataSize(0,1)){
+      message << "cannot add more points since the data size reached the maximum of " << MAX_DBLDATA;
+      WarningMessage();
+      return;
+    }
+
     addpoint(lib[k0],x,y);
   }
 
@@ -46,8 +53,7 @@ void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x
   else if(op == "delpoint"){
     if(x < y){
       /*** when range of delete given */
-      DataSize size = lib[k0]->getSIZE();
-      ENDF tmp(size);
+      ENDF tmp;
       ENDFLibCopy(lib[k0],&tmp);
 
       for(int ip=0 ; ip<np ; ip++){
@@ -56,7 +62,8 @@ void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x
           delpoint(lib[k0],z);
         }
       }
-    }else{
+    }
+    else{
       /*** when one point given */
       delpoint(lib[k0],x);
     }

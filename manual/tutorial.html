@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
 <title> DeCE: tutorial </title>
-<meta http-equiv="content-type" content="text/html;charset=us-ascii">
-<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="us-ascii">
+<link rel='stylesheet' href='style.css'>
 </head>
 <body>
 
@@ -59,8 +59,8 @@ can be created with the DeCE code as following.</p>
 </pre>
 
 <p>Since DeCE will be in the interactive mode when invoked, you need
-to type <tt>quit</tt> to start creating the new file.  Instead of
-typing <tt>quit</tt>, DeCE accepts the <i>-q</i> option, which tells
+to type <code>quit</code> to start creating the new file.  Instead of
+typing <code>quit</code>, DeCE accepts the <i>-q</i> option, which tells
 DeCE to quit immediately.</p>
 
 <pre id="dat">
@@ -70,7 +70,7 @@ DeCE to quit immediately.</p>
 <p>In the new file ENDF.NEW, the number of total lines for the comment
 section is properly fixed. Note that DeCE(Pyrite and later) no longer
 prints the line numbers. You can print the line number by setting 
-the <tt>LineNumber</tt> option. See the <a href="option.html">option</a>
+the <code>LineNumber</code> option. See the <a href="option.html">option</a>
 section.</p>
 
 <pre id="dat">
@@ -140,7 +140,7 @@ sections, such as thermal scattering, cannot be processed for now.</p>
 numerical data in the file. Often the command is followed by the MF/MT
 numbers to specify which section will be targeted.</p>
 
-<p>As an easiest example, the <tt>extract</tt> command copies one
+<p>As an easiest example, the <code>extract</code> command copies one
 section from the file and print it as is. First, just start DeCE with
 the ENDF-6 formatted file, then type this command with the section
 MF/MT numbers.</p>
@@ -156,7 +156,7 @@ MF/MT numbers.</p>
 <span style="color:red;">quit</span>
 </pre>
 
-<p>Since DeCE is still in the interactive mode, type <tt>quit</tt> to stop
+<p>Since DeCE is still in the interactive mode, type <code>quit</code> to stop
 the program.</p>
 
 <p>When your operation is more complicated, it is better to put all
@@ -179,7 +179,7 @@ quit
 <p>The first line means, MF/MT=3/5 is first constructed as the sum of
 total (MT = 1) and elastic (MT = 2) cross sections. Then the other
 sections, MT = 4 (inelastic), 16 (2n reaction), and 102 (capture) are
-added to MT = 5. The <tt>calc</tt> command works on MF3 only. </p>
+added to MT = 5. The <code>calc</code> command works on MF3 only. </p>
 
 <p> We feed the input file to DeCE.</p>
 
@@ -219,12 +219,12 @@ quit
  % dece ENDF.DAT -o ENDF.NEW < input.dat
 </pre>
 
-<p>The <tt>make4</tt> command is an abbreviation for adding
+<p>The <code>make4</code> command is an abbreviation for adding
 subsections from MT = 51 to 91.  Firstly the non-elastic cross
 sections are calculated by adding all the partial cross sections (this
 depends on which sections are given in the input ENDF-6 file), then
 the elastic cross sections are calculated by subtracting the
-non-elastic from the total (<tt>calc 2 = 1-3</tt>). Finally the total
+non-elastic from the total (<code>calc 2 = 1-3</code>). Finally the total
 cross section is again reconstructed by adding the elastic and
 non-elastic cross sections. This final step ensures that the section
 for total cross section (MT = 1) contains all the energy points

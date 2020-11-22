@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
 <title> DeCE: ENDFfunctions (1) </title>
-<meta http-equiv="content-type" content="text/html;charset=us-ascii">
-<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="us-ascii">
+<link rel='stylesheet' href='style.css'>
 </head>
 <body>
 
@@ -14,8 +14,8 @@
 
 <h1>ENDFLIB Functions</h1>
 
-<p>These functions are given in <tt>endflib.cpp</tt> and defined in
-<tt>endflib.h</tt>. They offer an interface between an ENDF-6 formatted file
+<p>These functions are given in <code>endflib.cpp</code> and defined in
+<code>endflib.h</code>. They offer an interface between an ENDF-6 formatted file
 and an ENDF object. ENDFRead functions are to read a particular section in
 the ENDF-6 file, which are in the CONT, LIST, TAB1, etc. structure. 
 ENDFWrite functions are to print the content in the specified object. ENDFPack 
@@ -136,7 +136,7 @@ Return Value
 
 <p>Read a subsection which is in the CONT/LIST/TAB1/TAB2/TAB21/TAB22
 structure, copy the subsection into the ENDF object, then return the
-first CONT record (HEAD). In the case of <tt>ENDFReadCONT</tt> the
+first CONT record (HEAD). In the case of <code>ENDFReadCONT</code> the
 returned value is the CONT record itself. Each time these functions
 are called, the section pointer is incremented to prepare for reading
 the next subsection.</p>
@@ -170,7 +170,7 @@ into one-dimensional floting point or integer array. When <i>m</i> is given and
 and <i>n</i> is given, <i>n</i>-point data are copied. They are exclusive.</p>
 
 <p>Because this function does not check the buffer overrun, 
-users should test the data size by <tt>checkMAXDATA</tt> method
+users should test the data size by <code>checkMAXDATA</code> method
 prior to call this function.</p>
 
 
@@ -294,8 +294,8 @@ Return Value
 <p>These functions print CONT, LIST, TAB1, TAB2, TAB21, and TAB22 data
 structure in the ENDF-6 format, which are stored in the ENDF object,
 and return its HEAD record. The section pointer is incremented, 
-when <tt>ENDFWriteCONT</tt> is called. However other functions do not 
-increment the pointer, since they always call <tt>ENDFWriteCONT</tt>
+when <code>ENDFWriteCONT</code> is called. However other functions do not 
+increment the pointer, since they always call <code>ENDFWriteCONT</code>
 at the beginning. </p>
 
 
@@ -376,8 +376,8 @@ Return Value
 </pre>
 
 <p>Print MAT/MF/MT numbers after the column 67. When a global option
-of <tt>LineNumber</tt> is set, line numbers are followed. This variable
-can be set by <tt>ENDFPrintLineNumber(true)</tt>. </p>
+of <code>LineNumber</code> is set, line numbers are followed. This variable
+can be set by <code>ENDFPrintLineNumber(true)</code>. </p>
 
 
 
@@ -434,7 +434,7 @@ the internal data pointer to the end of each data array. The number of data
 to be stored is given by the CONT record in the case of one-dim data. When
 the data are two-dimensional, an array of CONT record is given.</p>
 
-<p><tt>ENDFPackTAB22</tt> is not available in the current version.</p>
+<p><code>ENDFPackTAB22</code> is not available in the current version.</p>
 
 
 
@@ -519,7 +519,7 @@ Return Value
 <p>Calculate a Y-value at given any X-value by interpolating a set of (x,y) pair data
 in the ENDF object. Sometimes the (x,y) set contains a duplicated X-point to allow
 a sudden jump in the data, and this prevents interpolation. <i>dupflag</i> tells 
-<tt>ENDFInterpolation</tt> which data point (before jump or after jump) should be
+<code>ENDFInterpolation</code> which data point (before jump or after jump) should be
 taken. When <i>dupflag = true</i>, we take the Y-value before the duplicated point,
 and <i>false</i> is to take the value after the duplication. </p>
 
@@ -545,7 +545,7 @@ Return Value
 This is used for doing arithmetic of two sections, such as adding, subtracting,
 multiplying two sections. To perform such calculations, the X-axis should
 be common to these sections, and this function generates a unified set of the
-X-data. After calling this function, <tt>ENDFInterpolation</tt> can be used
+X-data. After calling this function, <code>ENDFInterpolation</code> can be used
 to calculate all the Y-values at each X-value given by this function.</p>
 
 
@@ -567,10 +567,10 @@ Return Value
 </pre>
 
 <p>Determine two energy boundaries given in the ENDFDict object
-- <tt>emaxRR</tt> and
-<tt>emaxUR</tt> by looking into the resonance region of ENDF-6 file.
-<tt>emaxRR</tt>  is the high-side of the resolved resonance region,
-and <tt>emaxUR</tt> is the highest energy of the unresolved resonance.</p>
+- <code>emaxRR</code> and
+<code>emaxUR</code> by looking into the resonance region of ENDF-6 file.
+<code>emaxRR</code>  is the high-side of the resolved resonance region,
+and <code>emaxUR</code> is the highest energy of the unresolved resonance.</p>
 
 <hr>
 <a href="endfio.html"> [BACK] </a>

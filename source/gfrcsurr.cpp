@@ -14,10 +14,12 @@ using namespace std;
 #include "constant.h"
 #include "terminate.h"
 
-static int gfrURetrieveParameter (const int, int, ENDF *, URResonance *);
-static int gfrUFindRange         (double, URResonance *, bool *);
-static Pcross gfrCrossSectionURR (int, int, int, System *, URResonance *);
-static Pcross gfrBreitWignerURR  (int, double, double, Wfunc *, URResonance *);
+static int gfrURetrieveParameterA (const int, int, ENDF *, URResonance *);
+static int gfrURetrieveParameterB (const int, int, ENDF *, URResonance *, const int, double *);
+static int gfrURetrieveParameterC (const int, int, ENDF *, URResonance *);
+static int gfrUFindRange          (const double, URResonance *, bool *);
+static Pcross gfrCrossSectionURR (int, int, int, System *, URResonance *, ENDF *);
+static Pcross gfrBreitWignerURR  (int, double, double, double, ChannelWaveFunc *, URResonance *);
 static double gfrMoldauer        (int, double *, double *, double *);
 static Pcross gfrUInterpolation  (double, Pcross, Pcross);
 
@@ -50,32 +52,53 @@ Pcross gfrCrossSectionURR(const int ner, const double elab, System *sys, ENDF *l
 
   int lrf = sys->lrf[ner];
 
+  bool itp = false;
+  int  pm = 0, ke = 0;
+
   /*** case A: energy independent parameter, no fission */
   if(lrf == 1){
     if(sys->avefission_flag == 0){
+
+      message << "LRF = 0, LFW = 1 case never tested";
+      WarningMessage();
+
+      int idx = sys->idx[ner] + 1;
+      if(sys->nro[ner] == 1) idx ++;
+
+      pm = gfrURetrieveParameterA(sys->nl,idx,lib,res);
+
+      /*** set Elab at the first resonance energy */
+      for(int p = 0 ; p<pm ; p++) res[p].bw[0].er = elab;
+      itp = false;
+      ke  = 0;
     }
   /*** case B: energy independent, but for fission */
     else{
+      int idx = sys->idx[ner] + 2;
+      if(sys->nro[ner] == 1) idx ++;
+
+      pm = gfrURetrieveParameterB(sys->nl,idx,lib,res,sys->nfw,sys->fwx);
+      ke = gfrUFindRange(elab,res,&itp);
     }
-    message << "LRF=0,1 not yet supported";
-    WarningMessage();
   }
   /*** case C: all parameters are energy dependent */
   else{
-    bool itp = false;
-    int pm = gfrURetrieveParameter(sys->nl,sys->idx[ner]+1,lib,res);
-    int ke = gfrUFindRange(elab,res,&itp);
+    int idx = sys->idx[ner] + 2;
+    if(sys->nro[ner] == 1) idx ++;
 
-    /*** need interpolation */
-    if(itp){
-      z1 = gfrCrossSectionURR(pm,ke  ,ner,sys,res);
-      z2 = gfrCrossSectionURR(pm,ke+1,ner,sys,res);
-      z0 = gfrUInterpolation(elab,z1,z2);
-    }
-    /*** no interpolation case */
-    else{
-      z0 = gfrCrossSectionURR(pm,ke,ner,sys,res);
-    }
+    pm = gfrURetrieveParameterC(sys->nl,idx,lib,res);
+    ke = gfrUFindRange(elab,res,&itp);
+  }
+
+  /*** need interpolation */
+  if(itp){
+    z1 = gfrCrossSectionURR(pm,ke  ,ner,sys,res,lib);
+    z2 = gfrCrossSectionURR(pm,ke+1,ner,sys,res,lib);
+    z0 = gfrUInterpolation(elab,z1,z2);
+  }
+  /*** no interpolation case */
+  else{
+    z0 = gfrCrossSectionURR(pm,ke,ner,sys,res,lib);
   }
 
   delete [] res;
@@ -87,7 +110,88 @@ Pcross gfrCrossSectionURR(const int ner, const double elab, System *sys, ENDF *l
 /**********************************************************/
 /*      Unresolved Resonance Parameters at Given Energy   */
 /**********************************************************/
-int gfrURetrieveParameter(const int nl, int idx, ENDF *lib, URResonance *res)
+int gfrURetrieveParameterA(const int nl, int idx, ENDF *lib, URResonance *res)
+{
+  int p = 0; // index for a given (L,J) pair
+
+  /*** for all L partial waves */
+  for(int l=0 ; l<nl ; l++){
+    /*** CONT */
+    int njs = lib->rdata[idx].n1;
+    idx ++;
+
+    for(int j=0 ; j<njs ; j++){
+      /*** LIST */
+      res[p].l   = l;
+
+      int k = 0;
+      res[p].bw[0].er = 0.0;;                   // dummy energy
+      res[p].bw[0].d  = lib->xptr[idx][0];      // average spacing
+      res[p].j2 = (int)(2.0*lib->xptr[idx][1]); // 2 x J
+      res[p].dfn      = lib->xptr[idx][2];      // d.o.f for neutron channel
+      res[p].bw[k].gn = lib->xptr[idx][3];      // reduced neutron width
+      res[p].bw[k].gg = lib->xptr[idx][4];      // gamma width
+
+      res[p].ne  = 1;   // one energy point
+      res[p].dfg = 0.0; // gamma d.o.f
+
+      p ++;
+      idx ++;
+
+      if(p >= MAX_URESONANCE){
+        cerr << "too many L,J groups in URR" << endl;
+        return(0);
+      }
+    }
+  }
+  return(p);
+}
+
+
+int gfrURetrieveParameterB(const int nl, int idx, ENDF *lib, URResonance *res, const int ne, double *fwx)
+{
+  int p = 0; // index for a given (L,J) pair
+
+  /*** for all L partial waves */
+  for(int l=0 ; l<nl ; l++){
+    /*** CONT */
+    int njs = lib->rdata[idx].n1;
+    idx ++;
+
+    for(int j=0 ; j<njs ; j++){
+      /*** LIST */
+      res[p].l   = l;
+      res[p].dff = lib->rdata[idx].l2;           // d.o.f for fission channel
+      double d   = lib->xptr[idx][0];            // average spacing
+      res[p].j2  = (int)(2.0*lib->xptr[idx][1]); // 2 x J
+      res[p].dfn = lib->xptr[idx][2];            // d.o.f for neutron channel
+      double gn  = lib->xptr[idx][3];            // reduced neutron width
+      double gg  = lib->xptr[idx][4];            // gamma width
+
+      res[p].ne  = ne;  // number of energy points = fission width data
+      res[p].dfg = 0.0; // gamma d.o.f,not sure if zero works
+
+      for(int k=0 ; k<ne ; k++){
+        res[p].bw[k].er = fwx[k];                // energy point
+        res[p].bw[k].d  = d;
+        res[p].bw[k].gn = gn;
+        res[p].bw[k].gg = gg;
+        res[p].bw[k].gf = lib->xptr[idx][6 + k]; // fission width
+      }
+      p ++;
+      idx ++;
+
+      if(p >= MAX_URESONANCE){
+        cerr << "too many L,J groups in URR" << endl;
+        return(0);
+      }
+    }
+  }
+  return(p);
+}
+
+
+int gfrURetrieveParameterC(const int nl, int idx, ENDF *lib, URResonance *res)
 {
   int p = 0; // index for a given (L,J) pair
 
@@ -102,7 +206,7 @@ int gfrURetrieveParameter(const int nl, int idx, ENDF *lib, URResonance *res)
       res[p].l   = l;
       res[p].j2  = (int)(2.0*lib->rdata[idx].c1);
       res[p].itp = lib->rdata[idx].l1;
-      res[p].ne  = lib->rdata[idx].n2;;
+      res[p].ne  = lib->rdata[idx].n2;
 
       res[p].dfx = lib->xptr[idx][2];
       res[p].dfn = lib->xptr[idx][3];
@@ -168,26 +272,45 @@ int gfrUFindRange(double elab, URResonance *res, bool *itp)
 /**********************************************************/
 /*      Calculate Cross Section                           */
 /**********************************************************/
-Pcross gfrCrossSectionURR(int km, int ke, int ner, System *sys, URResonance *res)
+Pcross gfrCrossSectionURR(int km, int ke, int ner, System *sys, URResonance *res, ENDF *lib)
 {
-  Wfunc  wfn;
+  ChannelWaveFunc wfn;
   Pcross sig, z;
 
   sig.energy = res[0].bw[ke].er; // we hope energy grids are always the same.
+
+  int apidx = 0;
+  double ap_pen = 0.0, ap_phi = 0.0;
+
+  if(sys->nro[ner] == 1) apidx = sys->idx[ner] - 1;
+
+  if(sys->nro[ner] == 0){
+    ap_pen = (sys->naps[ner] == 0) ? gfrENDFChannelRadius(sys->target_A) : sys->radius;
+    ap_phi = sys->radius;
+  }
+  else{
+    ap_phi = ENDFInterpolation(lib,sig.energy,true,apidx) * 10.0;
+    if(     sys->naps[ner] == 0) ap_pen = gfrENDFChannelRadius(sys->target_A);
+    else if(sys->naps[ner] == 1) ap_pen = ap_phi;
+    else                         ap_pen = sys->radius;
+  }
+
   gfrSetEnergy(sig.energy,sys);
 
-  double ap = (sys->naps[ner] == 0) ? gfrENDFChannelRadius(sys->target_A) : sys->radius;
+  double alpha_pen = sys->wave_number * ap_pen;
+  double alpha_phi = sys->wave_number * ap_phi;
+
   double x1 = PI/(sys->wave_number*sys->wave_number) * 0.01;
-  double x2 = sys->wave_number * ap;
   double p2 = 2.0*PI;
 
   for(int l=0 ; l<sys->nl ; l++){
 
-    double phase = gfrPenetrability(l,sys->alpha,&wfn);
-    wfn.phase  = complex<double>(cos(  phase), -sin(  phase));
-    wfn.phase2 = complex<double>(cos(2*phase), -sin(2*phase));
+    ChannelWaveFunc wpen, wphi;
+    gfrPenetrability(l,alpha_phi,&wphi);
+    wfn.setPhase(wphi.H);
 
-    if(sys->naps[ner] == 0) gfrPenetrability(l,x2,&wfn);
+    gfrPenetrability(l,alpha_pen,&wpen);
+    wfn.setData(wpen.a,wpen.H,wpen.D);
 
     int smin = abs(sys->target_spin2-1);
     int smax =     sys->target_spin2+1;
@@ -205,7 +328,7 @@ Pcross gfrCrossSectionURR(int km, int ke, int ner, System *sys, URResonance *res
           if((l == res[k].l) && (jj == res[k].j2)){ kp = k; break; }
         }
 
-        z = gfrBreitWignerURR(ke,gj,x2,&wfn,&res[kp]);
+        z = gfrBreitWignerURR(ke,gj,sig.energy,alpha_pen,&wfn,&res[kp]);
 
         sig.elastic  += p2 * x1 * z.elastic;
         sig.capture  += p2 * x1 * z.capture;
@@ -226,13 +349,13 @@ Pcross gfrCrossSectionURR(int km, int ke, int ner, System *sys, URResonance *res
 /**********************************************************/
 /*      Breit-Wigner form in Unresolved Range             */
 /**********************************************************/
-Pcross gfrBreitWignerURR(int ke, double gj, double x, Wfunc *wfn, URResonance *res)
+Pcross gfrBreitWignerURR(int ke, double gj, double elab, double alpha, ChannelWaveFunc *wfn, URResonance *res)
 {
   Pcross  z;
   double tr[4],df[4],wf[4];
 
-  double gf = imag(wfn->d) / x * sqrt(res->bw[ke].er);
-  double gn = res->bw[ke].gn * gf;
+  /*** average width */
+  double gn = res->bw[ke].gn * wfn->P() / alpha * sqrt(elab);        // Gn = Gn(input) x P(l) sqrt(E) / alpha
   double gt = gn + res->bw[ke].gg + res->bw[ke].gf + res->bw[ke].gx;
   double s2 = imag(wfn->phase) * imag(wfn->phase);
 
@@ -243,9 +366,9 @@ Pcross gfrBreitWignerURR(int ke, double gj, double x, Wfunc *wfn, URResonance *r
   tr[2] = res->bw[ke].gg;
   tr[3] = res->bw[ke].gx;
 
-  df[0] = res->dfn;  if(df[0] == 0.0) df[0] =  1.0; // ad hot
-  df[1] = res->dff;  if(df[1] == 0.0) df[2] =  4.0; // ad hot
-  df[2] = res->dfg;  if(df[2] == 0.0) df[2] = 20.0; // ad hot
+  df[0] = res->dfn;  if(df[0] == 0.0) df[0] =  1.0; // ad hoc
+  df[1] = res->dff;  if(df[1] == 0.0) df[1] =  4.0; // ad hoc
+  df[2] = res->dfg;  if(df[2] == 0.0) df[2] = 20.0; // ad hoc
   df[3] = res->dfx;
  
  

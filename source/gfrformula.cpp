@@ -11,7 +11,7 @@ using namespace std;
 #include "endflib.h"
 #include "gfr.h"
 
-static inline complex<double> breit_wigner_profile  (double, double, double);
+static inline complex<double> breit_wigner_profile  (complex<double>, double, double);
 static inline double          arrange_matrixSLBW    (double, double *, BWResonance *);
 static inline double          arrange_matrixRM      (double, double *, RMResonance *);
 static inline void            invert_matrix         (complex<double> *);
@@ -22,8 +22,7 @@ extern Smatrix Smat;
 /**********************************************************/
 /*      Single Level Breit-Wigner                         */
 /**********************************************************/
-Pcross gfrSLBreitWigner(const int kmax, const int l, const int j2, const double e,
-                        Wfunc *wfn, BWResonance *res)
+Pcross gfrSLBreitWigner(const int kmax, const int l, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)
 {
   const int msize = 10;
   Pcross  z;
@@ -34,7 +33,7 @@ Pcross gfrSLBreitWigner(const int kmax, const int l, const int j2, const double 
   for(int k=0 ; k<kmax ; k++){
     if( (res[k].l == l) && (res[k].j2 == j2) ){
 
-      double gt = arrange_matrixSLBW(imag(wfn->d),x,&res[k]);
+      double gt = arrange_matrixSLBW(wfn->P(),x,&res[k]);
       double w  = e - res[k].er;
       double d  = w*w + 0.25*gt*gt;
       
@@ -52,19 +51,20 @@ Pcross gfrSLBreitWigner(const int kmax, const int l, const int j2, const double 
 /**********************************************************/
 /*      MLBW defined in ENDF                              */
 /**********************************************************/
-Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int j2,
-                            const double e, Wfunc *wfn, BWResonance *res)
+#undef METHOD_ORIG
+Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)
 {
   const int msize = 10;
   Pcross  z;
+
+#ifdef METHOD_ORIG
   complex<double> w,y,p,r(0.0,0.0),t(0.0,0.0);
   double  x0[msize],x1[msize];
-
   for(int k0=0 ; k0<kmax ; k0++){
     if( (res[k0].l == l) && (res[k0].j2 == j2) ){
-      double de  = res[k0].gn * (res[k0].s - real(wfn->d)) / (2*res[k0].p);
-      double gt0 = arrange_matrixSLBW(imag(wfn->d),x0,&res[k0]);
-      p   = breit_wigner_profile(e,res[k0].er+de,gt0);
+      double de  = res[k0].gn * (res[k0].s - wfn->S()) / (2*res[k0].p);
+      double gt0 = arrange_matrixSLBW(wfn->P(),x0,&res[k0]);
+      p = breit_wigner_profile(complex<double>(e,gcLorentzianWidth),res[k0].er+de,gt0);
 
       z.total   += (real(p) * real(wfn->phase2) - imag(p) * imag(wfn->phase2))*x0[0]/gt0;
       z.fission +=  real(p)*(x0[1]*x0[1])/gt0/gt0;
@@ -73,7 +73,7 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
       w = complex<double>(0.0,0.0);
       for(int k1=0 ; k1<kmax ; k1++){
         if( (res[k1].l == l) && (res[k1].j2 == j2) ){
-          double gt1 = arrange_matrixSLBW(imag(wfn->d),x1,&res[k1]);
+          double gt1 = arrange_matrixSLBW(wfn->P(),x1,&res[k1]);
           y = complex<double>(res[k1].er-res[k0].er, -(gt0+gt1)*0.5);
           y = 1.0 /y;
           w += y*x1[0];
@@ -83,7 +83,7 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
       r += x0[0]*w*p/gt0;
 
       /*** sum i Gn /(Ek + Delta - E -iG/2) */
-      t += complex<double>(0.0,x0[0]) / complex<double>(res[k0].er+de-e,-gt0/2.0);
+      t += complex<double>(0.0,x0[0]) / complex<double>(res[k0].er + de - e,-gt0/2.0 - gcLorentzianWidth);
     }
   }
 
@@ -96,6 +96,40 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
   /*** S-matrix element for elastic scattering channel */
   Smat.setElement(l,j2,s2, wfn->phase2 * (1.0 + t));
 
+#else
+  /*** directly calculate S-matrix */
+  complex<double> w,u[msize];
+  double  x[msize];
+
+  for(int i=0 ; i<msize ; i++) u[i] = complex<double>(0.0,0.0);
+  for(int k=0 ; k<kmax ; k++){
+    if( (res[k].l == l) && (res[k].j2 == j2) ){
+      double de = res[k].gn * (res[k].s - wfn->S()) / (2*res[k].p);
+      double gt = arrange_matrixSLBW(wfn->P(),x,&res[k]);
+     complex<double> p = breit_wigner_profile(complex<double>(e,0.0),res[k].er+de,gt);
+
+      z.fission += real(p)*(x[1]*x[1])/gt/gt;
+      z.capture += real(p)* x[3]*x[3] /gt/gt;
+      z.other   += real(p)* x[6]*x[6] /gt/gt;
+
+      w = complex<double>(res[k].er + de - e, -gt/2.0);
+      for(int i=0 ; i<msize ; i++) u[i] += complex<double>(0.0,x[i]) / w;
+    }
+  }
+
+  u[0] = (u[0] + complex<double>(1.0,0.0)) *  wfn->phase2;
+
+//z.total    = (1.0 - u[0].real()) * 2.0;
+  z.elastic  = norm(complex<double>(1.0,0.0) - u[0]);
+  z.fission *= 4;
+  z.capture *= 4;
+  z.other   *= 4;
+  z.total    = z.elastic + z.fission + z.capture + z.other;
+
+  /*** S-matrix element for elastic scattering channel */
+  Smat.setElement(l,j2,s2,u[0]);
+#endif
+
   return(z);
 }
 
@@ -103,8 +137,7 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
 /**********************************************************/
 /*      General Multilevel Breit-Wigner                   */
 /**********************************************************/
-Pcross gfrBreitWigner(const int kmax, const int l, const int j2, const double e,
-                      Wfunc *wfn, BWResonance *res)
+Pcross gfrMLBreitWigner(const int kmax, const int l, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)
 {
   const int msize = 10;
   Pcross  z;
@@ -116,15 +149,15 @@ Pcross gfrBreitWigner(const int kmax, const int l, const int j2, const double e,
 
   for(int k0=0 ; k0<kmax ; k0++){
     if( (res[k0].l == l) && (res[k0].j2 == j2) ){
-      double gt0 = arrange_matrixSLBW(imag(wfn->d),x0,&res[k0]);
-      p = breit_wigner_profile(e,res[k0].er,gt0);
+      double gt0 = arrange_matrixSLBW(wfn->P(),x0,&res[k0]);
+      p = breit_wigner_profile(complex<double>(e,gcLorentzianWidth),res[k0].er,gt0);
 
       z.total += (real(p) * real(wfn->phase2) - imag(p) * imag(wfn->phase2))*x0[0]/gt0;
 
       for(int i=0 ; i<msize ; i++)  w[i] = complex<double>(0.0,0.0);
       for(int k1=0 ; k1<kmax ; k1++){
         if( (res[k1].l == l) && (res[k1].j2 == j2) ){
-          double gt1 = arrange_matrixSLBW(imag(wfn->d),x1,&res[k1]);
+          double gt1 = arrange_matrixSLBW(wfn->P(),x1,&res[k1]);
           y = complex<double>(res[k1].er-res[k0].er, -(gt0+gt1)*0.5);
           y = 1.0 /y;
           for(int i=0 ; i<msize ; i++) w[i] += y*x1[i];
@@ -150,16 +183,17 @@ Pcross gfrBreitWigner(const int kmax, const int l, const int j2, const double e,
 /**********************************************************/
 /*      Reich-Moore R-Matrix                              */
 /**********************************************************/
-Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
-                     const int tspin2, 
-                     const double e, Wfunc *wfn, RMResonance *res)
+Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2, const int tspin2, const double e, ChannelWaveFunc *wfn, RMResonance *res)
 {
   const int msize = 6;
   complex<double> smat[msize],rmat[msize],wmat[msize];
   double x[msize];
+  Pcross z;
 
   bool sdep = false; // channel spin dependent
-  for(int k=0 ; k<kmax ; k++){ if(res[k].j2 < 0) sdep = true; }
+  for(int k=0 ; k<kmax ; k++){
+    if((res[k].j2 < 0) and (res[k].l == l)){ sdep = true; break; }
+  }
 
   /*** R-matrix elements */
   for(int i=0 ; i<msize ; i++)  smat[i] = rmat[i] = wmat[i] = complex<double>(0.0,0.0);
@@ -169,9 +203,8 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
       if(sdep){
         int j2r = (int)abs(res[k].j2);
         int sr  = (res[k].j2 < 0) ? -1 : 1;
-                      
         if( (j2r == j2) && (sr == s2) ){
-          arrange_matrixRM(imag(wfn->d),x,&res[k]);
+          arrange_matrixRM(wfn->P(),x,&res[k]);
           complex<double> w(res[k].er-e, -res[k].gg/2.0 - gcLorentzianWidth);
           w = 1.0 / w;
           for(int i=0 ; i<msize ; i++)  rmat[i] += w*x[i];
@@ -181,7 +214,7 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
       else{
         if(res[k].j2 == j2){
           if((l > 0) && (s2 != -1) && (tspin2 != 0)) continue;
-          arrange_matrixRM(imag(wfn->d),x,&res[k]);
+          arrange_matrixRM(wfn->P(),x,&res[k]);
           complex<double> w(res[k].er-e, -res[k].gg/2.0 - gcLorentzianWidth);
           w = 1.0 / w;
           for(int i=0 ; i<msize ; i++)  rmat[i] += w*x[i];
@@ -190,11 +223,13 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
     }
   }
 
+  /*** W = delta - i/2 R = I - K */
   for(int i=0 ; i<msize ; i++){
     wmat[i] = complex<double>(imag(rmat[i])/2.0,-real(rmat[i])/2.0);
     if(i==0 || i==2 || i==5) wmat[i] += 1.0;
   }
 
+  /*** (I - K)^{-1} */
   invert_matrix(wmat);
 
   /*** S-matrix elements */
@@ -205,8 +240,6 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
   Smat.setElement(l,j2,s2,smat[0]);
 
   /*** cross sections from S-matrix */
-  Pcross  z;
-
   z.total    = (1.0-real(smat[0]))*2.0;
   z.elastic  = (1.0-real(smat[0]))*(1.0-real(smat[0])) + imag(smat[0])*imag(smat[0]);
   z.fission  = real(smat[1])*real(smat[1]) + imag(smat[1])*imag(smat[1])
@@ -220,8 +253,7 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2,
 /**********************************************************/
 /*      Collision Matrix for MLBW                         */
 /**********************************************************/
-Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const int j2,
-                             const double e, Wfunc *wfn, BWResonance *res)
+Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)
 {
   const int msize = 10;
   complex<double> w, tmat[msize], smat[msize];
@@ -230,8 +262,8 @@ Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const in
   for(int i=0 ; i<msize ; i++)  tmat[i] = complex<double>(0.0,0.0);
   for(int k=0 ; k<kmax ; k++){
     if( (res[k].l == l) && (res[k].j2 == j2) ){
-      double de  = res[k].gn * (res[k].s - real(wfn->d)) / (2*res[k].p);
-      double gt  = arrange_matrixSLBW(imag(wfn->d),x,&res[k]);
+      double de  = res[k].gn * (res[k].s - wfn->S()) / (2*res[k].p);
+      double gt  = arrange_matrixSLBW(wfn->P(),x,&res[k]);
       w = complex<double>(res[k].er + de - e, -gt/2.0 - gcLorentzianWidth);
       for(int i=0 ; i<msize ; i++) tmat[i] += complex<double>(0.0,x[i]) / w;
     }
@@ -317,10 +349,12 @@ double arrange_matrixRM(double d, double *x, RMResonance *res)
 /**********************************************************/
 /*      Resonance Shape                                   */
 /**********************************************************/
-inline complex<double> breit_wigner_profile(double e, double e0, double g)
+inline complex<double> breit_wigner_profile(complex<double> e, double e0, double g)
 {
-  double x = (e-e0)*(e-e0)+g*g/4.0;
-  complex<double> bw = complex<double>(g*g/4.0 /x, (e-e0)*g/2.0 /x);
+  complex<double> x  = complex<double>(0.0, g / 2.0);
+  complex<double> y  = e - complex<double>(e0,0.0) + x;
+  complex<double> bw = x / y;
+
   return(bw);
 }
 

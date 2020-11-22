@@ -36,6 +36,9 @@ static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
 static void DeceOperationGROUP           (ENDFDict *, ENDF **);
 
+static void DeceOutputRedirectFile       (void);
+static void DeceOutputResume             (void);
+
 extern CLine cmd;
 
 /**********************************************************/
@@ -215,13 +218,18 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 
   /*** SET: modify global setting */
   else if(ope == "set" || ope == "unset" || ope == "showoptions"){
-    DeceGlobalOption(ope,(string)cmd.text,cmd.x);
+    DeceGlobalOption(ope,(string)cmd.parm,(string)cmd.text,cmd.x);
   }
 
   /*** ECHO: print text */
   else if(ope == "echo"){
     message << cmd.text;
     Notice("NOTE");
+  }
+
+  /*** MEMORYUSAGE: print memory usage */
+  else if(ope == "memoryusage"){
+    DeceMemoryUsage(dict,lib);
   }
 
   /*** Unknown command */
@@ -358,7 +366,9 @@ void DeceOperationTABLE(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 {
   if((cmd.mf == 2) && (cmd.mt == 0)) cmd.mt = 151;
 
+  DeceOutputRedirectFile();
   DeceTable(dict,lib,fpin,cmd.mf,cmd.mt);
+  DeceOutputResume();
 }
 
 
@@ -370,7 +380,9 @@ void DeceOperationTABLE(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 /**********************************************************/
 void DeceOperationEXTRACT(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 {
+  DeceOutputRedirectFile();
   DeceExtract(dict,lib,fpin,cmd.mf,cmd.mt);
+  DeceOutputResume();
 }
 
 
@@ -531,6 +543,7 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
 {
   string ope = CmdGetOperation();
 
+  DeceOutputRedirectFile();
   if(dict->getID(2,151) >= 0){
     if(ope == "reconstruct"){
       gfrPtCross(dict,lib,cmd.xmin,cmd.xmax,cmd.x);
@@ -545,6 +558,7 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
       gfrSmatrixElement(dict, lib);
     }
   }
+  DeceOutputResume();
 }
 
 
@@ -562,6 +576,7 @@ void DeceOperationPOINTWISE(ENDFDict *dict, ENDF *lib[])
   }
 }
 
+
 /**********************************************************/
 /* Group                                                  */
 /*      group cross sections                              */
@@ -569,6 +584,33 @@ void DeceOperationPOINTWISE(ENDFDict *dict, ENDF *lib[])
 void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
 {
   if(!generatepointwise) DeceOperationPOINTWISE(dict,lib);
+  DeceOutputRedirectFile();
   DeceGenerateGroup(dict,lib,cmd.opt1,cmd.opt2);
+  DeceOutputResume();
 }
 
+
+/**********************************************************/
+/* File Redirect                                          */
+/*      write output to a given file                      */
+/**********************************************************/
+static streambuf *savestream;
+static ofstream  foutstream;
+void DeceOutputRedirectFile()
+{
+  /*** when Output option is set, redirect STDOUT to the external file */
+  if(opt.Output.length() > 0){
+    savestream = cout.rdbuf();
+    foutstream.open(&opt.Output[0],ofstream::out | ofstream::app);
+    cout.rdbuf(foutstream.rdbuf());
+  }
+}
+
+void DeceOutputResume()
+{
+  /*** restore STDOUT */
+  if(opt.Output.length() > 0){
+    foutstream.close();
+    cout.rdbuf(savestream);
+  }
+}

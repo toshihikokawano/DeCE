@@ -1,7 +1,7 @@
 /******************************************************************************/
 /**                                                                          **/
 /**     DeCE : The Descriptive Correction of ENDF-6 Format Code              **/
-/**                                          1.2.4 (Olivine)  June  2020     **/
+/**                                          1.2.5 (Jadeite)  Nov.  2020     **/
 /**                                                            T. Kawano     **/
 /**                                       Los Alamos National Laboratory     **/
 /******************************************************************************/
@@ -19,22 +19,21 @@ using namespace std;
 #include "global.h"
 #include "terminate.h"
 
-static string version  = "1.2.4 Olivine (June 2020)";
+static string version  = "1.2.5 Jadeite (Nov. 2020)";
 static bool   verbflag = false;
 static bool   justquit = false;
-static bool   renumber = false;
 static bool   filescan = false;
 static int    newsec   = 0;
 static ENDF   *lib[MAX_SECTION];
 
 static void DeceMain          (string, string, ENDFDict *);
 static void DeceStoreData     (ENDFDict *, ifstream *);
-static void DeceInitOptions   (void);
 static void DeceReadMonitor   (const int, const int, const int, const int, const int, const int, const int);
 static void DeceHelp          (void);
 static void DeceFreeMemory    (void);
 static void DeceBanner        (void);
 
+#undef PeekObject // for debugging
 
 /**********************************************************/
 /*      Global Parameters                                 */
@@ -63,7 +62,7 @@ int main(int argc, char *argv[])
   bool     reconr = false;
 
   /*** command line options */
-  while((p=getopt(argc,argv,"o:f:t:e:rqnsvh"))!=-1){
+  while((p=getopt(argc,argv,"o:f:t:e:rqsvh"))!=-1){
     switch(p){
     case 'o':  libname_out = optarg;   break;
     case 'f':  mfin = atoi(optarg);    break;
@@ -71,7 +70,6 @@ int main(int argc, char *argv[])
     case 'e':  ein  = atof(optarg);    break;
     case 'r':  reconr   = true;        break;
     case 'q':  justquit = true;        break;
-    case 'n':  renumber = true;        break;
     case 's':  filescan = true;
                justquit = true;        break;
     case 'v':  verbflag = true;        break;
@@ -84,9 +82,6 @@ int main(int argc, char *argv[])
   if(optind < argc) libname_in = argv[optind];
   if(libname_in == "") TerminateCode("ENDF-6 formattted file not given");
   if(libname_in == libname_out) TerminateCode("same in/out file names");
-
-  /*** initialize global options */
-  DeceInitOptions();
 
   /*** tabular output from one section */
   if((mfin == 2) || (mfin == 32)) mtin = 151;
@@ -190,52 +185,27 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
 /**********************************************************/
 void DeceStoreData(ENDFDict *dict, ifstream *fp)
 {
-  DataSize size = M;
-
   for(int i=0 ; i<dict->getSEC() ; i++){
 
-    if(dict->mf[i] ==  1){
-      if( (dict->mt[i] == 452) || (dict->mt[i] == 455) || (dict->mt[i] == 456) ) size = M;
-      else if(dict->mt[i] == 460) size = L;
-      else continue;
-    }
-    else if(dict->mf[i] ==  2) size = L;
-    else if(dict->mf[i] ==  3) size = M;
-    else if(dict->mf[i] ==  4) size = L;
-    else if(dict->mf[i] ==  5) size = L;
-    else if(dict->mf[i] ==  6) size = L;
-    else if(dict->mf[i] ==  8) size = M;
-    else if(dict->mf[i] ==  9) size = M;
-    else if(dict->mf[i] == 10) size = M;
-    else if(dict->mf[i] == 12) size = (dict->mt[i] == 460) ? L : M;
-    else if(dict->mf[i] == 13) size = M;
-    else if(dict->mf[i] == 14) size = M;
-    else if(dict->mf[i] == 15) size = M;
-    else if(dict->mf[i] == 31) size = M;
-    else if(dict->mf[i] == 32) size = L;
-    else if(dict->mf[i] == 33) size = L;
-    else if(dict->mf[i] == 34) size = L;
-    else if(dict->mf[i] == 35) size = L;
-    else continue;
+    /*** skip text data */
+    if( (dict->mf[i] == 1) && (dict->mt[i] == 451) ) continue;
 
-    lib[newsec] = new ENDF(size);
+    /*** instance object, and read ENDF data */
+    lib[newsec] = new ENDF();
     ENDFRead(fp,lib[newsec],dict->mf[i],dict->mt[i]);
+
+    /*** find resonance boundary energies */
     if(dict->mf[i] == 2) ENDFMF2boundary(dict,lib[newsec]);
 
     DeceReadMonitor(lib[newsec]->getENDFmat(),dict->mf[i],dict->mt[i],newsec,lib[newsec]->getPOS(),lib[newsec]->getNI(),lib[newsec]->getNX());
+#ifdef PeekObject
+    ENDFLibPeek(lib[newsec]);
+#endif
+
     dict->setID(i,newsec++);
 
     if(newsec >= MAX_SECTION) TerminateCode("Too many sections",newsec);
   }
-}
-
-
-/**********************************************************/
-/*      Initialize Global Options                         */
-/**********************************************************/
-void DeceInitOptions()
-{
-  ENDFPrintLineNumber(renumber);
 }
 
 
@@ -250,7 +220,7 @@ void DeceReadMonitor(const int mat, const int mf, const int mt, const int sec, c
   message << "  assigned for Section " << setw(4) << sec;
   message << " sub-blocks " << setw(4) << n;
   message << " : int data " << setw(8) << ni;
-  message << " : dble data " << setw(8) << nx;
+  message << " : dbl data " << setw(8) << nx;
   Notice("DeceReadMonitor");
 }
 
@@ -282,17 +252,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
   }
 
   try{
-    if(mt >= 900){
-      lib[newsec] = new ENDF(L); // above 900 used for temporal MTs
-    }
-    else{
-      if( (mf == 2) || (mf == 4) || (mf == 6) )
-        lib[newsec] = new ENDF(L);
-      else if( (mf == 12) || (mf == 14) )
-        lib[newsec] = new ENDF(S);
-      else
-        lib[newsec] = new ENDF(M);
-    }
+    lib[newsec] = new ENDF;
   }
   catch(bad_alloc &e){
     TerminateCode("memory allocation error");
@@ -421,17 +381,33 @@ void DeceBanner()
   for(int i=55 - strlen(&version[0]) ; i>0 ; i--) cout << " ";
   cout << version << "\n";
   cout
-    <<"     oooooooooo                   oooooo    ooooooooooo       Ich schlief, ich schlief-\n"
-    <<"      888     Y8b               d8P    88b   888      8       Aus tiefem Traum bin ich erwacht:-\n"
-    <<"      888      888    ooooo    888           888              Die Welt ist tief,\n"
-    <<"      888      888  o88   888  888           888oooo8         Und tiefer als der Tag gedacht.\n"
-    <<"      888      888  888ooo888  888           888              Tief ist ihr Weh-\n"
-    <<"      888     d88   Y88     ,   88b     oo   888      8       Lust-tiefer noch als Herzeleid:\n"
-    <<"     oooobood8P      Y8bod8P     Y8bood8P   ooooboooooo       Weh spricht: Vergeh!\n"
-    <<"                                                              Doch alle Lust will Ewigkeit-\n"
-    <<"                                                              - will tiefe, tiefe Ewigkeit!\n"
-    <<"             O Mensch! Gib acht\n"
-    <<"             Was spricht die tiefe Mitternacht?\n"
-    <<"                                                   Also sprach Zarathustras, Friedrich Nietzsche\n";
+    <<"     oooooooooo                   oooooo    ooooooooooo      Am Brunnen vor dem Thore\n"        
+    <<"      888     Y8b               d8P    88b   888      8      Da steht ein Lindenbaum\n"         
+    <<"      888      888    ooooo    888           888             Ich traeäumt in seinem Schatten\n" 
+    <<"      888      888  o88   888  888           888oooo8        So manchen suessen Traum.\n"       
+    <<"      888      888  888ooo888  888           888             \n"
+    <<"      888     d88   Y88     ,   88b     oo   888      8      Ich schnitt in seine Rinde\n"      
+    <<"     oooobood8P      Y8bod8P     Y8bood8P   ooooboooooo      So manches liebe Wort\n"           
+    <<"                                                             Es zog in Freud und Leide\n"       
+    <<"                                                             Zu ihm mich immer fort.\n"         
+    <<"\n"
+    <<"                                            Der Lindenbaum, Wilhelm Mueller / Franz Schubert\n";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

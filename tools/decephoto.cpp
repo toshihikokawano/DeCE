@@ -28,8 +28,8 @@ int main(int argc, char *argv[])
   }
 
   ifstream fpin;    // file pointer to input library
-  ENDF     lib3(M); // allocate cross section data block
-  ENDF     lib6(L); // allocate residual production data block
+  ENDF     lib3;    // allocate cross section data block
+  ENDF     lib6;    // allocate residual production data block
 
   x0 = new double [MAX_DBLDATA]; // common grid from photo-absorption cross section
   y0 = new double [MAX_DBLDATA]; // photo-abs cross section

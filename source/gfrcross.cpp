@@ -11,6 +11,7 @@ using namespace std;
 #include "endflib.h"
 #include "gfr.h"
 #include "constant.h"
+#include "coulomb.h"
 
 static void   gfrSubsectionRRR   (const int, const double, System *, ENDF *);
 static void   gfrSubsectionURR   (const int, const int, System *, ENDF *);
@@ -25,7 +26,7 @@ Pcross gfrCrossSection(const int urr, const double elab, System *sys, ENDF *lib)
   Pcross sig;
 
   /*** find an energy range for a given incident energy */
-  int ner = gfrFindEnergyRange(urr,elab,sys);
+  int ner = (sys->isLastCall()) ? 0 : gfrFindEnergyRange(urr,elab,sys);
   if(ner < 0) return(sig);
  
   int lru = sys->lru[ner];
@@ -34,18 +35,22 @@ Pcross gfrCrossSection(const int urr, const double elab, System *sys, ENDF *lib)
   /*** potential scattering only case, return zero */
   if(lru == 0) return(sig);
 
+  int idx = sys->idx[ner] + 1;
+  if(sys->nro[ner] == 1) idx ++;
+
   /*** resolved resonance region */
-  else if(lru == 1){
+  if(lru == 1){
+
     if(lrf == 1){
-      gfrSubsectionRRR(sys->idx[ner],elab,sys,lib);
+      gfrSubsectionRRR(idx,elab,sys,lib);
       sig = gfrCrossSection1(1,ner,elab,sys,lib);
     }
     else if(lrf == 2){
-      gfrSubsectionRRR(sys->idx[ner],elab,sys,lib);
+      gfrSubsectionRRR(idx,elab,sys,lib);
       sig = gfrCrossSection1(2,ner,elab,sys,lib);
     }
     else if(lrf == 3){
-      gfrSubsectionRRR(sys->idx[ner],elab,sys,lib);
+      gfrSubsectionRRR(idx,elab,sys,lib);
       sig = gfrCrossSection3(ner,elab,sys,lib);
     }
     else if(lrf == 7){
@@ -55,7 +60,8 @@ Pcross gfrCrossSection(const int urr, const double elab, System *sys, ENDF *lib)
 
   /*** unresolved resonance region */
   else if(lru == 2){
-    gfrSubsectionURR(lrf,sys->idx[ner],sys,lib);
+  
+    gfrSubsectionURR(lrf,idx,sys,lib);
 
     /*** if LSSF = 1, do not calculate cross section */
     if(sys->selfshield_flag != 1){
@@ -97,6 +103,13 @@ void gfrSubsectionRRR(const int idx, const double elab, System *sys, ENDF *lib)
   sys->target_spin2 = (int)(2.0*cont.c1);  // 2 x target spin
   sys->radius       = cont.c2 * 10.0;      // scattering radius in fm
   sys->nl           = cont.n1;             // number of orbital angular momentum
+
+  for(int l=0 ; l<sys->nl ; l++){
+    sys->apl[l] = lib->rdata[idx+l+1].c2 * 10.0;
+  }
+
+  /*** in case AP is not given but APLs are, copy APL[0] */
+  if((sys->radius == 0.0) && (sys->apl[0] > 0.0)) sys->radius = sys->apl[0];
 
   gfrSetEnergy(elab, sys);
 }
@@ -159,10 +172,10 @@ void gfrSubsectionURR(const int lrf, const int idx, System *sys, ENDF *lib)
 /*     ****                                               */
 /*        h     = G+iF = O                                */
 /*        d     = (G+iF)' = O'                            */
-/*        wfn.d = a (G+iF)'/(G+iF) = L                    */
+/*        wfn.L = a (G+iF)'/(G+iF) = L                    */
 /*        phase = atan(Im O/Re O) = atan F/G              */
 /**********************************************************/
-double gfrPenetrability(const int l, const double a, Wfunc *wfn)
+void gfrPenetrability(const int l, const double a, ChannelWaveFunc *wfn)
 {
   complex<double> h,d;
 
@@ -175,7 +188,7 @@ double gfrPenetrability(const int l, const double a, Wfunc *wfn)
     h = complex<double>( g0,f0);
     d = complex<double>(-f0,g0);
   }
-  else if(l==1){
+  else if(l == 1){
     h = complex<double>(g1,f1);
     d = complex<double>(-f1-g0/(a*a),g1-f0/(a*a));
   }
@@ -189,29 +202,33 @@ double gfrPenetrability(const int l, const double a, Wfunc *wfn)
     d = complex<double>(g0-l/a*g1, f0-l/a*f1);
   }
 
-  wfn->d = a*d/h;
-
-  double phase = atan( imag(h) / real(h) );
-
-  return(phase);
+  wfn->setData(a,h,d);
+  wfn->setPhase(h);
 }
 
 
 /**********************************************************/
 /*     Penetrability at Resoance Energy                   */
 /**********************************************************/
-complex<double> gfrLfunction(const int l, const double er, const double mu, const double ap)
+complex<double> gfrLfunction(const int l, const double alpha, const double eta)
 {
-  Wfunc  wfn;
-  double alpha = gcKfactor * sqrt(fabs(er) * 1.0e-06 * mu) * ap;
-
+  ChannelWaveFunc wfn;
   complex<double> q(0.0, alpha);
-  if(l > 0){
-    gfrPenetrability(l,alpha,&wfn);
-    q = wfn.d;
+
+  if(eta == 0.0){
+    if(l > 0){
+      gfrPenetrability(l,alpha,&wfn);
+      q = wfn.L;
+    }
   }
+  else{
+    complex<double> C0, C1;
+    coulomb(l,alpha,eta,&C0,&C1);
+
+    /*** L = rho (G'+iF') / (G+iF) */
+    q = alpha * C1 / C0;
+  }  
 
   return(q);
 }
-
 

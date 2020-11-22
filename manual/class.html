@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
 <title> DeCE: class </title>
-<meta http-equiv="content-type" content="text/html;charset=us-ascii">
-<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="us-ascii">
+<link rel='stylesheet' href='style.css'>
 </head>
 <body>
 
@@ -14,14 +14,14 @@
 
 <h1>ENDF Class Library</h1>
 
-<p>The <tt>ENDFlib</tt> library in DeCE is written in an object
+<p>The <code>ENDFlib</code> library in DeCE is written in an object
 oriented manner, which provides an easy access to the ENDF-6 format
 files. There are three important classes defined
-in <tt>endflib.h</tt>. The first class is <tt>Record</tt> that is used
+in <code>endflib.h</code>. The first class is <code>Record</code> that is used
 for the HEAD and CONT records defined in ENDF-6. The
-second one is the main <tt>ENDF</tt> class, in which numerical data in
+second one is the main <code>ENDF</code> class, in which numerical data in
 a specific MT/MT section are stored. The last one is the dictionary
-class, <tt>ENDFDict</tt>. The dictionary class is used for controlling
+class, <code>ENDFDict</code>. The dictionary class is used for controlling
 individual section in the ENDF-6 file to be processed, making a new
 dictionary section, and access to the overall information of the
 currently handling file. </p>
@@ -56,7 +56,7 @@ the CONT field with the data section to be a "block" of data.</p>
 and they will be zero-initialized by a constructor when no data are
 provided.</p>
 
-<p>There is a member function <tt>setRecord()</tt> that set all six
+<p>There is a member function <code>setRecord()</code> that set all six
 variables at one time.
 
 <pre id="prg">
@@ -81,42 +81,46 @@ is defined as follows:</p>
 <pre id="prg">
   class ENDF{
    private:
-     bool      allocated;   // memory allocation flag
-     int       mat    ;     // ENDF MAT number
-     int       mf     ;     // ENDF MF number
-     int       mt     ;     // ENDF MT number
-     Record    head   ;     // Head Record
-     DataSize  size   ;     // ENDF data size
-     int       ctr    ;     // pointer to currently running block
-     int       nb     ;     // pointer to current block
+    bool      allocated;  // memory allocation flag
+    int       mat;        // ENDF MAT number
+    int       mf;         // ENDF MF number
+    int       mt;         // ENDF MT number
+    Record    head;       // Head Record
+    int       isize;      // integer data buffer size
+    int       xsize;      // double data buffer size
+    int       rsize;      // CONT data buffer size
+    int       ctr;        // pointer to currently running block
+    int       nb;         // total number of blocks
    public:
-     int       *idata ;     // integer data
-     double    *xdata ;     // floating point data
-     int      **iptr  ;     // int pointer for the 2-dim array
-     double   **xptr  ;     // double pointer for the 2-dim array
-     Record    *rdata ;     // pointer for 2-dim data CONT
+    int       *idata;     // integer data buffer
+    double    *xdata;     // floating-point (double) data buffer
+    int      **iptr;      // int pointer for the 2-dim array
+    double   **xptr;      // double pointer for the 2-dim array
+    Record    *rdata;     // CONT data buffer
   };
 </pre>
 
 <p>The MAT/MF/MT triplet, which is an ID of this section, is kept in
-private. The HEAD record is also private. The DataSize is the size of
-this object specified by S, M, or L.  In the current implementation in
-DeCE, albeit memory access is dynamical, the object memory size is
-determined when instanced, hence not able to change.  To save the
-memory, the object will be categorized into three depending on a
-memory demand. For instance, the resonance parametres need a lot of
-memory, which categolized into L, while the nuclear decay data could
-be limited to the S size.</p>
+private. The HEAD record is also private. DeCE allocates three buffers
+in the heap memory,
+rdata for Rerord data, idata for integer data, and xdata for
+floating-point (double) data. DeCE allocates small size memory for
+these buffers when an object is instanced. Then the memory size will
+be increased automatically as needed. In case one of these buffers
+reaches the maximum size, which is defined in endflib.h, code will be
+terminated. When one see the error message
+<b>too many sub-block </b> or <b>too many data-point</b>, the memory
+limit size should be increased in endflib.h. </p>
 
 
-<p>The two integers, <tt>NB</tt> and <tt>CTR</tt>, are hidden
+<p>The two integers, <code>NB</code> and <code>CTR</code>, are hidden
 variables in the class, required a method to store integer/floating
-point data on memory, explained below. <tt>NB</tt> is the number of
-blocks stored in an object, and <tt>CTR</tt> is a pointer to the data
+point data on memory, explained below. <code>NB</code> is the number of
+blocks stored in an object, and <code>CTR</code> is a pointer to the data
 block currently the program is accessing. They are used for monitoring
 the total number of data points
-in <tt>endflib.cpp</tt>. Apparently <tt>CTR</tt> is equal to or
-smaller than <tt>NB</tt>.</p>
+in <code>endflib.cpp</code>. Apparently <code>CTR</code> is equal to or
+smaller than <code>NB</code>.</p>
 
 
 <p>Numerical data are stored in this object in a one-dimensional
@@ -127,16 +131,16 @@ array. For example;</p>
  N0    N1    N2    N3    N4    N5    N6    N7    N8    N9    N10
 (0,0) (0,1) (0,2) (1,0) (1,1) (1,2) (1,3) (2,0) (2,1) (2,2) (2,3)
 </pre>
-<p>Where, there are eleven numbers ( = <tt>ni</tt>) in the integer
-array <tt>idata</tt>, and the same are accessed by a 2dim array
-pointer <tt>iptr</tt>, like <tt>itpr[0][2]</tt>=N2,
-<tt>iptr[2][2]</tt>=N9.  The pointer <tt>itpr[0]</tt> contains the
-address of <tt>idata[0]</tt>.
+<p>Where, there are eleven numbers ( = <code>ni</code>) in the integer
+array <code>idata</code>, and the same are accessed by a 2dim array
+pointer <code>iptr</code>, like <code>itpr[0][2]</code>=N2,
+<code>iptr[2][2]</code>=N9.  The pointer <code>itpr[0]</code> contains the
+address of <code>idata[0]</code>.
 
 <p>The first index, 0, 1, and 2, is common to all the double and
-Recode arrays <tt>xptr</tt> and <tt>rdata</tt>, which means that
-an <tt>i</tt>-th data block has three relevant data
-sets <tt>iptr[i]</tt>, <tt>xptr[i]</tt>, and <tt>rdata[i]</tt>.
+Recode arrays <code>xptr</code> and <code>rdata</code>, which means that
+an <code>i</code>-th data block has three relevant data
+sets <code>iptr[i]</code>, <code>xptr[i]</code>, and <code>rdata[i]</code>.
 In the C(C++) notation for the case above;</p>
 <pre id="prg">
    iptr[0] = &idata[0];   xptr[0] = &xdata[0];
@@ -154,25 +158,25 @@ of unused memory, which is needed to calculate number of elements
 for the third block.</p>
 
 
-<p>At the beginning, <tt>NB = 0</tt>, iptr and xptr
+<p>At the beginning, <code>NB = 0</code>, iptr and xptr
 point the fisrt address of the interger number and floating
 point number buffers. When data for the first block is stored
 (3 integer numbers and 6 floating point numbers), iptr[1]
 is set at the 4th element in the integer buffer (idata[3]), and xptr[1]
 points the 7th (xdata[6]). The number of elements can be
-calculated by the pointers, <tt>NI</tt> = iptr[NB] - iptr[0],
-and  <tt>NX</tt> = xptr[NB] - xptr[0].</p>
+calculated by the pointers, <code>NI</code> = iptr[NB] - iptr[0],
+and  <code>NX</code> = xptr[NB] - xptr[0].</p>
 
 
 <p>Sometimes there is no corresponding int/floating point data block
-for a given <tt>i</tt>, while the CONT record always exists. When
+for a given <code>i</code>, while the CONT record always exists. When
 the <i>i</i>-th block does not have any data, iptr[i] and xptr[i]
 point the same address as iptr[i-1] and xptr[i-1].</p>
 
 
 <p>The MAT/MF/MT triplet as well as the HEAD record can be accessed by
-member functions. The <tt>setENDFhead()</tt> function resets the
-counter <tt>CTR</tt>. This is function should be called first, when a
+member functions. The <code>setENDFhead()</code> function resets the
+counter <code>CTR</code>. This is function should be called first, when a
 new section is created.</p>
 
 <pre id="prg">
@@ -205,34 +209,35 @@ new section is created.</p>
 <pre id="prg">
   class ENDFDict{
    private:
-    int       mat     ;     // ENDF MAT number
-    int       sec     ;     // number of sections
-    Record    head    ;     // Tape HEAD Record
-    Record    cont[3] ;     // CONT Records
-    char      *cbuf   ;     // buffer for TEXT lines and TPID
+    int       mat;          // ENDF MAT number
+    int       sec;          // number of sections
+    Record    head;         // Tape HEAD Record
+    Record    cont[3];      // CONT Records
+    char      *cbuf;        // buffer for TEXT lines and TPID
+    bool      stdheader;    // flag for standard header
    public:
-    int       *mf     ;     // ENDF MF number
-    int       *mt     ;     // ENDF MT number
-    int       *nc     ;     // Line count
-    int       *mod    ;     // MOD number
-    int       *id     ;     // ID for ENDF data on memory
-    char     *tpid    ;     // Tape ID 
-    Record   *text]5] ;     // text data field
-    double    emaxRR  ;     // energy boundary of resolved resonance region
-    double    emaxUR  ;     // energy boundary of unresolved resonance region
-    double    emaxRe  ;     // either emaxRR or emaxUR depending on LSSF flag
+    int       *mf;          // ENDF MF number
+    int       *mt;          // ENDF MT number
+    int       *nc;          // Line count
+    int       *mod;         // MOD number
+    int       *id;          // ID for ENDF data on memory
+    char     *tpid;         // Tape ID 
+    Record   *text]5];      // text data field
+    double    emaxRR;       // energy boundary of resolved resonance region
+    double    emaxUR;       // energy boundary of unresolved resonance region
+    double    emaxRe;       // either emaxRR or emaxUR depending on LSSF flag
   };
 </pre>
 
-<p>An object of ENDFDict class contains MAT number <tt>mat</tt>, Tape
-ID <tt>tpid</tt>, Tape header part (one HEAD, three CONTs, and five
-lines of text fields) <tt>head, cont</tt>, total number of
-sections <tt>sec</tt>, and integer data arrays for each section <tt>
-mf, mt, nc, mod</tt>, and <tt>id</tt>. <tt>nc</tt> is the number of
+<p>An object of ENDFDict class contains MAT number <code>mat</code>, Tape
+ID <code>tpid</code>, Tape header part (one HEAD, three CONTs, and five
+lines of text fields) <code>head, cont</code>, total number of
+sections <code>sec</code>, and integer data arrays for each section <code>
+mf, mt, nc, mod</code>, and <code>id</code>. <code>nc</code> is the number of
 lines (in card image).
-<tt>emaxRR</tt>, <tt>emaxUR</tt>, and <tt>emaxRe</tt> define the energy
+<code>emaxRR</code>, <code>emaxUR</code>, and <code>emaxRe</code> define the energy
 boundary between the resolved, unresolved resonances, and higher
-range.  The array <tt>id</tt> has special meanings, as given
+range.  The array <code>id</code> has special meanings, as given
 below.</p>
 
 <p>In DeCE, one object is assigned to each section of an ENDF-6 file
@@ -246,13 +251,13 @@ defined by MF/MT. For example, when sections are given in
                // elastic, no data      MF=4, MT=2
                // spectrum, no data     MF=6, MT=102
 </pre>
-<p>The total number of sections, <tt>sec</tt> is 7, and 5 sections out
+<p>The total number of sections, <code>sec</code> is 7, and 5 sections out
 of 7 have real data on memory. The rest of two sections are in the
 dictionary, but DeCE has not allocated memory to store these
-sections. DeCE gives -1 to their <tt>id</tt>s.
+sections. DeCE gives -1 to their <code>id</code>s.
 
-<p>The arrays of <tt> mf, mt</tt>,
-and <tt>id</tt> may contain,</p>
+<p>The arrays of <code> mf, mt</code>,
+and <code>id</code> may contain,</p>
 <pre id="dat">
  index   MF     MT    ID
    0      1    451     0
@@ -265,9 +270,9 @@ and <tt>id</tt> may contain,</p>
 </pre>
 
 <p>When one section is deleted, DeCE keeps this section on memory, but
-set <tt>id</tt> = -2. Now we delete MF/MT=3/2 and 4/2, and add a new
-section MF/MT=3/3 to which memory is allocated. <tt>sec</tt> becomes
-8. The index for the new section will be 7, and the <tt>id</tt> is
+set <code>id</code> = -2. Now we delete MF/MT=3/2 and 4/2, and add a new
+section MF/MT=3/3 to which memory is allocated. <code>sec</code> becomes
+8. The index for the new section will be 7, and the <code>id</code> is
 5.</p>
 <pre id="prg">
   ENDF lib[5]; // nonelastic cross section MF=3, MT=3
@@ -285,10 +290,10 @@ section MF/MT=3/3 to which memory is allocated. <tt>sec</tt> becomes
    7      3      3     5
 </pre>
 
-<p>Finally DeCE prints out sections whose <tt>id</tt> are positive,
+<p>Finally DeCE prints out sections whose <code>id</code> are positive,
 in the ascending order of MF and MT.</p>
 
-<p>Two member functions, <tt>scanDisc()</tt> and <tt>getID()</tt>,
+<p>Two member functions, <code>scanDisc()</code> and <code>getID()</code>,
 give status of each data block.</p>
 
 <pre id="prg">
@@ -308,12 +313,12 @@ give status of each data block.</p>
   }
 </pre>
 
-<p><tt>scanDict()</tt> looks up a given MF/MT in the dictionary, and
+<p><code>scanDict()</code> looks up a given MF/MT in the dictionary, and
 if that section is found, it returns its index, otherwise -1. In the
-case of example above, <tt>scanDict(3,3)</tt> gives 7. </p>
+case of example above, <code>scanDict(3,3)</code> gives 7. </p>
 
-<p><tt>getID()</tt> is similar to <tt>scanDict()</tt>, but it returns
-the <tt>id</tt> of given section. <tt>scanDict(3,3)</tt> is 5.</p>
+<p><code>getID()</code> is similar to <code>scanDict()</code>, but it returns
+the <code>id</code> of given section. <code>scanDict(3,3)</code> is 5.</p>
 
 <hr>
 <a href="option.html">    [BACK] </a>

@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
 <title> DeCE: ENDFlib </title>
-<meta http-equiv="content-type" content="text/html;charset=us-ascii">
-<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="us-ascii">
+<link rel='stylesheet' href='style.css'>
 </head>
 <body>
 
@@ -18,23 +18,23 @@
 is suitable for READ/WRITE statements of FORTRAN, but this is very
 tricky for the other computer languages. Using the classes defined in the
 <a href="class.html">previous section</a>, functions
-in <tt>endflib.cpp</tt> facilitate access to the ENDF-6 data.</p>
+in <code>endflib.cpp</code> facilitate access to the ENDF-6 data.</p>
 
-<p>These functions are now used in <tt>endfio.cpp</tt> to read/write
+<p>These functions are now used in <code>endfio.cpp</code> to read/write
 data in ENDF-6 format. As you can see in this file, efforts to access 
 ENDF-6 files can be minimized by using this interface.</p>
 
 
 <h1><a name="endflib">Data Block Structure</a></h1>
 
-<p>Functions in <tt>endflib.cpp</tt> provide direct access to each
+<p>Functions in <code>endflib.cpp</code> provide direct access to each
 section in a given ENDF-6 file. Two cases are considered in the
 library. The first one is to read the entire file first, and keep this
 information in an object of the ENDFDict class.  The second one is to
 locate the section at each time and retrieve data in there.</p>
 
-<p>A function <tt>ENDFScanLibrary()</tt> reads all the file,
-and creates index data arrays. <tt>ENDFSeekHead()</tt> moves a file
+<p>A function <code>ENDFScanLibrary()</code> reads all the file,
+and creates index data arrays. <code>ENDFSeekHead()</code> moves a file
 pointer to the beginning of the section to be read. This function is
 called just before data in a specified MF/MT section is read, and copy
 HEAD into the member variable of the object.</p>
@@ -80,7 +80,7 @@ of main data block. </p>
 <h2><a name="cont"> CONT </a></h2>
 <p>DeCE has functions to read/write these data structures. The
 simplest one is to read one CONT record, which
-is <tt>ENDFReadCONT()</tt>. </p>
+is <code>ENDFReadCONT()</code>. </p>
 
 <pre id="prg">
   Record ENDFReadCONT(ifstream *fp, ENDF *lib)
@@ -96,21 +96,21 @@ is <tt>ENDFReadCONT()</tt>. </p>
   }
 </pre>
 
-<p>The member function <tt>getPOS()</tt> returns an index of data block
-currently DeCE is accessing. <tt>ENDFNextCONT()</tt> reads a CONT
-record, and store it in <tt>rdara[idx]</tt>. Since there is no
+<p>The member function <code>getPOS()</code> returns an index of data block
+currently DeCE is accessing. <code>ENDFNextCONT()</code> reads a CONT
+record, and store it in <code>rdara[idx]</code>. Since there is no
 numerical data in this case, we copy the integer / floating point data
-block pointers to the next index <tt>idx+1</tt>, and increment the
-index by <tt>inclPOS()</tt>.</p>
+block pointers to the next index <code>idx+1</code>, and increment the
+index by <code>inclPOS()</code>.</p>
 
 
-<p>The function <tt>ENDFWriteCONT()</tt> writes the CONT record.  Here
-we use a counter <tt>CTL</tt> to scan all the blocks in an object,
-which contains <tt>NB</tt> blocks. <tt>CTL</tt> will be reset 
-when a <tt>HEAD</tt> record is written.
-<tt>ENDFWriteRecord()</tt> prints the six member variables in an
+<p>The function <code>ENDFWriteCONT()</code> writes the CONT record.  Here
+we use a counter <code>CTL</code> to scan all the blocks in an object,
+which contains <code>NB</code> blocks. <code>CTL</code> will be reset 
+when a <code>HEAD</code> record is written.
+<code>ENDFWriteRecord()</code> prints the six member variables in an
 appropriate format (2E11.4,4I11), and the function
-<tt>ENDFPrintRight()</tt> outputs MAT/MF/MT triplet on the right-side
+<code>ENDFPrintRight()</code> outputs MAT/MF/MT triplet on the right-side
 of the data, together with a current line number.</p>
 
 
@@ -147,9 +147,9 @@ An example is resonance parameters.</p>
 <p>The total number of elements in this block is given in N1 in CONT,
 which is 30. To read this type of data, first, the CONT record is
 stored at the current index, then extract NC=N1 in the CONT. A
-function <tt>ENDFReadArray()</tt> reads in these 30 elements in a
-2-dim array in the range of <tt>xtpr[idx][0]</tt>
-to <tt>xtpr[idx][NC]</tt>. </p>
+function <code>ENDFReadArray()</code> reads in these 30 elements in a
+2-dim array in the range of <code>xtpr[idx][0]</code>
+to <code>xtpr[idx][NC]</code>. </p>
 
 
 <pre id="prg">
@@ -174,10 +174,10 @@ from the current position to the next, while the floating point
 pointer is incremented by NC.</p>
 
 
-<p>The function <tt>ENDFWriteLIST()</tt>  writes the LIST type data,
-which calls <tt>ENDFWriteCONT()</tt> to process the CONT part. 
-<tt>ENDFWriteArray()</tt> is for printing 1-dim data block,
-as opposed to <tt>ENDFReadArray()</tt>. </p>
+<p>The function <code>ENDFWriteLIST()</code>  writes the LIST type data,
+which calls <code>ENDFWriteCONT()</code> to process the CONT part. 
+<code>ENDFWriteArray()</code> is for printing 1-dim data block,
+as opposed to <code>ENDFReadArray()</code>. </p>
 
 <pre id="prg">
   Record ENDFWriteLIST(ENDF *lib)
@@ -217,9 +217,9 @@ floating point numbers (for the real data).</p>
 number of pairs of integer data and floating point data, respectively.
 The actual numbers are the double of these numbers, 2 and 42.</p>
 
-<p>In <tt>ENDFReadTAB1()</tt>, <tt>ENDFReadArray()</tt> is called
-twice. Firstly, the integer data are read in <tt>iptr</tt>, and then
-the floating point data are read in <tt>xptr</tt>.  These pointers are
+<p>In <code>ENDFReadTAB1()</code>, <code>ENDFReadArray()</code> is called
+twice. Firstly, the integer data are read in <code>iptr</code>, and then
+the floating point data are read in <code>xptr</code>.  These pointers are
 incremented by the number of data points.</p>
 
 <pre id="prg">
@@ -262,11 +262,11 @@ incremented by the number of data points.</p>
 
 <p>TAB2 is for 2-dim data, and three are three different types of
 TAB2, depending on the type of data sub-block inside TAB2.  When the
-sub-block is LIST, <tt>ENDFReadTAB2()</tt>
-and <tt>ENDFWriteTAB2()</tt> are used.  In the case of TAB1, we
-prepared <tt>ENDFReadTAB21()</tt> and <tt>ENDFWriteTAB21()</tt>.  And
+sub-block is LIST, <code>ENDFReadTAB2()</code>
+and <code>ENDFWriteTAB2()</code> are used.  In the case of TAB1, we
+prepared <code>ENDFReadTAB21()</code> and <code>ENDFWriteTAB21()</code>.  And
 finally if TAB2 contains another TAB2, which is seldom used, we
-have <tt>ENDFReadTAB22()</tt> and <tt>ENDFWriteTAB22()</tt>.</p>
+have <code>ENDFReadTAB22()</code> and <code>ENDFWriteTAB22()</code>.</p>
 
 <p>TAB2 in the LIST version is often adopted for the scattering
 angular distribution, MF/MT=4/2, in Legendre coefficients.</p>
@@ -335,10 +335,10 @@ remembers locations with which each sub-block starts.</p>
 </pre>
 
 
-<tt>ENDFReadTAB21()</tt>, <tt>ENDFWriteTAB21()</tt>, 
-<tt>ENDFReadTAB22()</tt>,  and <tt>ENDFWriteTAB22()</tt>
+<p><code>ENDFReadTAB21()</code>, <code>ENDFWriteTAB21()</code>, 
+<code>ENDFReadTAB22()</code>,  and <code>ENDFWriteTAB22()</code>
 are similar to those above, but they have different functions,
-<tt>ENDFReadTAB1()</tt> etc.</p>
+<code>ENDFReadTAB1()</code> etc.</p>
 
 
 

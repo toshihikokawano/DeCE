@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
 <title> DeCE: ENDFfunctions (2) </title>
-<meta http-equiv="content-type" content="text/html;charset=us-ascii">
-<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="us-ascii">
+<link rel='stylesheet' href='style.css'>
 </head>
 <body>
 
@@ -13,9 +13,9 @@
 
 <h1>ENDFIO Functions</h1>
 
-<p>These functions, given in <tt>endfio.cpp</tt>, read (<tt>ENDFReadMF</tt>)
+<p>These functions, given in <code>endfio.cpp</code>, read (<code>ENDFReadMF</code>)
 an MF/MT data section in an ENDF-6 file into an ENDF object, or
-print (<tt>ENDFWriteMF</tt>) the content of the ENDF object in a proper format
+print (<code>ENDFWriteMF</code>) the content of the ENDF object in a proper format
 depending on the section MF/MT number. Note that MF=7 has not been implemented yet. </p>
 
 
@@ -152,8 +152,8 @@ Return Value
 </pre>
 
 <p>These two functions print an <i>idx</i> data block stored in the given
-ENDF object. <tt> ENDFPrintLIST </tt> prints the floating point data
-array in one column. <tt>ENDFPrint1Dim</tt> expects the ENDF object is 
+ENDF object. <code> ENDFPrintLIST </code> prints the floating point data
+array in one column. <code>ENDFPrint1Dim</code> expects the ENDF object is 
 for the TAB1 record, and print the (x,y) pairs. </p>
 
 

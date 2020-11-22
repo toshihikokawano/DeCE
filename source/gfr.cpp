@@ -21,9 +21,9 @@ double gcLorentzianWidth = 0.0, *fact;
 Smatrix Smat;
 
 static Pcross  gfrPtCrossFILE    (ifstream *, ENDFDict *, const double);
-static Pcross  gfrBackGroundFILE (ifstream *, ENDF *, const double);
-static Pcross  gfrBackGround     (ENDFDict *, ENDF **, const double);
-static void gfrPrintCrossSection (const double, const bool, Pcross);
+static Pcross  gfrBackGroundFILE (ifstream *, ENDF *, const double, const bool);
+static Pcross  gfrBackGround     (ENDFDict *, ENDF **, const double, const bool);
+static void gfrPrintCrossSection (const double, Pcross);
 
 /**********************************************************/
 /*      GFR Interface, Scan File for the Thermal Value    */
@@ -35,18 +35,8 @@ void gfrScanThermal(ifstream *fp, ENDFDict *dict, double elab)
   if(elab <= 0.0) elab = eth;
 
   Pcross crs = gfrPtCrossFILE(fp,dict,elab);
-
-  cout.setf(ios::scientific, ios::floatfield);
-  cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]";
-  if(dict->isFission()) cout <<"    Fission[b]";
-  cout << endl;
-
-  cout << setw(14) << setprecision(6) << elab;
-  cout << setw(14) << setprecision(6) << crs.total;
-  cout << setw(14) << crs.elastic;
-  cout << setw(14) << crs.capture;
-  if(dict->isFission()) cout << setw(14) << crs.fission;
-  cout << endl;
+  gfrPrintCrossSection(-1.0,crs);
+  gfrPrintCrossSection(elab,crs);
 }
 
 
@@ -71,7 +61,7 @@ double gfrGetOnePoint(ifstream *fp, ENDFDict *dict, const int mt, const double e
 /**********************************************************/
 Pcross gfrPtCrossFILE(ifstream *fp, ENDFDict *dict, const double elab)
 {
-  ENDF   librs(L),libbg(L);
+  ENDF   librs,libbg;
   System sys;
   Pcross crs, cbg;
 
@@ -87,10 +77,11 @@ Pcross gfrPtCrossFILE(ifstream *fp, ENDFDict *dict, const double elab)
   gfrReadHEADData(&sys,&librs);
 
   /*** resonance contribution */
-  crs = gfrCrossSection(0,elab,&sys,&librs);
+  sys.FirstCall();  crs = gfrCrossSection(0,elab,&sys,&librs);
+  sys.LastCall();         gfrCrossSection(0,0.0 ,&sys,&librs); // free allocated memory
 
   /*** background contribution */
-  cbg = gfrBackGroundFILE(fp,&libbg,elab);
+  cbg = gfrBackGroundFILE(fp,&libbg,elab,true);
   crs = crs + cbg;
 
   return(crs);
@@ -113,60 +104,79 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     return;
   }
 
-  elab = new double [MAX_DBLDATA_LARGE/2];
+  elab = new double [MAX_DBLDATA/2];
 
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
-
-  gfrPrintCrossSection(-1.0,dict->isFission(),crs);
+  cout << sys.emin[0] << endl;
+  gfrPrintCrossSection(-1.0,crs);
 
   /*** determine energy grid automatically */
   if((emin == 0.0) && (emax == 0.0)){
 
     np = gfrAutoEnergyRRR(&sys,lib[kres],elab,dict->emaxRR);
 
+    sys.FirstCall();
     for(int i=0 ; i<np ; i++){
 
       /*** resonance cross sections */
       crs = gfrCrossSection(1,elab[i],&sys,lib[kres]);
-      /*** background cross section in MF3 */
-      cbg = gfrBackGround(dict,lib,elab[i]);
+
+      /*** background cross section in MF3
+           althouh a rare case, when RRR has a low-side limit,
+           we take the second point in the background  */
+      bool dupflag = (elab[i] == sys.emin[0]) ? false : true;
+      cbg = gfrBackGround(dict,lib,elab[i],dupflag);
 
       /*** add background */
       crs = crs + cbg;
 
       /*** print cross section */
-      gfrPrintCrossSection(elab[i],dict->isFission(),crs);
+      gfrPrintCrossSection(elab[i],crs);
     }
 
     np = gfrAutoEnergyURR(elab,dict->emaxRR,dict->emaxUR);
 
+    sys.FirstCall();
     for(int i=0 ; i<np ; i++){
 
       /*** unresolved resonance cross sections */
       crs = gfrCrossSection(2,elab[i],&sys,lib[kres]);
 
+      /*** when the highest side, we take the lower side point, otherwise high side */
+      bool dupflag = (i == np-1) ? true : false;
+
+      /*** background cross section in MF3 */
+      cbg = gfrBackGround(dict,lib,elab[i],dupflag);
+
+      /*** add background */
+      crs = crs + cbg;
+
       /*** print cross section */
-      gfrPrintCrossSection(elab[i],dict->isFission(),crs);
+      gfrPrintCrossSection(elab[i],crs);
     }
   }
   /*** equidistant energy grid case */
   else{
     np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
 
+    sys.FirstCall();
     for(int i=0 ; i<np ; i++){
 
       /*** resonance cross sections */
       crs = gfrCrossSection(0,elab[i],&sys,lib[kres]);
-      if(elab[i] < dict->emaxRR){
+      if(elab[i] < dict->emaxUR){
         /*** background cross section in MF3 */
-        cbg = gfrBackGround(dict,lib,elab[i]);
+        cbg = gfrBackGround(dict,lib,elab[i],true);
         crs = crs + cbg;
       }
 
       /*** print cross section */
-      gfrPrintCrossSection(elab[i],dict->isFission(),crs);
+      gfrPrintCrossSection(elab[i],crs);
     }
+    sys.LastCall();
+    gfrCrossSection(0,0.0,&sys,lib[kres]);
+
   }
 
   delete [] elab;
@@ -183,7 +193,7 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   Pcross c;
   double *elab, *pleg;
 
-  elab = new double [MAX_DBLDATA_LARGE/2];
+  elab = new double [MAX_DBLDATA/2];
   pleg = new double [LMAX*2];
 
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
@@ -285,7 +295,7 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
     wsum[n] = 0.0;
     for(int l=1 ; l<LMAX*2 ; l++) pave[n][l] = 0.0;
   }
-  
+
 
   for(int i=1 ; i<=np ; i++){
     double elab = i * de0;
@@ -339,17 +349,16 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
 /**********************************************************/
 void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
 {
-  const int ndiv = 1000;
+  const int ndiv = 10000;
   System sys;
-  Pcross c;
-  Wfunc  wfn;
+  ChannelWaveFunc wfn;
   double *elab;
 
   double emax = dict->emaxRR;
   double de   = emax / ndiv;
   double emin = de;
 
-  elab = new double [MAX_DBLDATA_LARGE/2];
+  elab = new double [MAX_DBLDATA/2];
   int np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
 
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
@@ -361,17 +370,21 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
   cout << setprecision(4);
   int l = 0, j2 = 0, s2 = 0;
 
-  c = gfrCrossSection(0,elab[0],&sys,lib[kres]);
+  gfrCrossSection(0,elab[0],&sys,lib[kres]);
+
   cout <<"# Energy[eV] ";
   for(int j=0 ; j<Smat.getIndex() ; j++){
     Smat.getElement(j,&l,&j2,&s2);
     cout << setw(3) << l;
     cout << setw(3) << j2 << "/2                ";
   }
+  cout <<" Hard-Sphere ";
   cout << endl;
 
   for(int i=0 ; i<np ; i++){
-    c = gfrCrossSection(0,elab[i],&sys,lib[kres]);
+
+    gfrCrossSection(0,elab[i],&sys,lib[kres]);
+
     cout << setw(13) << elab[i];
     for(int j=0 ; j<Smat.getIndex() ; j++){
       cout << setw(12) << Smat.getElement(j).real();
@@ -379,10 +392,11 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
     }
 
     for(l=0 ; l<sys.nl ; l++){
-      double phase = gfrPenetrability(l,sys.alpha,&wfn);
-      cout << setw(12) <<  cos(2*phase);
-      cout << setw(12) << -sin(2*phase);
+      gfrPenetrability(l,sys.alpha,&wfn);
+      cout << setw(12) <<  wfn.phase2.real();
+      cout << setw(12) <<  wfn.phase2.imag();
     }
+
     cout << endl;
   }
 
@@ -423,10 +437,12 @@ void gfrReadHEADData(System *sys, ENDF *lib)
     sys->nro[i]      = cont.n1;
     sys->naps[i]     = cont.n2;
 
-    if(sys->nro[i] == 1) TerminateCode("NRO=1, not inplemented yet");
-    
-    idx ++;
+    /*** CONT index for the beginning of each resonance subsection */
     sys->idx[i]      = idx;
+
+    idx ++;
+    if(sys->nro[i] == 1) idx ++;
+
 
     /*** skip all data section */
     /*** Resolved Resonance Region */
@@ -435,21 +451,44 @@ void gfrReadHEADData(System *sys, ENDF *lib)
       if(sys->lrf[i] <= 3){
         cont = lib->rdata[idx++];
         int nls = cont.n1;
-        if(sys->nro[i] !=0) idx++;
         idx += nls;
       }
 
       else if(sys->lrf[i] == 7){
         cont = lib->rdata[idx];
         int njs = cont.n1;
-        idx += njs;
         idx ++;
+        idx += njs;
       }
     }
 
     /*** Unresolved Resonance Region */
     else if(sys->lru[i] == 2){
-      if(sys->lrf[i] == 2){
+
+      if(sys->lrf[i] == 1){
+        /*** case A */
+        if(sys->avefission_flag == 0){
+          cont = lib->rdata[idx++];
+          int nls = cont.n1;
+          for(int inls=0 ; inls<nls ; inls++){
+            cont = lib->rdata[idx++];
+            int njs = cont.n1;
+            idx += njs;
+          }
+        }
+        /*** case B */
+        else{
+          cont = lib->rdata[idx++];
+          int nls = cont.n2;
+          for(int inls=0 ; inls<nls ; inls++){
+            cont = lib->rdata[idx++];
+            int njs = cont.n1;
+            idx += njs;
+          }
+        }
+      }
+      /*** case C */
+      else{
         cont = lib->rdata[idx++];
         int nls = cont.n1;
         for(int inls=0 ; inls<nls ; inls++){
@@ -458,7 +497,6 @@ void gfrReadHEADData(System *sys, ENDF *lib)
           idx += njs;
         }
       }
-      else TerminateCode("LRU=2, LRF=1, not implemented yet");
     }
   }
 }
@@ -467,27 +505,27 @@ void gfrReadHEADData(System *sys, ENDF *lib)
 /**********************************************************/
 /*      Background Cross Section in MF3                   */
 /**********************************************************/
-Pcross  gfrBackGroundFILE(ifstream *fp, ENDF *lib, const double elab)
+Pcross  gfrBackGroundFILE(ifstream *fp, ENDF *lib, const double elab, const bool dupflag)
 {
   Pcross cbg;
 
-  ENDFReadMF3(fp,lib,  1); cbg.total   = ENDFInterpolation(lib,elab,true,0);
-  ENDFReadMF3(fp,lib,  2); cbg.elastic = ENDFInterpolation(lib,elab,true,0);
-  ENDFReadMF3(fp,lib, 18); cbg.fission = ENDFInterpolation(lib,elab,true,0);
-  ENDFReadMF3(fp,lib,102); cbg.capture = ENDFInterpolation(lib,elab,true,0);
+  ENDFReadMF3(fp,lib,  1); cbg.total   = ENDFInterpolation(lib,elab,dupflag,0);
+  ENDFReadMF3(fp,lib,  2); cbg.elastic = ENDFInterpolation(lib,elab,dupflag,0);
+  ENDFReadMF3(fp,lib, 18); cbg.fission = ENDFInterpolation(lib,elab,dupflag,0);
+  ENDFReadMF3(fp,lib,102); cbg.capture = ENDFInterpolation(lib,elab,dupflag,0);
 
   return(cbg);
 }
 
 
-Pcross  gfrBackGround(ENDFDict *dict, ENDF **lib, const double elab)
+Pcross  gfrBackGround(ENDFDict *dict, ENDF **lib, const double elab, const bool dupflag)
 {
   Pcross cbg;
 
-  if(dict->getID(3,  1) >= 0) cbg.total   = ENDFInterpolation(lib[dict->getID(3,  1)],elab,true,0);
-  if(dict->getID(3,  2) >= 0) cbg.elastic = ENDFInterpolation(lib[dict->getID(3,  2)],elab,true,0);
-  if(dict->getID(3, 18) >= 0) cbg.fission = ENDFInterpolation(lib[dict->getID(3, 18)],elab,true,0);
-  if(dict->getID(3,102) >= 0) cbg.capture = ENDFInterpolation(lib[dict->getID(3,102)],elab,true,0);
+  if(dict->getID(3,  1) >= 0) cbg.total   = ENDFInterpolation(lib[dict->getID(3,  1)],elab,dupflag,0);
+  if(dict->getID(3,  2) >= 0) cbg.elastic = ENDFInterpolation(lib[dict->getID(3,  2)],elab,dupflag,0);
+  if(dict->getID(3, 18) >= 0) cbg.fission = ENDFInterpolation(lib[dict->getID(3, 18)],elab,dupflag,0);
+  if(dict->getID(3,102) >= 0) cbg.capture = ENDFInterpolation(lib[dict->getID(3,102)],elab,dupflag,0);
 
   return(cbg);
 }
@@ -496,13 +534,12 @@ Pcross  gfrBackGround(ENDFDict *dict, ENDF **lib, const double elab)
 /**********************************************************/
 /*      Print Crooss Section                              */
 /**********************************************************/
-static void gfrPrintCrossSection (const double elab, bool fission, Pcross crs)
+static void gfrPrintCrossSection (const double elab, Pcross crs)
 {
   /*** prinr heading */
   if(elab < 0.0){
     cout.setf(ios::scientific, ios::floatfield);
-    cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]    Other[b]";
-    if(fission) cout <<"    Fission[b]";
+    cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]    Fission[b]    Proton[b]     Alpha[b]      Inelastic[b]  Other[b]";
     cout << endl;
   }
   else{
@@ -510,8 +547,11 @@ static void gfrPrintCrossSection (const double elab, bool fission, Pcross crs)
     cout << setw(14) << setprecision(6) << crs.total;
     cout << setw(14) << crs.elastic;
     cout << setw(14) << crs.capture;
+    cout << setw(14) << crs.fission;
+    cout << setw(14) << crs.proton;
+    cout << setw(14) << crs.alpha;
+    cout << setw(14) << crs.inelastic;
     cout << setw(14) << crs.other;
-    if(fission) cout << setw(14) << crs.fission;
     cout << endl;
   }
 }

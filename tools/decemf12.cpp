@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 
   ifstream fpin;
   string   libname = "", datname = "";
-  ENDF     wrk(S),*lib[NSEC];
+  ENDF     wrk,*lib[NSEC];
 
   datname = argv[1];
   libname = argv[2];
@@ -58,7 +58,7 @@ int main(int argc, char *argv[])
     cerr << "data file cannot open" << endl;  exit(-1);
   }
 
-  for(int i=0 ; i<NSEC ; i++) lib[i] = new ENDF(S);
+  for(int i=0 ; i<NSEC ; i++) lib[i] = new ENDF;
 
   int nmt = processMF12(&fpin,lib);
 

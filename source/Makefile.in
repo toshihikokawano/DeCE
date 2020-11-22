@@ -99,12 +99,13 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) dece.$(OBJEXT) \
-	deceangdist.$(OBJEXT) deceapplyfunc.$(OBJEXT) \
-	dececalc.$(OBJEXT) decechangeint.$(OBJEXT) \
-	decedelete.$(OBJEXT) deceextract.$(OBJEXT) \
-	decefactor.$(OBJEXT) deceglobaloption.$(OBJEXT) \
-	deceheader.$(OBJEXT) decelibread.$(OBJEXT) decemisc.$(OBJEXT) \
+am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) \
+	coulomb.$(OBJEXT) dece.$(OBJEXT) deceangdist.$(OBJEXT) \
+	deceapplyfunc.$(OBJEXT) dececalc.$(OBJEXT) \
+	decechangeint.$(OBJEXT) decedelete.$(OBJEXT) \
+	deceextract.$(OBJEXT) decefactor.$(OBJEXT) \
+	deceglobaloption.$(OBJEXT) deceheader.$(OBJEXT) \
+	decelibread.$(OBJEXT) decememory.$(OBJEXT) decemisc.$(OBJEXT) \
 	decemod6.$(OBJEXT) deceoperation.$(OBJEXT) \
 	deceoutput.$(OBJEXT) decepoint.$(OBJEXT) \
 	deceprocgroup.$(OBJEXT) deceprocpointwise.$(OBJEXT) \
@@ -140,13 +141,14 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@ -I$(top_builddir)
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coupling.Po \
-	./$(DEPDIR)/dece.Po ./$(DEPDIR)/deceangdist.Po \
-	./$(DEPDIR)/deceapplyfunc.Po ./$(DEPDIR)/dececalc.Po \
-	./$(DEPDIR)/decechangeint.Po ./$(DEPDIR)/decedelete.Po \
-	./$(DEPDIR)/deceextract.Po ./$(DEPDIR)/decefactor.Po \
-	./$(DEPDIR)/deceglobaloption.Po ./$(DEPDIR)/deceheader.Po \
-	./$(DEPDIR)/decelibread.Po ./$(DEPDIR)/decemisc.Po \
+am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coulomb.Po \
+	./$(DEPDIR)/coupling.Po ./$(DEPDIR)/dece.Po \
+	./$(DEPDIR)/deceangdist.Po ./$(DEPDIR)/deceapplyfunc.Po \
+	./$(DEPDIR)/dececalc.Po ./$(DEPDIR)/decechangeint.Po \
+	./$(DEPDIR)/decedelete.Po ./$(DEPDIR)/deceextract.Po \
+	./$(DEPDIR)/decefactor.Po ./$(DEPDIR)/deceglobaloption.Po \
+	./$(DEPDIR)/deceheader.Po ./$(DEPDIR)/decelibread.Po \
+	./$(DEPDIR)/decememory.Po ./$(DEPDIR)/decemisc.Po \
 	./$(DEPDIR)/decemod6.Po ./$(DEPDIR)/deceoperation.Po \
 	./$(DEPDIR)/deceoutput.Po ./$(DEPDIR)/decepoint.Po \
 	./$(DEPDIR)/deceprocgroup.Po ./$(DEPDIR)/deceprocpointwise.Po \
@@ -317,6 +319,7 @@ top_srcdir = @top_srcdir@
 dece_SOURCES = \
 	command.cpp \
 	coupling.cpp \
+	coulomb.cpp \
 	dece.cpp \
 	deceangdist.cpp \
 	deceapplyfunc.cpp \
@@ -328,6 +331,7 @@ dece_SOURCES = \
 	deceglobaloption.cpp \
 	deceheader.cpp \
 	decelibread.cpp \
+	decememory.cpp \
 	decemisc.cpp \
 	decemod6.cpp \
 	deceoperation.cpp \
@@ -375,6 +379,7 @@ dece_SOURCES = \
 	command.h \
 	constant.h \
 	coupling.h \
+	coulomb.h \
 	dece.h \
 	decemisc.h \
 	decetable.h \
@@ -481,6 +486,7 @@ distclean-compile:
 	-rm -f *.tab.c
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/command.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coulomb.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/coupling.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dece.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceangdist.Po@am__quote@ # am--include-marker
@@ -493,6 +499,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceglobaloption.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceheader.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decelibread.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decememory.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decemisc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decemod6.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceoperation.Po@am__quote@ # am--include-marker
@@ -686,6 +693,7 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
 		-rm -f ./$(DEPDIR)/command.Po
+	-rm -f ./$(DEPDIR)/coulomb.Po
 	-rm -f ./$(DEPDIR)/coupling.Po
 	-rm -f ./$(DEPDIR)/dece.Po
 	-rm -f ./$(DEPDIR)/deceangdist.Po
@@ -698,6 +706,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/deceglobaloption.Po
 	-rm -f ./$(DEPDIR)/deceheader.Po
 	-rm -f ./$(DEPDIR)/decelibread.Po
+	-rm -f ./$(DEPDIR)/decememory.Po
 	-rm -f ./$(DEPDIR)/decemisc.Po
 	-rm -f ./$(DEPDIR)/decemod6.Po
 	-rm -f ./$(DEPDIR)/deceoperation.Po
@@ -788,6 +797,7 @@ installcheck-am:
 
 maintainer-clean: maintainer-clean-am
 		-rm -f ./$(DEPDIR)/command.Po
+	-rm -f ./$(DEPDIR)/coulomb.Po
 	-rm -f ./$(DEPDIR)/coupling.Po
 	-rm -f ./$(DEPDIR)/dece.Po
 	-rm -f ./$(DEPDIR)/deceangdist.Po
@@ -800,6 +810,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/deceglobaloption.Po
 	-rm -f ./$(DEPDIR)/deceheader.Po
 	-rm -f ./$(DEPDIR)/decelibread.Po
+	-rm -f ./$(DEPDIR)/decememory.Po
 	-rm -f ./$(DEPDIR)/decemisc.Po
 	-rm -f ./$(DEPDIR)/decemod6.Po
 	-rm -f ./$(DEPDIR)/deceoperation.Po

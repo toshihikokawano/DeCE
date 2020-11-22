@@ -1,20 +1,20 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
 <title> DeCE The Descriptive Correction of ENDF-6 Format Code  </title>
-<meta http-equiv="content-type" content="text/html;charset=us-ascii">
-<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="us-ascii">
+<link rel='stylesheet' href='style.css'>
 </head>
 <body>
 
 <h1><a name = "top"> The Descriptive Correction of ENDF-6 Format Code </a><br/>
-     DeCE (Olivine) Manual </h1>
+     DeCE (Jadeite) Manual </h1>
 
 <p style="text-align:center;">
-<img src="DeCE.png" width="340" height="320" alt="DeCE Logo" title="DeCE" style="margin-top:20px;margin-bottom:20px;padding:0px;"/>
+<img src="DeCE.png" width="340" height="320" alt="DeCE Logo" title="DeCE" style="margin-top:20px;margin-bottom:20px;padding:0px;">
 </p>
 
-<p style="text-align:center;"> July, 2020 </p>
+<p style="text-align:center;"> November, 2020 </p>
 <p style="text-align:right;"> Kawano Toshihiko </p>
 <p style="text-align:right;"> Los Alamos National Laboratory </p>
 
@@ -157,8 +157,11 @@
          </ul>
     </ul>
 
-<li> <a href="option.html#options">
+<li> <a href="option.html#set">
     Options (set)</a>
+
+<li> <a href="option.html#memoryusage">
+    memoryusage (print memory usage table)</a>
 
 <li> <a href="processing.html">
     Data Processing </a>
@@ -212,14 +215,14 @@
 <h1> Introduction </h1>
 <h2><a name="general"> General Information </a></h2>
 
-<img src="program.png" width="320" height="240" alt="desktop" title="desktop" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;float:right;"/>
+<img src="program.png" width="320" height="240" alt="desktop" title="desktop" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;float:right;">
 
 <p>DeCE is an ENDF-6 formatted file manipulation program, similar to
 STANEF by C.L. Dunford et al. (BNL), or FIXUP in PREPRO by D.E. Cullen
 (IAEA), but probably the closest to CRECTJ6 by T. Nakagawa (JAEA), as
 some data manupulation can be performed interactively.</p>
 
-<p>In this manual, the word <tt>ENDF-6 file</tt> is often used.  This
+<p>In this manual, the word <code>ENDF-6 file</code> is often used.  This
 does not refer to a particular name of libraries, like ENDF/B-VI, but
 a data file which is in the ENDF-6 format in general.</p>
 
@@ -228,8 +231,8 @@ than one materials, in which each of the materials is specified by a
 different MAT number.  However, DeCE expects that an input ENDF-6 file
 includes only one MAT number.</p>
 
-<p>DeCE is capable for doing the items below. Here the word "section" means a
-data block specified by a combination of MF and MT numbers. </p>
+<p>The capability of DeCE is shown below. Here the word "section" means a
+data block specified by a combination of MF and MT numbers.</p>
 
 <ul>
   <li> extract one section from a file, and display it
@@ -238,7 +241,7 @@ data block specified by a combination of MF and MT numbers. </p>
   <li> read data in an external file, and convert them into ENDF-6
   <li> reconstruct pointwise cross sections from given resonance parameters
   <li> renumber all the sections, make a new dictionary, 
-       update <tt>NWD</tt> and <tt>NXC</tt> in the header section, 
+       update <code>NWD</code> and <code>NXC</code> in the header section, 
        then write the entire data on a new file.
 </ul> 
 
@@ -255,11 +258,11 @@ ENDF class in the example direcrory.</p>
 <p>The development of DeCE began in Dec. 2009. At each major
 update, a new code name like, Talc, Gypsum, and Calcite, was given.
 They are known as "the Mohs scale of mineral hardness." The code was
-originally developed as a program <tt>E-Type</tt>, which was a
+originally developed as a program <code>E-Type</code>, which was a
 converter program from the Hauser-Feshbach model code output into the
 ENDF-6 formatted data, first appeared in Summer 2009.  This was
-totally superseded by DeCE.  The current version, first built in June 2020,
-is Olivine, whose Mohs scale is 6.5 - 7.</p>
+totally superseded by DeCE.  The current version, first built in November 2020,
+is Jadeite, whose Mohs scale is 6.5 - 7.</p>
 
 <p>All versions up to DeCE (Fluorite) were just for the author's
 private use. Apatite is the first version of outside release (yet
@@ -269,11 +272,27 @@ bug fixes. Adularia, which was built in 2015, has several upgrades in
 the resonance region. DeCE was released as open source software in
 2016. In 2019 the source code was re-organized aiming at better
 readability, and released as the version Pyrite. Some test cases are
-also provided in this version. In winter in the same year, some minor
-updates were made, and released as the version Rutile. 
-In 2020, the covariance printing capability has been upgraded,
-especially for the resonance parameter covariances. A new version
-name, Olivine, was assigned.</p>
+also provided in this version. In winter in the same year, a few minor
+updates were made, and released as the version Rutile. </p>
+
+<p>In 2020, two versions of DeCE were released.
+The covariance printing capability has been upgraded in June,
+especially for the resonance parameter covariances. This version is Olivine.
+In November, a more efficient memory allocation method was employed.
+In the past, there were hard-coded size limits for each object,
+which prevented flexible dynamical size change. The new version employs
+a common technique of variable memory buffer, where the buffer size 
+is dynamically enlarged as needed. To avoid unrealistic memory allocation,
+DeCE still has a data size limit, which is defined in endflib.h.
+A new version name, Jadeite, was assigned. Jadeite also includes
+the more stabilized resonance reconstruction functionality by 
+adding a Coulomb function for charged particle channels.</p>
+
+<p style="text-align:center;">
+<img src="decereconst1.png" width="400" height="280" alt="cross section reconstructed" title="cross section reconstructed" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;">
+
+<img src="decereconst2.png" width="400" height="280" alt="cross section reconstructed" title="cross section reconstructed" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;">
+</p>
 
 
 <h2><a name="reference"> Reference </a></h2>

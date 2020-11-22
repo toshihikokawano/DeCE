@@ -1,30 +1,36 @@
-/*
-   endflib.h :
-            prototype of ENDF in/out subroutines
-            class definition
- */
+/******************************************************************************/
+/**                                                                          **/
+/**     ENDF LIB : ENDF and ENDFDict Class Definition                        **/
+/**                                                                          **/
+/******************************************************************************/
 
-#define MAX_DBLDATA            50000
-#define MAX_INTDATA             1000
-#define MAX_SUBBLOCK             500
+/**************************************/
+/*      Initial memory Size           */
+/**************************************/
 
-#define MAX_DBLDATA_LARGE    2500000
-#define MAX_INTDATA_LARGE     500000
-#define MAX_SUBBLOCK_LARGE    100000
-
-#define MAX_DBLDATA_SMALL        100
-#define MAX_INTDATA_SMALL         10
-#define MAX_SUBBLOCK_SMALL        10
-
-#define MAX_SECTION             1000
-
-#define FIELD_WIDTH               11   // width of data field
-#define COLUMN_NUMBER              6   // number of data files in one line
-#define TEXT_WIDTH                66   // numerical or text data width = FIELD_WIDTH x COLUMN_NUMBER
+static const int INIT_SUBBLOCK =      10;  // initially allocated CONT records
+static const int INIT_INTDATA  =      10;  // initially allocated INT data buffer
+static const int INIT_DBLDATA  =     100;  // initially allocated DBL data buffer
+static const int MULT_MEMSIZE  =       2;  // multiplication of memory size
 
 
-enum dataSize{S = 0, M = 1, L = 2};
-typedef enum dataSize DataSize;
+/**************************************/
+/*      Limit memory Size             */
+/**************************************/
+
+static const int MAX_SECTION   =    1000;  // max number of sections defined by MF/MT
+static const int MAX_SUBBLOCK  =  100000;  // limit max number of sub-blocks (3.2MB)
+static const int MAX_INTDATA   =  500000;  // integer data max size of 2 MB
+static const int MAX_DBLDATA   = 5000000;  // set double data memory buffer of 400 MB
+
+
+/**************************************/
+/*      Text Filed, Don't Change This */
+/**************************************/
+
+#define FIELD_WIDTH     11 // width of data field
+#define COLUMN_NUMBER    6 // number of data files in one line
+#define TEXT_WIDTH      66 // numerical or text data width = FIELD_WIDTH x COLUMN_NUMBER
 
 
 /**************************************/
@@ -60,25 +66,24 @@ class ENDF{
   int       mf;         // ENDF MF number
   int       mt;         // ENDF MT number
   Record    head;       // Head Record
-  DataSize  size;       // ENDF data size
   int       isize;      // integer data buffer size
   int       xsize;      // double data buffer size
   int       rsize;      // CONT data buffer size
   int       ctr;        // pointer to currently running block
   int       nb;         // total number of blocks
  public:
-  int       *idata;     // integer data
-  double    *xdata;     // floating point data
+  int       *idata;     // integer data buffer
+  double    *xdata;     // floating-point (double) data buffer
   int      **iptr;      // int pointer for the 2-dim array
   double   **xptr;      // double pointer for the 2-dim array
-  Record    *rdata;     // pointer for 2-dim data CONT
+  Record    *rdata;     // CONT data buffer
 
-  ENDF(DataSize datasize){
+  ENDF(){
     mat   = 0;
     mf    = 0;
     mt    = 0;
     allocated = false;
-    memalloc(datasize);
+    memalloc();
     resetPOS();
   }
 
@@ -86,46 +91,46 @@ class ENDF{
     memfree();
   }
 
-  void memalloc(DataSize datasize){
+  /*** allocate minimum size data buffers,
+       these data buffer will be expanded as needed */
+  void memalloc(){
     if(!allocated){
-      if(datasize == S){
-        isize = MAX_INTDATA_SMALL;
-        xsize = MAX_DBLDATA_SMALL;
-        rsize = MAX_SUBBLOCK_SMALL;
-      }
-      else if(datasize == L){
-        isize = MAX_INTDATA_LARGE;
-        xsize = MAX_DBLDATA_LARGE;
-        rsize = MAX_SUBBLOCK_LARGE;
-      }
-      else{
-        isize = MAX_INTDATA;
-        xsize = MAX_DBLDATA;
-        rsize = MAX_SUBBLOCK;
-      }
-      idata = new int      [isize];
-      xdata = new double   [xsize];
-      iptr  = new int    * [rsize];
-      xptr  = new double * [rsize];
-      rdata = new Record   [rsize];
-      size  = datasize;
+      isize = INIT_INTDATA;  // initial int data buffer size
+      xsize = INIT_DBLDATA;  // initial double data buffer size
+      rsize = INIT_SUBBLOCK; // initial CONT data buffer size
+
+      idata = (int    * ) malloc(sizeof(int     ) * isize);
+      xdata = (double * ) malloc(sizeof(double  ) * xsize);
+      iptr  = (int    **) malloc(sizeof(int    *) * rsize);
+      xptr  = (double **) malloc(sizeof(double *) * rsize);
+      rdata = (Record * ) malloc(sizeof(Record  ) * rsize);
 
       allocated = true;
     }
   }
 
-  void memresize(DataSize datasize){
-    memfree();
-    memalloc(datasize);
+  /*** modify data buffer size by specified sizes */
+  void memresize(const int nr, const int ni, const int nx){
+    if(allocated){
+      rsize = nr;
+      isize = ni;
+      xsize = nx;
+
+      idata = (int    * ) realloc(idata,sizeof(int     ) * isize);
+      xdata = (double * ) realloc(xdata,sizeof(double  ) * xsize);
+      iptr  = (int    **) realloc(iptr ,sizeof(int    *) * rsize);
+      xptr  = (double **) realloc(xptr ,sizeof(double *) * rsize);
+      rdata = (Record * ) realloc(rdata,sizeof(Record  ) * rsize);
+    }
   }
 
   void memfree(){
     if(allocated){
-      delete [] idata;
-      delete [] xdata;
-      delete [] iptr ;
-      delete [] xptr ;
-      delete [] rdata;
+      free(idata);
+      free(xdata);
+      free(iptr);
+      free(xptr);
+      free(rdata);
       allocated = false;
     }
   }
@@ -133,15 +138,7 @@ class ENDF{
   /*** reset pointers */
   void resetPOS(){
     if(allocated){
-      if(size == S){
-        for(int i=0 ; i<MAX_SUBBLOCK_SMALL ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
-      }
-      else if(size == L){
-        for(int i=0 ; i<MAX_SUBBLOCK_LARGE ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
-      }
-      else{
-        for(int i=0 ; i<MAX_SUBBLOCK       ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
-      }
+      for(int i=0 ; i<rsize ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
       iptr[0] = &idata[0];
       xptr[0] = &xdata[0];
     }
@@ -171,7 +168,6 @@ class ENDF{
     return nx;
   }
 
-  DataSize getSIZE(void)  { return size; }
   int getISIZE(void) { return isize; }
   int getXSIZE(void) { return xsize; }
   int getRSIZE(void) { return rsize; }
@@ -201,17 +197,106 @@ class ENDF{
   Record getENDFhead(){ return head; }
   Record getENDFcont(){ return rdata[ctr]; }
 
-  /*** check if more data can be stored */
+  /*** check if more data can be stored,
+       return true if memory allocation failed */
   bool checkSUBBLOCK(void){
-    if(nb >=rsize) return true;
+    if(nb >= rsize-1){
+      if(increaseSUBBLOCK() < 0) return true;
+    }
     return false;
   }
 
-  bool checkMAXDATA(int mi, int mx){
+  /*** check if INT or DBL data need more space,
+       return true if memory allocation failed */
+  bool checkDataSize(int mi, int mx){
     int ni0 = getNI() + mi;
     int nx0 = getNX() + mx;
-    if((ni0 >= isize) || (nx0 >= xsize)) return true;
+
+    if(ni0 >= isize){
+      if(increaseIDATA(mi) < 0) return true;
+    }
+
+    if(nx0 >= xsize){
+      if(increaseXDATA(mx) < 0) return true;
+    }
+
     return false;
+  }
+
+  /*** increase RDATA buffer size */
+  int increaseSUBBLOCK(){
+    if(allocated){
+      /*** reallocate memory */
+      rsize *= MULT_MEMSIZE;
+
+      if(rsize >= MAX_SUBBLOCK) return -1;
+
+      iptr  = (int    **) realloc(iptr ,sizeof(int    *) * rsize);
+      xptr  = (double **) realloc(xptr ,sizeof(double *) * rsize);
+      rdata = (Record  *) realloc(rdata,sizeof(Record  ) * rsize);
+
+      /*** clear new pointers, exept i = NB */
+      for(int i=nb+1 ; i<rsize ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
+    }
+    return rsize;
+  }
+
+  /*** increase IDATA buffer size */
+  int increaseIDATA(int mi){
+    if(allocated){
+      int ni0 = getNI() + mi;
+      int ni1 = isize;
+      if(ni1 > ni0) return isize;
+
+      /*** increase INT buffer size until requested data can be stored */
+      while(ni1 < ni0){
+        ni1 *= MULT_MEMSIZE;
+      }
+      isize = ni1;
+      if(isize >= MAX_INTDATA) return -1;
+
+      /*** reallocate memory */
+      idata = (int *) realloc(idata, sizeof(int) * isize);
+
+      /*** re-assign pointers */
+      int *base = iptr[0];
+      iptr[0] = &idata[0];
+      int ofset = 0;
+      for(int i=1 ; i<=nb ; i++){
+        ofset = iptr[i] - base;   // calculate number of elements of idata[i][n]
+        iptr[i] = &idata[ofset];  // point idata[i][n]+1
+      }
+    }
+    return isize;
+  }
+
+  /*** increase XDATA buffer size */
+  int increaseXDATA(int mx){
+    if(allocated){
+      int nx0 = getNX() + mx;
+      int nx1 = xsize;
+      if(nx1 > nx0) return xsize;
+
+      /*** increase DBL buffer size until requested data can be stored */
+      while(nx1 < nx0){
+        nx1 *= MULT_MEMSIZE;
+      }
+      xsize = nx1;
+      if(xsize >= MAX_DBLDATA) return -1;
+
+      /*** reallocate memory */
+      xdata = (double *) realloc(xdata, sizeof(double) * xsize);
+
+      /*** re-assign pointers */
+      double *base = xptr[0];
+      xptr[0] = &xdata[0];
+      int ofset = 0;
+      for(int i=1 ; i<=nb ; i++){
+        ofset = xptr[i] - base;   // calculate number of elements of xdata[i][n]
+        xptr[i] = &xdata[ofset];  // point xdata[i][n]+1
+      }
+    }
+    return xsize;
   }
 };
 

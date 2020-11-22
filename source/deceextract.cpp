@@ -43,5 +43,3 @@ void DeceExtract(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const 
     }
   }
 }
-
-

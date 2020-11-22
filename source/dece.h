@@ -1,7 +1,9 @@
-/*
-   dece.h : 
-        prototype definition for DeCE functions
- */
+/******************************************************************************/
+/**                                                                          **/
+/**     DeCE Main Header                                                     **/
+/**             define DeCE functions                                        **/
+/**                                                                          **/
+/******************************************************************************/
 
 #include <fstream>
 
@@ -19,7 +21,7 @@ void   DeceOperation    (ENDFDict *, ENDF **, ifstream *);
 
 /*** dececalc.cpp */
 void   DeceCalc         (ENDFDict *, ENDF **, const int, const int, const int, const char);
-void   DeceCalc452      (ENDFDict *dict, ENDF *lib[]);
+void   DeceCalc452      (ENDFDict *, ENDF **);
 
 /*** decedelete.cpp */
 void   DeceDelete       (ENDFDict *, const int, const int);
@@ -91,7 +93,12 @@ void   DeceGenerateGroup (ENDFDict *, ENDF **, const int,  const int);
 void   DeceScanIndex    (ENDFDict *);
 
 /*** deceglobaloption.cpp */
-void   DeceGlobalOption (string, string, const double);
+void   DeceGlobalOption (string, string, string, const double);
+bool   DeceCheckReadRange (const double);
+bool   DeceCheckEditRange (const double);
+
+/*** decememory.cpp */
+void   DeceMemoryUsage  (ENDFDict *, ENDF **);
 
 /*** deceoutput.cpp */
 void   DeceOutput       (ifstream *, ENDFDict *, ENDF **);

@@ -153,6 +153,9 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
       addata = true;
     }
 
+    /*** skip data if range is set by options */
+    if(DeceCheckReadRange(x[ne])) continue;
+
     if(nonzero) ne++;
     if(ne >= MAX_ENERGY) TerminateCode("too many energy points for angular distributions");
   }
@@ -345,3 +348,4 @@ void storeMF6(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)
   idat[1] = 2;              // lin-lin interpolation
   ENDFPackTAB1(cont, idat, zdat, lib);
 }
+

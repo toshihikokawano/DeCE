@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
 <title> DeCE: ENDFio </title>
-<meta http-equiv="content-type" content="text/html;charset=us-ascii">
-<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="us-ascii">
+<link rel='stylesheet' href='style.css'>
 </head>
 <body>
 
@@ -14,9 +14,9 @@
 
 <h1>ENDF-6 Data Read/Write</h1>
 
-<p><tt>endfio.cpp</tt> contains functions to read/write MF/MT sections
+<p><code>endfio.cpp</code> contains functions to read/write MF/MT sections
 in an ENDF-6 formatted file, which comprise of the functions
-in <tt>endflib.cpp</tt>.  The data structure shown in
+in <code>endflib.cpp</code>.  The data structure shown in
 the <a href="endflib.html">previous section</a> is very basic, and the
 real data given in files are complicated combinations of these data
 blocks, depending on a type of data (cross sections, scattering
@@ -40,8 +40,8 @@ section for a given MT number.</p>
 </pre>
 
 <p>First, DeCE searches for the starting line of that section
-with <tt>ENDFSeekHead()</tt> and reads its HEAD, then reset index. The
-main part is simply read by <tt>ENDFReadTAB1()</tt>. </p>
+with <code>ENDFSeekHead()</code> and reads its HEAD, then reset index. The
+main part is simply read by <code>ENDFReadTAB1()</code>. </p>
 
 <p>Writing an MF=3 section is much easier. There are only three lines
 to do this - write HEAD, TAB1, and SEND (section end).</p>
@@ -89,10 +89,10 @@ of precursors are given first.</p>
 </pre>
 
 
-<p>In the current version of DeCE, <tt>ENDFReadMF<i>n</i>()</tt> and 
-<tt>ENDFWriteMf<i>n</i>()</tt>, where <i>n</i> is 1, 2, 3, 4, 5, 6, 8,
-9, 10, 12, 13, 14, 15, 31, 32 and 33, are provided. As mentioned above, there
-are some missing data structures in these functions. </p>
+<p>In the current version of DeCE, <code>ENDFReadMF<i>n</i>()</code> and 
+<code>ENDFWriteMf<i>n</i>()</code>, where <i>n</i> is from 1 to 35, except
+for 7 (thermal scattering) and 11 (not in use). As mentioned above,
+there are some missing data structures in these functions. </p>
 
 
 <hr>

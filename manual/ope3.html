@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
 <title> DeCE: operation (3) </title>
-<meta http-equiv="content-type" content="text/html;charset=us-ascii">
-<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="us-ascii">
+<link rel='stylesheet' href='style.css'>
 </head>
 <body>
 
@@ -26,7 +26,7 @@ be specified, the current DeCE works only for MF3. The position of the
 new data is automatically determined. If the energy of <i>X-data</i>
 already exists in the section, the new point will be after that point,
 so that this energy point will be a duplicated point. To overwrite,
-use <tt>delpoint</tt> first to remove the old data.  The next example
+use <code>delpoint</code> first to remove the old data.  The next example
 adds one data point at 20 MeV.</p>
 
 <pre>
@@ -149,7 +149,7 @@ extract 3 16
    applyfunc3 <i>MFnumber</i> <i>MTnumber</i> <i>p1</i> <i>p2</i> <i>p3</i>
 </pre>
 
-<p>This is similar to <tt>factor</tt>, but the multiplication
+<p>This is similar to <code>factor</code>, but the multiplication
 factor <i>Factor</i> is calculated internally, so that the excitation
 function may vary smoothly. Three functional forms are currently
 implemented in DeCE, the first one is the Fermi function, the second
@@ -182,7 +182,7 @@ points. </p>
 <p>Although the total inelastic scattering cross section MF/MT=3/4 is
 redundant, this sections is always given for convenience. However, if
 you need to modify the MT4 section, the partial cross sections in MT51
-- 91 should be modified accordingly. The operation <tt>readjust</tt>
+- 91 should be modified accordingly. The operation <code>readjust</code>
 facilitates this re-adjustment of the partical cross sections.</p>
 
 <p>When <i>MTnumber</i> is 4, the subsections of 51 - 91 will be
@@ -199,7 +199,7 @@ readjusted so that the sum of them will equal to MT4. In the case of
    changeint <i>MTnumber</i> <i>Range</i> <i>Point Number</i> <i>INT-law</i>
 </pre>
 
-<p><tt>changeint</tt> modifies an interpolation law of TAB1 record in
+<p><code>changeint</code> modifies an interpolation law of TAB1 record in
 MF=3. The three parameters are the energy range, the index of the energy point,
 and the interpolation law. If <i>Point Number</i> is negative, or
 outside the current data range, it will be substituted by the end point.</p>
@@ -240,8 +240,8 @@ and store the results in MF3. <i>ZAP</i> is the particle ID,
    reconstruct
 </pre>
 
-<p>DeCE has a capability to reconstruct cross sections from
-resolved resonance parameters, though the resonance formulae
+<p>DeCE is capable of re-constructing cross sections from
+resolved and unresolved resonance parameters, though the resonance formulae
 are limited to Multi-Level Breit-Wigner, or Reich-Moore. 
 <i>X-min</i> is the lowest energy, <i>X-max</i> is the highest
 energy, and <i>delta-X</i> is the energ increment.</p>

@@ -1,6 +1,8 @@
-/*
-   decemisc.h : 
-        mathematical functions
- */
+/******************************************************************************/
+/**                                                                          **/
+/**     DeCE MISC                                                            **/
+/**             miscellaneous mathematical functions                         **/
+/**                                                                          **/
+/******************************************************************************/
 
 double legendre (int, double);

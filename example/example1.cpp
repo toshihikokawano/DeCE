@@ -14,7 +14,7 @@ int main(int, char *[]);
 int main(int argc, char *argv[])
 {
   ifstream fpin;   // file pointer to input library
-  ENDF     lib(M); // allocate medium size data block
+  ENDF     lib;    // allocate object
 
   if(argc <= 1){
     cerr << "ENDF file not supplied" << endl;

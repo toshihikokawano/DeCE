@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
  When boolean copy is true, copy all the text fields into line array. */
 int DeceHeaderScanMF1(ifstream *fpin, char *line[], bool copy)
 {
-  ENDF lib(S);
+  ENDF lib;
   string data, s;
 
   /*** skip first 4 lines */
@@ -281,7 +281,7 @@ void DeceHeaderReplaceData(ENDFDict *dict)
 void DeceHeaderCreateLib(ifstream *fpin, ENDFDict *dict, const int nline, char *line[])
 {
   string data;
-  ENDF   lib(S);
+  ENDF   lib;
   int    mf = 1, mt = 451;
 
   ENDFPrintLineNumber(false);

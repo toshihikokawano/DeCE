@@ -23,8 +23,9 @@ static void DeceGroupAverage (ENDF *, const int, const int, double *, double *);
 /*      Generate Group Cross Section                      */
 /*      --------                                          */
 /*      The group structures are:                         */
-/*          0: SAND-IIa 640                               */
-/*          1: LANL 70                                    */
+/*          0: SAND-IIa 640 group                         */
+/*          1: LANL 70 group                              */
+/*          2: VITAMINE-J 175 group                       */
 /*      The weight of averaging is                        */
 /*          0: constant                                   */
 /*          1: 1/E                                        */
@@ -38,6 +39,7 @@ void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int w
   switch(group){
   case  0: ng = grpEnergyPoint0;  xdat = grpEnergyGrid0; break;
   case  1: ng = grpEnergyPoint1;  xdat = grpEnergyGrid1; break;
+  case  2: ng = grpEnergyPoint2;  xdat = grpEnergyGrid2; break;
   default: break;
   }
 

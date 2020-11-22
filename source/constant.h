@@ -1,4 +1,5 @@
-const double PI =  3.14159265358979323846; /* circular constant              */
+const double PI          = 3.14159265358979323846;  /* circular constant     */
+const double EULER       = 0.577215664901532860607; /* Euler-Mascheroni      */
 
 const double HBAR        = 6.58212196e-22; /* Planck's constant/2pi [MeV sec]*/
 const double HBARSQ      = 4.33243296e-43; /* HBAR*HBAR                      */

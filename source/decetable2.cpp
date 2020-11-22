@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <cstring>
 #include <cmath>
 
 using namespace std;
@@ -115,9 +116,11 @@ void DeceTableMF2(ENDF *lib)
 int DeceTableMF2RRR(ENDF *lib, int lrf, int idx)
 {
   Record cont = lib->rdata[idx];
+  double apl  = cont.c2;
   int    nrs  = cont.n2;
 
-  cout << "#          NRS" << setw(14) << nrs << "  number of resonances"<< endl;
+  cout << "#          NRS" << setw(14) << nrs << "  number of resonances" << endl;
+  if(apl > 0.0) cout << "#          APL" << setw(14) << apl << "  L-dependent scattering radius" << endl;
   cout << "# E             J    ";
   if((lrf == 1) || (lrf == 2))
     cout << "G(total)      G(neutron)    G(gamma)      G(fission)" << endl;
@@ -161,6 +164,11 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
   cout << "#          NPP" << setw(14) << npp << "  number of pairs"<< endl;
   cout << endl;
 
+  char **channel;
+  channel = new char * [npp];
+  for(int i=0 ; i<npp ; i++) channel[i] = new char [11];
+
+  /*** for each pair */
   for(int ipp=0 ; ipp<npp ; ipp++){
     double ma  = lib->xptr[idx][ipp*12];
     double mb  = lib->xptr[idx][ipp*12+1];
@@ -178,17 +186,33 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
     if(ia != 0.0) pa = (ia < 0.0) ? -1.0 : 1.0;
     if(ib != 0.0) pb = (ib < 0.0) ? -1.0 : 1.0;
 
-    cout << "# MT" << setw(5) << (int)mt << "  Q-value = "; outVal(11,5,q);
+    cout << "# Pair " << setw(3) << ipp+1 << "     MT  = " << setw(11) << (int)mt << endl;
+    cout << "#              PNT = " << setw(11) << (int)pnt << "  1: calculate penetrability, -1: dont, 0: depends on MT" << endl;
+    cout << "#              SHF = " << setw(11) << (int)shf << "  1: calculate shift factor, 0: dont" << endl;
+    cout << "#          Q-value = "; outVal(11,2,q);
     cout << endl;
-    cout << "#              PNT = " << (int)pnt << "   SHF = " << (int) shf << endl;
-    cout << "# Pair               Mass     Charge spin  par" << endl;
-    cout << "              "; outVal(11,4,ma); outVal(11,4,za); outVal(5,1,abs(ia)); outVal(5,1,pa);
+
+    cout << "#                    Mass     Charge spin  par" << endl;
+    cout << "#             "; outVal(11,4,ma); outVal(11,4,za); outVal(5,1,abs(ia)); outVal(5,1,pa);
     cout << endl;
-    cout << "              "; outVal(11,4,mb); outVal(11,4,zb); outVal(5,1,abs(ib)); outVal(5,1,pb);
+    cout << "#             "; outVal(11,4,mb); outVal(11,4,zb); outVal(5,1,abs(ib)); outVal(5,1,pb);
     cout << endl;
+
+    int A = (int)(ma + 0.1);
+    int Z = (int)za;
+
+    if(      (A == 0) && (Z == 0) ) strncpy(channel[ipp],"Photon    ",11);
+    else if( (A == 1) && (Z == 0) ) strncpy(channel[ipp],"Neutron   ",11);
+    else if( (A == 1) && (Z == 1) ) strncpy(channel[ipp],"Proton    ",11);
+    else if( (A == 2) && (Z == 1) ) strncpy(channel[ipp],"Deuteron  ",11);
+    else if( (A == 3) && (Z == 1) ) strncpy(channel[ipp],"Triton    ",11);
+    else if( (A == 3) && (Z == 2) ) strncpy(channel[ipp],"He-3      ",11);
+    else if( (A == 4) && (Z == 2) ) strncpy(channel[ipp],"Alpha     ",11);
+    else                            strncpy(channel[ipp],"unknown   ",11);
   }
   idx++;
 
+  /*** J-Pi loop */
   for(int ijs=0 ; ijs<njs ; ijs++){
     cont = lib->rdata[idx];
     double aj   = cont.c1;
@@ -207,16 +231,17 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
 
     int m = (nch+1)/6+1; if((nch+1)%6 == 0) m--;
 
+    int ppi[7], l[7];
     for(int ich=0 ; ich<nch ; ich++){
-      int ppi = (int)lib->xptr[idx][ich*6];
-      int l   = (int)lib->xptr[idx][ich*6+1];
-      double sch =   lib->xptr[idx][ich*6+2];
-      double bnd =   lib->xptr[idx][ich*6+3];
-      double ape =   lib->xptr[idx][ich*6+4];
-      double apt =   lib->xptr[idx][ich*6+5];
+      ppi[ich]    = (int)lib->xptr[idx][ich*6];
+      l[ich]      = (int)lib->xptr[idx][ich*6+1];
+      double sch  = lib->xptr[idx][ich*6+2];
+      double bnd  = lib->xptr[idx][ich*6+3];
+      double ape  = lib->xptr[idx][ich*6+4];
+      double apt  = lib->xptr[idx][ich*6+5];
 
-      cout << "#          PPI" << setw(14) << ppi << "  pair index" << endl;
-      cout << "#            L" << setw(14) << l   << "  L-value" << endl;
+      cout << "#          PPI" << setw(14) << ppi[ich] << "  pair index" << endl;
+      cout << "#            L" << setw(14) << l[ich]   << "  L-value" << endl;
       cout << "#          SCH"; outVal(sch); cout << "  channel spin" << endl;
       cout << "#          BND"; outVal(bnd); cout << "  boundary condition" << endl;
       cout << "#          APE"; outVal(ape); cout << "  effective channel radius" << endl;
@@ -228,6 +253,12 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
     int    nrs  = cont.l2;
     cout << "#          NRS" << setw(14) << nrs << "  number of resonances" << endl;
 
+    cout << "#  Energy[eV]  ";
+    for(int ich=0 ; ich<nch ; ich++) cout << setw(10) << channel[ppi[ich]-1] << "    ";
+    cout << endl;
+    cout << "#         L = ";
+    for(int ich=0 ; ich<nch ; ich++) cout << setw(14) << l[ich];
+    cout << endl;
 
     for(int irs=0 ; irs<nrs ; irs++){
       int i0 = irs*m*6;
@@ -235,8 +266,15 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
       for(int ich=0 ; ich<nch ; ich++) outVal(lib->xptr[idx][i0+ich+1]);
       cout << endl;
     }
+
+    cout << endl;
+    cout << endl;
+
     idx++;
   }
+
+  for(int i=0 ; i<npp ; i++) delete [] channel[i];
+  delete [] channel;
 
   return(idx);
 }
@@ -354,7 +392,7 @@ int DeceTableMF2URC(ENDF *lib, int idx)
 
       cout << "# J       "; outVal(4,1,aj); cout << endl;
       cout << "#           NE" << setw(14) << ne-1 << "  nubmber of energy points" << endl;
-      cout << "# Deg. Freedom  other         neutron       gamma"<<endl;
+      cout << "# Deg. Freedom                other         neutron       gamma"<<endl;
       outVal(lib->xptr[idx][0]);
       outVal(lib->xptr[idx][1]);
       outVal(lib->xptr[idx][2]);
