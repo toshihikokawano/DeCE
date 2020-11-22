@@ -381,17 +381,33 @@ void DeceBanner()
   for(int i=55 - strlen(&version[0]) ; i>0 ; i--) cout << " ";
   cout << version << "\n";
   cout
-    <<"     oooooooooo                   oooooo    ooooooooooo       Ich schlief, ich schlief-\n"
-    <<"      888     Y8b               d8P    88b   888      8       Aus tiefem Traum bin ich erwacht:-\n"
-    <<"      888      888    ooooo    888           888              Die Welt ist tief,\n"
-    <<"      888      888  o88   888  888           888oooo8         Und tiefer als der Tag gedacht.\n"
-    <<"      888      888  888ooo888  888           888              Tief ist ihr Weh-\n"
-    <<"      888     d88   Y88     ,   88b     oo   888      8       Lust-tiefer noch als Herzeleid:\n"
-    <<"     oooobood8P      Y8bod8P     Y8bood8P   ooooboooooo       Weh spricht: Vergeh!\n"
-    <<"                                                              Doch alle Lust will Ewigkeit-\n"
-    <<"                                                              - will tiefe, tiefe Ewigkeit!\n"
-    <<"             O Mensch! Gib acht\n"
-    <<"             Was spricht die tiefe Mitternacht?\n"
-    <<"                                                   Also sprach Zarathustras, Friedrich Nietzsche\n";
+    <<"     oooooooooo                   oooooo    ooooooooooo      Am Brunnen vor dem Thore\n"        
+    <<"      888     Y8b               d8P    88b   888      8      Da steht ein Lindenbaum\n"         
+    <<"      888      888    ooooo    888           888             Ich traeäumt in seinem Schatten\n" 
+    <<"      888      888  o88   888  888           888oooo8        So manchen suessen Traum.\n"       
+    <<"      888      888  888ooo888  888           888             \n"
+    <<"      888     d88   Y88     ,   88b     oo   888      8      Ich schnitt in seine Rinde\n"      
+    <<"     oooobood8P      Y8bod8P     Y8bood8P   ooooboooooo      So manches liebe Wort\n"           
+    <<"                                                             Es zog in Freud und Leide\n"       
+    <<"                                                             Zu ihm mich immer fort.\n"         
+    <<"\n"
+    <<"                                            Der Lindenbaum, Wilhelm Mueller / Franz Schubert\n";
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

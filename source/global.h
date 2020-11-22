@@ -21,7 +21,7 @@ class GlobalOption{
   double ReadRangeMax          ;    // data reading range, high-side
   double EditRangeMin          ;    // data modification range, low-side
   double EditRangeMax          ;    // data modification range, high-side
-  string OutPut                ;    // file name table/extract output will be written
+  string Output                ;    // file name table/extract output will be written
 
   GlobalOption(){
     LineNumber           =  false;
@@ -34,7 +34,7 @@ class GlobalOption{
     ReadRangeMax         =  0.0;    // default, all data will be read
     EditRangeMin         =  0.0;    // default, all data will be modified
     EditRangeMax         =  0.0;    // default, all data will be modified
-    OutPut               =  "";     // default output STDOUT
+    Output               =  "";     // default output STDOUT
   }
 };
 

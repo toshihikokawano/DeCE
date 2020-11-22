@@ -7,7 +7,7 @@ showoptions
 reconstruct 1000 500000 1000
 
 # change output into a file
-set OutPut "output/temp.dat"
+set Output "output/temp.dat"
 
 showoptions
 
@@ -15,7 +15,7 @@ showoptions
 reconstruct 1000 500000 1000
 
 # restore STDOUT
-unset OutPut
+unset Output
 showoptions
 
 quit

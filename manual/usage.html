@@ -1,9 +1,9 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE HTML>
 <html>
 <head>
 <title> DeCE: usage </title>
-<meta http-equiv="content-type" content="text/html;charset=us-ascii">
-<link rel="stylesheet" href="style.css" type="text/css">
+<meta charset="us-ascii">
+<link rel='stylesheet' href='style.css'>
 </head>
 <body>
 
@@ -26,7 +26,7 @@ without any command-line options.</p>
 
 <p>DeCE will be in an interactive mode, and prints a manipulation result
 as indicated by a user. DeCE continues running until you
-type <tt>quit, end</tt> or <tt>exit</tt>.</p>
+type <code>quit, end</code> or <code>exit</code>.</p>
 
 <p>The second one is to use an option of <i>-o File_Name</i>.</p>
 
@@ -35,12 +35,12 @@ type <tt>quit, end</tt> or <tt>exit</tt>.</p>
 </pre>
 
 <p>Again DeCE will be in the interactive mode. Once DeCE processed all
-the instructions provided, and read <tt>quit</tt> command, the code writes
-the whole ENDF-6 formatted data on the <tt>ENDF_out.DAT</tt> file.</p>
+the instructions provided, and read <code>quit</code> command, the code writes
+the whole ENDF-6 formatted data on the <code>ENDF_out.DAT</code> file.</p>
 
 <p>DeCE can be used just only for renumbering, or for reformatting the
 comment section, without any numerical manipulation.  In this case,
-you can bypass the <tt>quit</tt> command by a command line
+you can bypass the <code>quit</code> command by a command line
 option <i>-q</i>, which tells DeCE to exit right away and reformat the
 file. </p>
 
@@ -56,11 +56,11 @@ ENDF file.</p>
  % dece -f <i> MF </i> -t <i> MT </i> <i> ENDF_in.DAT </i> 
 </pre>
 
-<p>These options <tt>-f</tt> and <tt>-t</tt> tells DeCE to 
+<p>These options <code>-f</code> and <code>-t</code> tells DeCE to 
 extract that MF/MT section, and print the data in a 
 human readable format. MF2, the resonance parameters, is 
 a special case. Since MT is always 151, you can omit the 
-<tt>-t</tt> option.  Note that this function has not been completed
+<code>-t</code> option.  Note that this function has not been completed
 yet. Some MF/MT sections cannot be processed.</p>
 
 

@@ -168,7 +168,7 @@ string CmdExtractArgument(void)
   }
   else if(ope == "set" || ope == "unset"){
     gettext(d1,cmd.parm);
-    if((string)cmd.parm == "OutPut") CmdExtractString(cmd.text);
+    if((string)cmd.parm == "Output") CmdExtractString(cmd.text);
     else cmd.x = getval(d1);
   }
   else if(ope == "echo"){

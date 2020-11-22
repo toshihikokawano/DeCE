@@ -36,8 +36,8 @@ static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
 static void DeceOperationGROUP           (ENDFDict *, ENDF **);
 
-static void DeceOutPutRedirectFile       (void);
-static void DeceOutPutResume             (void);
+static void DeceOutputRedirectFile       (void);
+static void DeceOutputResume             (void);
 
 extern CLine cmd;
 
@@ -366,9 +366,9 @@ void DeceOperationTABLE(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 {
   if((cmd.mf == 2) && (cmd.mt == 0)) cmd.mt = 151;
 
-  DeceOutPutRedirectFile();
+  DeceOutputRedirectFile();
   DeceTable(dict,lib,fpin,cmd.mf,cmd.mt);
-  DeceOutPutResume();
+  DeceOutputResume();
 }
 
 
@@ -380,9 +380,9 @@ void DeceOperationTABLE(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 /**********************************************************/
 void DeceOperationEXTRACT(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 {
-  DeceOutPutRedirectFile();
+  DeceOutputRedirectFile();
   DeceExtract(dict,lib,fpin,cmd.mf,cmd.mt);
-  DeceOutPutResume();
+  DeceOutputResume();
 }
 
 
@@ -543,7 +543,7 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
 {
   string ope = CmdGetOperation();
 
-  DeceOutPutRedirectFile();
+  DeceOutputRedirectFile();
   if(dict->getID(2,151) >= 0){
     if(ope == "reconstruct"){
       gfrPtCross(dict,lib,cmd.xmin,cmd.xmax,cmd.x);
@@ -558,7 +558,7 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
       gfrSmatrixElement(dict, lib);
     }
   }
-  DeceOutPutResume();
+  DeceOutputResume();
 }
 
 
@@ -584,9 +584,9 @@ void DeceOperationPOINTWISE(ENDFDict *dict, ENDF *lib[])
 void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
 {
   if(!generatepointwise) DeceOperationPOINTWISE(dict,lib);
-  DeceOutPutRedirectFile();
+  DeceOutputRedirectFile();
   DeceGenerateGroup(dict,lib,cmd.opt1,cmd.opt2);
-  DeceOutPutResume();
+  DeceOutputResume();
 }
 
 
@@ -596,20 +596,20 @@ void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
 /**********************************************************/
 static streambuf *savestream;
 static ofstream  foutstream;
-void DeceOutPutRedirectFile()
+void DeceOutputRedirectFile()
 {
-  /*** when OutPut option is set, redirect STDOUT to the external file */
-  if(opt.OutPut.length() > 0){
+  /*** when Output option is set, redirect STDOUT to the external file */
+  if(opt.Output.length() > 0){
     savestream = cout.rdbuf();
-    foutstream.open(&opt.OutPut[0],ofstream::out | ofstream::app);
+    foutstream.open(&opt.Output[0],ofstream::out | ofstream::app);
     cout.rdbuf(foutstream.rdbuf());
   }
 }
 
-void DeceOutPutResume()
+void DeceOutputResume()
 {
   /*** restore STDOUT */
-  if(opt.OutPut.length() > 0){
+  if(opt.Output.length() > 0){
     foutstream.close();
     cout.rdbuf(savestream);
   }

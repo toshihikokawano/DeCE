@@ -29,7 +29,7 @@ void DeceGlobalOption(string ope, string option, string value, const double x)
   else if(option == "LineNumber") optionToggle(ope,option);
 
   /*** set text */
-  else if(option == "OutPut") optionSet(ope,option,value);
+  else if(option == "Output") optionSet(ope,option,value);
 
   /*** set a value */
   else optionSet(ope,option,x);
@@ -105,14 +105,14 @@ void optionToggle(string ope, string option)
 void optionSet(string ope, string option, string value)
 {
   if(ope == "set"){
-    if(option == "OutPut"){
-      opt.OutPut = value;
+    if(option == "Output"){
+      opt.Output = value;
       message << "option " << option << " set to " << value;
     }
   }
   else if(ope == "unset"){
-    if(option == "OutPut"){
-      opt.OutPut = "";
+    if(option == "Output"){
+      opt.Output = "";
       message << "option " << option << " unset";
     }
   }
@@ -170,9 +170,9 @@ void optionPrint()
   cout << "option: EditRangeMin         " << setw(13) << opt.EditRangeMin << endl;
   cout << "option: EditRangeMax         " << setw(13) << opt.EditRangeMax << endl;
 
-  cout << "option: OutPut               ";
-  if(opt.OutPut.length() == 0) cout << setw(13) << "-none-" << endl;
-  else                         cout << setw(13) << opt.OutPut << endl;
+  cout << "option: Output               ";
+  if(opt.Output.length() == 0) cout << setw(13) << "-none-" << endl;
+  else                         cout << setw(13) << opt.Output << endl;
 }
 
 
