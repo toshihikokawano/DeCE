@@ -383,7 +383,7 @@ void DeceBanner()
   cout
     <<"     oooooooooo                   oooooo    ooooooooooo      Am Brunnen vor dem Thore\n"        
     <<"      888     Y8b               d8P    88b   888      8      Da steht ein Lindenbaum\n"         
-    <<"      888      888    ooooo    888           888             Ich traeäumt in seinem Schatten\n" 
+    <<"      888      888    ooooo    888           888             Ich traeauumt in seinem Schatten\n" 
     <<"      888      888  o88   888  888           888oooo8        So manchen suessen Traum.\n"       
     <<"      888      888  888ooo888  888           888             \n"
     <<"      888     d88   Y88     ,   88b     oo   888      8      Ich schnitt in seine Rinde\n"      
