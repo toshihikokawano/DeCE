@@ -1,1 +1,1 @@
-source/masstable_*.h linguist-language=C++
+source/*.h linguist-language=C++

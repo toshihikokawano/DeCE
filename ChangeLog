@@ -1,3 +1,13 @@
+2020-11-26  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.h: modified
+	gcc hack
+
+	some versions of gcc are so strict about exit(), malloc(), and
+	realloc() defined in stdlih.h that compilaton fails.
+	<cstdlib> added to endflib.h, and all the cstdlib lines
+	in the souce codes removed.
+
 2020-11-19  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/gfrcross.cpp (gfrSubsectionURR): modified

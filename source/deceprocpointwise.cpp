@@ -37,7 +37,7 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
   /*** total should always exist */
   int id = dict->getID(3,1);
   if(id < 0){
-    message << "MF3 MT1 should exit for processing";
+    message << "MF3 MT1 should exist for processing";
     WarningMessage();
     return;
   }
