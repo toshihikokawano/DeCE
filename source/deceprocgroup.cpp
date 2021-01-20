@@ -26,6 +26,7 @@ static void DeceGroupAverage (ENDF *, const int, const int, double *, double *);
 /*          0: SAND-IIa 640 group                         */
 /*          1: LANL 70 group                              */
 /*          2: VITAMINE-J 175 group                       */
+/*          3: SAND-IIa 725 group                         */
 /*      The weight of averaging is                        */
 /*          0: constant                                   */
 /*          1: 1/E                                        */
@@ -40,6 +41,7 @@ void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int w
   case  0: ng = grpEnergyPoint0;  xdat = grpEnergyGrid0; break;
   case  1: ng = grpEnergyPoint1;  xdat = grpEnergyGrid1; break;
   case  2: ng = grpEnergyPoint2;  xdat = grpEnergyGrid2; break;
+  case  3: ng = grpEnergyPoint3;  xdat = grpEnergyGrid3; break;
   default: break;
   }
 
