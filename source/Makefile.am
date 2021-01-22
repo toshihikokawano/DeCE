@@ -41,6 +41,7 @@ dece_SOURCES = \
 	decetable4.cpp \
 	decetable5.cpp \
 	decetable6.cpp \
+	decetable7.cpp \
 	decetable8.cpp \
 	decetable9.cpp \
 	deceqvalue.cpp \

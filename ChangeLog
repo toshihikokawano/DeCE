@@ -1,3 +1,13 @@
+2021-01-22  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFReadTAB2L): new function
+	* source/endflib.cpp (ENDFWriteTAB2L): new function
+	* source/endfio.cpp (ENDFReadMF7): new function
+	* source/endfio.cpp (ENDFWriteMF7): new function
+	* source/decetable7.cpp: new file
+	MF7 tabulation added
+	ENDFRead/WriteTABL2L are special ones for TSL, since the format is not so common
+
 2020-11-26  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.h: modified

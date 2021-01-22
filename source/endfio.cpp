@@ -28,6 +28,7 @@ int ENDFRead(ifstream *fp, ENDF *lib, const int mf, const int mt)
   case  4: idx = ENDFReadMF4( fp,lib,mt); break;
   case  5: idx = ENDFReadMF5( fp,lib,mt); break;
   case  6: idx = ENDFReadMF6( fp,lib,mt); break;
+  case  7: idx = ENDFReadMF7( fp,lib,mt); break;
   case  8: idx = ENDFReadMF8( fp,lib,mt); break;
   case  9: idx = ENDFReadMF9( fp,lib,mt); break;
   case 10: idx = ENDFReadMF10(fp,lib,mt); break;
@@ -57,6 +58,7 @@ void ENDFWrite(ENDF *lib)
   case  4: ENDFWriteMF4( lib); break;
   case  5: ENDFWriteMF5( lib); break;
   case  6: ENDFWriteMF6( lib); break;
+  case  7: ENDFWriteMF7( lib); break;
   case  8: ENDFWriteMF8( lib); break;
   case  9: ENDFWriteMF9( lib); break;
   case 10: ENDFWriteMF10(lib); break;
@@ -520,9 +522,104 @@ void ENDFWriteMF6(ENDF *lib)
 
 
 /**********************************************************/
-/* MF7 : not implemented                                  */
+/* MF7 :                                                  */
 /*       Thermal Neutron Scattering Law Data              */
 /**********************************************************/
+int ENDFReadMF7(ifstream *fp, ENDF *lib, const int mt)
+{
+  if( (ENDFSeekHead(fp,lib,7,mt))< 0 ) return(-1);
+
+  lib->resetPOS();
+  Record head = lib->getENDFhead();
+
+  if(mt == 2){
+    int lthr = head.l1;
+    if(lthr == 1){  // coherent elastic scattering
+      Record cont = ENDFReadTAB1(fp,lib);
+      int lt = cont.l1;
+      for(int i=0 ; i<lt ; i++) ENDFReadLIST(fp,lib);
+    }
+    else{  // incoherent elastic scattering
+      ENDFReadTAB1(fp,lib);
+    }
+  }
+  else if(mt == 4){  // incoherent inelastic scattering
+    int a[3];
+    a[0] = a[1] = a[2] = -1;
+    Record cont = ENDFReadLIST(fp,lib);
+    int ns = cont.n2;
+    int id = 0;
+
+    if(ns == 1){
+      a[0] = lib->xptr[id][ 6];
+    }
+    else if(ns == 2){
+      a[0] = lib->xptr[id][ 6];
+      a[1] = lib->xptr[id][12];
+    }
+    else if(ns == 3){
+      a[0] = lib->xptr[id][ 6];
+      a[1] = lib->xptr[id][12];
+      a[2] = lib->xptr[id][18];
+    }
+
+    ENDFReadTAB2L(fp,lib);
+    ENDFReadTAB1(fp,lib);
+    for(int is=0 ; is<ns ; is++){
+      if(a[is] == 0) ENDFReadTAB1(fp,lib);
+    }
+  }
+
+  return(lib->getPOS());
+}
+
+
+void ENDFWriteMF7(ENDF *lib)
+{
+  ENDFWriteHEAD(lib);
+  Record head = lib->getENDFhead();
+
+  int mt = lib->getENDFmt();
+  if(mt == 2){
+    int lthr = head.l1;
+    if(lthr == 1){
+      Record cont = ENDFWriteTAB1(lib);
+      int lt = cont.l1;
+      for(int i=0 ; i<lt ; i++) ENDFWriteLIST(lib);
+    }
+    else{
+      ENDFWriteTAB1(lib);
+    }
+  }
+  else if(mt == 4){
+    int a[3];
+    a[0] = a[1] = a[2] = -1;
+    Record cont = ENDFWriteLIST(lib);
+    int ns = cont.n2;
+    int id = 0;
+
+    if(ns == 1){
+      a[0] = lib->xptr[id][ 6];
+    }
+    else if(ns == 2){
+      a[0] = lib->xptr[id][ 6];
+      a[1] = lib->xptr[id][12];
+    }
+    else if(ns == 3){
+      a[0] = lib->xptr[id][ 6];
+      a[1] = lib->xptr[id][12];
+      a[2] = lib->xptr[id][18];
+    }
+
+    ENDFWriteTAB2L(lib);
+    ENDFWriteTAB1(lib);
+    for(int is=0 ; is<ns ; is++){
+      if(a[is] == 0) ENDFWriteTAB1(lib);
+    }
+  }
+
+  ENDFWriteSEND(lib);
+}
 
 
 /**********************************************************/
@@ -1269,6 +1366,13 @@ void ENDFPrintLIST(ENDF *lib, const int idx, string xname, string yname)
 /**********************************************************/
 /*      Print 1-Dimensional Data                          */
 /**********************************************************/
+
+static inline void outVal(double x)
+{ cout.setf(ios::scientific, ios::floatfield);
+  if(x >= 0.0) cout << setprecision(7) << setw(14) << x;
+  else         cout << setprecision(6) << setw(14) << x; }
+
+
 void ENDFPrint1Dim(ENDF *lib, const int idx){ ENDFPrint1Dim(lib, idx, "", ""); }
 void ENDFPrint1Dim(ENDF *lib, const int idx, string xname, string yname)
 {
@@ -1289,8 +1393,8 @@ void ENDFPrint1Dim(ENDF *lib, const int idx, string xname, string yname)
 
     cout.setf(ios::scientific, ios::floatfield);
     for(int ip=i ; ip<lib->iptr[idx][2*ir] ; ip++){
-      cout << setprecision(6) << setw(14) << lib->xptr[idx][2*ip  ];
-      cout << setprecision(6) << setw(14) << lib->xptr[idx][2*ip+1];
+      outVal(lib->xptr[idx][2*ip  ]);
+      outVal(lib->xptr[idx][2*ip+1]);
       cout << endl;
     }
     i = lib->idata[2*ir]-1;

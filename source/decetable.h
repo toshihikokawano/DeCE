@@ -16,6 +16,7 @@ void   DeceTableMF3      (ENDF *);
 void   DeceTableMF4      (ENDF *);
 void   DeceTableMF5      (ENDF *);
 void   DeceTableMF6      (ENDF *, ENDF *);
+void   DeceTableMF7      (ENDF *);
 void   DeceTableMF8      (ENDF *);
 void   DeceTableMF9      (ENDF *);
 void   DeceTableMF10     (ENDF *);

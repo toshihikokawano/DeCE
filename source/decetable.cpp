@@ -19,6 +19,7 @@ using namespace std;
 void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const int mt)
 {
   if( (mf <=  5) ||
+      (mf ==  7) ||
       (mf ==  8) ||
       (mf == 10) ||
       (mf == 12) ||
@@ -83,6 +84,7 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt)
     case  5: c = ENDFReadMF5( fp,&lib,mt);  break;
     case  6: c = ENDFReadMF6( fp,&lib,mt);
                  ENDFReadMF3( fp,&sup,mt);  break;
+    case  7: c = ENDFReadMF7( fp,&lib,mt);  break;
     case  8: c = ENDFReadMF8( fp,&lib,mt);  break;
     case  9: c = ENDFReadMF9( fp,&lib,mt);  break;
     case 10: c = ENDFReadMF10(fp,&lib,mt);  break;
@@ -177,6 +179,7 @@ void DeceLibToTable(ENDF *lib, ENDF *sup)
   case  4: DeceTableMF4(lib);     break;
   case  5: DeceTableMF5(lib);     break;
   case  6: DeceTableMF6(sup,lib); break;
+  case  7: DeceTableMF7(lib);     break;
   case  8: DeceTableMF8(lib);     break;
   case  9: DeceTableMF9(lib);     break;
   case 10: DeceTableMF10(lib);    break;
