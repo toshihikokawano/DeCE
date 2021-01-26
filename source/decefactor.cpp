@@ -21,7 +21,7 @@ void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
   if(mf != 3) return;
 
   int k0 = dict->getID(3,mt);
-  if(k0 < 0) TerminateCode("MT number not found",mt);
+  if(k0 < 0){ message << "MT number " << mt << " not found"; TerminateCode("DeceFactor"); }
 
   double f  = 0.0;
   /*** all Y data are multiplied by a factor */

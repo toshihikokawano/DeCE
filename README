@@ -78,6 +78,7 @@ Files:
         decetable4.cpp        part of decetable, for MF4
         decetable5.cpp        part of decetable, for MF5
         decetable6.cpp        part of decetable, for MF6
+        decetable7.cpp        part of decetable, for MF7
         decetable8.cpp        part of decetable, for MF8
         decetable9.cpp        part of decetable, for MF9
         decetable10.cpp       part of decetable, for MF10
@@ -86,7 +87,7 @@ Files:
         decetable14.cpp       part of decetable, for MF14
         decetable15.cpp       part of decetable, for MF15
         decetable32.cpp       part of decetable, for MF32
-        decetable33.cpp       part of decetable, for MF33
+        decetable33.cpp       part of decetable, for MF33 and MF31
         decetable34.cpp       part of decetable, for MF34
         decetable35.cpp       part of decetable, for MF35
         deceqvalue.cpp        edit energy-related quantities

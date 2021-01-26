@@ -204,6 +204,44 @@ MF=3. The three parameters are the energy range, the index of the energy point,
 and the interpolation law. If <i>Point Number</i> is negative, or
 outside the current data range, it will be substituted by the end point.</p>
 
+<p>For example, when the original data have only one region, like, </p>
+
+<pre id="dat">
+ 2.605600+4 5.545443+1          0          0          0          02631 3 16
+-1.119700+7-1.119700+7          0          0          1         422631 3 16
+         42          2                                            2631 3 16
+ 1.139891+7 0.000000+0 1.150000+7 4.709090-4 1.200000+7 4.493415-22631 3 16
+</pre>
+
+<p>then we want to change the interpolation law of the first range (up
+to the third point) to be log-log, and the rest is linear-linear,</p>
+
+<pre>
+changeint 16 1  3 5
+changeint 16 2 -1 2
+</pre>
+
+
+<pre id="dat">
+ 2.605600+4 5.545443+1          0          0          0          02631 3 16
+-1.119700+7-1.119700+7          0          0          2         422631 3 16
+          3          5         42          2                      2631 3 16
+ 1.139891+7 0.000000+0 1.150000+7 4.709090-4 1.200000+7 4.493415-22631 3 16
+</pre>
+
+
+
+<h2><a name="changeqval">changeqval (change Q-values in MF=3)</a></h2>
+
+<pre id="syn">
+   changeqval <i>MTnumber</i> <i>Qm</i> <i>Qi</i>
+</pre>
+
+<p>In general DeCE calculates reaction Q-values by the built-in nuclear mass table.
+However, in some special cases, like fission, the Q-values are not given.
+Or sometimes you may want to use a slightly different Q-value from DeCE's result.
+<code>changeqval</code> replaces the QM and QI files in MF=3 by values provided.</p>
+
 
 <h1><a name="MF6"> Miscellaneous MF6 Operations </a></h1>
 

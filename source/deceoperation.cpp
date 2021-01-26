@@ -232,7 +232,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   }
 
   /*** Unknown command */
-  else TerminateCode("command not found",ope);
+  else{ message << "command " << ope << " not found"; TerminateCode("DeceOperation"); }
 }
 
 
@@ -280,7 +280,7 @@ void DeceOperationDUPLICATE(ENDFDict *dict, ENDF *lib[])
   int k0 = dict->getID(cmd.mf,cmd.mt);
   int k1 = dict->getID(cmd.mf,cmd.opt1);
 
-  if(k0 < 0) TerminateCode("source MT number not found",cmd.mt);
+  if(k0 < 0){ message << "source MT number " << cmd.mt << " not found"; TerminateCode("DeceOperationDUPLICATE"); }
 
   ENDFLibCopy(lib[k0],lib[k1]);
   lib[k1]->setENDFmt(cmd.opt1);

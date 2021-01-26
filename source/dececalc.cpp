@@ -26,9 +26,8 @@ void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, c
   int mf = 3;
 
   if((k1 < 0) && (k2 < 0)){
-    ostringstream os;
-    os << "both source MT numbers " << mtsrc1 << " and " << mtsrc2 << " not found";
-    TerminateCode(os.str());
+    message << "both source MT numbers " << mtsrc1 << " and " << mtsrc2 << " not found";
+    TerminateCode("DeceCalc");
   }
 
   /*** copy src1 to dest */
@@ -89,14 +88,15 @@ void DeceCalc452(ENDFDict *dict, ENDF *lib[])
   int k2 = dict->getID(1,456);
   int mf = 1;
 
-  if(k1 < 0) TerminateCode("MT number not found",455);
-  if(k2 < 0) TerminateCode("MT number not found",456);
+  if(k1 < 0){ message << "MT number 455 not found"; TerminateCode("DeceCalc452"); }
+  if(k2 < 0){ message << "MT number 456 not found"; TerminateCode("DeceCalc452"); }
 
   Record hd = lib[k1]->getENDFhead();
   Record hp = lib[k2]->getENDFhead();
 
   if( (hd.l2 != 2) || (hp.l2 !=2 ) ){
-    TerminateCode("LNU should be 2 to sum MT 455 and 456");
+    message << "LNU should be 2 to sum MT 455 and 456";
+    TerminateCode("DeceCalc452");
   }
 
   /*** first, copy 456(prompt) to 452(total) */

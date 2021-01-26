@@ -15,7 +15,6 @@ const double EPS = 1.0e-72;
 
 const int ERR_NEG = -1;  /* Matrix not positiv */
 const int ERR_PIV = -2;  /* Pivot zero         */
-const int ERR_INP = -3;  /* Data error         */
 
 static int inverse         (double *, int);
 static int matrix_choleski (double *, int);
@@ -84,20 +83,26 @@ double least_sq(const int n, const int m,
 int inverse(double *a, int n)
 {
    int c=0;
-   if(n<1){
-      c=ERR_INP;
-      TerminateCode("matrix dimension <=1");
+   if(n < 1){
+      message << "matrix dimension <= 1"; TerminateCode("polycalc/inverse");
    }
    else{
-      c=matrix_choleski(a,n);
-      if(c==ERR_NEG)      TerminateCode("matrix not positiv");
-      else if(c==ERR_PIV) TerminateCode("pivot zero");
-      else if(c==   0) c=matrix_inverse(a,n);
+      c = matrix_choleski(a,n);
+      if(c == ERR_NEG){
+        message << "matrix not positiv"; TerminateCode("polycalc/inverse");
+      }
+      else if(c == ERR_PIV){
+        message << "matrix pivot zero"; TerminateCode("polycalc/inverse");
+      }
+      else if(c == 0) c = matrix_inverse(a,n);
 
-      if(c==ERR_NEG)      TerminateCode("matrix not positiv");
+      if(c == ERR_NEG){
+        message << "matrix not positiv"; TerminateCode("polycalc/inverse");
+      }
    }
    return(c);
 }
+
 
 int matrix_choleski(double *a, int n)
 {

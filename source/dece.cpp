@@ -79,15 +79,15 @@ int main(int argc, char *argv[])
 
   /*** check if ENDF file is given */
   if(optind < argc) libname_in = argv[optind];
-  if(libname_in == "") TerminateCode("ENDF-6 formattted file not given");
-  if(libname_in == libname_out) TerminateCode("same in/out file names");
+  if(libname_in == ""){ message << "ENDF-6 formattted file not given"; TerminateCode("main"); }
+  if(libname_in == libname_out){ message << "same in/out file names"; TerminateCode("main"); }
 
   /*** tabular output from one section */
   if((mfin == 2) || (mfin == 32)) mtin = 151;
 
   if((mfin > 0) && (mtin > 0)){
     ifstream  fpin;
-    fpin.open(&libname_in[0]);  if(!fpin) TerminateCode("ENDF file cannot open",libname_in);
+    fpin.open(&libname_in[0]); if(!fpin){ message << "ENDF file " << libname_in << " cannot open"; TerminateCode("main"); }
     DeceCheckMT(mtin);
     if(ein > 0.0) DeceDataPoint(&fpin,mfin,mtin,ein);
     else          DeceFileToTable(&fpin,mfin,mtin);
@@ -97,8 +97,8 @@ int main(int argc, char *argv[])
   else if( (mfin == 0) && (mtin == 0) ){
     /*** scan the file, and store all the MF,MT sections */
     int ctl = ENDFScanLibrary(libname_in,&dict);
-    if     (ctl == -1) TerminateCode("ENDF file cannot open",libname_in);
-    else if(ctl == -2) TerminateCode("too many sections");
+    if     (ctl == -1){ message << "ENDF file " << libname_in << " cannot open"; TerminateCode("main"); }
+    else if(ctl == -2){ message << "too many sections"; TerminateCode("main"); }
 
     /*** reconstruct pointwise cross sections from resonances */
     if(reconr){
@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
       DeceMain(libname_in,libname_out,&dict);
     }
   }
-  else TerminateCode("MF or MT number not given");
+  else{ message << "MF or MT number not provided"; TerminateCode("main"); }
 
   return(0);
 }
@@ -203,7 +203,7 @@ void DeceStoreData(ENDFDict *dict, ifstream *fp)
 
     dict->setID(i,newsec++);
 
-    if(newsec >= MAX_SECTION) TerminateCode("Too many sections",newsec);
+    if(newsec >= MAX_SECTION){ message << "Too many sections, " << newsec;  TerminateCode("DeceStoreData"); }
   }
 }
 
@@ -229,7 +229,7 @@ void DeceReadMonitor(const int mat, const int mf, const int mt, const int sec, c
 /**********************************************************/
 void DeceCheckMT(int mt)
 {
-  if( mt <= 0 || 1000 <= mt ) TerminateCode("invalid MT number",mt);
+  if( mt <= 0 || 1000 <= mt ){ message << "invalid MT number, " << mt; TerminateCode("DeceCheckMT"); }
 }
 
 
@@ -254,8 +254,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
     lib[newsec] = new ENDF;
   }
   catch(bad_alloc &e){
-    TerminateCode("memory allocation error");
-    return;
+    message << "memory allocation error"; TerminateCode("DeceCreateLib");
   }
 
   lib[newsec]->setENDFmat(dict->getMAT());
@@ -264,7 +263,7 @@ void DeceCreateLib(ENDFDict *dict, int mf, int mt)
 
   int i = dict->scanDict(mf,mt);
   if(i < 0){
-    if(dict->addDict(mf,mt,0,newsec)) TerminateCode("Too many sections");
+    if(dict->addDict(mf,mt,0,newsec)){ message << "Too many sections"; TerminateCode("DeceCreateLib"); }
   }
   else{
     dict->setID(i,newsec);
@@ -343,31 +342,10 @@ void Notice(string module){
 /**********************************************************/
 /*     Emergency Stop                                     */
 /**********************************************************/
-int TerminateCode(string msg)
+int TerminateCode(string module)
 {
   DeceFreeMemory();
-  cerr << "ERROR     : " << msg << endl;
-  exit(-1);
-}
-
-int TerminateCode(string msg, int n)
-{
-  DeceFreeMemory();
-  cerr << "ERROR     : " << msg << " : " << n << endl;
-  exit(-1);
-}
-
-int TerminateCode(string msg, double x)
-{
-  DeceFreeMemory();
-  cerr << "ERROR     : " << msg << " : " << x << endl;
-  exit(-1);
-}
-
-int TerminateCode(string msg, string x)
-{
-  DeceFreeMemory();
-  cerr << "ERROR     : " << msg << " : " << x << endl;
+  cerr << "ERROR     :[" << module << "] " << message.str() << endl;
   exit(-1);
 }
 

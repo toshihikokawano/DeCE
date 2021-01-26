@@ -42,8 +42,9 @@ int polysq(const int n, const int m, double *xdata, double *ydata, double *a)
       for(int j=0 ; j<=i ; j++)  v[i*(i+1)/2+j] = (i==j) ? 1.0 : 0.0;
     }
 
-    if( (least_sq(n,mopt,ydata,a,v,x,f))<0.0 )
-      TerminateCode("least-squares equation not solved");
+    if( (least_sq(n,mopt,ydata,a,v,x,f)) < 0.0 ){
+      message << "least-squares equation not solved"; TerminateCode("polysq");
+    }
 
     double chi2 = 0.0;
     for(int i=0 ; i<n ; i++){

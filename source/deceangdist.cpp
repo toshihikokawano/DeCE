@@ -110,7 +110,7 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
   string   line,legflag;
 
   fp.open(file);
-  if(!fp) TerminateCode("cannot open data file",(string)file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readADdata"); }
 
   if(ofset == 0){
     if(mt == 2) ofset = 1;
@@ -156,7 +156,8 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
     if(DeceCheckReadRange(x[ne])) continue;
 
     if(nonzero) ne++;
-    if(ne >= MAX_ENERGY) TerminateCode("too many energy points for angular distributions");
+
+    if(ne >= MAX_ENERGY){ message << "too many energy points for angular distributions, " << ne; TerminateCode("readADdata"); }
   }
 
   fp.close();

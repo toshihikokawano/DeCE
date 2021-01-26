@@ -363,7 +363,7 @@ Record ENDFReadTAB22(ifstream *fp, ENDF *lib)
   /*** store CONT record */
   lib->rdata[idx] = ENDFNextCONT(fp);
   int nr = lib->rdata[idx].n1;
-  int ne = lib->rdata[idx].n2;
+  int np = lib->rdata[idx].n2;
 
   if( lib->checkDataSize(2*nr,0) ) ENDFExceedDataSize("ReadTAB22",lib,2*nr,0);
 
@@ -377,7 +377,41 @@ Record ENDFReadTAB22(ifstream *fp, ENDF *lib)
   lib->inclPOS();
 
   /*** read TAB2 for each subsection */
-  for(int i=0 ; i<ne ; i++) ENDFReadTAB21(fp, lib);
+  for(int i=0 ; i<np ; i++) ENDFReadTAB21(fp, lib);
+
+  return(lib->rdata[idx]);
+}
+
+
+/**********************************************************/
+/*      Read TAB2 Record (TAB1 + LIST Type)               */
+/**********************************************************/
+Record ENDFReadTAB2L(ifstream *fp, ENDF *lib)
+{
+  if( lib->checkSUBBLOCK() ) ENDFExceedSubBlock("ReadTAB2L",lib);
+  int idx = lib->getPOS();
+
+  /*** store CONT record */
+  lib->rdata[idx] = ENDFNextCONT(fp);
+  int nr = lib->rdata[idx].n1;
+  int np = lib->rdata[idx].n2;
+
+  if( lib->checkDataSize(2*nr,0) ) ENDFExceedDataSize("ReadTAB2L",lib,2*nr,0);
+
+  /*** read in int data array */
+  ENDFReadArray(fp, 0, 2*nr, lib->iptr[idx]);
+
+  /*** calculate next address */
+  lib->iptr[idx+1] = lib->iptr[idx] + 2*nr;
+  lib->xptr[idx+1] = lib->xptr[idx];
+
+  lib->inclPOS();
+
+  /*** read TAB1 for each subsection */
+  for(int i=0 ; i<np ; i++){
+    Record cont = ENDFReadTAB1(fp, lib);
+    for(int l=0 ; l<cont.l1 ; l++) ENDFReadLIST(fp, lib);
+  }
 
   return(lib->rdata[idx]);
 }
@@ -644,7 +678,7 @@ Record ENDFWriteTAB2(ENDF *lib)
   Record cont = ENDFWriteCONT(lib);
   ENDFWriteArray(lib,2*nr,lib->iptr[idx]);
 
-  for(int n=0 ; n<np ; n++)  ENDFWriteLIST(lib);
+  for(int n=0 ; n<np ; n++) ENDFWriteLIST(lib);
 
   return(cont);
 }
@@ -682,6 +716,27 @@ Record ENDFWriteTAB22(ENDF *lib)
 
   for(int n=0 ; n<np ; n++) ENDFWriteTAB21(lib);
   
+  return(cont);
+}
+
+
+/**********************************************************/
+/*      Write TAB2 Record (TAB1 + LIST Type)              */
+/**********************************************************/
+Record ENDFWriteTAB2L(ENDF *lib)
+{
+  int idx = lib->getCTR();
+  int nr  = lib->rdata[idx].n1;
+  int np  = lib->rdata[idx].n2;
+
+  Record cont = ENDFWriteCONT(lib);
+  ENDFWriteArray(lib,2*nr,lib->iptr[idx]);
+
+  for(int n=0 ; n<np ; n++){
+    Record cont = ENDFWriteTAB1(lib);
+    for(int l=0 ; l<cont.l1 ; l++) ENDFWriteLIST(lib);
+  }
+
   return(cont);
 }
 
