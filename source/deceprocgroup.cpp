@@ -14,8 +14,9 @@ using namespace std;
 #include "groupstructure.h"
 
 static const int Ndiv = 20;
-static const int ncx = 14;
-static int mtr[ncx] = {1, 2, 4, 16, 17, 18, 22, 28, 102, 103, 104, 105, 106, 107};
+static const int ncx = 15;
+static int mfr[ncx] = {3, 3, 3,  3,  3,  3,  3,  3,   3,   3,   3,   3,   3,   3,   1};
+static int mtr[ncx] = {1, 2, 4, 16, 17, 18, 22, 28, 102, 103, 104, 105, 106, 107, 452};
 
 static void DeceGroupAverage (ENDF *, const int, const int, double *, double *);
 
@@ -67,21 +68,21 @@ void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int w
 
   /*** excluded channels' MT number negative */
   for(int j=1 ; j<ncx ; j++){
-    if(dict->getID(3,mtr[j]) < 0) mtr[j] *= -1;
+    if(dict->getID(mfr[j],mtr[j]) < 0) mtr[j] *= -1;
   }
 
   /*** group average */
   for(int j=0 ; j<ncx ; j++){
-    id = dict->getID(3,mtr[j]);
-    if(id > 0) DeceGroupAverage(lib[id],weight,ng,xdat,ydat[j]);
+    id = dict->getID(mfr[j],mtr[j]);
+    if(id >= 0) DeceGroupAverage(lib[id],weight,ng,xdat,ydat[j]);
   }
 
   /*** print heading */
   cout << setprecision(6);
   cout <<"# Emin          Emax        ";
   for(int j=0 ; j<ncx ; j++){
-    id = dict->getID(3,mtr[j]);
-    if(id > 0) cout << setw(14) << mtr[j];
+    id = dict->getID(mfr[j],mtr[j]);
+    if(id >= 0) cout << setw(7) << mfr[j] << setw(7) << mtr[j];
   }
   cout << endl;
 
@@ -91,8 +92,8 @@ void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int w
     cout << setw(14) << xdat[k+1];
 
     for(int j=0 ; j<ncx ; j++){
-      id = dict->getID(3,mtr[j]);
-      if(id > 0) cout << setw(14) << ydat[j][k];
+      id = dict->getID(mfr[j],mtr[j]);
+      if(id >= 0) cout << setw(14) << ydat[j][k];
     }
     cout << endl;
   }

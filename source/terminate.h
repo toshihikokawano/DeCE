@@ -18,8 +18,4 @@ extern ostringstream message;
 /**************************************/
 void    WarningMessage     ();
 void    Notice             (std::string);
-
 int     TerminateCode      (std::string);
-int     TerminateCode      (std::string, int);
-int     TerminateCode      (std::string, double);
-int     TerminateCode      (std::string, std::string);

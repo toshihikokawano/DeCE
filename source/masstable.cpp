@@ -30,7 +30,7 @@ double mass_excess(int z, int a)
     }
   }
 
-  if(!found) TerminateCode("mass data for not found", (int)za);
+  if(!found){ message << "mass data for " << (int)za << " not given in the mass table"; TerminateCode("mass_excess"); }
 
   return(mx);
 }

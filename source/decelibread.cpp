@@ -19,7 +19,7 @@ void DeceLibRead(ENDFDict *dict, ENDF *lib, char *file)
   ifstream fpin;
 
   fpin.open(file);
-  if(!fpin) TerminateCode("cannot open data file",file);
+  if(!fpin){ message << "cannot open data file " << file; TerminateCode("DeceLibRead"); }
 
   ENDFRead(&fpin,lib,lib->getENDFmf(),lib->getENDFmt());
   fpin.close();

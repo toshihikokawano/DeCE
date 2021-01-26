@@ -1,3 +1,14 @@
+2021-01-25  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dece.cpp (TerminateCode): updated
+	code terminating error message unified
+	all files that include TerminateCode() were also updated
+
+2021-01-23  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceprocgroup.cpp: updated
+	nu-bar added for group calculation
+
 2021-01-22  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.cpp (ENDFReadTAB2L): new function

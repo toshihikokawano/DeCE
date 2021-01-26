@@ -193,7 +193,7 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
   string   line;
 
   fp.open(file);
-  if(!fp) TerminateCode("cannot open data file",file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readCSdata"); }
 
   /*** default CoH3 output file structure in CrossSection.dat */
   if(ofset == 0){
@@ -257,7 +257,7 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
     if(DeceCheckReadRange(x[nc])) continue;
 
     nc++;
-    if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
+    if(nc >= MAX_DBLDATA){ message << "too many energy points, " << nc; TerminateCode("readCSdata"); }
   }
 
   fp.close();
@@ -281,7 +281,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   double   eth = 0.0;
 
   fp.open(file);
-  if(!fp) TerminateCode("cannot open data file",file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readISdata"); }
 
   if(ofset == 0){
     if(      ( 51 <= mt) && (mt <=  91) ) ofset = mt  - 50 + 1;
@@ -317,7 +317,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
     if(DeceCheckReadRange(x[nc])) continue;
 
     if( (mt >= 600) || (y[nc] > 0.0) ) nc++;
-    if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
+    if(nc >= MAX_DBLDATA){ message << "too many energy points, " << nc; TerminateCode("readISdata"); }
   }
 
   fp.close();
@@ -350,7 +350,7 @@ int readNUdata(char *file, int ofset, double *x, double *y)
   string   line;
 
   fp.open(file);
-  if(!fp) TerminateCode("cannot open data file",file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readNUdata"); }
 
   if(ofset == 0) ofset = 1;
 
@@ -372,7 +372,7 @@ int readNUdata(char *file, int ofset, double *x, double *y)
     if(DeceCheckReadRange(x[nc])) continue;
 
     nc++;
-    if(nc >= MAX_DBLDATA) TerminateCode("too many energy points");
+    if(nc >= MAX_DBLDATA){ message << "too many energy points, " << nc; TerminateCode("readNUdata"); }
   }
 
   fp.close();

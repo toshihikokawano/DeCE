@@ -19,7 +19,7 @@ void DeceReadjust(ENDFDict *dict, ENDF *lib[], const int mt, const int mtmp)
   int k0 = dict->getID(3,mt);
   int k1 = dict->getID(3,mtmp);
 
-  if(k0 < 0) TerminateCode("MT number not found",mt);
+  if(k0 < 0){ message << "MT number " << mt << " not found"; TerminateCode("DeceReadjust"); }
 
   /*** MTs for subsections */
   int mt0 = 0, mt1 = 0;
@@ -32,7 +32,7 @@ void DeceReadjust(ENDFDict *dict, ENDF *lib[], const int mt, const int mtmp)
   case 107:  mt0 = 800; mt1 = 849; break;
   default: break;
   }
-  if((mt0 == 0) && (mt1 == 0)) TerminateCode("MT number not processed by READJUST",mt);
+  if((mt0 == 0) && (mt1 == 0)){ message << "MT number " << mt << " not processed by READJUST"; TerminateCode("DeceReadjust"); }
 
   /*** sum subsections from MT0 to MT1 and store in Mtmp = 99 */
   DeceCalc(dict,lib,mtmp,mt0,mt1,':');

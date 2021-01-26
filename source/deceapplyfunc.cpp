@@ -17,11 +17,11 @@ using namespace std;
 void DeceApplyFunc(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
                    int kind, double p1, double p2, double p3)
 {
-  if(p3 == 0) TerminateCode("P3 Parameter zero");
+  if(p3 == 0){ message << "P3 Parameter zero"; TerminateCode("DeceApplyfunc"); }
   if(mf != 3) return;
 
   int k0 = dict->getID(3,mt);
-  if(k0 < 0) TerminateCode("MT number not found",mt);
+  if(k0 < 0){ message << "MT number " << mt << " not found"; TerminateCode("DeceApplyfunc"); }
 
   Record r  = lib[k0]->rdata[0];
   int    np = r.n2;

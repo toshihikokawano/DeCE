@@ -19,7 +19,7 @@ void DeceChangeQvalue(ENDFDict *dict, ENDF *lib[], const int mt, double qm, doub
 {
   int k = dict->getID(3,mt);
 
-  if(k < 0) TerminateCode("MT number not found",mt);
+  if(k < 0){ message << "MT number " << mt << " not found"; TerminateCode("DeceChangeQvalue"); }
 
   lib[k]->rdata[0].c1 = qm;
   lib[k]->rdata[0].c2 = qi;

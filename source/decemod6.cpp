@@ -23,8 +23,9 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
   int k3 = dict->getID(3,mt);
   int k6 = dict->getID(6,mt);
 
-  if(k3 < 0) TerminateCode("MT number in MF3 not found",mt);
-  if(k6 < 0) TerminateCode("MT number in MF6 not found",mt);
+  if(k3 < 0){ message << "MT number " << mt << " in MF3 not found"; TerminateCode("DeceBoundCorrect"); }
+  if(k6 < 0){ message << "MT number " << mt << " in MF6 not found"; TerminateCode("DeceBoundCorrect"); }
+
 
   /*** allocate temporal arrays */
   int npmax = lib0[k6]->getXSIZE();
@@ -183,8 +184,8 @@ void DeceGenProdCS(ENDFDict *dict, ENDF *lib[], const int mt1, const int zap1)
   int k3 = dict->getID(3,mt0);
   int k6 = dict->getID(6,mt0);
 
-  if(k3 < 0) TerminateCode("MT number in MF3 not found",mt0);
-  if(k6 < 0) TerminateCode("MT number in MF6 not found",mt0);
+  if(k3 < 0){ message << "MT number " << mt0 << " in MF3 not found"; TerminateCode("DeceGenProdCS"); }
+  if(k6 < 0){ message << "MT number " << mt0 << " in MF6 not found"; TerminateCode("DeceGenProdCS"); }
 
   double *xdat;
   xdat = new double [MAX_DBLDATA];
@@ -260,8 +261,9 @@ void DeceIsotropicAngularDistribution(ENDFDict *dict, ENDF *lib[], const int mt)
   int k3 = dict->getID(3,mt);
   int k6 = dict->getID(6,mt);
 
-  if(k3 < 0) TerminateCode("MT number in MF3 not found",mt);
-  if(k6 < 0) TerminateCode("MT number in MF6 not found",mt);
+  if(k3 < 0){ message << "MT number " << mt << " in MF3 not found"; TerminateCode("DeceIsotropicAngularDistribution"); }
+  if(k6 < 0){ message << "MT number " << mt << " in MF6 not found"; TerminateCode("DeceIsotropicAngularDistribution"); }
+
 
   Record head = lib[k3]->getENDFhead();
   head.l1 = 0;
