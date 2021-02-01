@@ -28,6 +28,13 @@ static int mtr[ncx] = {1, 2, 102, 18}; // MT numbers for reconstructed cross sec
 /**********************************************************/
 void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
 {
+  /*** when no resonance region */
+  if(dict->emaxRe == 0.0){
+    message << "no resonance parameters given, skip PointWise";
+    Notice("DeceGeneratePointwise");
+    return;
+  }
+
   double **xdat;
   xdat = new double * [ncx];
   for(int j=0 ; j<ncx ; j++){
@@ -47,21 +54,15 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
     if(dict->getID(3,mtr[j]) < 0) mtr[j] *= -1;
   }
 
-  /*** when resonance range exists */
+  /*** convert into pointwise cross sections */
   int np = 0;
-  if(dict->emaxRe > 0.0){
-    np = DeceReconstructResonance(dict,lib,xdat);
-    np = DeceCopyHighEnergyCrossSection(dict,lib,np,xdat);
-    DeceCheckNegativeCrossSection(np,xdat);
+  np = DeceReconstructResonance(dict,lib,xdat);
+  np = DeceCopyHighEnergyCrossSection(dict,lib,np,xdat);
+  DeceCheckNegativeCrossSection(np,xdat);
 
-    /*** do not use FILE 2 anymore */
-    dict->setLRP(2);
-    DeceDelete(dict,2,151);
-  }
-  /*** otherwise use the total cross section as the common grid */
-  else{
-    DeceCopyHighEnergyCrossSection(dict,lib,np,xdat);
-  }
+  /*** do not use FILE 2 anymore */
+  dict->setLRP(2);
+  DeceDelete(dict,2,151);
 
   /*** create TAB1 record, and replace MT1 etc */
   int nr = 1;
@@ -70,7 +71,7 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
   int idat[2] = {np,2};
 
   id = dict->getID(3,mtr[0]);
-  lib[id]->memresize(MAX_SUBBLOCK,MAX_INTDATA,MAX_DBLDATA);
+  lib[id]->memresize(INIT_SUBBLOCK,INIT_INTDATA,INIT_DBLDATA);
   lib[id]->setENDFhead(head);
   lib[id]->resetPOS();
 
@@ -82,7 +83,7 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
   for(int j=1 ; j<ncx ; j++){
     if(mtr[j] > 0){
       id = dict->getID(3,mtr[j]);
-      lib[id]->memresize(MAX_SUBBLOCK,MAX_INTDATA,MAX_DBLDATA);
+      lib[id]->memresize(INIT_SUBBLOCK,INIT_INTDATA,INIT_DBLDATA);
       lib[id]->setENDFhead(head);
       lib[id]->resetPOS();
       ENDFPackTAB1(cont,idat,xdat[j],lib[id]);
@@ -208,7 +209,7 @@ int DeceCopyHighEnergyCrossSection(ENDFDict *dict, ENDF *lib[], int np0, double 
         xdat[0][k++] = y;
       }
     }
-    i = lib[tid]->idata[2*ir]-1;
+    i = lib[tid]->idata[2*ir];
   }
 
   /*** get other reactions at the common energy grid */

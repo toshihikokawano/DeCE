@@ -1211,7 +1211,7 @@ double ENDFInterpolation(ENDF *lib, double x, bool dupflag, const int idx)
   if(found) return(lib->xptr[idx][p+1]);
 
 
-  p = 0;
+  p = -1;
   int i = 0, m = 0;
   double y = 0.0;
   for(int ir=0 ; ir<cont.n1 ; ir++){
@@ -1222,7 +1222,7 @@ double ENDFInterpolation(ENDF *lib, double x, bool dupflag, const int idx)
         break;
       }
     }
-    if(p > 0) break;
+    if(p >= 0) break;
     i = lib->iptr[idx][2*ir]-1;
   }
 
@@ -1232,7 +1232,7 @@ double ENDFInterpolation(ENDF *lib, double x, bool dupflag, const int idx)
     double x2 = lib->xptr[idx][p+2];
     double y2 = lib->xptr[idx][p+3]; 
 
-    if( (x1==x2) || (m==1) ) y = y1;
+    if((x1 == x2) || (m == 1)) y = y1;
     else{
       switch(m){
       case 2:
