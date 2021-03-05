@@ -1,3 +1,29 @@
+2021-03-04  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.h: modified
+	note on ENDF class added
+
+	* source/decetable10.cpp (DeceTableMF10): bug fixed
+	LFS was taken from wrong place and printed
+
+2021-02-18  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decefactor.cpp (DeceFactorMF4P1): new function
+	P1 Legendre coefficient can be re-scaled by the factor command
+
+2021-01-30  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/dece.cpp (DeceMain): modified
+	-s option print header data too
+
+2021-01-29  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFInterpolation): bug fixed
+	the first interpolation range was always lin-lin
+
+	* source/deceprocpointwise.cpp (DeceGeneratePointwise): bug fixed
+	skip DeceGenerationPointwise when no resonance parameter
+
 2021-01-25  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/dece.cpp (TerminateCode): updated

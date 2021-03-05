@@ -82,9 +82,10 @@ int main(int argc, char *argv[])
   if(libname_in == ""){ message << "ENDF-6 formattted file not given"; TerminateCode("main"); }
   if(libname_in == libname_out){ message << "same in/out file names"; TerminateCode("main"); }
 
-  /*** tabular output from one section */
+  /*** allow to omit when MF=2 (resonance) */
   if((mfin == 2) || (mfin == 32)) mtin = 151;
 
+  /*** tabulate data from one section specified by -f and -t command line options */
   if((mfin > 0) && (mtin > 0)){
     ifstream  fpin;
     fpin.open(&libname_in[0]); if(!fpin){ message << "ENDF file " << libname_in << " cannot open"; TerminateCode("main"); }
@@ -135,7 +136,10 @@ void DeceMain(string libin, string libout, ENDFDict *dict)
   /*** not in interactive mode */
   if(justquit){
     /*** just print file contents */
-    if(filescan) DeceScanIndex(dict);
+    if(filescan){
+      DeceShowHeaders(dict);
+      DeceScanIndex(dict);
+    }
   }
   /*** for all operation commands */
   else{
