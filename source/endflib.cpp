@@ -69,7 +69,7 @@ int ENDFSeekHead(ifstream *fp, ENDF *lib, const int mfsearch, const int mtsearch
     s = line.substr(70,2);  mfs = atoi(s.c_str());
     s = line.substr(72,3);  mts = atoi(s.c_str());
 
-    if( (mfs == mfsearch) && (mts== mtsearch) ){
+    if( (mfs == mfsearch) && (mts == mtsearch) ){
       found =true;
       mfs = mfsearch;
       mts = mtsearch;

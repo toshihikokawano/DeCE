@@ -30,7 +30,7 @@ void DeceTableMF10(ENDF *lib)
     Record cont = lib->rdata[n];
     double qm   = cont.c1;
     double qi   = cont.c2;
-    int    lfs  = head.l2;   // level number indicator
+    int    lfs  = cont.l2;   // level number indicator
 
     cout << "#   Subsection" << setw(14) << n << endl;
     cout << "#           QM"; outVal(qm); cout << "  mass difference Q-value" << endl;

@@ -1,3 +1,16 @@
+2021-03-04  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.h: modified
+	note on ENDF class added
+
+	* source/decetable10.cpp (DeceTableMF10): bug fixed
+	LFS was taken from wrong place and printed
+
+2021-02-18  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decefactor.cpp (DeceFactorMF4P1): new function
+	P1 Legendre coefficient can be re-scaled by the factor command
+
 2021-01-30  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/dece.cpp (DeceMain): modified

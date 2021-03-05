@@ -11,7 +11,7 @@
 
 
 /**************************************/
-/*      Initial memory Size           */
+/*      Initial Memory Size           */
 /**************************************/
 
 static const int INIT_SUBBLOCK =      10;  // initially allocated CONT records
@@ -21,7 +21,7 @@ static const int MULT_MEMSIZE  =       2;  // multiplication of memory size
 
 
 /**************************************/
-/*      Limit memory Size             */
+/*      Limit Memory Size             */
 /**************************************/
 
 static const int MAX_SECTION   =    1000;  // max number of sections defined by MF/MT
@@ -31,7 +31,7 @@ static const int MAX_DBLDATA   = 5000000;  // set double data memory buffer of 4
 
 
 /**************************************/
-/*      Text Filed, Don't Change This */
+/*      Text Field, Don't Change This */
 /**************************************/
 
 #define FIELD_WIDTH     11 // width of data field
@@ -40,7 +40,7 @@ static const int MAX_DBLDATA   = 5000000;  // set double data memory buffer of 4
 
 
 /**************************************/
-/*      Class Record : Control        */
+/*      Class Record : Control (CONT) */
 /**************************************/
 class Record{
  public:
@@ -61,6 +61,43 @@ class Record{
     }
 };
 
+
+/*  Note on ENDF Class
+
+We assign an ENDF object to data speficied by a unique set of (MF,MT).
+In each set, the structure will be:
+
+   HEAD
+   CONT + integer data
+   CONT + double data
+   CONT + (CONT + int) + (CONT + double)
+   ... etc
+
+Each ENDF object may consist of several blocks divided by the first
+CONT line, and they include numerical data whose structure is
+(MF,MT)-dependnet. These data block might be divided into several
+sub-blocks (as the third block shown above). By including all the
+sub-blocks (3 + 2 = 5), (the total number of CONT records NB = 5 in
+the case above), this is the number of blocks currently stored in the
+ENDF object. We access NB by getPOS() and inclPOS().
+
+In each block, the numerical data are stored in the buffers, idata,
+xdata, and rdata. 2-dimensional pointers, iptr and xptr, allow to
+access the numerical data in the i-th sub-block.  xptr[0][0] is the
+same as xdata[0]. For example, xptr[1][0] is the first double data in
+the second sub-block, and iptr[3][0] is the first integer data in the
+third sub-block.
+
+The block counter CTR is used to print an ENDF object.
+When the HEAD part is printed, this counter is set to zero,
+then when printing each data block, CTR is used as a runing counter
+that varies from zero to NB-1.
+
+When the memalloc() method is called, a minimum size of ENDF object
+is allocated. The memory size will be increased automatically when 
+checkDataSize(mi,mx) says a requested memory area is larger than
+currently allocated.
+*/
 
 /**************************************/
 /*      Class ENDF : Tape Data        */
@@ -97,11 +134,11 @@ class ENDF{
     memfree();
   }
 
-  /*** allocate minimum size data buffers,
+  /*** allocate minimum size data buffers for Integer, Double, and CONT data,
        these data buffer will be expanded as needed */
   void memalloc(){
     if(!allocated){
-      isize = INIT_INTDATA;  // initial int data buffer size
+      isize = INIT_INTDATA;  // initial integer data buffer size
       xsize = INIT_DBLDATA;  // initial double data buffer size
       rsize = INIT_SUBBLOCK; // initial CONT data buffer size
 
@@ -130,6 +167,7 @@ class ENDF{
     }
   }
 
+  /*** release allocated memories */
   void memfree(){
     if(allocated){
       free(idata);
@@ -141,7 +179,7 @@ class ENDF{
     }
   }
 
-  /*** reset pointers */
+  /*** reset all the allocated pointers */
   void resetPOS(){
     if(allocated){
       for(int i=0 ; i<rsize ; i++){ iptr[i] = NULL; xptr[i] = NULL; }
@@ -154,7 +192,7 @@ class ENDF{
   /*** increment data block pointer */
   void inclPOS (void) { nb ++; }
 
-  /*** number of currently stored blocks */
+  /*** total number of currently stored blocks */
   int getPOS (void) { return nb; }
 
   /*** reset / increment block counter */
@@ -221,11 +259,9 @@ class ENDF{
     if(ni0 >= isize){
       if(increaseIDATA(mi) < 0) return true;
     }
-
     if(nx0 >= xsize){
       if(increaseXDATA(mx) < 0) return true;
     }
-
     return false;
   }
 
