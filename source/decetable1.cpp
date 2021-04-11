@@ -100,32 +100,142 @@ void  DeceTableMF1MT455(ENDF *lib)
 /**********************************************************/
 void  DeceTableMF1MT458(ENDF *lib)
 {
+  Record head = lib->getENDFhead();
+
+  /*** LFC : energy-dependence given by polynomial (1) or table (2) */
+  int lfc  = head.l2;
+  int nfc  = head.n2;
+
   cout << "# Energy release due to fission" << endl;
-  cout << "# EFR / dEFR  ";  outVal(lib->xdata[0]); outVal(lib->xdata[1]);
-  cout << " fragment kinetic energy" << endl;
 
-  cout << "# ENP / dENP  ";  outVal(lib->xdata[2]); outVal(lib->xdata[3]);
-  cout << " kinetic energy of prompt fission neutrons" << endl;
+  if(lfc == 0){
+    int nply = lib->rdata[0].l2;
 
-  cout << "# END / dEND  ";  outVal(lib->xdata[4]); outVal(lib->xdata[5]);
-  cout << " kinetic energy of delayed fission neutrons" << endl;
+    cout << "#         LPLY" << setw(14) << nply << "  order of polynomial expansion" << endl;
 
-  cout << "# EGP / dEGP  ";  outVal(lib->xdata[6]); outVal(lib->xdata[7]);
-  cout << " total energy release by prompt fission gammas" << endl;
+    int i = 0;
+    for(int j=0 ; j<=nply ; j++){
 
-  cout << "# EGD / dEGD  ";  outVal(lib->xdata[8]); outVal(lib->xdata[9]);
-  cout << " total energy release by delayed fission gammas" << endl;
+      cout << "#   L   EFR           dEFR        fragment kinetic energy" << endl;
+      cout << setw(5) << j; outVal(lib->xdata[i++]); outVal(lib->xdata[i++]); cout << endl;
+      cout << endl;
 
-  cout << "# EB  / dEB   ";  outVal(lib->xdata[10]); outVal(lib->xdata[11]);
-  cout << " total energy release by delayed betas" << endl;
+      cout << "#   L   ENP           dENP        kinetic energy of prompt fission neutrons" << endl;
+      cout << setw(5) << j; outVal(lib->xdata[i++]); outVal(lib->xdata[i++]); cout << endl;
+      cout << endl;
 
-  cout << "# ENU / dENU  ";  outVal(lib->xdata[12]); outVal(lib->xdata[13]);
-  cout << " energy carried away by neutrinos" << endl;
+      cout << "#   L   END           dEND        kinetic energy of delayed fission neutrons" << endl;
+      cout << setw(5) << j; outVal(lib->xdata[i++]); outVal(lib->xdata[i++]); cout << endl;
+      cout << endl;
 
-  cout << "# ER  / dER   ";  outVal(lib->xdata[14]); outVal(lib->xdata[15]);
-  cout << " ET - ENU = pseudo-Q value" << endl;
+      cout << "#   L   EGP           dEGP        total energy release by prompt fission gammas" << endl;
+      cout << setw(5) << j; outVal(lib->xdata[i++]); outVal(lib->xdata[i++]); cout << endl;
+      cout << endl;
 
-  cout << "# ET  / dET   ";  outVal(lib->xdata[16]); outVal(lib->xdata[17]);
-  cout << " total energy" << endl;
+      cout << "#   L   EGD           dEGD        total energy release by delayed fission gammas" << endl;
+      cout << setw(5) << j; outVal(lib->xdata[i++]); outVal(lib->xdata[i++]); cout << endl;
+      cout << endl;
+
+      cout << "#   L   EB            dEB         total energy release by delayed betas" << endl;
+      cout << setw(5) << j; outVal(lib->xdata[i++]); outVal(lib->xdata[i++]); cout << endl;
+      cout << endl;
+
+      cout << "#   L   ENU           dENU        energy carried away by neutrinos" << endl;
+      cout << setw(5) << j; outVal(lib->xdata[i++]); outVal(lib->xdata[i++]); cout << endl;
+      cout << endl;
+
+      cout << "#   L   ER            dER         ET - ENU = pseudo-Q value" << endl;
+      cout << setw(5) << j; outVal(lib->xdata[i++]); outVal(lib->xdata[i++]); cout << endl;
+      cout << endl;
+
+      cout << "#   L   ET            dET         total energy" << endl;
+      cout << setw(5) << j; outVal(lib->xdata[i++]); outVal(lib->xdata[i++]); cout << endl;
+      cout << endl;
+    }
+  }
+  else{
+    int id =  0;
+    cout << "#  EFR           dEFR        fragment kinetic energy" << endl;
+    outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    for(int k=1 ; k<=nfc ; k++){
+      int ifc = lib->rdata[k].l2 - 1;
+      if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
+    }
+    id ++;
+    cout << endl;
+
+
+    cout << "#  ENP           dENP        kinetic energy of prompt fission neutrons" << endl;
+    outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    for(int k=1 ; k<=nfc ; k++){
+      int ifc = lib->rdata[k].l2 - 1;
+      if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
+    }
+    id ++;
+    cout << endl;
+
+    cout << "#  END           dEND        kinetic energy of delayed fission neutrons" << endl;
+    outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    for(int k=1 ; k<=nfc ; k++){
+      int ifc = lib->rdata[k].l2 - 1;
+      if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
+    }
+    id ++;
+    cout << endl;
+
+    cout << "#  EGP           dEGP        total energy release by prompt fission gammas" << endl;
+    outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    for(int k=1 ; k<=nfc ; k++){
+      int ifc = lib->rdata[k].l2 - 1;
+      if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
+    }
+    id ++;
+    cout << endl;
+
+    cout << "#  EGD           dEGD        total energy release by delayed fission gammas" << endl;
+    outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    for(int k=1 ; k<=nfc ; k++){
+      int ifc = lib->rdata[k].l2 - 1;
+      if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
+    }
+    id ++;
+    cout << endl;
+
+    cout << "#  EB            dEB         total energy release by delayed betas" << endl;
+    outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    for(int k=1 ; k<=nfc ; k++){
+      int ifc = lib->rdata[k].l2 - 1;
+      if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
+    }
+    id ++;
+    cout << endl;
+
+    cout << "#  ENU           dENU        energy carried away by neutrinos" << endl;
+    outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    for(int k=1 ; k<=nfc ; k++){
+      int ifc = lib->rdata[k].l2 - 1;
+      if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
+    }
+    id ++;
+    cout << endl;
+
+    cout << "#  ER            dER         ET - ENU = pseudo-Q value" << endl;
+    outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    for(int k=1 ; k<=nfc ; k++){
+      int ifc = lib->rdata[k].l2 - 1;
+      if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
+    }
+    id ++;
+    cout << endl;
+
+    cout << "#  ET            dET         total energy" << endl;
+    outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    for(int k=1 ; k<=nfc ; k++){
+      int ifc = lib->rdata[k].l2 - 1;
+      if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
+    }
+    id ++;
+    cout << endl;
+  }
 }
 

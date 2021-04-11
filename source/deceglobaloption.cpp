@@ -105,6 +105,11 @@ void optionSet(string ope, string option, string value)
 {
   if(ope == "set"){
     if(option == "Output"){
+      if(value.length() == 0){
+        message <<  "option output file not given";
+        WarningMessage();
+        return;
+      }
       opt.Output = value;
       message << "option " << option << " set to " << value;
     }
@@ -122,7 +127,7 @@ void optionSet(string ope, string option, string value)
 void optionSet(string ope, string option, const double x)
 {
   if(ope == "unset"){
-    message << "option [ " << option << " ] cannnot unset: ";
+    message << "option [ " << option << " ] cannnot unset";
     WarningMessage();
     return;
   }
