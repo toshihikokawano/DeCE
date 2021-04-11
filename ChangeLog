@@ -1,3 +1,12 @@
+2021-04-11  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endfio.cpp (ENDFReadMF1): updated
+	* source/decetable1.cpp (DeceTableMF1MT458): updated
+	energy-dependent fission energy release case added
+
+	* source/deceglobaloption.cpp (optionSet): modified
+	warning message added when no file name is given
+
 2021-03-04  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.h: modified
