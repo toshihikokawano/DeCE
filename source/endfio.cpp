@@ -103,7 +103,12 @@ int ENDFReadMF1(ifstream *fp, ENDF *lib, const int mt)
   }
   /*** fission energy release */
   else if(mt == 458){
+    int lfc  = head.l2;
+    int nfc  = head.n2;
     ENDFReadLIST(fp,lib);
+    if(lfc == 1){
+      for(int i=0 ; i<nfc ; i++) ENDFReadTAB1(fp,lib);
+    }
   }
   /*** delayed photon data */
   else if(mt == 460){
@@ -137,7 +142,12 @@ void ENDFWriteMF1(ENDF *lib)
     else        ENDFWriteTAB1(lib);
   }
   else if(mt == 458){
+    int lfc  = head.l2;
+    int nfc  = head.n2;
     ENDFWriteLIST(lib);
+    if(lfc == 1){
+      for(int i=0 ; i<nfc ; i++) ENDFWriteTAB1(lib);
+    }
   }
   else if(mt == 460){
     int lo = head.l1;

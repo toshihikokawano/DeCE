@@ -31,7 +31,7 @@ void DeceTableMF32(ENDF *lib)
   Record cont = lib->rdata[idx++];
   int    ner  = cont.n1;
 
-  cout << "# Resonance Parameter Covanriance Matrix" << endl;
+  cout << "# Resonance Parameter Covariance Matrix" << endl;
   cout << "#          NER" << setw(14) << ner << "  number of energy ranges" << endl;
   cout << endl;
 
