@@ -12,6 +12,7 @@ using namespace std;
 #include "endflib.h"
 #include "gfr.h"
 #include "coupling.h"
+#include "decemisc.h"
 #include "terminate.h"
 
 #define printSmat
@@ -108,7 +109,6 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
-  cout << sys.emin[0] << endl;
   gfrPrintCrossSection(-1.0,crs);
 
   /*** determine energy grid automatically */
@@ -186,15 +186,18 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 /**********************************************************/
 /*      GFR Generate Legendre Coefficient from Resonances */
 /**********************************************************/
-void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de)
+void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de, double da)
 {
   const int ndiv = 100;
   System sys;
   Pcross c;
-  double *elab, *pleg;
+  double *elab, *pleg, *xang;
 
   elab = new double [MAX_DBLDATA/2];
   pleg = new double [LMAX*2];
+  if(da > 0.0){
+    xang = new double [MAX_ANGLE];
+  }
 
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
 
@@ -204,9 +207,14 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
 
-  cout <<"# Energy[eV]   ";
-  for(int l=1 ; l<LMAX ; l++)  cout <<"P"<< setw(1) << l <<"/P0        ";
-  cout << endl;
+  if(da > 0.0){
+    cout <<"# Energy[eV]   Angle[deg]   dsig[b/sr]" << endl;
+  }
+   else{
+    cout <<"# Energy[eV]   ";
+    for(int l=1 ; l<LMAX ; l++)  cout <<"P"<< setw(1) << l <<"/P0        ";
+    cout << endl;
+  }
 
   cout.setf(ios::scientific, ios::floatfield);
   cout << setprecision(5);
@@ -215,6 +223,17 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     emax = dict->emaxRR;
     de   = emax / ndiv;
     emin = de;
+  }
+
+  /*** when da > 0, calculate actual angular distributions */
+  int nsig = 0;
+  if(da > 0.0){
+    for(nsig = 0 ; ; nsig++){
+      if(nsig == MAX_ANGLE) break;
+      double t = (double)da * nsig;
+      if(t > 180.0) break;
+      xang[nsig] = t;
+    }
   }
 
   /*** always equi-distant energy grid */
@@ -229,18 +248,35 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     gfrLegendreCoefficient(&sys,pleg);
     if(gcLorentzianWidth > 0.0)  pleg[0] = gfrCompoundReaction(&sys);
 
-    cout << setw(13) << elab[i];
-    for(int l=1 ; l<LMAX ; l++){
-      if(pleg[0] == 0.0) cout << setw(13) << 0.0;
-      else               cout << setw(13) << pleg[l]/pleg[0];
+    /*** when angle step is given, calculate actual distributions */
+    if(da > 0.0){
+      for(int n = 0 ; n < nsig ; n++){
+        double yang = 0.0;
+        for(int l=0 ; l<LMAX ; l++) yang += (2*l+1.0) * pleg[l] * legendre(l,xang[n]) / (4.0*M_PI);
+        cout << setw(13) << elab[i];
+        cout << setw(13) << xang[n];
+        cout << setw(13) << yang << endl;
+      }
+      cout << endl;
     }
-    cout << endl;
+    /*** print Legendre coefficients */
+    else{
+      cout << setw(13) << elab[i];
+      for(int l=1 ; l<LMAX ; l++){
+        if(pleg[0] == 0.0) cout << setw(13) << 0.0;
+        else               cout << setw(13) << pleg[l]/pleg[0];
+      }
+      cout << endl;
+    }
   }
 
   Smat.memfree();
   delete [] elab;
   delete [] pleg;
   factorial_delete();
+  if(da > 0.0){
+    delete [] xang;
+  }
 }
 
 

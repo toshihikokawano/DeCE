@@ -307,6 +307,12 @@ double triangle(const int a, const int b, const int c)
 /*      Clebsch-Gordan Coefficients                        */
 /*     ( J1  J2  M1  M2 | J3  M1+M2 )                      */
 /***********************************************************/
+double clebsh_gordan(const int j1, const int j2, const int m1, const int m2, const int j3, const int m3)
+{
+  if(m1+m2 != m3) return 0.0;
+  else return clebsh_gordan(j1,j2,m1,m2,j3);
+}
+
 double clebsh_gordan(const int j1, const int j2, const int m1, const int m2, const int j3)
 {
   int x1,x2,x3,y1,y2,y3;

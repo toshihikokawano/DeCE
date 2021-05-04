@@ -79,7 +79,7 @@ void   DeceIsotropicAngularDistribution (ENDFDict *, ENDF **, const int);
 void   gfrScanThermal   (ifstream *, ENDFDict *, double);
 double gfrGetOnePoint   (ifstream *, ENDFDict *, const double);
 void   gfrPtCross       (ENDFDict *, ENDF **, double, double, double);
-void   gfrAngDist       (ENDFDict *, ENDF **, double, double, double);
+void   gfrAngDist       (ENDFDict *, ENDF **, double, double, double, double);
 void   gfrAngDistSmooth (ENDFDict *, ENDF **, double);
 void   gfrSmatrixElement(ENDFDict *, ENDF **);
 
