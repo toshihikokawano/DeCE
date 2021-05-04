@@ -1,3 +1,25 @@
+2021-05-04  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/coupling.cpp (clebsh_gordan): new function
+	wrapper of the m1+m2 != M case
+
+2021-04-24  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfr.cpp (gfrAngDist): modified
+	calculate actual angular distributoins from Legendre coefficients
+	when AngleStep is set
+
+2021-04-20  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrformula.cpp (gfrReichMoore): bug fixd
+	in the case of channel-spin dependent resonance parameter,
+	J=0 was skipped if S=I-1/2
+
+2021-04-12  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/command.cpp (CmdExtractString): modified
+	accept both single and double quotation
+
 2021-04-11  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endfio.cpp (ENDFReadMF1): updated

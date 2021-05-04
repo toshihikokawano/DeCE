@@ -19,6 +19,7 @@ const int NRANGE        =   10;
 const int LMAX          =    5;
 const int MAX_PAIRS     =   10;
 const int MAX_XSEC      =  100;
+const int MAX_ANGLE     =  360;
 
 
 /**************************************/

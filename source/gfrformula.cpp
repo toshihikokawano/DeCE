@@ -4,6 +4,7 @@
 
 #include <complex>
 #include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -202,7 +203,14 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2, co
       if(sdep){
         int j2r = (int)abs(res[k].j2);
         int sr  = (res[k].j2 < 0) ? -1 : 1;
-        if( (j2r == j2) && (sr == s2) ){
+
+        /*** special case, J = 0 */
+        if(j2r == 0){
+          int s = tspin2 + s2;
+          if(s == l*2) sr = s2;
+        }
+
+        if((j2r == j2) && (sr == s2)){
           arrange_matrixRM(wfn->P(),x,&res[k]);
           complex<double> w(res[k].er-e, -res[k].gg/2.0 - gcLorentzianWidth);
           w = 1.0 / w;
@@ -308,7 +316,7 @@ double arrange_matrixSLBW(double d, double *x, BWResonance *res)
   double gf  = abs(res->gf);
   double gx  = res->gx;
   double si  = (res->gf < 0.0) ? -1.0 : 1.0;
-  
+
   x[0] = gn;
   x[1] = sqrt(gn * gf) * si;
   x[2] = gf;

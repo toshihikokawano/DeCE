@@ -13,6 +13,7 @@ void    factorial_allocate    (void);
 void    factorial_delete      (void);
 
 double  triangle              (const int, const int, const int);
+double  clebsh_gordan         (const int, const int, const int, const int, const int, const int);
 double  clebsh_gordan         (const int, const int, const int, const int, const int);
 double  wigner_3j             (const int, const int, const int, const int, const int, const int);
 double  wigner_6j             (const int, const int, const int, const int, const int, const int);

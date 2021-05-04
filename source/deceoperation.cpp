@@ -548,7 +548,7 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
       gfrPtCross(dict,lib,cmd.xmin,cmd.xmax,cmd.x);
     }
     else if(ope == "reconangdist"){
-      gfrAngDist(dict,lib,cmd.xmin,cmd.xmax,cmd.x);
+      gfrAngDist(dict,lib,cmd.xmin,cmd.xmax,cmd.x,opt.AngleStep);
     }
     else if(ope == "smoothangdist"){
       gfrAngDistSmooth(dict,lib,cmd.xmin);

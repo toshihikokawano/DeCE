@@ -27,16 +27,16 @@ void gfrLegendreCoefficient(System *sys, double *pl)
 
   double x1 = PI/(sys->wave_number*sys->wave_number) * 0.01 / ((sys->target_spin2+1)*2);
 
+  int smin = abs(sys->target_spin2-1);
+  int smax =     sys->target_spin2+1;
+
   for(int l=0 ; l<2*lmax ; l++){
     double c = x1/(2.0*l + 1.0);
 
     for(int l0=0 ; l0<lmax ; l0++){
+      for(int s0=smin ; s0<=smax ; s0+=2){
 
-      int s0min = abs(sys->target_spin2-1);
-      int s0max =     sys->target_spin2+1;
-      for(int s0=s0min ; s0<=s0max ; s0+=2){
-
-        int ss0    = s0 - s0min - 1;
+        int ss0    = s0 - smin - 1;
         int jj0min = abs(2*l0-s0);
         int jj0max =     2*l0+s0 ;
         for(int jj0=jj0min ; jj0<=jj0max ; jj0+=2){
@@ -46,13 +46,10 @@ void gfrLegendreCoefficient(System *sys, double *pl)
 
           for(int l1=0 ; l1<lmax ; l1++){
             if((l0+l1+l)%2 != 0) continue;
-
-            int s1min = abs(sys->target_spin2-1);
-            int s1max =     sys->target_spin2+1;
-            for(int s1=s1min ; s1<=s1max ; s1+=2){
+            for(int s1=smin ; s1<=smax ; s1+=2){
               if(s0 != s1) continue;
 
-              int ss1    = s1 - s1min - 1;
+              int ss1    = s1 - smin - 1;
               int jj1min = abs(2*l1-s1);
               int jj1max =     2*l1+s1 ;
               for(int jj1=jj1min ; jj1<=jj1max ; jj1+=2){

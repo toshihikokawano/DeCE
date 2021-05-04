@@ -200,7 +200,7 @@ void RMScatteringRadius(const int ner, System *sys, const double elab, ENDF *lib
 
 
 /**********************************************************/
-/*     Penetrability at Each Resoance                     */
+/*     Penetrability at Each Resonance                    */
 /**********************************************************/
 void RMResonancePenetrability(const int ner, System *sys, ENDF *lib)
 {
@@ -217,7 +217,7 @@ void RMResonancePenetrability(const int ner, System *sys, ENDF *lib)
       r = ENDFInterpolation(lib,fabs(res[k].er),true,apidx);
     }
     double ecm = res[k].er * mu;
-    double alpha = sqrt(c2 * mu * abs(ecm) * 1e-6) * r;
+    double alpha = sqrt(c2 * mu * fabs(ecm) * 1e-6) * r;
 
     complex<double> q = gfrLfunction(res[k].l,alpha,0.0);
     res[k].s = q.real();

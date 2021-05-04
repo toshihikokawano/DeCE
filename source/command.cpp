@@ -232,18 +232,22 @@ string CmdGetOperation()
 
 
 /**********************************************************/
-/*      Extract Comma Quoted Text from Line               */
+/*      Extract Quoted Text from Line                     */
 /**********************************************************/
 void CmdExtractString(char *d)
 {
   char *s = cmd.line;
   int lens = strlen(s);
+  const char quote1 = 0x27;
+  const char quote2 = 0x22;
 
   argc++;
 
+  /*** first quotation location */
   int i0=0, i1=0;
   for(int i=0 ; i<lens ; i++){
-    if(s[i] == '"'){
+    if((s[i] == quote1) || (s[i] == quote2)){
+      /*** ignore if back-spaced */
       if((i > 0) && s[i-1] == '\\') continue;
       i0 = i+1;
       break;
@@ -251,8 +255,9 @@ void CmdExtractString(char *d)
   }
   if(i0 == 0) return;
 
+  /*** second quotation location */
   for(int i=i0 ; i<lens ; i++){
-    if(s[i] == '"'){
+    if((s[i] == quote1) || (s[i] == quote2)){
       if(s[i-1] == '\\') continue;
       i1 = i-1;
       break;
