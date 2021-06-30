@@ -1,3 +1,8 @@
+2021-06-30  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/groupstructure.h: updated
+	LANL 618 group structure added
+
 2021-05-04  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/coupling.cpp (clebsh_gordan): new function

@@ -28,6 +28,7 @@ static void DeceGroupAverage (ENDF *, const int, const int, double *, double *);
 /*          1: LANL 70 group                              */
 /*          2: VITAMINE-J 175 group                       */
 /*          3: SAND-IIa 725 group                         */
+/*          4: LANL 618 group                             */
 /*      The weight of averaging is                        */
 /*          0: constant                                   */
 /*          1: 1/E                                        */
@@ -43,6 +44,7 @@ void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int w
   case  1: ng = grpEnergyPoint1;  xdat = grpEnergyGrid1; break;
   case  2: ng = grpEnergyPoint2;  xdat = grpEnergyGrid2; break;
   case  3: ng = grpEnergyPoint3;  xdat = grpEnergyGrid3; break;
+  case  4: ng = grpEnergyPoint4;  xdat = grpEnergyGrid4; break;
   default: break;
   }
 
@@ -124,7 +126,7 @@ static inline double wfunc(const int k, double x)
   return w;
 }
 
-/* Composite Simpspon's Rule */
+/* Composite Simpson's Rule */
 static inline double integ_interval(ENDF *lib, const int n, const double e0, const double e1)
 {
   double de = (e1 - e0) / Ndiv;
@@ -163,7 +165,6 @@ void DeceGroupAverage(ENDF *lib, const int weight, const int ng, double *energy,
     sigma[i] = 0.0;
 
     double x0 = 0.0, x1 = 0.0;
-    double y0 = 0.0, y1 = 0.0;
 
     /*** boundary energies for the i-th energy group */
     double e0 = energy[i];
@@ -175,7 +176,6 @@ void DeceGroupAverage(ENDF *lib, const int weight, const int ng, double *energy,
       int j2 = j*2;
       if(lib->xdata[j2] >= e0){
         x0 = lib->xdata[j2  ];
-        y0 = lib->xdata[j2+1];
         j0 = j; break;
       }
     }
@@ -186,7 +186,6 @@ void DeceGroupAverage(ENDF *lib, const int weight, const int ng, double *energy,
       int j2 = j*2;
       if(lib->xdata[j2] >= e1){
         x1 = lib->xdata[j2-2];
-        y1 = lib->xdata[j2-1];
         j1 = j; break;
       }
     }
