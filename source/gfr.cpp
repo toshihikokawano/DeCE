@@ -11,6 +11,7 @@ using namespace std;
 
 #include "endflib.h"
 #include "gfr.h"
+#include "global.h"
 #include "coupling.h"
 #include "decemisc.h"
 #include "terminate.h"
@@ -191,7 +192,7 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   const int ndiv = 100;
   System sys;
   Pcross c;
-  double *elab, *pleg, *xang;
+  double *elab, *pleg, *xang = NULL;
 
   elab = new double [MAX_DBLDATA/2];
   pleg = new double [LMAX*2];
@@ -572,22 +573,22 @@ Pcross  gfrBackGround(ENDFDict *dict, ENDF **lib, const double elab, const bool 
 /**********************************************************/
 static void gfrPrintCrossSection (const double elab, Pcross crs)
 {
-  /*** prinr heading */
+  /*** print heading */
   if(elab < 0.0){
     cout.setf(ios::scientific, ios::floatfield);
-    cout <<"# Energy[eV]    Total[b]      Elastic[b]    Capture[b]    Fission[b]    Proton[b]     Alpha[b]      Inelastic[b]  Other[b]";
+    cout <<"# Energy        Total         Elastic       Capture       Fission       Proton        Alpha         Inelastic     Other";
     cout << endl;
   }
   else{
-    cout << setw(14) << setprecision(7) << elab;
-    cout << setw(14) << setprecision(6) << crs.total;
-    cout << setw(14) << crs.elastic;
-    cout << setw(14) << crs.capture;
-    cout << setw(14) << crs.fission;
-    cout << setw(14) << crs.proton;
-    cout << setw(14) << crs.alpha;
-    cout << setw(14) << crs.inelastic;
-    cout << setw(14) << crs.other;
+    cout << setw(14) << setprecision(7) << elab * opt.WriteXdataConversion;
+    cout << setw(14) << setprecision(6) << crs.total * opt.WriteYdataConversion;
+    cout << setw(14) << crs.elastic   * opt.WriteYdataConversion;
+    cout << setw(14) << crs.capture   * opt.WriteYdataConversion;
+    cout << setw(14) << crs.fission   * opt.WriteYdataConversion;
+    cout << setw(14) << crs.proton    * opt.WriteYdataConversion;
+    cout << setw(14) << crs.alpha     * opt.WriteYdataConversion;
+    cout << setw(14) << crs.inelastic * opt.WriteYdataConversion;
+    cout << setw(14) << crs.other     * opt.WriteYdataConversion;
     cout << endl;
   }
 }

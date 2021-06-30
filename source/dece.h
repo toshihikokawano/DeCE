@@ -87,7 +87,7 @@ void   gfrSmatrixElement(ENDFDict *, ENDF **);
 void   DeceGeneratePointwise (ENDFDict *, ENDF **);
 
 /*** deceprocgroup.cpp */
-void   DeceGenerateGroup (ENDFDict *, ENDF **, const int,  const int);
+void   DeceGenerateGroup (ENDFDict *, ENDF **, const int,  const int, string);
 
 /*** decescanindex.cpp */
 void   DeceScanIndex    (ENDFDict *);
