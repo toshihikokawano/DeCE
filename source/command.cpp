@@ -165,6 +165,7 @@ string CmdExtractArgument(void)
   else if(ope == "group"){
     cmd.opt1  = (int)getval(d1);
     cmd.opt2  = (int)getval(d1);
+    CmdExtractString(cmd.text);
   }
   else if(ope == "set" || ope == "unset"){
     gettext(d1,cmd.parm);

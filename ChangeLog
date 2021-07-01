@@ -1,3 +1,19 @@
+2021-06-30  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/groupstructure.h: updated
+	* source/deceprocgroup.cpp (DeceGenerateGroup): modified
+	LANL 618 group structure added as group ID = 4
+
+2021-05-10  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfr.cpp (gfrPrintCrossSection): modified
+	accept XYdataConversion global options
+
+	* source/deceprocgroup.cpp (DeceGenerateGroup): modified
+	group ID = -1 stands for arbitrary group structure from external file
+	* source/deceprocgroup.cpp (DeceReadGroup): new function
+	read group structure from external file
+
 2021-05-04  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/coupling.cpp (clebsh_gordan): new function

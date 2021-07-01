@@ -66,6 +66,7 @@ table 3 1
 
 <pre id="syn">
    group [<i>Ng</i> [<i>Nw</i>]]
+   group -1 <i>Nw</i> "file_name"
 </pre>
 
 <p><i>Ng</i> is an index of the group structure, and <i>Nw</i> defines the weighting function.
@@ -76,6 +77,7 @@ Ng = 0: SAND-IIa 640 energy group structure
 Ng = 1: LANL 70 energy group structure
 Ng = 2: VITAMINE-J 175 energy group structure
 Ng = 3: SAND-IIa 725 energy group structure (up to 60 MeV)
+Ng = 4: LANL 618 energy group structure
 </pre>
 
 <pre id="prg">
@@ -86,9 +88,6 @@ Nw = 1: 1/E weighting
 <p>When the group structure and weighting function are not provided,
 SAND-IIa with the constant weight is used.</p>
 
-<p><code>pointwise</code> must be performed before <code>group</code>. Otherwise cross
-sections in the resonance range will be ignored. The printed MT numbers are
-automatically determined by the given MT subsections. </p>
 
 <pre>
 pointwise
@@ -103,6 +102,32 @@ group 1 1
   1.000000e+07  1.284030e+07  4.071515e+00  2.377243e+00  1.623207e+00  9.748975e-02  7.428526e-04
   1.284030e+07  1.648720e+07  3.777010e+00  2.100591e+00  8.127038e-01  7.275485e-01  8.853935e-04
   1.648720e+07  2.000000e+07  3.449234e+00  1.714869e+00  3.657938e-01  1.171327e+00  6.166756e-04
+</pre>
+
+
+<p><code>pointwise</code> will be performed before <code>group</code> even if this 
+command is not given. The printed MT numbers are
+automatically determined by the given MT subsections. </p>
+
+
+<p>As a special case, a negative <i>Ng</i> value allows users to input arbitrary 
+group structure from an external file. The data file <code>file_name</code> includes
+the group-energy boundaries, like </p>
+
+<pre id="dat">
+ 1.0000e-05
+ 2.9694e-03
+ 1.0364e-02
+...
+  1.5e+07
+  1.7e+07
+  2.0e+07
+</pre>
+
+<p>where the energy unit is eV. This can be changed by <code>ReadXdataConversion</code>.
+When user's energy grid is given in MeV,
+<pre>
+set ReadXdataConversion 1e+6
 </pre>
 
 

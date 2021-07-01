@@ -584,7 +584,7 @@ void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
 {
   if(!generatepointwise) DeceOperationPOINTWISE(dict,lib);
   DeceOutputRedirectFile();
-  DeceGenerateGroup(dict,lib,cmd.opt1,cmd.opt2);
+  DeceGenerateGroup(dict,lib,cmd.opt1,cmd.opt2,cmd.text);
   DeceOutputResume();
 }
 
