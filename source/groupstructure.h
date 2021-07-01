@@ -10,6 +10,7 @@
 /******************************************************************************/
 
 /*** SAND-IIA */
+static const string grpStructureName0 = "SAND-IIa 640";
 static const int grpEnergyPoint0 = 641;
 static double grpEnergyGrid0[grpEnergyPoint0] = {
  1.0000e-04, 1.0500e-04, 1.1000e-04, 1.1500e-04, 1.2000e-04, 1.2750e-04, 1.3500e-04, 1.4250e-04, 1.5000e-04, 1.6000e-04,
@@ -79,6 +80,7 @@ static double grpEnergyGrid0[grpEnergyPoint0] = {
  2.0000e+07};
 
 /*** LANL 70 */
+static const string grpStructureName1 = "LANL70";
 static const int grpEnergyPoint1 =  71;
 static double grpEnergyGrid1[grpEnergyPoint1] = {
       10.677,      61.4421,    101.301,     130.073,     167.017,     214.454,     275.365,     353.575,     453.999,     582.947,
@@ -91,6 +93,7 @@ static double grpEnergyGrid1[grpEnergyPoint1] = {
  2.00000e+07};
 
 /*** VITAMINE-J */
+static const string grpStructureName2 = "VITAMINE-J 175";
 static const int grpEnergyPoint2 =  176;
 static double grpEnergyGrid2[grpEnergyPoint2] = {
  1.0000E-05, 1.0000E-01, 4.1399E-01, 5.3158E-01, 6.8256E-01, 8.7642E-01, 1.1254E+00, 1.4450E+00, 1.8554E+00, 2.3824E+00,
@@ -113,6 +116,7 @@ static double grpEnergyGrid2[grpEnergyPoint2] = {
  1.4918E+07, 1.5683E+07, 1.6487E+07, 1.6905E+07, 1.7333E+07, 1.9640E+07};
 
 /*** SAND-IIA 725 */
+static const string grpStructureName3 = "SAND-IIa 725";
 static const int grpEnergyPoint3 = 726;
 static double grpEnergyGrid3[grpEnergyPoint3] = {
  1.0000e-05, 1.0500e-05, 1.1000e-05, 1.1500e-05, 1.2000e-05, 1.2750e-05, 1.3500e-05, 1.4250e-05, 1.5000e-05, 1.6000e-05, 
@@ -189,9 +193,8 @@ static double grpEnergyGrid3[grpEnergyPoint3] = {
  3.5000e+07, 3.6000e+07, 3.7000e+07, 3.8000e+07, 3.9000e+07, 4.0000e+07, 4.2000e+07, 4.4000e+07, 4.6000e+07, 4.8000e+07, 
  5.0000e+07, 5.2000e+07, 5.4000e+07, 5.6000e+07, 5.8000e+07, 6.0000e+07};
 
-
-
 /*** LANL 618 */
+static const string grpStructureName4 = "LANL 618";
 static const int grpEnergyPoint4 = 619;
 static double grpEnergyGrid4[grpEnergyPoint4] = {
  1.00000000000000e-05, 2.56901129797510e-05, 4.23558357164050e-05, 6.98329672839171e-05, 1.15135098557100e-04, 1.39000000000000e-04, 1.89825685995247e-04, 2.43741005558083e-04, 3.12969646225607e-04, 4.01860980405450e-04,

@@ -16,7 +16,7 @@ using namespace std;
 #include "terminate.h"
 #include "groupstructure.h"
 
-static const int Ndiv = 20;
+static const int Ndiv = 10;
 static const int ncx = 15;
 static int mfr[ncx] = {3, 3, 3,  3,  3,  3,  3,  3,   3,   3,   3,   3,   3,   3,   1};
 static int mtr[ncx] = {1, 2, 4, 16, 17, 18, 22, 28, 102, 103, 104, 105, 106, 107, 452};
@@ -46,6 +46,7 @@ void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int w
 
   /*** determine group structure */
   int ng = 0;
+  string gname = "User Defined";
 
   /*** negative group ID for external data file */
   if(group < 0){
@@ -56,11 +57,11 @@ void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int w
   /*** built-in group structure */
   else{
     switch(group){
-    case  0: ng = grpEnergyPoint0;  xdat = grpEnergyGrid0; break;
-    case  1: ng = grpEnergyPoint1;  xdat = grpEnergyGrid1; break;
-    case  2: ng = grpEnergyPoint2;  xdat = grpEnergyGrid2; break;
-    case  3: ng = grpEnergyPoint3;  xdat = grpEnergyGrid3; break;
-    case  4: ng = grpEnergyPoint4;  xdat = grpEnergyGrid4; break;
+    case  0: ng = grpEnergyPoint0;  xdat = grpEnergyGrid0; gname = grpStructureName0; break;
+    case  1: ng = grpEnergyPoint1;  xdat = grpEnergyGrid1; gname = grpStructureName1; break;
+    case  2: ng = grpEnergyPoint2;  xdat = grpEnergyGrid2; gname = grpStructureName2; break;
+    case  3: ng = grpEnergyPoint3;  xdat = grpEnergyGrid3; gname = grpStructureName3; break;
+    case  4: ng = grpEnergyPoint4;  xdat = grpEnergyGrid4; gname = grpStructureName4; break;
     default: break;
     }
   }
@@ -69,6 +70,9 @@ void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int w
     WarningMessage();
     return;
   }
+
+  message << "group structure [" << gname << "]  energy point " << ng << "  weight #" << weight;
+  Notice("DeceGenerateGroup");
 
   ydat = new double * [ncx];
   for(int j=0 ; j<ncx ; j++){
@@ -92,7 +96,11 @@ void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int w
   /*** group average */
   for(int j=0 ; j<ncx ; j++){
     id = dict->getID(mfr[j],mtr[j]);
-    if(id >= 0) DeceGroupAverage(lib[id],weight,ng,xdat,ydat[j]);
+    if(id >= 0){
+      DeceGroupAverage(lib[id],weight,ng,xdat,ydat[j]);
+      message << "processed MF " << mfr[j] << " MT " << mtr[j]; 
+      Notice("DeceGenerateGroup");
+    }
   }
 
   /*** print heading */
