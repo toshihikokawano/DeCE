@@ -111,23 +111,26 @@ int ENDFScanLibrary(string libname, ENDFDict *dict)
 
   /*** tape ID */
   fp.seekg(0,ios_base::beg);
-  getline(fp,line);
+  getline(fp,line); if(fp.eof()) return(-1); // in case of empty file
   strncpy(dict->tpid,&line[0],66);
   dict->tpid[66] = '\0';
 
   /*** first HEAD record */
-  ENDFSeekHead(&fp,&lib,1,451);
+  bool partial = false;
+  if(ENDFSeekHead(&fp,&lib,1,451) < 0) partial = true; // maybe partial file
   dict->setDICThead(lib.getENDFhead());
   dict->setMAT(lib.getENDFmat());
 
   /*** read in 3 CONT fields */
-  dict->setDICTcont(0, ENDFNextCONT(&fp));
-  dict->setDICTcont(1, ENDFNextCONT(&fp));
-  dict->setDICTcont(2, ENDFNextCONT(&fp));
+  if(!partial){
+    dict->setDICTcont(0, ENDFNextCONT(&fp));
+    dict->setDICTcont(1, ENDFNextCONT(&fp));
+    dict->setDICTcont(2, ENDFNextCONT(&fp));
+  }
 
   /*** start at the TEXT field */
   dict->resetSEC();
-  int c = 4;
+  int c = (partial) ? 1 : 4;
   while( getline(fp,line) ){
 
     /*** if shorter than record witdth,
@@ -146,7 +149,7 @@ int ENDFScanLibrary(string libname, ENDFDict *dict)
     }else if(mf0 == 0 || mt0 == 0)
       continue;
 
-    dict->addDict(mf1,mt1,c,-1);
+    if( !((c == 1) && (mf1 == 1) && (mt1 == 451)) ) dict->addDict(mf1,mt1,c,-1);
 
     if((mf1 == 1) && (mt1 == 451) && (c >= 9)) dict->setSTDHeader(true);
 

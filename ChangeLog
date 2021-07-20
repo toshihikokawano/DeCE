@@ -1,5 +1,6 @@
 2021-07-19  KAWANO Toshihiko  <kawano@lanl.gov>
 
+	* source/endflib.cpp (ENDFScanLibrary): modified
 	* source/deceheader.cpp (DeceShowHeaders): modified
 	no header print when partial data are given
 
