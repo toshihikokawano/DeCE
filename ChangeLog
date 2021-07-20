@@ -1,3 +1,16 @@
+2021-07-19  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceheader.cpp (DeceShowHeaders): modified
+	no header print when partial data are given
+
+2021-07-15  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/deceangdist.cpp (main): updated
+	angle step can be provided by command-line option
+
+	* source/decelibread.cpp (DeceLibRead): updated
+	message print for verb mode added
+
 2021-06-30  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/groupstructure.h: updated

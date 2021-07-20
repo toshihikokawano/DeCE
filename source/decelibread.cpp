@@ -30,6 +30,9 @@ void DeceLibRead(ENDFDict *dict, ENDF *lib, char *file)
   head.c2 = dict->getAWR();
 
   lib->setENDFhead(head);
+
+  message << "MF " << lib->getENDFmf() << " MT " << lib->getENDFmt() << " imported from " << file;
+  Notice("DeceLibRead");
 }
 
 

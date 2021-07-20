@@ -51,6 +51,8 @@ void DeceFixAWR(ENDFDict *dict)
 /**********************************************************/
 void DeceShowHeaders(ENDFDict *dict)
 {
+  if(dict->getID(1,451) < 0) return;
+
   cout << "header: ZA    " << setw(13) << dict->getZA() << endl;
   cout << "header: AWR   " << setw(13) << dict->getAWR() << endl;
   cout << "header: AWI   " << setw(13) << dict->getAWI() << endl;

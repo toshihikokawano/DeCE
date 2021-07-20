@@ -16,12 +16,12 @@ using namespace std;
 
 int    main (int, char *[]);
 void   dataout (ENDF *);
-void   processMF4 (ENDF *);
-int    processMF4LEG (ENDF *, int);
+void   processMF4 (const int, ENDF *);
+int    processMF4LEG (const int, ENDF *, int);
 int    processMF4TAB (ENDF *, int);
 double legendre (int, double);
 
-static const int ANGSTEP    =    1;  // calculation angle increment
+static const int ANGSTEP    =    1;  // default calculation angle increment
 static const int MAX_ANGLE  =  360;  // max number of angular points
 static const int MAX_ENERGY = 1000;  // max number of incident energies
 
@@ -32,6 +32,14 @@ int main(int argc, char *argv[])
 {
   if(argc < 2){
     cerr << "usage: deceangdist ENDF_file" << endl;  exit(-1);
+  }
+
+  int angle_step = ANGSTEP;
+  if(argc >= 3){
+    angle_step = atoi(argv[2]);
+    if(angle_step < 0 || angle_step > 180){
+      cerr << "invalid angle step  " << angle_step << endl;  exit(-1);
+    }
   }
 
   ifstream fpin;
@@ -58,7 +66,7 @@ int main(int argc, char *argv[])
   ENDFReadMF4(&fpin,&lib4,2);
   fpin.close();
 
-  processMF4(&lib4);
+  processMF4(angle_step,&lib4);
   dataout(&lib3);
 
   for(int i=0 ; i<MAX_ENERGY ; i++){
@@ -101,7 +109,7 @@ void dataout(ENDF *lib3)
 /**********************************************************/
 /*      Process MF=4                                      */
 /**********************************************************/
-void processMF4(ENDF *lib)
+void processMF4(const int step, ENDF *lib)
 {
   Record head = lib->getENDFhead();
   int    ltt  = head.l2;   // 0: isotropic, 1: Legendre, 2: tabulated
@@ -115,13 +123,13 @@ void processMF4(ENDF *lib)
   else{
     idx++;
     if(ltt == 1){
-      idx = processMF4LEG(lib,idx);
+      idx = processMF4LEG(step,lib,idx);
     }
     else if(ltt == 2){
       idx = processMF4TAB(lib,idx);
     }
     else if(ltt == 3){
-      idx = processMF4LEG(lib,idx);
+      idx = processMF4LEG(step,lib,idx);
       idx = processMF4TAB(lib,idx);
     }
   }
@@ -131,7 +139,7 @@ void processMF4(ENDF *lib)
 /**********************************************************/
 /*      Angular Distribution in Legendre Coefficient      */
 /**********************************************************/
-int processMF4LEG(ENDF *lib, int idx)
+int processMF4LEG(const int step, ENDF *lib, int idx)
 {
   Record cont = lib->rdata[idx];
   int    ne   = cont.n2;
@@ -141,8 +149,8 @@ int processMF4LEG(ENDF *lib, int idx)
     double e  = lib->rdata[idx].c2;
     int    nl = lib->rdata[idx].n1;
 
-    int np = 180/ANGSTEP;
-    if( (180 % ANGSTEP) == 0 ) np++;
+    int np = 180 / step;
+    if( (180 % step) == 0 ) np++;
 
     if(dptr < MAX_ENERGY){
       ndat[dptr] = np;
@@ -150,7 +158,7 @@ int processMF4LEG(ENDF *lib, int idx)
     }
 
     int k = 0;
-    for(int t=0 ; t<=180 ; t+=ANGSTEP){
+    for(int t=0 ; t<=180 ; t+=step){
       double f = 0.5;
       for(int j=0 ; j<nl ; j++){
         f += (j+1.5)*lib->xptr[idx][j]*legendre(j+1,(double)t);
