@@ -81,7 +81,7 @@ double gfrGetOnePoint   (ifstream *, ENDFDict *, const double);
 void   gfrPtCross       (ENDFDict *, ENDF **, double, double, double);
 void   gfrAngDist       (ENDFDict *, ENDF **, double, double, double, double);
 void   gfrAngDistSmooth (ENDFDict *, ENDF **, double);
-void   gfrSmatrixElement(ENDFDict *, ENDF **);
+void   gfrSmatrixElement(ENDFDict *, ENDF **, double, double, double);
 
 /*** deceprocpointwise.cpp */
 void   DeceGeneratePointwise (ENDFDict *, ENDF **);
