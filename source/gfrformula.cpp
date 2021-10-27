@@ -311,7 +311,7 @@ Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const in
 /**********************************************************/
 double arrange_matrixSLBW(double d, double *x, BWResonance *res)
 {
-  double gn  = res->gn /res->p * d;
+  double gn  = abs(res->gn) /res->p * d;
   double gg  = res->gg;
   double gf  = abs(res->gf);
   double gx  = res->gx;
@@ -337,15 +337,15 @@ double arrange_matrixSLBW(double d, double *x, BWResonance *res)
 /**********************************************************/
 double arrange_matrixRM(double d, double *x, RMResonance *res)
 {
-  double gn  = res->gn /res->p * d;
+  double gn  = abs(res->gn) /res->p * d;
   double gg  = res->gg;
   double gfa = abs(res->gf1);
   double gfb = abs(res->gf2);
 
   x[0] = gn;
-  x[1] = sqrt(gn  * gfa) * ((res->gf1 < 0.0) ? -1:1);
+  x[1] = sqrt(gn  * gfa) * ((res->gn < 0.0) ? -1:1) * ((res->gf1 < 0.0) ? -1:1);
   x[2] = gfa;
-  x[3] = sqrt(gn  * gfb) * ((res->gf2 < 0.0) ? -1:1);
+  x[3] = sqrt(gn  * gfb) * ((res->gn < 0.0) ? -1:1) * ((res->gf2 < 0.0) ? -1:1);
   x[4] = sqrt(gfa * gfb) * ((res->gf1 < 0.0) ? -1:1) * ((res->gf2 < 0.0) ? -1:1);
   x[5] = gfb;
 

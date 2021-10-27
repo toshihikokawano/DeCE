@@ -14,8 +14,8 @@
 m4_ifndef([AC_CONFIG_MACRO_DIRS], [m4_defun([_AM_CONFIG_MACRO_DIRS], [])m4_defun([AC_CONFIG_MACRO_DIRS], [_AM_CONFIG_MACRO_DIRS($@)])])
 m4_ifndef([AC_AUTOCONF_VERSION],
   [m4_copy([m4_PACKAGE_VERSION], [AC_AUTOCONF_VERSION])])dnl
-m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.71],,
-[m4_warning([this file was generated for autoconf 2.71.
+m4_if(m4_defn([AC_AUTOCONF_VERSION]), [2.69],,
+[m4_warning([this file was generated for autoconf 2.69.
 You have another version of autoconf.  It may work, but is not guaranteed to.
 If you have problems, you may need to regenerate the build system entirely.
 To do so, use the procedure documented by the package, typically 'autoreconf'.])])
@@ -371,9 +371,7 @@ AC_DEFUN([_AM_OUTPUT_DEPENDENCY_COMMANDS],
   done
   if test $am_rc -ne 0; then
     AC_MSG_FAILURE([Something went wrong bootstrapping makefile fragments
-    for automatic dependency tracking.  If GNU make was not used, consider
-    re-running the configure script with MAKE="gmake" (or whatever is
-    necessary).  You can also try re-running configure with the
+    for automatic dependency tracking.  Try re-running configure with the
     '--disable-dependency-tracking' option to at least be able to build
     the package (albeit without support for automatic dependency tracking).])
   fi
@@ -717,7 +715,12 @@ AC_DEFUN([AM_MISSING_HAS_RUN],
 [AC_REQUIRE([AM_AUX_DIR_EXPAND])dnl
 AC_REQUIRE_AUX_FILE([missing])dnl
 if test x"${MISSING+set}" != xset; then
-  MISSING="\${SHELL} '$am_aux_dir/missing'"
+  case $am_aux_dir in
+  *\ * | *\	*)
+    MISSING="\${SHELL} \"$am_aux_dir/missing\"" ;;
+  *)
+    MISSING="\${SHELL} $am_aux_dir/missing" ;;
+  esac
 fi
 # Use eval to expand $SHELL
 if eval "$MISSING --is-lightweight"; then

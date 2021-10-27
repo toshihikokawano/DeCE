@@ -553,7 +553,7 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
       gfrAngDistSmooth(dict,lib,cmd.xmin);
     }
     else if(ope == "smatrixelement"){
-      gfrSmatrixElement(dict, lib);
+      gfrSmatrixElement(dict,lib,cmd.xmin,cmd.xmax,cmd.x);
     }
   }
   DeceOutputResume();

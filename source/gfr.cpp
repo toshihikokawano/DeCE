@@ -384,16 +384,18 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
 /**********************************************************/
 /*      GFR Print Scattering Matrix of Resonances         */
 /**********************************************************/
-void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[])
+void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de)
 {
   const int ndiv = 10000;
   System sys;
   ChannelWaveFunc wfn;
   double *elab;
 
-  double emax = dict->emaxRR;
-  double de   = emax / ndiv;
-  double emin = de;
+  if( (emin == 0.0) && (emax == 0.0) && (de == 0.0) ){
+    emax = dict->emaxRR;
+    de   = emax / ndiv;
+    emin = de;
+  }
 
   elab = new double [MAX_DBLDATA/2];
   int np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
