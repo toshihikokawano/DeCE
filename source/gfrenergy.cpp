@@ -14,8 +14,8 @@ using namespace std;
 #include "gfr.h"
 #include "constant.h"
 
-static void gfrSortResonanceEnergies     (double *, const int);
-static int  gfrIncludeResonanceEnergies  (ENDF *, double *);
+static void gfrSortResonanceEnergies (double *, const int);
+static int  gfrIncludeResonanceEnergies (const bool, ENDF *, double *);
 
 static const int nstep = 18;
 static double estep[nstep] = {
@@ -32,7 +32,8 @@ static double energy_step_shrink    = 0.8;
 /**********************************************************/
 int gfrAutoEnergyRRR(System *sys, ENDF *lib2, double *elab, const double ebr)
 {
-  int k = gfrIncludeResonanceEnergies(lib2,elab);
+  /*** include all energy points in the file */
+  int k = gfrIncludeResonanceEnergies(true,lib2,elab);
 
   if(k <= 0) return(0);
   int nr = k;
@@ -170,11 +171,13 @@ int gfrAutoEnergyRRR(System *sys, ENDF *lib2, double *elab, const double ebr)
 /**********************************************************/
 /*       Energy Points in Unresolved Resonance Range      */
 /**********************************************************/
-int gfrAutoEnergyURR(double *elab, const double ebr, const double ebu)
+int gfrAutoEnergyURR(ENDF *lib2, double *elab, const double ebr, const double ebu)
 {
   if(ebu == 0.0) return(0);
 
-  int k = 0;
+  /*** include all energy points in the file */
+  int k = gfrIncludeResonanceEnergies(false,lib2,elab);
+
   double e0 = ebr;
   double e2 = ebu;
   double e1 = 0.0;
@@ -198,9 +201,6 @@ int gfrAutoEnergyURR(double *elab, const double ebr, const double ebu)
     }while(e0 < e2);
 
     elab[k++] = e2;
-
-    gfrSortResonanceEnergies(elab,k);
-
   }
   else{
     elab[k++] = e0;
@@ -228,6 +228,8 @@ int gfrAutoEnergyURR(double *elab, const double ebr, const double ebu)
 
     elab[k++] = e2;
   }
+
+  gfrSortResonanceEnergies(elab,k);
 
   return(k);
 }
@@ -263,15 +265,16 @@ int gfrFixedEnergyRRR(double emin, double emax, double de, double *elab, const d
 
 
 /**********************************************************/
-/*      Include Resonance Energies in the Array           */
+/*      Include Resolved Resonance Energies in the Array  */
 /**********************************************************/
-int gfrIncludeResonanceEnergies(ENDF *lib2, double *elab)
+int gfrIncludeResonanceEnergies(bool RRR, ENDF *lib2, double *elab)
 {
   int k = 0, idx = 0;
   Record cont = lib2->rdata[idx++];
-  int nrange = cont.n1;
+  int ner = cont.n1;
+  int lfw = cont.l2;
 
-  for(int i=0 ; i<nrange ; i++){
+  for(int i=0 ; i<ner ; i++){
     cont = lib2->rdata[idx++];
     int lru   = cont.l1;
     int lrf   = cont.l2;
@@ -280,7 +283,7 @@ int gfrIncludeResonanceEnergies(ENDF *lib2, double *elab)
 
     if(lru == 1){
 
-      elab[k++] = e1; // include energy boundary
+      if(RRR) elab[k++] = e1; // include energy boundary
 
       if(lrf <= 3){
         cont = lib2->rdata[idx++];
@@ -292,7 +295,7 @@ int gfrIncludeResonanceEnergies(ENDF *lib2, double *elab)
 
           for(int irs=0 ; irs<nrs ; irs++){
             double e2 = lib2->xptr[idx][6*irs];
-            if((e0 <= e2) && (e2 <= e1)) elab[k++] = e2;
+            if(RRR && (e0 <= e2) && (e2 <= e1)) elab[k++] = e2;
           }
           idx ++;
         }
@@ -312,9 +315,47 @@ int gfrIncludeResonanceEnergies(ENDF *lib2, double *elab)
 
           for(int irs=0 ; irs<nrs ; irs++){
             double e2 = lib2->xptr[idx][6*m*irs];
-            if((e0 <= e2) && (e2 <= e1)) elab[k++] = e2;
+            if(RRR && (e0 <= e2) && (e2 <= e1)) elab[k++] = e2;
           }
           idx ++;
+        }
+      }
+    }
+
+    else if(lrf == 2){
+      /*** energy dependent fission width case */
+      if((lrf == 1) && (lfw == 1)){
+        cont = lib2->rdata[idx];
+        int ne  = cont.n1;
+        for(int i=0 ; i<ne ; i++){
+          double e2 = lib2->xptr[idx][i];
+          if(!RRR && (e0 <= e2) && (e2 <= e1)) elab[k++] = e2;
+        }
+      }
+      /*** energy dependent parameter */
+      else if(lrf == 2){
+        cont = lib2->rdata[idx++];
+        int nls = cont.n1;
+        for(int inls=0 ; inls<nls ; inls++){
+          cont = lib2->rdata[idx++];
+          int njs = cont.n1;
+          for(int injs=0 ; injs<njs ; injs++){
+            cont = lib2->rdata[idx];
+            int ne = cont.n2;
+            for(int i=1 ; i<=ne ; i++){
+              double e2 = lib2->xptr[idx][6*i];
+
+//              cout << e2 << endl;
+
+              /*** look for this energy in the array */
+              bool found = false;
+              for(int j=0 ; j<k ; j++){
+                if(e2 == elab[j]){ found = true; break; }
+              }
+              if(!found && !RRR && (e0 <= e2) && (e2 <= e1)) elab[k++] = e2;
+            }
+            idx ++;
+          }
         }
       }
     }

@@ -21,10 +21,13 @@ void DeceTableMF3(ENDF *lib)
   Record cont = lib->rdata[0];
   double qm   = cont.c1;
   double qi   = cont.c2;
+  int    lr   = cont.l2;
 
   cout << "# Cross section" << endl;
   cout << "#           QM"; outVal(qm); cout << "  mass difference Q-value" << endl;
   cout << "#           QI"; outVal(qi); cout << "  reaction Q-value" << endl;
+
+  if(lr > 0) cout << "#           LR" << setw(14) << lr << "  inelastic, then decay by this reaction type" << endl;
 
   if((opt.WriteXdataConversion != 1.0) || (opt.WriteYdataConversion != 1.0)){
     ENDF tmp;

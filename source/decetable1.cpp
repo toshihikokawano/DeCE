@@ -15,6 +15,7 @@ using namespace std;
 static void   DeceTableMF1MT452 (ENDF *);
 static void   DeceTableMF1MT455 (ENDF *);
 static void   DeceTableMF1MT458 (ENDF *);
+static void   DeceTableMF1MT460 (ENDF *);
 
 
 /**********************************************************/
@@ -27,6 +28,7 @@ void  DeceTableMF1(ENDF *lib)
   else if(mt == 456) DeceTableMF1MT452(lib);
   else if(mt == 455) DeceTableMF1MT455(lib);
   else if(mt == 458) DeceTableMF1MT458(lib);
+  else if(mt == 460) DeceTableMF1MT460(lib);
   else{
     message << "invalid MT number " << mt;
     WarningMessage();
@@ -239,3 +241,27 @@ void  DeceTableMF1MT458(ENDF *lib)
   }
 }
 
+
+/**********************************************************/
+/*      MT460: Delayed Photon Data                        */
+/**********************************************************/
+void  DeceTableMF1MT460(ENDF *lib)
+{
+  Record head = lib->getENDFhead();
+
+  cout << "# Delayed photon data" << endl;
+
+  /*** LO : discrete representation (0) or continuous (1) */
+  int lo = head.l1;
+
+  /*** discrete */
+  if(lo == 0){
+    int ng = head.n1;
+    cout << "#           NG" << setw(14) << ng << "  number of discrete photons" << endl;
+    for(int ig=0 ; ig<ng ; ig++) ENDFPrint1Dim(lib,ig,"Time","Photon Multiplicity");
+  }
+  /*** continuous */
+  else{
+    ENDFPrintLIST(lib,0,"Lambda Group","Decay Const");
+  }
+}

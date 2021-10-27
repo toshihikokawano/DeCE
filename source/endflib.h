@@ -471,6 +471,7 @@ class ENDFDict{
     }
     return(k);
   }
+
   /*** if MF and MT are in Dict, return its Lib number.
        return -1 if not allocated. */
   int getID(int n1, int n2){
@@ -480,6 +481,12 @@ class ENDFDict{
     }
     return(k);
   }
+
+  bool exist(int n1, int n2){
+    if(getID(n1,n2) >= 0) return true;
+    else return false;
+  }
+
   bool addDict(int n1, int n2, int c, int k){
     mf[sec]  = n1;
     mt[sec]  = n2;
@@ -490,23 +497,28 @@ class ENDFDict{
     if(sec >= MAX_SECTION) return true;
     else return false;
   }
+
   void setID(int i, int k){
     if(0 <= i && i < sec) id[i] = k;
   }
+
   /*** change MT number */
   void modMT(int i, int t){
     if(0 <= i && i < sec) mt[i] = t;
   }
+
   /*** save boundary energies of resolved and unresolved resonance regions */
   void setEboundary(double e1, double e2, double e3){
     emaxRR = e1;
     emaxUR = e2;
     emaxRe = e3;
   }
+
   /*** check if fissile */
   bool isFission(){
     return( (head.l2 == 1) ? true : false );
   }
+
   /*** set / get stdheader flag */
   void setSTDHeader(bool c){ stdheader = c; }
   bool getSTDHeader(){ return stdheader; }

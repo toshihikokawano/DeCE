@@ -689,5 +689,5 @@ double  gfrCompoundReaction       (System *);
 /*      gfrenergy.cpp                 */
 /**************************************/
 int     gfrAutoEnergyRRR          (System *, ENDF *, double *, const double);
-int     gfrAutoEnergyURR          (double *, const double, const double);
+int     gfrAutoEnergyURR          (ENDF *, double *, const double, const double);
 int     gfrFixedEnergyRRR         (double, double, double, double *, const double, const double);

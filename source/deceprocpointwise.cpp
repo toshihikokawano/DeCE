@@ -136,7 +136,7 @@ int DeceReconstructResonance(ENDFDict *dict, ENDF *lib[], double **xdat)
 
   int np2 = 0;
   if(lssf){
-    np2 = gfrAutoEnergyURR(edat,dict->emaxRR,dict->emaxUR);
+    np2 = gfrAutoEnergyURR(lib[kres],edat,dict->emaxRR,dict->emaxUR);
 
     for(int i=np1 ; i<np1+np2 ; i++){
       int i2 = i*2;

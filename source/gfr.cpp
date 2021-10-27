@@ -136,7 +136,7 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       gfrPrintCrossSection(elab[i],crs);
     }
 
-    np = gfrAutoEnergyURR(elab,dict->emaxRR,dict->emaxUR);
+    np = gfrAutoEnergyURR(lib[kres],elab,dict->emaxRR,dict->emaxUR);
 
     sys.FirstCall();
     for(int i=0 ; i<np ; i++){

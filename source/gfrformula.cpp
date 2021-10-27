@@ -106,7 +106,7 @@ Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int
     if( (res[k].l == l) && (res[k].j2 == j2) ){
       double de = res[k].gn * (res[k].s - wfn->S()) / (2*res[k].p);
       double gt = arrange_matrixSLBW(wfn->P(),x,&res[k]);
-     complex<double> p = breit_wigner_profile(complex<double>(e,0.0),res[k].er+de,gt);
+      complex<double> p = breit_wigner_profile(complex<double>(e,0.0),res[k].er+de,gt);
 
       z.fission += real(p)*(x[1]*x[1])/gt/gt;
       z.capture += real(p)* x[3]*x[3] /gt/gt;

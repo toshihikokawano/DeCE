@@ -1,3 +1,14 @@
+2021-07-27  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decetable1.cpp (DeceTableMF1MT460): new function
+	print delayed photon data
+
+	* source/dececheckfilephase1.cpp: new file
+	* source/dececheckfile.h: new file
+	* source/dececheckfile.cpp: new file
+	started adding new functionality to check file format
+	perform phase 1 to check MF/MT dependence and requirement
+
 2021-07-19  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.cpp (ENDFScanLibrary): modified

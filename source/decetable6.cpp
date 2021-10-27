@@ -172,7 +172,7 @@ int DeceTableMF6Law2(ENDF *lib6, int idx)
     cout << "#           E1"; outVal(e1); cout << "  incident energy" << endl;
     cout << "#         LANG" << setw(14) << lang << "  0: Legendre, 12,14: tabulated probability" << endl;
     cout << "#           NW" << setw(14) << nw << "  number of parameters in LIST" << endl;
-    cout << "#           NL" << setw(14) << nl << "  the higheset Legendre order, or number of cosines tabulated" << endl;
+    cout << "#           NL" << setw(14) << nl << "  the highest Legendre order, or number of cosines tabulated" << endl;
 
     if(lang == 0){
       if(da > 0){
@@ -192,7 +192,6 @@ int DeceTableMF6Law2(ENDF *lib6, int idx)
         }
       }
       else{
-        cout << "#           NL" << setw(14) << nl << "  the higheset Legendre order, or number of cosines tabulated" << endl;
         cout << "# Energy       Leg. Order    Coefficient" << endl;
         outVal(e1); outVal(0); outVal(1.0); cout << endl;
         for(int i1=0 ; i1<nl ; i1++){
@@ -246,7 +245,7 @@ int DeceTableMF6Law5(ENDF *lib6, int idx)
     cout << "#           E1"; outVal(e1); cout << "  incident energy" << endl;
     cout << "#          LTP" << setw(14) << ltp << " representation flag" << endl;
     cout << "#           NW" << setw(14) << nw << "  number of parameters in LIST" << endl;
-    cout << "#           NL" << setw(14) << nl << "  the higheset Legendre order, or number of cosines tabulated" << endl;
+    cout << "#           NL" << setw(14) << nl << "  the highest Legendre order, or number of cosines tabulated" << endl;
 
     for(int i1=0 ; i1<nw ; i1++){
       outVal(i1);

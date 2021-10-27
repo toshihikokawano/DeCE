@@ -201,7 +201,6 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationGROUP(dict,lib);
   }
 
-
   //--------------------------------------------------------
   //  miscellaneous operations
 
