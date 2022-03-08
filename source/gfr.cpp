@@ -16,8 +16,6 @@ using namespace std;
 #include "decemisc.h"
 #include "terminate.h"
 
-#define printSmat
-
 double gcLorentzianWidth = 0.0, *fact;
 
 Smatrix Smat;

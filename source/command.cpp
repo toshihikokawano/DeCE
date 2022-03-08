@@ -157,7 +157,7 @@ string CmdExtractArgument(void)
     gettext(d1,cmd.parm);
     CmdExtractString(cmd.text);
   }
-  else if(ope == "reconstruct" || ope == "reconangdist" || ope == "smoothangdist"){
+  else if(ope == "reconstruct" || ope == "reconangdist" || ope == "smoothangdist" || ope == "smatrixelement"){
     cmd.xmin  =      getval(d1);
     cmd.xmax  =      getval(d1);
     cmd.x     =      getval(d1);

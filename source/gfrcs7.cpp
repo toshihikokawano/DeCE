@@ -287,7 +287,7 @@ void RMLMatrices(const double elab, const int mch, RMLParameter *r, double **p, 
     }
   }
 
-  /*** 2i X = 2i P^{1/2}L^{-1} WR P^{1/2} */
+  /*** 2i X = 2 P^{1/2}L^{-1} WR P^{1/2} */
   for(int i=0 ; i<mch ; i++){
     double ai = (pm[i] != 0.0) ? 2.0/sqrt(pm[i]) : 0.0;
     for(int j=0 ; j<=i ; j++){
