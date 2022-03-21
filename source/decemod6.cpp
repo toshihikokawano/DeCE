@@ -96,6 +96,11 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
         idx++;
       }
     }
+    else{
+      message << "currently boundcorrect cannot process ";
+      message << "LAW = " << law << " for MT/" << mt << " ZAP = " << zap;
+      TerminateCode("DeceBoundCorrect");
+    }
 
     /*** energy range of MF6 */
     double z0 = zdat[0];
@@ -103,63 +108,72 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
 
     /*** first, adjust the last point */
     int k1 = np1;
+    int k2 = np2;
     if(z1 != x1){
       /*** when z1 < x1, duplicate the last point */
       if(z1 < x1){
         zdat[2*k1  ] = x1;
         zdat[2*k1+1] = zdat[2*k1-1];
-        cont[k1] = cont[k1-1];
-        cont[k1].c2 = x1;
-        xdat[k1] = xdat[k1-1];
         k1 ++;
+
+        cont[k2] = cont[k2-1];
+        cont[k2].c2 = x1;
+        xdat[k2] = xdat[k2-1];
+        k2 ++;
       }
       /*** when z1 > x1, truncate at x1 */
       else{
         for(k1=np1-1 ; k1>0 ; k1--){ if(zdat[k1*2] < x1) break; }
         k1 ++;
         zdat[2*k1  ] = x1;
-        cont[k1].c2 = x1;
+
+        for(k2=np2-1 ; k2>0 ; k2--){ if(cont[k2].c2 < x1) break; }
+        cont[k2].c2 = x1;
       }
       np1 = k1;
+      np2 = k2;
 
       message << "ZAP" << setw(8) << zap << " highest energy data changed into (";
-      message << setw(13) << setprecision(6) << zdat[2*k1] << ",";
-      message << setw(13) << setprecision(6) << zdat[2*k1+1] << ")";
+      message << setw(13) << setprecision(6) << zdat[2*(np1-1)] << ",";
+      message << setw(13) << setprecision(6) << zdat[2*(np1-1)+1] << ")";
       Notice("DeceMod6:DeceBoundCorrect");
     }
 
     /*** then adjust the first energy point */
-    int k0 = 0;
+    k1 = 0;
+    k2 = 0;
     if(z0 != x0){
       /*** when z0 < x0, remove points those are less than x0 */
       if(z0 < x0){
-        for(k0=1 ; k0<np1 ; k0++){ if(zdat[k0*2] > x0) break; }
-        k0 --;
+        for(k1=1 ; k1<np1 ; k1++){ if(zdat[k1*2] > x0) break; }
+        k1 --;
+
+        for(k2=1 ; k2<np2 ; k2++){ if(cont[k2].c2 > x0) break; }
+        k2 --;
       }
+
       /*** when z0 > x0, move the first point to x0 */
-      zdat[k0*2] = x0;
-      cont[k0].c2 = x0;
-      np1 -= k0;
+      zdat[k1*2] = x0;
+      cont[k2].c2 = x0;
+      np1 -= k1;
+      np2 -= k2;
 
       message << "ZAP" << setw(8) << zap << " lowest energy data replaced by (";
-      message << setw(13) << setprecision(6) << zdat[k0*2] << ",";
-      message << setw(13) << setprecision(6) << zdat[k0*2+1] << ")";
+      message << setw(13) << setprecision(6) << zdat[2*(np1-1)] << ",";
+      message << setw(13) << setprecision(6) << zdat[2*(np1-1)+1] << ")";
       Notice("DeceMod6:DeceBoundCorrect");
     }
-
-
-    np2 = np1;
 
     /*** create new TAB1 */
     ctab1.n2 = np1;
     idat1[(nr1-1)*2] = np1;     // we assume there is only one energy-range, NR = 1
-    ENDFPackTAB1(ctab1, idat1, &zdat[k0*2], &lib1);
+    ENDFPackTAB1(ctab1, idat1, &zdat[k1*2], &lib1);
 
     if(nr2 > 0){
       /*** create new TAB2 */
       ctab2.n2 = np2;
       idat2[(nr2-1)*2] = np2;
-      ENDFPackTAB2(ctab2, &cont[k0], idat2, &xdat[k0], &lib1);
+      ENDFPackTAB2(ctab2, &cont[k2], idat2, &xdat[k2], &lib1);
     }
   }
 

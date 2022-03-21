@@ -192,9 +192,6 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
   ifstream fp;
   string   line;
 
-  fp.open(file);
-  if(!fp){ message << "cannot open data file " << file; TerminateCode("readCSdata"); }
-
   /*** default CoH3 output file structure in CrossSection.dat */
   if(ofset == 0){
     switch(mt){
@@ -234,6 +231,15 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
     default : break;
     }
   }
+
+  if(ofset == 0){
+    message << "MF3:MT" << mt << " cannot read from " << file << " because ofset is not given";
+    Notice("DeceRead:readCSdata");
+    return 0;
+  }
+
+  fp.open(file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readCSdata"); }
 
   int nc=0;
   while(getline(fp,line)){
@@ -280,9 +286,6 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   string   line;
   double   eth = 0.0;
 
-  fp.open(file);
-  if(!fp){ message << "cannot open data file " << file; TerminateCode("readISdata"); }
-
   if(ofset == 0){
     if(      ( 51 <= mt) && (mt <=  91) ) ofset = mt  - 50 + 1;
     else if( (600 <= mt) && (mt <= 640) ) ofset = mt - 600 + 1;
@@ -292,6 +295,15 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
     else if( (800 <= mt) && (mt <= 840) ) ofset = mt - 800 + 1;
     else if( (mt == 649) || (mt == 699) || (mt == 749) || (mt == 799) || (mt == 849) ) ofset = 42;
   }
+
+  if(ofset == 0){
+    message << "MF3:MT" << mt << " cannot read from " << file << " because ofset is not given";
+    Notice("DeceRead:readISdata");
+    return 0;
+  }
+
+  fp.open(file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readISdata"); }
 
   getline(fp,line);
   istringstream s1(&line[1]);  // skip comment #

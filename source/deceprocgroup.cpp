@@ -184,6 +184,17 @@ static inline double integ_interval(ENDF *lib, const int n, const double e0, con
 
 void DeceGroupAverage(ENDF *lib, const int weight, const int ng, double *energy, double *sigma)
 {
+  /*** check if polynomials are given in MF1, MT452, which we don't expect anymore */
+  if(lib->getENDFmf() == 1 && lib->getENDFmt() == 452){
+    int lnu = (lib->getENDFhead()).l2;
+    if(lnu == 1){
+      message << "MF/MT = 1/452 is given by polynomials, which cannot be processed";
+      WarningMessage();
+      return;
+    }
+  }
+
+
   int np  = lib->rdata[0].n2;
 
   for(int i=0 ; i<ng-1 ; i++){

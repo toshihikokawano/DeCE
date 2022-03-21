@@ -109,9 +109,6 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
   ifstream fp;
   string   line,legflag;
 
-  fp.open(file);
-  if(!fp){ message << "cannot open data file " << file; TerminateCode("readADdata"); }
-
   if(ofset == 0){
     if(mt == 2) ofset = 1;
     else if( ( 51 <= mt) && (mt <=  91) ) ofset = mt -  50 + 1;
@@ -121,6 +118,15 @@ int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)
     else if( (750 <= mt) && (mt <= 790) ) ofset = mt - 750 + 1;
     else if( (800 <= mt) && (mt <= 840) ) ofset = mt - 800 + 1;
   }
+
+  if(ofset == 0){
+    message << "MF4:MT" << mt << " cannot read from " << file << " because ofset is not given";
+    Notice("DeceAngdist:readADdata");
+    return 0;
+  }
+
+  fp.open(file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readADdata"); }
 
   int ne=0;
   while(getline(fp,line)){

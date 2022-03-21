@@ -1,3 +1,20 @@
+2022-03-20  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decemod6.cpp (DeceBoundCorrect): updated
+	boundcorrect didn't work when TAB1 and LIST in MF6 have different energy boundaries,
+	which is probably not allowed
+
+2022-03-17  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceangdist.cpp (readADdata): updated
+	* source/deceread.cpp (readCSdata) (readISdata): updated
+	skip data reading when data ofset is not determined automatically
+
+2022-03-08  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceprocgroup.cpp (DeceGroupAverage): updated
+	check if MF/MT=1/452 is given by polynomias, then skip processing
+
 2021-07-27  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/decetable1.cpp (DeceTableMF1MT460): new function
