@@ -1,3 +1,8 @@
+2022-09-15  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/decemf15.cpp: new file
+	DeCE tool for making MF12 and MF15 for fission gamma production
+
 2022-03-20  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/decemod6.cpp (DeceBoundCorrect): updated
@@ -13,7 +18,7 @@
 2022-03-08  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceprocgroup.cpp (DeceGroupAverage): updated
-	check if MF/MT=1/452 is given by polynomias, then skip processing
+	check if MF/MT=1/452 is given by polynomials, then skip processing
 
 2021-07-27  KAWANO Toshihiko  <kawano@lanl.gov>
 

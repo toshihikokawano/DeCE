@@ -7,7 +7,7 @@ RM      	= rm
 LIBOBJS		= endflib.o endfio.o
 
 PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf12.o decemacs.o decephoto.o deceangdist.o deceheader.o
-PROG		= decemf4 decemf5 decemf6 decemf12 decemacs decephoto deceangdist deceheader
+PROG		= decemf4 decemf5 decemf6 decemf12 decemf15 decemacs decephoto deceangdist deceheader
 
 all:		$(PROG)
 
@@ -22,6 +22,9 @@ decemf6:	$(LIBOBJS) decemf6.o
 
 decemf12:	$(LIBOBJS) decemf12.o
 		$(CPP) decemf12.o $(LIBOBJS) $(LDFLAGS) -o decemf12
+
+decemf15:	$(LIBOBJS) decemf15.o
+		$(CPP) decemf15.o $(LIBOBJS) $(LDFLAGS) -o decemf15
 
 decemacs:	$(LIBOBJS) decemacs.o
 		$(CPP) decemacs.o $(LIBOBJS) $(LDFLAGS) -o decemacs
@@ -42,6 +45,7 @@ decemf4.o:	../source/endflib.h
 decemf5.o:	../source/endflib.h
 decemf6.o:	../source/endflib.h
 decemf12.o:	../source/endflib.h
+decemf15.o:	../source/endflib.h
 decemacs.o:	../source/endflib.h
 deceangdist.o:	../source/endflib.h
 decephoto.o:	../source/endflib.h
