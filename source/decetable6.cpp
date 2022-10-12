@@ -13,12 +13,16 @@ using namespace std;
 #include "decemisc.h"
 #include "global.h"
 #include "constant.h"
+#include "kalbach.h"
 
 static int DeceTableMF6Law1(ENDF *, int);
+static void DeceTableMF6Law1Lang1 (ENDF *, int);
+static void DeceTableMF6Law1Lang2 (ENDF *, int);
 static int DeceTableMF6Law2(ENDF *, int);
 static int DeceTableMF6Law5(ENDF *, int);
 static int DeceTableMF6Law6(ENDF *, int);
 static int DeceTableMF6Law7(ENDF *, int);
+
 
 /**********************************************************/
 /*      Process MF=6                                      */
@@ -77,13 +81,29 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
   int    lep  = lib6->rdata[idx].l2;
   int    nr   = lib6->rdata[idx].n1;
   int    ne   = lib6->rdata[idx].n2; idx++;
-  double da   = opt.AngleStep;
 
   cout << "#           NR" << setw(14) << nr << endl;
   cout << "#           NE" << setw(14) << ne << endl;
   cout << "#         LANG" << setw(14) << lang << "  1: Legendre, 2:KM systematics, 11-15: tabulated" << endl;
   cout << "#          LEP" << setw(14) << lep << "  secondary energy interpolation" << endl;
 
+  /*** when DDX is calculated from KM systematics, setup parameters */
+  if(lang == 2 && opt.AngleStep > 0.0){
+    int mt = lib6->getENDFmt();
+    int c = 0;
+    switch(mt){
+    case 103: c = 2; break;
+    case 104: c = 4; break;
+    case 105: c = 5; break;
+    case 106: c = 6; break;
+    case 107: c = 3; break;
+    default:  c = 1; break;
+    }
+
+    /*** neutron incident assumed */
+    ddxKalbachSetParm(1.0, (lib6->getENDFhead()).c1, c);
+  }
+  
   for(int i0=0 ; i0<ne ; i0++){
     double e1  = lib6->rdata[idx].c2;
     int    nd  = lib6->rdata[idx].l1;
@@ -95,6 +115,7 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
     cout << "#           ND" << setw(14) << nd << "  number of discrete lines" << endl;
     cout << "#           NA" << setw(14) << na << "  number of angular parameters" << endl;
 
+    /*** discrete lines if given */
     if(nd > 0){
       cout << "# Energy       Production" << endl;
       for(int i1=0 ; i1<nd ; i1++){
@@ -106,41 +127,12 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
       cout << endl;
     }
 
-    if(da > 0.0 && na >= 1){
-      int np = 180.0/da;
-      if( np*da == 180.0 ) np++;
-      cout << "# Angle         Energy        Probability" << endl;
-
-      double t = 0.0;
-      while(t <= 180.0){
-        for(int i1=nd ; i1<nep ; i1++){
-          outVal(t);
-          outVal(lib6->xptr[idx][(na+2)*i1]);
-          double f = 0.0;
-          for(int i2=0 ; i2<=na ; i2++){
-            f += (i2+0.5) * lib6->xptr[idx][(na+2)*i1+i2+1] * legendre(i2,t);
-          }
-          outVal(f);
-          cout << endl;
-        }
-        t += da;
-        cout << endl;
-      }
-    }
+    if(     lang == 1) DeceTableMF6Law1Lang1(lib6,idx);
+    else if(lang == 2) DeceTableMF6Law1Lang2(lib6,idx);
     else{
-      cout << "# Energy      ";
-      if(na == 0) cout << " Spectrum";
-      else{
-        for(int i0=0 ; i0 <= na ; i0++) cout << " PL(" << setw(2) << i0 << ")       ";
-      }
-      cout << endl;
-
-      for(int i1=nd ; i1<nep ; i1++){
-        outVal(lib6->xptr[idx][(na+2)*i1]);
-        for(int i2=1 ; i2<=na+1 ; i2++) outVal(lib6->xptr[idx][(na+2)*i1+i2]);
-        cout << endl;
-      }
+      cout <<"LANG = " << lang << " not yet implemented";
     }
+
     cout << endl;
     cout << endl;
     idx++;
@@ -148,6 +140,112 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
   cout << endl;
 
   return(idx);
+}
+
+
+/*** continuum spectra */
+void DeceTableMF6Law1Lang1(ENDF *lib6, int idx)
+{
+  int    nd  = lib6->rdata[idx].l1;
+  int    na  = lib6->rdata[idx].l2;
+  int    nep = lib6->rdata[idx].n2;
+  double da  = opt.AngleStep;
+
+  /*** if da is given then calculate actual double-differential cross sections */
+  if(da > 0.0 && na >= 1){
+    int np = 180.0/da;
+    if( np*da == 180.0 ) np++;
+    cout << "# Angle         Energy        Probability" << endl;
+
+    double t = 0.0;
+    while(t <= 180.0){
+      for(int i1=nd ; i1<nep ; i1++){
+        outVal(t);
+        outVal(lib6->xptr[idx][(na+2)*i1]);
+        double f = 0.0;
+        for(int i2=0 ; i2<=na ; i2++){
+          f += (i2+0.5) * lib6->xptr[idx][(na+2)*i1+i2+1] * legendre(i2,t);
+        }
+        outVal(f);
+        cout << endl;
+      }
+      t += da;
+      cout << endl;
+    }
+  }
+  /*** print coefficients */
+  else{
+    /*** Legendre coefficients */
+    cout << "# Energy      ";
+    if(na == 0) cout << " Spectrum";
+    else{
+      for(int i0=0 ; i0 <= na ; i0++) cout << " PL(" << setw(2) << i0 << ")       ";
+    }
+    cout << endl;
+
+    for(int i1=nd ; i1<nep ; i1++){
+      outVal(lib6->xptr[idx][(na+2)*i1]);
+      for(int i2=1 ; i2<=na+1 ; i2++) outVal(lib6->xptr[idx][(na+2)*i1+i2]);
+      cout << endl;
+    }
+  }
+}
+
+
+/*** K-M systematics */
+void DeceTableMF6Law1Lang2(ENDF *lib6, int idx)
+{
+  double e1  = lib6->rdata[idx].c2;
+  int    nd  = lib6->rdata[idx].l1;
+  int    na  = lib6->rdata[idx].l2;
+  int    nep = lib6->rdata[idx].n2;
+  double da  = opt.AngleStep;
+
+  /*** if da is given then calculate actual double-differential cross sections */
+  if(da > 0.0){
+
+    int np = 180.0/da;
+    if( np*da == 180.0 ) np++;
+
+    double *ang, **ddx, *e2;
+    ang = new double [np];
+    ddx = new double * [nep];
+    e2  = new double [nep];
+    for(int i1=0 ; i1<nep ; i1++) ddx[i1] = new double [np];
+    for(int i0=0 ; i0<np ; i0++) ang[i0] = (double)i0 * da;
+
+    for(int i1=nd ; i1<nep ; i1++){
+      e2[i1]    = lib6->xptr[idx][(na+2)*i1];
+      double f  = lib6->xptr[idx][(na+2)*i1+1];
+      double r  = lib6->xptr[idx][(na+2)*i1+2];
+      ddxKalbach(np,e1,e2[i1],r,f,ang,ddx[i1]);
+    }
+
+    cout << "# Angle         Energy        Probability" << endl;
+    for(int i0=0 ; i0<np ; i0++){
+      for(int i1=nd ; i1<nep ; i1++){
+        outVal(ang[i0]); outVal(e2[i1]); outVal(ddx[i1][i0]);
+        cout << endl;
+      }
+      cout << endl;
+    }
+
+    delete [] ang;
+    delete [] e2;
+    for(int i1=0 ; i1<nep ; i1++) delete [] ddx[i1];
+    delete [] ddx;
+  }
+
+  /*** print coefficients */
+  else{
+    cout << "# Energy       Spectrum      PEfraction" << endl;
+    for(int i1=nd ; i1<nep ; i1++){
+      outVal(lib6->xptr[idx][(na+2)*i1]);
+      outVal(lib6->xptr[idx][(na+2)*i1+1]);
+      outVal(lib6->xptr[idx][(na+2)*i1+2]);
+      cout << endl;
+    }
+  }
 }
 
 

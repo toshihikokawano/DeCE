@@ -123,8 +123,8 @@ am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) \
 	gfr.$(OBJEXT) gfrcross.$(OBJEXT) gfrcs1.$(OBJEXT) \
 	gfrcs3.$(OBJEXT) gfrcs7.$(OBJEXT) gfrcsurr.$(OBJEXT) \
 	gfrenergy.$(OBJEXT) gfrformula.$(OBJEXT) gfrlegcoef.$(OBJEXT) \
-	masstable.$(OBJEXT) matrix.$(OBJEXT) polycalc.$(OBJEXT) \
-	polysq.$(OBJEXT)
+	kalbach.$(OBJEXT) masstable.$(OBJEXT) matrix.$(OBJEXT) \
+	polycalc.$(OBJEXT) polysq.$(OBJEXT)
 dece_OBJECTS = $(am_dece_OBJECTS)
 dece_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
@@ -170,8 +170,9 @@ am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coulomb.Po \
 	./$(DEPDIR)/gfrcs3.Po ./$(DEPDIR)/gfrcs7.Po \
 	./$(DEPDIR)/gfrcsurr.Po ./$(DEPDIR)/gfrenergy.Po \
 	./$(DEPDIR)/gfrformula.Po ./$(DEPDIR)/gfrlegcoef.Po \
-	./$(DEPDIR)/masstable.Po ./$(DEPDIR)/matrix.Po \
-	./$(DEPDIR)/polycalc.Po ./$(DEPDIR)/polysq.Po
+	./$(DEPDIR)/kalbach.Po ./$(DEPDIR)/masstable.Po \
+	./$(DEPDIR)/matrix.Po ./$(DEPDIR)/polycalc.Po \
+	./$(DEPDIR)/polysq.Po
 am__mv = mv -f
 CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 	$(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS)
@@ -374,6 +375,7 @@ dece_SOURCES = \
 	gfrenergy.cpp \
 	gfrformula.cpp \
 	gfrlegcoef.cpp \
+	kalbach.cpp \
 	masstable.cpp \
 	matrix.cpp \
 	polycalc.cpp \
@@ -389,6 +391,7 @@ dece_SOURCES = \
 	endftext.h \
 	gfr.h \
 	global.h \
+	kalbach.h \
 	masstable.h \
 	masstable_audi2011.h \
 	masstable_audi2012_frdm2012.h \
@@ -543,6 +546,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gfrenergy.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gfrformula.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gfrlegcoef.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/kalbach.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/masstable.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/matrix.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/polycalc.Po@am__quote@ # am--include-marker
@@ -750,6 +754,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/gfrenergy.Po
 	-rm -f ./$(DEPDIR)/gfrformula.Po
 	-rm -f ./$(DEPDIR)/gfrlegcoef.Po
+	-rm -f ./$(DEPDIR)/kalbach.Po
 	-rm -f ./$(DEPDIR)/masstable.Po
 	-rm -f ./$(DEPDIR)/matrix.Po
 	-rm -f ./$(DEPDIR)/polycalc.Po
@@ -855,6 +860,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/gfrenergy.Po
 	-rm -f ./$(DEPDIR)/gfrformula.Po
 	-rm -f ./$(DEPDIR)/gfrlegcoef.Po
+	-rm -f ./$(DEPDIR)/kalbach.Po
 	-rm -f ./$(DEPDIR)/masstable.Po
 	-rm -f ./$(DEPDIR)/matrix.Po
 	-rm -f ./$(DEPDIR)/polycalc.Po

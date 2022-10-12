@@ -56,6 +56,7 @@ dece_SOURCES = \
 	gfrenergy.cpp \
 	gfrformula.cpp \
 	gfrlegcoef.cpp \
+	kalbach.cpp \
 	masstable.cpp \
 	matrix.cpp \
 	polycalc.cpp \
@@ -71,6 +72,7 @@ dece_SOURCES = \
 	endftext.h \
 	gfr.h \
 	global.h \
+	kalbach.h \
 	masstable.h \
 	masstable_audi2011.h \
 	masstable_audi2012_frdm2012.h \

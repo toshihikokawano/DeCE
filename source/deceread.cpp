@@ -284,7 +284,6 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
 {
   ifstream fp;
   string   line;
-  double   eth = 0.0;
 
   if(ofset == 0){
     if(      ( 51 <= mt) && (mt <=  91) ) ofset = mt  - 50 + 1;
@@ -307,7 +306,14 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
 
   getline(fp,line);
   istringstream s1(&line[1]);  // skip comment #
+  double eth = 0.0;
   for(int i=0 ; i<ofset ; i++) s1 >> eth;
+
+  if(eth == 0.0){
+    message << "MF3:MT" << mt << " from " << file << " has zero excitation energy, cannot read";
+    Notice("DeceRead:readISdata");
+    return 0;
+  }
 
   *elev = eth * opt.ReadXdataConversion;
 
