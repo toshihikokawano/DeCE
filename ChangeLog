@@ -1,3 +1,9 @@
+2022-10-12  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/kalbach.h: new file
+	* source/kalbach.cpp: new file
+	calculate K-M systematics for LAW=1 and LANG=2
+
 2022-09-15  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* tools/decemf15.cpp: new file

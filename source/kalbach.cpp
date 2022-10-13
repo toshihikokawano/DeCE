@@ -22,17 +22,24 @@ static double ddxKalbachAfac(const int, const int, const double, const double, c
 /**********************************************************/
 /*      Kalbach Systematics for DDX                       */
 /**********************************************************/
-void ddxKalbach(const int nddx, const double ein, const double eout, const double f, const double p, double *ang, double *ddx)
+void ddxKalbach(
+  const int nang,    // number of angle points
+  const double ein,  // incident energy in LAB
+  const double eout, // outgoing energy in CMS
+  const double f,    // pre-equilibrium fraction
+  const double p,    // absolute cross section
+  double *ang,       // calculate angles
+  double *ddx)       // output for each angle
 {
   double ecmsa = ein  * ma * 1e-6;
-  double ecmsb = eout * mb[ejcid] * 1e-6;
+  double ecmsb = eout / mb[ejcid] * 1e-6;
 
   /*** Kalbach systematics a-parameter */
   double a = ddxKalbachAfac(incid,ejcid,ecmsb,sa,sb[ejcid],ecmsa);
   double x = p * a/(2.0*sinh(a));
 
   /*** calculate angular distribution */
-  for(int i=0 ; i<nddx ; i++){
+  for(int i=0 ; i<nang ; i++){
     double q = ang[i]/180.0 * PI;
     ddx[i] = x * (cosh(a*cos(q)) + f*sinh(a*cos(q)));
   }
@@ -42,8 +49,12 @@ void ddxKalbach(const int nddx, const double ein, const double eout, const doubl
 /**********************************************************/
 /*      Separation Energies Defined in Kalbach Syst.      */
 /**********************************************************/
-void ddxKalbachSetParm(const double zap, const double zat, const int idp)
+void ddxKalbachSetParm(
+  const double zap,  // 1000Z+A for projectile
+  const double zat,  // 1000Z+A for target
+  const int idp)     // outgoing particle index, 1:neutron, 2:proton, 3:alpha,...
 {
+  /*** determine (Z,A) for target and projectile */
   unsigned int znum, anum;
   znum = (unsigned int)(zap / 1000.0);
   anum = (unsigned int)(zap - znum*1000.0);
@@ -90,6 +101,7 @@ void ddxKalbachSetParm(const double zap, const double zat, const int idp)
           + 1.211 * (zc/comp.getA() - zb/resd.getA())
           - ib;
 
+    /*** conversion factor into CMS energy */
     mb[c] = (double)resd.getA() / ((double)(resd.getA() + ejec.getA()));
   }
 

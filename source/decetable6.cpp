@@ -31,10 +31,12 @@ void DeceTableMF6(ENDF *lib3, ENDF *lib6)
 {
   Record head = lib6->getENDFhead();
   int    nk   = head.n1;
+  int    lct  = head.l2;
   int    idx  = 0;
 
   cout << "# Energy and angle distribution" << endl;
   cout << "#           NK" << setw(14) << nk << "  number of subsections" << endl;
+  cout << "#          LCT" << setw(14) << lct << " 1:LAB, 2:CMS, 3:CMS for particle and LAB for recoil, 4:CMS for initial and LAB for subsequent breakup" << endl;
   cout << endl;
 
   /*** for each sub block, make lib for (E,yield) */

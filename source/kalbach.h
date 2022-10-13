@@ -1,5 +1,3 @@
-static const int NLEG =    5; // max order of Legendre expansion
-
 /**********************************************************/
 /*   Z and A numbers of Nucleus                           */
 /**********************************************************/
@@ -48,6 +46,8 @@ class ZAnumber{
 };
 
 
-void   ddxKalbach(const int, const double, const double, const double, const double, double *, double *);
-void   ddxKalbachSetParm(const double, const double, const int);
+
+/*** kalbach.cpp */
+void   ddxKalbach (const int, const double, const double, const double, const double, double *, double *);
+void   ddxKalbachSetParm (const double, const double, const int);
 

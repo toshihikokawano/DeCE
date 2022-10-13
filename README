@@ -126,6 +126,8 @@ Files:
         matrix.cpp
         coulomb.h             Coulomb function
         coulimb.cpp
+        kalbach.h             Kalbach systematics for DDX (from CoH3)
+        kalbach.cpp
 
       [Mass Table]
         masstable.h
@@ -145,6 +147,7 @@ Files:
         decemf5.cpp           make energy spectrum section in ENDF-6
         decemf6.cpp           convert ECLIPSE(CoH) DDX output into ENDF-6
         decemf12.cpp          convert ECLIPSE(CoH) discrete level output into ENDF-6
+        decemf15.cpp          make gamma-ray production in MF15
         deceangdist.cpp       produce scattering angular distributions from ENDF
         deceheader.cpp        patch text data in the header part
         decemacs.cpp          calculate Maxwellian average cross section
