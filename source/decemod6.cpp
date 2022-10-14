@@ -106,6 +106,11 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
     double z0 = zdat[0];
     double z1 = zdat[2*np1-2];
 
+    message << "MF" << lib0[k6]->getENDFmf() << "MT" <<lib0[k6]->getENDFmt() << " has the energy range of [";
+    message << setw(13) << setprecision(6) << z0 << ",";
+    message << setw(13) << setprecision(6) << z1 << "]";
+    Notice("DeceMod6:DeceBoundCorrect");
+
     /*** first, adjust the last point */
     int k1 = np1;
     int k2 = np2;
@@ -123,12 +128,15 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
       }
       /*** when z1 > x1, truncate at x1 */
       else{
-        for(k1=np1-1 ; k1>0 ; k1--){ if(zdat[k1*2] < x1) break; }
+        for(k1=np1-1 ; k1>=0 ; k1--){ if(zdat[k1*2] < x1) break; }
         k1 ++;
         zdat[2*k1  ] = x1;
+        k1 ++;
 
-        for(k2=np2-1 ; k2>0 ; k2--){ if(cont[k2].c2 < x1) break; }
+        for(k2=np2-1 ; k2>=0 ; k2--){ if(cont[k2].c2 < x1) break; }
+        k2 ++;
         cont[k2].c2 = x1;
+        k2 ++;
       }
       np1 = k1;
       np2 = k2;
@@ -159,8 +167,8 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
       np2 -= k2;
 
       message << "ZAP" << setw(8) << zap << " lowest energy data replaced by (";
-      message << setw(13) << setprecision(6) << zdat[2*(np1-1)] << ",";
-      message << setw(13) << setprecision(6) << zdat[2*(np1-1)+1] << ")";
+      message << setw(13) << setprecision(6) << zdat[0] << ",";
+      message << setw(13) << setprecision(6) << zdat[1] << ")";
       Notice("DeceMod6:DeceBoundCorrect");
     }
 
@@ -178,7 +186,7 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
   }
 
   ENDFLibCopy(&lib1,lib0[k6]);
-//ENDFWrite(&lib1);
+//ENDFWrite(lib0[k6]);
 
   delete [] idat1;
   delete [] idat2;

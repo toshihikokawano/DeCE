@@ -49,5 +49,5 @@ class ZAnumber{
 
 /*** kalbach.cpp */
 void   ddxKalbach (const int, const double, const double, const double, const double, double *, double *);
-void   ddxKalbachSetParm (const double, const double, const int);
+void   ddxKalbachSetParm (const double, const double, const double);
 

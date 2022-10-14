@@ -91,19 +91,10 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
 
   /*** when DDX is calculated from KM systematics, setup parameters */
   if(lang == 2 && opt.AngleStep > 0.0){
-    int mt = lib6->getENDFmt();
-    int c = 0;
-    switch(mt){
-    case 103: c = 2; break;
-    case 104: c = 4; break;
-    case 105: c = 5; break;
-    case 106: c = 6; break;
-    case 107: c = 3; break;
-    default:  c = 1; break;
-    }
-
     /*** neutron incident assumed */
-    ddxKalbachSetParm(1.0, (lib6->getENDFhead()).c1, c);
+    double za  = (lib6->getENDFhead()).c1;
+    double zap = lib6->rdata[idx].c1;
+    ddxKalbachSetParm(1.0, za, zap);
   }
   
   for(int i0=0 ; i0<ne ; i0++){

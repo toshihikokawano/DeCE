@@ -50,21 +50,30 @@ void ddxKalbach(
 /*      Separation Energies Defined in Kalbach Syst.      */
 /**********************************************************/
 void ddxKalbachSetParm(
-  const double zap,  // 1000Z+A for projectile
-  const double zat,  // 1000Z+A for target
-  const int idp)     // outgoing particle index, 1:neutron, 2:proton, 3:alpha,...
+  const double za0,  // 1000Z+A for projectile
+  const double za1,  // 1000Z+A for target
+  const double zap)  // 1000Z+A for ejectile
 {
   /*** determine (Z,A) for target and projectile */
   unsigned int znum, anum;
-  znum = (unsigned int)(zap / 1000.0);
-  anum = (unsigned int)(zap - znum*1000.0);
+  znum = (unsigned int)(za0 / 1000.0);
+  anum = (unsigned int)(za0 - znum*1000.0);
   proj.setZA(znum,anum);
 
-  znum = (unsigned int)(zat / 1000.0);
-  anum = (unsigned int)(zat - znum*1000.0);
+  znum = (unsigned int)(za1 / 1000.0);
+  anum = (unsigned int)(za1 - znum*1000.0);
   comp.setZA(znum,anum);
 
-  ejcid = idp;
+  znum = (unsigned int)(zap / 1000.0);
+  anum = (unsigned int)(zap - znum*1000.0);
+
+  ejcid = 0;
+  if(     znum == 0 && anum == 1) ejcid = 1; // n
+  else if(znum == 1 && anum == 1) ejcid = 2; // p
+  else if(znum == 2 && anum == 4) ejcid = 3; // a
+  else if(znum == 1 && anum == 2) ejcid = 4; // d
+  else if(znum == 1 && anum == 3) ejcid = 5; // t
+  else if(znum == 2 && anum == 3) ejcid = 6; // h
 
   double   ib = 0.0;
   ZAnumber ejec(0,0),resd(0,0);

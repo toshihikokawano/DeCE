@@ -594,12 +594,18 @@ void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
 /**********************************************************/
 static streambuf *savestream;
 static ofstream  foutstream;
+static bool firstcall = true;
 void DeceOutputRedirectFile()
 {
   /*** when Output option is set, redirect STDOUT to the external file */
   if(opt.Output.length() > 0){
     savestream = cout.rdbuf();
-    foutstream.open(&opt.Output[0],ofstream::out | ofstream::app);
+    /*** for the first time, an existing output file will be overwritten */
+    if(firstcall){
+      foutstream.open(&opt.Output[0],ofstream::out);
+      firstcall = false;
+    }
+    else foutstream.open(&opt.Output[0],ofstream::out | ofstream::app);
     cout.rdbuf(foutstream.rdbuf());
   }
 }

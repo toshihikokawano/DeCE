@@ -1,3 +1,22 @@
+2022-10-14  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decemod6.cpp (DeceBoundCorrect): bug fixed
+	boundcorrect bug fixed by HI Kim
+
+	* source/kalbach.h: new file
+	* source/kalbach.cpp: new file
+	calculate Kalbach systematics for MF6/LAW=1,LANG=2
+	cms/lab conversion is not so exact
+
+	* source/decetable6.cpp (DeceTableMF6Law1Lang1): new function
+	(DeceTableMF6Law1Lang2): new function
+	MF6 LAW=1 case was divided into LANG=1 and 2 cases
+	
+
+	* source/deceoperation.cpp (DeceOutputRedirectFile): updated
+	when Output option is given, an existing file will be overwritten by DeCE output,
+	then subsequent output will be appended
+
 2022-10-12  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/kalbach.h: new file
