@@ -39,7 +39,7 @@ void DeceTableMF12(ENDF *lib)
       double eg   = cont.c1;
       double es   = cont.c2;
       int    lp   = cont.l1;
-      int    lf   = cont.l1;
+      int    lf   = cont.l2;
 
       cout << "#   Subsection" << setw(14) << n << endl;
       cout << "#           LP" << setw(14) << lp << "  0: origin unknown, 1: nonprimary photon, 2: primary photons" << endl;

@@ -18,6 +18,7 @@ int main(int, char *[]);
 static const int NEIN   =   100; // max number of incident energies
 static const int NDAT   = 10000; // max number of floating point data
 static const int WFIELD =    14; // data field width
+
 /*
   In this program, the spectrum data in a file are assumed 
   in the following format, with the constant data field width of WFIELD.
@@ -36,10 +37,15 @@ static const int WFIELD =    14; // data field width
   ...           ...
  */
 
-int    dataread   (ifstream *);
+// if not zero, the highest blocks will be duplicated to make a dummy data block
+static const double duplicatepoint = 0.0;
+
+
 void   processMF12 (int, ENDF *);
 void   processMF15 (int, ENDF *);
-inline double coltodbl   (string, int);
+int    dataread    (ifstream *);
+int    datadummy   (int);
+inline double coltodbl (string, int);
 
 static double **xtab;
 static Record  *ctab;
@@ -48,7 +54,7 @@ static double  *ydat;
 int main(int argc, char *argv[])
 {
   if(argc < 2){
-    cerr << "usage: decemf13 data_file ENDF_file" << endl;  exit(-1);
+    cerr << "usage: decemf15 data_file ENDF_file" << endl;  exit(-1);
   }
 
   ifstream fpin;
@@ -64,6 +70,9 @@ int main(int argc, char *argv[])
   }
   ENDFSeekHead(&fpin,&lib12,1,451);
   fpin.close();
+
+  /*** copy MAT number */
+  lib15.setENDFmat(lib12.getENDFmat());
 
   /*** data arrays */
   ctab = new Record [NEIN];
@@ -83,6 +92,7 @@ int main(int argc, char *argv[])
   int ne = dataread(&fpin);
 
   if(ne > 0){
+    ne = datadummy(ne);
     processMF12(ne,&lib12);
     processMF15(ne,&lib15);
   }
@@ -108,7 +118,7 @@ void processMF12(int ne, ENDF *lib)
   lib->setENDFmf(12);
   lib->setENDFmt(18);
 
-  Record cont(0.0,0.0,0,0,1,ne);
+  Record cont(0.0,0.0,0,1,1,ne); // LF = 1, spectrum given in MF15
 
   int idat[2];
   idat[0] = ne; // there will be two points
@@ -118,6 +128,7 @@ void processMF12(int ne, ENDF *lib)
   ENDFPackTAB1(cont,idat,ydat,lib);
   ENDFWriteMF12(lib);
 }
+
 
 void processMF15(int ne, ENDF *lib)
 {
@@ -195,7 +206,7 @@ int dataread(ifstream *fp)
     }
     /*** data end at the first blank line,
          set number of outgoing energy points */
-    else if( line.length() ==0 ){
+    else if( line.length() == 0 ){
       if(k != 0){
         ctab[ne].n1 = 1; // NR
         ctab[ne].n2 = k; // NP
@@ -207,6 +218,26 @@ int dataread(ifstream *fp)
     xtab[ne][2*k  ] = coltodbl(line,0) * 1e+6;
     xtab[ne][2*k+1] = coltodbl(line,1) * 1e-6;
     k++;
+  }
+
+  return(ne+1);
+}
+
+
+int datadummy(int ne)
+{
+  if(duplicatepoint == 0.0) return ne;
+  if(ne == NEIN) return ne;
+
+  ctab[ne] = ctab[ne-1];
+  ctab[ne].c2 = duplicatepoint;
+
+  ydat[2*ne  ] = duplicatepoint;
+  ydat[2*ne+1] = ydat[2*(ne-1)+1];
+
+  for(int k=0 ; k<ctab[ne].n2 ; k++){
+    xtab[ne][2*k]   = xtab[ne-1][2*k];
+    xtab[ne][2*k+1] = xtab[ne-1][2*k+1];
   }
 
   return(ne+1);
