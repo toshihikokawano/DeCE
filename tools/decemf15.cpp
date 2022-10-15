@@ -42,6 +42,7 @@ static const double duplicatepoint = 0.0;
 
 
 void   processMF12 (int, ENDF *);
+void   processMF14 (     ENDF *);
 void   processMF15 (int, ENDF *);
 int    dataread    (ifstream *);
 int    datadummy   (int);
@@ -59,7 +60,7 @@ int main(int argc, char *argv[])
 
   ifstream fpin;
   string   libname = "", datname = "";
-  ENDF     lib12, lib15;
+  ENDF     lib12, lib14, lib15;
 
   datname = argv[1];
   libname = argv[2];
@@ -72,6 +73,7 @@ int main(int argc, char *argv[])
   fpin.close();
 
   /*** copy MAT number */
+  lib14.setENDFmat(lib12.getENDFmat());
   lib15.setENDFmat(lib12.getENDFmat());
 
   /*** data arrays */
@@ -94,6 +96,7 @@ int main(int argc, char *argv[])
   if(ne > 0){
     ne = datadummy(ne);
     processMF12(ne,&lib12);
+    processMF14(   &lib14);
     processMF15(ne,&lib15);
   }
 
@@ -127,6 +130,21 @@ void processMF12(int ne, ENDF *lib)
   /*** pack the data into TAB1 format */
   ENDFPackTAB1(cont,idat,ydat,lib);
   ENDFWriteMF12(lib);
+}
+
+
+void processMF14(ENDF *lib)
+{
+  Record head = lib->getENDFhead();
+  int li = 1; // isotropic angular distributoin
+  int nk = 0;
+
+  /*** reset index, set HEAD record, MF and MT */
+  head.setRecord(head.c1,head.c2,li,0,nk,0);
+  lib->setENDFhead(head);
+  lib->setENDFmf(14);
+  lib->setENDFmt(18);
+  ENDFWriteMF14(lib);
 }
 
 
