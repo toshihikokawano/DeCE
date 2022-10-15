@@ -1,7 +1,7 @@
 /******************************************************************************/
 /**                                                                          **/
 /**     DeCE : The Descriptive Correction of ENDF-6 Format Code              **/
-/**                                          1.2.5 (Jadeite)  Nov.  2020     **/
+/**                                          1.2.6 (Garnet)   Oct.  2022     **/
 /**                                                            T. Kawano     **/
 /**                                       Los Alamos National Laboratory     **/
 /******************************************************************************/
@@ -18,7 +18,7 @@ using namespace std;
 #include "global.h"
 #include "terminate.h"
 
-static string version  = "1.2.5 Jadeite (Nov. 2020)";
+static string version  = "1.2.6 Garnet (Oct. 2022)";
 static bool   verbflag = false;
 static bool   justquit = false;
 static bool   filescan = false;
