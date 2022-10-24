@@ -73,6 +73,8 @@ int main(int argc, char *argv[])
                justquit = true;        break;
     case 'v':  verbflag = true;        break;
     case 'h':  DeceHelp();             break;
+    case 'n':  opt.LineNumber = true;  break;
+               ENDFPrintLineNumber(opt.LineNumber); break;
     default:                           break;
     }
   }
