@@ -67,7 +67,7 @@ string CmdExtractArgument(void)
   else if(ope == "tpid"){
     CmdExtractString(cmd.text);
   }
-  else if(ope == "read" || ope == "angdist" || ope == "libread" || ope == "mergeread"){
+  else if(ope == "read" || ope == "angdist" || ope == "libread" || ope == "mergeread" || ope == "replaceread"){
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
     CmdExtractString(cmd.text);

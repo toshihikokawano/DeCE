@@ -1,3 +1,9 @@
+2022-10-28  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceoperation.cpp (DeceOperationREAD): updated
+	* source/deceread.cpp (geneCSdata): updated
+	new command replaceread ignores the resonance range, and replace all the points by input
+
 2022-10-15  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/dece.cpp: updated

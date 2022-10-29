@@ -66,7 +66,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   }
 
   /*** READ: read tabulated cross section data file, and replace section */
-  else if( (ope == "read") || (ope == "multiread") || (ope == "mergeread") ){
+  else if( (ope == "read") || (ope == "multiread") || (ope == "mergeread") || (ope == "replaceread")){
     DeceOperationREAD(dict,lib);
   }
 
@@ -319,9 +319,11 @@ void DeceOperationREAD(ENDFDict *dict, ENDF *lib[])
   for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
     DeceCreateLib(dict,cmd.mf,mt);
     if(ope == "mergeread")
-      DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,true);
+      DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,1);
+    if(ope == "replaceread")
+      DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,2);
     else
-      DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,false);
+      DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,0);
   }
 }
 
