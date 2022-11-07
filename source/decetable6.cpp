@@ -16,8 +16,9 @@ using namespace std;
 #include "kalbach.h"
 
 static int DeceTableMF6Law1(ENDF *, int);
-static void DeceTableMF6Law1Lang1 (ENDF *, int);
-static void DeceTableMF6Law1Lang2 (ENDF *, int);
+static void DeceTableMF6Law1Lang1  (ENDF *, int);
+static void DeceTableMF6Law1Lang2  (ENDF *, int);
+static void DeceTableMF6Law1Lang11 (ENDF *, int, const int);
 static int DeceTableMF6Law2(ENDF *, int);
 static int DeceTableMF6Law5(ENDF *, int);
 static int DeceTableMF6Law6(ENDF *, int);
@@ -122,6 +123,7 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
 
     if(     lang == 1) DeceTableMF6Law1Lang1(lib6,idx);
     else if(lang == 2) DeceTableMF6Law1Lang2(lib6,idx);
+    else if( (11 <= lang) && (lang <= 15) ) DeceTableMF6Law1Lang11(lib6,idx,lang);
     else{
       cout <<"LANG = " << lang << " not yet implemented";
     }
@@ -148,7 +150,7 @@ void DeceTableMF6Law1Lang1(ENDF *lib6, int idx)
   if(da > 0.0 && na >= 1){
     int np = 180.0/da;
     if( np*da == 180.0 ) np++;
-    cout << "# Angle         Energy        Probability" << endl;
+    cout << "# Angle         Energy        Spectrum" << endl;
 
     double t = 0.0;
     while(t <= 180.0){
@@ -157,7 +159,7 @@ void DeceTableMF6Law1Lang1(ENDF *lib6, int idx)
         outVal(lib6->xptr[idx][(na+2)*i1]);
         double f = 0.0;
         for(int i2=0 ; i2<=na ; i2++){
-          f += (i2+0.5) * lib6->xptr[idx][(na+2)*i1+i2+1] * legendre(i2,t);
+          f += (i2+0.5) * lib6->xptr[idx][(na+2)*i1+i2+1] * legendre(i2,t) * 2.0;
         }
         outVal(f);
         cout << endl;
@@ -214,7 +216,7 @@ void DeceTableMF6Law1Lang2(ENDF *lib6, int idx)
       ddxKalbach(np,e1,e2[i1],r,f,ang,ddx[i1]);
     }
 
-    cout << "# Angle         Energy        Probability" << endl;
+    cout << "# Angle         Energy        Spectrum" << endl;
     for(int i0=0 ; i0<np ; i0++){
       for(int i1=nd ; i1<nep ; i1++){
         outVal(ang[i0]); outVal(e2[i1]); outVal(ddx[i1][i0]);
@@ -238,6 +240,42 @@ void DeceTableMF6Law1Lang2(ENDF *lib6, int idx)
       outVal(lib6->xptr[idx][(na+2)*i1+2]);
       cout << endl;
     }
+  }
+}
+
+
+/*** tabluated with given interpolation scheme */
+void DeceTableMF6Law1Lang11(ENDF *lib6, int idx, const int lang)
+{
+  int    nd  = lib6->rdata[idx].l1;
+  int    na  = lib6->rdata[idx].l2;
+  int    nep = lib6->rdata[idx].n2;
+
+  /*** print probabilities */
+
+  cout << "#     Interpol" << setw(14) << lang - 10 << endl;
+  cout << "#  cos(th)      Probability   Angle         Energy        Spectrum" << endl;
+
+  for(int i1=nd ; i1<nep ; i1++){
+    int i0 = (na+2)*i1;
+    double e1 = lib6->xptr[idx][i0];
+    double f0 = lib6->xptr[idx][i0 + 1];
+    for(int i2=2 ; i2<=na ; i2+=2){
+
+      double mu = lib6->xptr[idx][i0 + i2];
+      double f1 = lib6->xptr[idx][i0 + i2 + 1];
+      double s1 = f1;
+      if(i2 != 1) s1 *= 2.0 * f0;
+
+      outVal(mu);
+      outVal(f1);
+
+      outVal(acos(mu) * 180.0 / PI);
+      outVal(e1);
+      outVal(s1);
+      cout << endl;
+    }
+    cout << endl;
   }
 }
 
