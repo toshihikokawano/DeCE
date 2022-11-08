@@ -94,7 +94,7 @@ int DeceTableMF6Law1(ENDF *lib6, int idx)
   if(lang == 2 && opt.AngleStep > 0.0){
     /*** neutron incident assumed */
     double za  = (lib6->getENDFhead()).c1;
-    double zap = lib6->rdata[idx].c1;
+    double zap = lib6->rdata[idx-2].c1;
     ddxKalbachSetParm(1.0, za, zap);
   }
   
