@@ -23,6 +23,7 @@ int CmdFgetOneline(void)
 {
   /*** read one line, skip comment or blank line */
   while(1){
+    cout << "dece>";
     cin.getline(cmd.line,MAX_TEXTLENGTH-1);
     if(cin.eof() !=0 ) return(-1);
     if(cmd.line[0] == '#') continue;

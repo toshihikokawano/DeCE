@@ -1,0 +1,957 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+A	kalbach.h	/^    unsigned int A;$/;"	m	class:ZAnumber
+AMUNIT	constant.h	/^const double AMUNIT      = 931.4943335   ; \/* MeV = 1amu                     *\/$/;"	v
+ANGLE_POINTS	deceangdist.cpp	/^static const int ANGLE_POINTS = 180;$/;"	v	file:
+ARRAY_OVER	coupling.h	/^const double ARRAY_OVER    = 1.0e+300;   \/\/ force overflow$/;"	v
+AngleStep	global.h	/^  double AngleStep             ;    \/\/ calculate angular distribution at this step$/;"	m	class:GlobalOption
+BWLoadResonances	gfrcs1.cpp	/^int BWLoadResonances(int idx, System *sys, ENDF *lib)$/;"	f
+BWMainCalc	gfrcs1.cpp	/^Pcross BWMainCalc(const double elab,  const int lrf, System *sys)$/;"	f
+BWResonance	gfr.h	/^class BWResonance : public Resonance{$/;"	c
+BWResonancePenetrability	gfrcs1.cpp	/^void BWResonancePenetrability(const int ner, System *sys, ENDF *lib)$/;"	f
+BWScatteringRadius	gfrcs1.cpp	/^void BWScatteringRadius(const int ner, System *sys, const double elab, ENDF *lib)$/;"	f
+CLine	command.h	/^  CLine(){$/;"	f	class:CLine
+CLine	command.h	/^class CLine{$/;"	c
+COLUMN_NUMBER	endflib.h	/^#define COLUMN_NUMBER /;"	d
+COULOMB	constant.h	/^const double COULOMB     = 1.60217733e-19; \/* J = 1eV                        *\/$/;"	v
+COULOMBSQ	constant.h	/^const double COULOMBSQ   = 2.56697220e-38; \/* COULOMB*COULOMB                *\/$/;"	v
+CRITERIA_ITERATION	coulomb.cpp	/^static const double CRITERIA_ITERATION =  1e-24;$/;"	v	file:
+ChannelWaveFunc	gfr.h	/^  ChannelWaveFunc(){$/;"	f	class:ChannelWaveFunc
+ChannelWaveFunc	gfr.h	/^class ChannelWaveFunc{$/;"	c
+CmdCheckChar	command.cpp	/^bool CmdCheckChar(char c)$/;"	f
+CmdExtractArgument	command.cpp	/^string CmdExtractArgument(void)$/;"	f
+CmdExtractString	command.cpp	/^void CmdExtractString(char *d)$/;"	f
+CmdFgetOneline	command.cpp	/^int CmdFgetOneline(void)$/;"	f
+CmdGetOperation	command.cpp	/^string CmdGetOperation()$/;"	f
+D	gfr.h	/^  complex<double> D;       \/\/ derivative Hanlel function, G'+iF'$/;"	m	class:ChannelWaveFunc
+DEBUG_CHANNEL	gfrcs7.cpp	/^#undef DEBUG_CHANNEL$/;"	d	file:
+DEBUG_INCIDENT	gfrcs7.cpp	/^#undef DEBUG_INCIDENT$/;"	d	file:
+DEBUG_MATRIX	gfrcs7.cpp	/^#undef DEBUG_MATRIX$/;"	d	file:
+DEBUG_PAIR	gfrcs7.cpp	/^#undef DEBUG_PAIR$/;"	d	file:
+DEBUG_PENETRABILITY	gfrcs7.cpp	/^#undef DEBUG_PENETRABILITY$/;"	d	file:
+DEBUG_PHASE	gfrcs7.cpp	/^#undef DEBUG_PHASE$/;"	d	file:
+DEBUG_RESONANCE	gfrcs1.cpp	/^#undef DEBUG_RESONANCE$/;"	d	file:
+DEBUG_RESONANCE	gfrcs3.cpp	/^#undef DEBUG_RESONANCE$/;"	d	file:
+DEBUG_RESONANCE	gfrcs7.cpp	/^#undef DEBUG_RESONANCE$/;"	d	file:
+DEBUG_WIDTH	gfrcs7.cpp	/^#undef DEBUG_WIDTH$/;"	d	file:
+DECE_TOPLEVEL	dece.cpp	/^#define DECE_TOPLEVEL$/;"	d	file:
+DeceAngdist	deceangdist.cpp	/^void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *datafile, int ofset)$/;"	f
+DeceApplyFunc	deceapplyfunc.cpp	/^void DeceApplyFunc(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,$/;"	f
+DeceBanner	dece.cpp	/^void DeceBanner()$/;"	f
+DeceBoundCorrect	decemod6.cpp	/^void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)$/;"	f
+DeceCalc	dececalc.cpp	/^void DeceCalc(ENDFDict *dict, ENDF *lib[], const int mtdest, const int mtsrc1, const int mtsrc2, const char op)$/;"	f
+DeceCalc452	dececalc.cpp	/^void DeceCalc452(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceChangeInt	decechangeint.cpp	/^void DeceChangeInt(ENDFDict *dict, ENDF *lib[], const int mt, int range, int point, int intlaw)$/;"	f
+DeceChangeQvalue	deceqvalue.cpp	/^void DeceChangeQvalue(ENDFDict *dict, ENDF *lib[], const int mt, double qm, double qi)$/;"	f
+DeceCheckEditRange	deceglobaloption.cpp	/^bool DeceCheckEditRange(const double x)$/;"	f
+DeceCheckMT	dece.cpp	/^void DeceCheckMT(int mt)$/;"	f
+DeceCheckNegativeCrossSection	deceprocpointwise.cpp	/^void DeceCheckNegativeCrossSection(const int np, double **xdat)$/;"	f
+DeceCheckReadRange	deceglobaloption.cpp	/^bool DeceCheckReadRange(const double x)$/;"	f
+DeceCheckThreshold	deceqvalue.cpp	/^void DeceCheckThreshold(ENDFDict *dict, ENDF *lib[], bool fix)$/;"	f
+DeceCopyHighEnergyCrossSection	deceprocpointwise.cpp	/^int DeceCopyHighEnergyCrossSection(ENDFDict *dict, ENDF *lib[], int np0, double **xdat)$/;"	f
+DeceCreateLib	dece.cpp	/^void DeceCreateLib(ENDFDict *dict, int mf, int mt)$/;"	f
+DeceDataPoint	decetable.cpp	/^void DeceDataPoint(ifstream *fp, const int mf, const int mt, const double e)$/;"	f
+DeceDelete	decedelete.cpp	/^void DeceDelete(ENDFDict *dict, const int mf, const int mt)$/;"	f
+DeceEditHeader	deceheader.cpp	/^void DeceEditHeader(ENDFDict *dict, string parameter, const double x)$/;"	f
+DeceEditHeaderText	deceheader.cpp	/^void DeceEditHeaderText(ENDFDict *dict, string field, char *text)$/;"	f
+DeceExtract	deceextract.cpp	/^void DeceExtract(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const int mt)$/;"	f
+DeceFactor	decefactor.cpp	/^void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,$/;"	f
+DeceFactorMF3	decefactor.cpp	/^void DeceFactorMF3(ENDF *lib, double x, double y, double xmin, double xmax)$/;"	f
+DeceFactorMF4P1	decefactor.cpp	/^void DeceFactorMF4P1(ENDF *lib, double f, double xmin, double xmax)$/;"	f
+DeceFileToTable	decetable.cpp	/^void DeceFileToTable(ifstream *fp, const int mf, const int mt)$/;"	f
+DeceFixAWR	deceheader.cpp	/^void DeceFixAWR(ENDFDict *dict)$/;"	f
+DeceFreeMemory	dece.cpp	/^void  DeceFreeMemory()$/;"	f
+DeceGenProdCS	decemod6.cpp	/^void DeceGenProdCS(ENDFDict *dict, ENDF *lib[], const int mt1, const int zap1)$/;"	f
+DeceGenerateGroup	deceprocgroup.cpp	/^void DeceGenerateGroup(ENDFDict *dict, ENDF *lib[], const int group, const int weight, string grpfile)$/;"	f
+DeceGeneratePointwise	deceprocpointwise.cpp	/^void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceGlobalOption	deceglobaloption.cpp	/^void DeceGlobalOption(string ope, string option, string value, const double x)$/;"	f
+DeceGroupAverage	deceprocgroup.cpp	/^void DeceGroupAverage(ENDF *lib, const int weight, const int ng, double *energy, double *sigma)$/;"	f
+DeceHeaderCopyData	deceheader.cpp	/^void DeceHeaderCopyData(char *line[])$/;"	f
+DeceHeaderReplaceData	deceheader.cpp	/^void DeceHeaderReplaceData(ENDFDict *dict)$/;"	f
+DeceHelp	dece.cpp	/^void DeceHelp()$/;"	f
+DeceIsotropicAngularDistribution	decemod6.cpp	/^void DeceIsotropicAngularDistribution(ENDFDict *dict, ENDF *lib[], const int mt)$/;"	f
+DeceLibRead	decelibread.cpp	/^void DeceLibRead(ENDFDict *dict, ENDF *lib, char *file)$/;"	f
+DeceLibToTable	decetable.cpp	/^void DeceLibToTable(ENDF *lib, ENDF *sup)$/;"	f
+DeceMain	dece.cpp	/^void DeceMain(string libin, string libout, ENDFDict *dict)$/;"	f
+DeceMemoryUsage	decememory.cpp	/^void DeceMemoryUsage(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperation	deceoperation.cpp	/^void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)$/;"	f
+DeceOperationANGDIST	deceoperation.cpp	/^void DeceOperationANGDIST(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationAPPLYFUNC	deceoperation.cpp	/^void DeceOperationAPPLYFUNC(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationBOUNDCORRECT	deceoperation.cpp	/^void DeceOperationBOUNDCORRECT(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationCALC	deceoperation.cpp	/^void DeceOperationCALC(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationCHANGEINT	deceoperation.cpp	/^void DeceOperationCHANGEINT(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationCHANGEQVAL	deceoperation.cpp	/^void DeceOperationCHANGEQVAL(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationCHECKTHRESHOLD	deceoperation.cpp	/^void DeceOperationCHECKTHRESHOLD(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationDELETE	deceoperation.cpp	/^void DeceOperationDELETE(ENDFDict *dict)$/;"	f
+DeceOperationDUPLICATE	deceoperation.cpp	/^void DeceOperationDUPLICATE(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationEXTRACT	deceoperation.cpp	/^void DeceOperationEXTRACT(ENDFDict *dict, ENDF *lib[], ifstream *fpin)$/;"	f
+DeceOperationFACTOR	deceoperation.cpp	/^void DeceOperationFACTOR(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationGENPROD	deceoperation.cpp	/^void DeceOperationGENPROD(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationGROUP	deceoperation.cpp	/^void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationISOANGDIST	deceoperation.cpp	/^void DeceOperationISOANGDIST(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationLIBREAD	deceoperation.cpp	/^void DeceOperationLIBREAD(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationNUTOTAL	deceoperation.cpp	/^void DeceOperationNUTOTAL(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationPOINT	deceoperation.cpp	/^void DeceOperationPOINT(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationPOINTWISE	deceoperation.cpp	/^void DeceOperationPOINTWISE(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationREAD	deceoperation.cpp	/^void DeceOperationREAD(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationREADJUST	deceoperation.cpp	/^void DeceOperationREADJUST(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationRECONSTRUCT	deceoperation.cpp	/^void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOperationTABLE	deceoperation.cpp	/^void DeceOperationTABLE(ENDFDict *dict, ENDF *lib[], ifstream *fpin)$/;"	f
+DeceOutput	deceoutput.cpp	/^void DeceOutput(ifstream *fpin, ENDFDict *dict, ENDF *lib[])$/;"	f
+DeceOutputRedirectFile	deceoperation.cpp	/^void DeceOutputRedirectFile()$/;"	f
+DeceOutputResume	deceoperation.cpp	/^void DeceOutputResume()$/;"	f
+DecePoint	decepoint.cpp	/^void DecePoint(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, double x, double y, string op)$/;"	f
+DecePrescanGroup	deceprocgroup.cpp	/^int DecePrescanGroup(string grpfile)$/;"	f
+DeceRead	deceread.cpp	/^void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, int ofset, bool mflag)$/;"	f
+DeceReadGroup	deceprocgroup.cpp	/^int DeceReadGroup(double *xdat, string grpfile)$/;"	f
+DeceReadMonitor	dece.cpp	/^void DeceReadMonitor(const int mat, const int mf, const int mt, const int sec, const int n, const int ni, const int nx)$/;"	f
+DeceReadjust	decereadjust.cpp	/^void DeceReadjust(ENDFDict *dict, ENDF *lib[], const int mt, const int mtmp)$/;"	f
+DeceReconstructResonance	deceprocpointwise.cpp	/^int DeceReconstructResonance(ENDFDict *dict, ENDF *lib[], double **xdat)$/;"	f
+DeceRenumber	deceoutput.cpp	/^void DeceRenumber(string fin, string fout, ENDFDict *dic0)$/;"	f
+DeceScanIndex	decescanindex.cpp	/^void DeceScanIndex(ENDFDict *dict)$/;"	f
+DeceShowHeaderText	deceheader.cpp	/^void DeceShowHeaderText(ENDFDict *dict)$/;"	f
+DeceShowHeaders	deceheader.cpp	/^void DeceShowHeaders(ENDFDict *dict)$/;"	f
+DeceStoreData	dece.cpp	/^void DeceStoreData(ENDFDict *dict, ifstream *fp)$/;"	f
+DeceTable	decetable.cpp	/^void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const int mt)$/;"	f
+DeceTableMF1	decetable1.cpp	/^void  DeceTableMF1(ENDF *lib)$/;"	f
+DeceTableMF10	decetable10.cpp	/^void DeceTableMF10(ENDF *lib)$/;"	f
+DeceTableMF12	decetable12.cpp	/^void DeceTableMF12(ENDF *lib)$/;"	f
+DeceTableMF13	decetable13.cpp	/^void DeceTableMF13(ENDF *lib)$/;"	f
+DeceTableMF14	decetable14.cpp	/^void DeceTableMF14(ENDF *lib)$/;"	f
+DeceTableMF15	decetable15.cpp	/^void DeceTableMF15(ENDF *lib)$/;"	f
+DeceTableMF1MT452	decetable1.cpp	/^void  DeceTableMF1MT452(ENDF *lib)$/;"	f
+DeceTableMF1MT455	decetable1.cpp	/^void  DeceTableMF1MT455(ENDF *lib)$/;"	f
+DeceTableMF1MT458	decetable1.cpp	/^void  DeceTableMF1MT458(ENDF *lib)$/;"	f
+DeceTableMF1MT460	decetable1.cpp	/^void  DeceTableMF1MT460(ENDF *lib)$/;"	f
+DeceTableMF2	decetable2.cpp	/^void DeceTableMF2(ENDF *lib)$/;"	f
+DeceTableMF2AP	decetable2.cpp	/^int DeceTableMF2AP(ENDF *lib, int idx)$/;"	f
+DeceTableMF2RR7	decetable2.cpp	/^int DeceTableMF2RR7(ENDF *lib, int idx)$/;"	f
+DeceTableMF2RRR	decetable2.cpp	/^int DeceTableMF2RRR(ENDF *lib, int lrf, int idx)$/;"	f
+DeceTableMF2URA	decetable2.cpp	/^int DeceTableMF2URA(ENDF *lib, int idx)$/;"	f
+DeceTableMF2URB	decetable2.cpp	/^int DeceTableMF2URB(ENDF *lib, int idx)$/;"	f
+DeceTableMF2URC	decetable2.cpp	/^int DeceTableMF2URC(ENDF *lib, int idx)$/;"	f
+DeceTableMF3	decetable3.cpp	/^void DeceTableMF3(ENDF *lib)$/;"	f
+DeceTableMF32	decetable32.cpp	/^void DeceTableMF32(ENDF *lib)$/;"	f
+DeceTableMF32LCOMP0	decetable32.cpp	/^int DeceTableMF32LCOMP0(int idx, int nls, ENDF *lib)$/;"	f
+DeceTableMF32LCOMP1LRF3	decetable32.cpp	/^int DeceTableMF32LCOMP1LRF3(int idx, int lrf, ENDF *lib)$/;"	f
+DeceTableMF32LCOMP1LRF7	decetable32.cpp	/^int DeceTableMF32LCOMP1LRF7(int idx, ENDF *lib)$/;"	f
+DeceTableMF32LCOMP2LRF3	decetable32.cpp	/^int DeceTableMF32LCOMP2LRF3(int idx, int lrf, ENDF *lib)$/;"	f
+DeceTableMF32LCOMP2LRF7	decetable32.cpp	/^int DeceTableMF32LCOMP2LRF7(int idx, int njs, ENDF *lib)$/;"	f
+DeceTableMF32PrintCorr	decetable32.cpp	/^void DeceTableMF32PrintCorr(int nn, int nm, int nd, double *p, double *e, double *cptr)$/;"	f
+DeceTableMF32RRR	decetable32.cpp	/^int DeceTableMF32RRR(int idx, int lrf, ENDF *lib)$/;"	f
+DeceTableMF32URR	decetable32.cpp	/^int DeceTableMF32URR(int idx, ENDF *lib)$/;"	f
+DeceTableMF33	decetable33.cpp	/^void DeceTableMF33(ENDF *lib)$/;"	f
+DeceTableMF33NC	decetable33.cpp	/^int  DeceTableMF33NC(int idx, const int nc, ENDF *lib)$/;"	f
+DeceTableMF33NI	decetable33.cpp	/^int  DeceTableMF33NI(int idx, const int ni, ENDF *lib)$/;"	f
+DeceTableMF33NILB0	decetable33.cpp	/^int DeceTableMF33NILB0(int idx, ENDF *lib)$/;"	f
+DeceTableMF33NILB5	decetable33.cpp	/^int DeceTableMF33NILB5(int idx, ENDF *lib)$/;"	f
+DeceTableMF33NILB6	decetable33.cpp	/^int DeceTableMF33NILB6(int idx, ENDF *lib)$/;"	f
+DeceTableMF33NILB8	decetable33.cpp	/^int DeceTableMF33NILB8(int idx, ENDF *lib)$/;"	f
+DeceTableMF34	decetable34.cpp	/^void DeceTableMF34(ENDF *lib)$/;"	f
+DeceTableMF35	decetable35.cpp	/^void DeceTableMF35(ENDF *lib)$/;"	f
+DeceTableMF4	decetable4.cpp	/^void DeceTableMF4(ENDF *lib)$/;"	f
+DeceTableMF5	decetable5.cpp	/^void DeceTableMF5(ENDF *lib)$/;"	f
+DeceTableMF6	decetable6.cpp	/^void DeceTableMF6(ENDF *lib3, ENDF *lib6)$/;"	f
+DeceTableMF6Law1	decetable6.cpp	/^int DeceTableMF6Law1(ENDF *lib6, int idx)$/;"	f
+DeceTableMF6Law1Lang1	decetable6.cpp	/^void DeceTableMF6Law1Lang1(ENDF *lib6, int idx)$/;"	f
+DeceTableMF6Law1Lang2	decetable6.cpp	/^void DeceTableMF6Law1Lang2(ENDF *lib6, int idx)$/;"	f
+DeceTableMF6Law2	decetable6.cpp	/^int DeceTableMF6Law2(ENDF *lib6, int idx)$/;"	f
+DeceTableMF6Law5	decetable6.cpp	/^int DeceTableMF6Law5(ENDF *lib6, int idx)$/;"	f
+DeceTableMF6Law6	decetable6.cpp	/^int DeceTableMF6Law6(ENDF *lib6, int idx)$/;"	f
+DeceTableMF6Law7	decetable6.cpp	/^int DeceTableMF6Law7(ENDF *lib6, int idx)$/;"	f
+DeceTableMF7	decetable7.cpp	/^void DeceTableMF7(ENDF *lib)$/;"	f
+DeceTableMF7MT2c	decetable7.cpp	/^void DeceTableMF7MT2c(ENDF *lib)$/;"	f
+DeceTableMF7MT2i	decetable7.cpp	/^void DeceTableMF7MT2i(ENDF *lib)$/;"	f
+DeceTableMF7MT4i	decetable7.cpp	/^void DeceTableMF7MT4i(ENDF *lib)$/;"	f
+DeceTableMF8	decetable8.cpp	/^void DeceTableMF8(ENDF *lib)$/;"	f
+DeceTableMF8MT454	decetable8.cpp	/^void DeceTableMF8MT454(ENDF *lib)$/;"	f
+DeceTableMF8MT457	decetable8.cpp	/^void DeceTableMF8MT457(ENDF *lib)$/;"	f
+DeceTableMF8Other	decetable8.cpp	/^void DeceTableMF8Other(ENDF *lib)$/;"	f
+DeceTableMF9	decetable9.cpp	/^void DeceTableMF9(ENDF *lib)$/;"	f
+EALPHA	constant.h	/^const double EALPHA      =  2.42492      ; \/* Alpha Mass Excess    [MeV]     *\/$/;"	v
+EDEUTERON	constant.h	/^const double EDEUTERON   = 13.13584      ; \/* Deuteron Mass Excess [MeV]     *\/$/;"	v
+EHELIUM3	constant.h	/^const double EHELIUM3    = 14.93132      ; \/* Helium-3 Mass Excess [MeV]     *\/$/;"	v
+ENDF	endflib.h	/^  ENDF(){$/;"	f	class:ENDF
+ENDF	endflib.h	/^class ENDF{$/;"	c
+ENDFDelExp	endflib.cpp	/^inline void ENDFDelExp(double x, char *num)$/;"	f
+ENDFDict	endflib.h	/^  ENDFDict(){$/;"	f	class:ENDFDict
+ENDFDict	endflib.h	/^class ENDFDict{$/;"	c
+ENDFExceedDataSize	endflib.cpp	/^void ENDFExceedDataSize(const string loc, ENDF *lib, const int ni, const int nx)$/;"	f
+ENDFExceedSubBlock	endflib.cpp	/^void ENDFExceedSubBlock(const string loc, ENDF *lib)$/;"	f
+ENDFExtract	endflib.cpp	/^void ENDFExtract(ifstream *fp, int mf, int mt)$/;"	f
+ENDFInterpolation	endflib.cpp	/^double ENDFInterpolation(ENDF *lib, double x, bool dupflag, const int idx)$/;"	f
+ENDFLibCopy	endflib.cpp	/^void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)$/;"	f
+ENDFLibPeek	endflib.cpp	/^void ENDFLibPeek(ENDF *lib)$/;"	f
+ENDFMF2boundary	endflib.cpp	/^void ENDFMF2boundary(ENDFDict *dict, ENDF *lib)$/;"	f
+ENDFMergeXdata	endflib.cpp	/^int ENDFMergeXdata(ENDF *lib1, ENDF *lib2, double *z)$/;"	f
+ENDFNextCONT	endflib.cpp	/^Record ENDFNextCONT(ifstream *fp)$/;"	f
+ENDFPackCONT	endflib.cpp	/^void ENDFPackCONT(Record cont, ENDF *lib)$/;"	f
+ENDFPackLIST	endflib.cpp	/^void ENDFPackLIST(Record cont, double *xdat, ENDF *lib)$/;"	f
+ENDFPackTAB1	endflib.cpp	/^void ENDFPackTAB1(Record cont, int *idat, double *xdat, ENDF *lib)$/;"	f
+ENDFPackTAB2	endflib.cpp	/^void ENDFPackTAB2(Record cont, Record *cdat, int *idat, double **xtab, ENDF *lib)$/;"	f
+ENDFPackTAB21	endflib.cpp	/^void ENDFPackTAB21(Record cont, int *idat, Record *cdat, int **itab, double **xtab, ENDF *lib)$/;"	f
+ENDFPadExp	endflib.cpp	/^inline double ENDFPadExp(string str)$/;"	f
+ENDFPrint1Dim	endfio.cpp	/^void ENDFPrint1Dim(ENDF *lib, const int idx){ ENDFPrint1Dim(lib, idx, "", ""); }$/;"	f
+ENDFPrint1Dim	endfio.cpp	/^void ENDFPrint1Dim(ENDF *lib, const int idx, string xname, string yname)$/;"	f
+ENDFPrintLIST	endfio.cpp	/^void ENDFPrintLIST(ENDF *lib, const int idx){ ENDFPrintLIST(lib, idx, "", ""); }$/;"	f
+ENDFPrintLIST	endfio.cpp	/^void ENDFPrintLIST(ENDF *lib, const int idx, string xname, string yname)$/;"	f
+ENDFPrintLineNumber	endflib.cpp	/^void ENDFPrintLineNumber(bool x)$/;"	f
+ENDFPrintRight	endflib.cpp	/^void ENDFPrintRight(int mat, int mf, int mt)$/;"	f
+ENDFRead	endfio.cpp	/^int ENDFRead(ifstream *fp, ENDF *lib, const int mf, const int mt)$/;"	f
+ENDFReadArray	endflib.cpp	/^int ENDFReadArray(ifstream *fp, int m, int n, double *x)$/;"	f
+ENDFReadArray	endflib.cpp	/^int ENDFReadArray(ifstream *fp, int m, int n, int *x)$/;"	f
+ENDFReadArray	endflib.cpp	/^int ENDFReadArray(ifstream *fp, int m, int n, int d, double *x)$/;"	f
+ENDFReadCONT	endflib.cpp	/^Record ENDFReadCONT(ifstream *fp, ENDF *lib)$/;"	f
+ENDFReadINTG	endflib.cpp	/^Record ENDFReadINTG(ifstream *fp, ENDF *lib)$/;"	f
+ENDFReadLIST	endflib.cpp	/^Record ENDFReadLIST(ifstream *fp, ENDF *lib)$/;"	f
+ENDFReadMF1	endfio.cpp	/^int ENDFReadMF1(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF10	endfio.cpp	/^int ENDFReadMF10(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF12	endfio.cpp	/^int ENDFReadMF12(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF13	endfio.cpp	/^int ENDFReadMF13(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF14	endfio.cpp	/^int ENDFReadMF14(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF15	endfio.cpp	/^int ENDFReadMF15(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF2	endfio.cpp	/^int ENDFReadMF2(ifstream *fp, ENDF *lib)$/;"	f
+ENDFReadMF3	endfio.cpp	/^int ENDFReadMF3(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF31	endfio.cpp	/^int ENDFReadMF31(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF32	endfio.cpp	/^int ENDFReadMF32(ifstream *fp, ENDF *lib)$/;"	f
+ENDFReadMF33	endfio.cpp	/^int ENDFReadMF33(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF34	endfio.cpp	/^int ENDFReadMF34(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF35	endfio.cpp	/^int ENDFReadMF35(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF4	endfio.cpp	/^int ENDFReadMF4(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF5	endfio.cpp	/^int ENDFReadMF5(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF6	endfio.cpp	/^int ENDFReadMF6(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF7	endfio.cpp	/^int ENDFReadMF7(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF8	endfio.cpp	/^int ENDFReadMF8(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadMF9	endfio.cpp	/^int ENDFReadMF9(ifstream *fp, ENDF *lib, const int mt)$/;"	f
+ENDFReadTAB1	endflib.cpp	/^Record ENDFReadTAB1(ifstream *fp, ENDF *lib)$/;"	f
+ENDFReadTAB2	endflib.cpp	/^Record ENDFReadTAB2(ifstream *fp, ENDF *lib)$/;"	f
+ENDFReadTAB21	endflib.cpp	/^Record ENDFReadTAB21(ifstream *fp, ENDF *lib)$/;"	f
+ENDFReadTAB22	endflib.cpp	/^Record ENDFReadTAB22(ifstream *fp, ENDF *lib)$/;"	f
+ENDFReadTAB2L	endflib.cpp	/^Record ENDFReadTAB2L(ifstream *fp, ENDF *lib)$/;"	f
+ENDFScanLibrary	endflib.cpp	/^int ENDFScanLibrary(string libname, ENDFDict *dict)$/;"	f
+ENDFSeekHead	endflib.cpp	/^int ENDFSeekHead(ifstream *fp, ENDF *lib, const int mfsearch, const int mtsearch)$/;"	f
+ENDFSplitCONT	endflib.cpp	/^Record ENDFSplitCONT()$/;"	f
+ENDFText	endftext.h	/^  ENDFText(const int m, const int x, const int y){$/;"	f	class:ENDFText
+ENDFText	endftext.h	/^class ENDFText{$/;"	c
+ENDFWrite	endfio.cpp	/^void ENDFWrite(ENDF *lib)$/;"	f
+ENDFWriteArray	endflib.cpp	/^void ENDFWriteArray(ENDF *lib, int m, int n, int d, double *x)$/;"	f
+ENDFWriteArray	endflib.cpp	/^void ENDFWriteArray(ENDF *lib, int np, double *x)$/;"	f
+ENDFWriteArray	endflib.cpp	/^void ENDFWriteArray(ENDF *lib, int np, int *x)$/;"	f
+ENDFWriteCONT	endflib.cpp	/^Record ENDFWriteCONT(ENDF *lib)$/;"	f
+ENDFWriteDICT	endflib.cpp	/^void ENDFWriteDICT(ENDF *lib, int mf, int mt, int nc, int mod)$/;"	f
+ENDFWriteFEND	endflib.cpp	/^void ENDFWriteFEND(int mat)$/;"	f
+ENDFWriteHEAD	endflib.cpp	/^void ENDFWriteHEAD(ENDF *lib)$/;"	f
+ENDFWriteINTG	endflib.cpp	/^Record ENDFWriteINTG(ENDF *lib)$/;"	f
+ENDFWriteLIST	endflib.cpp	/^Record ENDFWriteLIST(ENDF *lib)$/;"	f
+ENDFWriteMF1	endfio.cpp	/^void ENDFWriteMF1(ENDF *lib)$/;"	f
+ENDFWriteMF10	endfio.cpp	/^void ENDFWriteMF10(ENDF *lib)$/;"	f
+ENDFWriteMF12	endfio.cpp	/^void ENDFWriteMF12(ENDF *lib)$/;"	f
+ENDFWriteMF13	endfio.cpp	/^void ENDFWriteMF13(ENDF *lib)$/;"	f
+ENDFWriteMF14	endfio.cpp	/^void ENDFWriteMF14(ENDF *lib)$/;"	f
+ENDFWriteMF15	endfio.cpp	/^void ENDFWriteMF15(ENDF *lib)$/;"	f
+ENDFWriteMF2	endfio.cpp	/^void ENDFWriteMF2(ENDF *lib)$/;"	f
+ENDFWriteMF3	endfio.cpp	/^void ENDFWriteMF3(ENDF *lib)$/;"	f
+ENDFWriteMF31	endfio.cpp	/^void ENDFWriteMF31(ENDF *lib)$/;"	f
+ENDFWriteMF32	endfio.cpp	/^void ENDFWriteMF32(ENDF *lib)$/;"	f
+ENDFWriteMF33	endfio.cpp	/^void ENDFWriteMF33(ENDF *lib)$/;"	f
+ENDFWriteMF34	endfio.cpp	/^void ENDFWriteMF34(ENDF *lib)$/;"	f
+ENDFWriteMF35	endfio.cpp	/^void ENDFWriteMF35(ENDF *lib)$/;"	f
+ENDFWriteMF4	endfio.cpp	/^void ENDFWriteMF4(ENDF *lib)$/;"	f
+ENDFWriteMF5	endfio.cpp	/^void ENDFWriteMF5(ENDF *lib)$/;"	f
+ENDFWriteMF6	endfio.cpp	/^void ENDFWriteMF6(ENDF *lib)$/;"	f
+ENDFWriteMF7	endfio.cpp	/^void ENDFWriteMF7(ENDF *lib)$/;"	f
+ENDFWriteMF8	endfio.cpp	/^void ENDFWriteMF8(ENDF *lib)$/;"	f
+ENDFWriteMF9	endfio.cpp	/^void ENDFWriteMF9(ENDF *lib)$/;"	f
+ENDFWriteRecord	endflib.cpp	/^void ENDFWriteRecord(Record cont)$/;"	f
+ENDFWriteSEND	endflib.cpp	/^void ENDFWriteSEND(ENDF *lib)$/;"	f
+ENDFWriteTAB1	endflib.cpp	/^Record ENDFWriteTAB1(ENDF *lib)$/;"	f
+ENDFWriteTAB2	endflib.cpp	/^Record ENDFWriteTAB2(ENDF *lib)$/;"	f
+ENDFWriteTAB21	endflib.cpp	/^Record ENDFWriteTAB21(ENDF *lib)$/;"	f
+ENDFWriteTAB22	endflib.cpp	/^Record ENDFWriteTAB22(ENDF *lib)$/;"	f
+ENDFWriteTAB2L	endflib.cpp	/^Record ENDFWriteTAB2L(ENDF *lib)$/;"	f
+ENDFWriteTEXT	endflib.cpp	/^void ENDFWriteTEXT(ENDF *lib, string txt)$/;"	f
+ENDFWriteTPID	endflib.cpp	/^void ENDFWriteTPID(ENDFDict *dic)$/;"	f
+ENEUTRON	constant.h	/^const double ENEUTRON    =  8.071431     ; \/* Neutron Mass Excess  [MeV]     *\/$/;"	v
+EPROTON	constant.h	/^const double EPROTON     =  7.289034     ; \/* Proton Mass Excess   [MeV]     *\/$/;"	v
+EPS	polycalc.cpp	/^const double EPS = 1.0e-72;$/;"	v
+ERR_NEG	polycalc.cpp	/^const int ERR_NEG = -1;  \/* Matrix not positiv *\/$/;"	v
+ERR_PIV	polycalc.cpp	/^const int ERR_PIV = -2;  \/* Pivot zero         *\/$/;"	v
+ETRITON	constant.h	/^const double ETRITON     = 14.94994      ; \/* Triron Mass Excess   [MeV]     *\/$/;"	v
+EULER	constant.h	/^const double EULER       = 0.577215664901532860607; \/* Euler-Mascheroni      *\/$/;"	v
+EditRangeMax	global.h	/^  double EditRangeMax          ;    \/\/ data modification range, high-side$/;"	m	class:GlobalOption
+EditRangeMin	global.h	/^  double EditRangeMin          ;    \/\/ data modification range, low-side$/;"	m	class:GlobalOption
+FIELD_WIDTH	endflib.h	/^#define FIELD_WIDTH /;"	d
+FirstCall	gfr.h	/^  void FirstCall(){ first_call = true; }$/;"	f	class:System
+GFRcross	gfr.h	/^  GFRcross(){$/;"	f	class:GFRcross
+GFRcross	gfr.h	/^  GFRcross(const int n){$/;"	f	class:GFRcross
+GFRcross	gfr.h	/^class GFRcross{$/;"	c
+GlobalOption	global.h	/^  GlobalOption(){$/;"	f	class:GlobalOption
+GlobalOption	global.h	/^class GlobalOption{$/;"	c
+H	gfr.h	/^  complex<double> H;       \/\/ Hanlel function, G+iF$/;"	m	class:ChannelWaveFunc
+HBAR	constant.h	/^const double HBAR        = 6.58212196e-22; \/* Planck's constant\/2pi [MeV sec]*\/$/;"	v
+HBARSQ	constant.h	/^const double HBARSQ      = 4.33243296e-43; \/* HBAR*HBAR                      *\/$/;"	v
+HUGE_NUMBER	coulomb.cpp	/^static const double HUGE_NUMBER        =  1e+64;$/;"	v	file:
+INIT_DBLDATA	endflib.h	/^static const int INIT_DBLDATA  =     100;  \/\/ initially allocated DBL data buffer$/;"	v
+INIT_INTDATA	endflib.h	/^static const int INIT_INTDATA  =      10;  \/\/ initially allocated INT data buffer$/;"	v
+INIT_SUBBLOCK	endflib.h	/^static const int INIT_SUBBLOCK =      10;  \/\/ initially allocated CONT records$/;"	v
+L	gfr.h	/^  complex<double> L;       \/\/ L-function, (G'+iF')\/(G+iF) * rho$/;"	m	class:ChannelWaveFunc
+LINE_NUMBER	endflib.cpp	/^static bool   LINE_NUMBER = false;$/;"	v	file:
+LMAX	gfr.h	/^const int LMAX          =    5;$/;"	v
+LastCall	gfr.h	/^  void LastCall(){ last_call = true; }$/;"	f	class:System
+LineNumber	global.h	/^  bool   LineNumber            ;    \/\/ print line numbers$/;"	m	class:GlobalOption
+MALPHA	constant.h	/^const double MALPHA      = 4.0026032     ; \/* Alpha Weight    [amu]          *\/$/;"	v
+MAX_ANGLE	gfr.h	/^const int MAX_ANGLE     =  360;$/;"	v
+MAX_DBLDATA	endflib.h	/^static const int MAX_DBLDATA   = 5000000;  \/\/ set double data memory buffer of 400 MB$/;"	v
+MAX_ENERGY	deceangdist.cpp	/^static const int MAX_ENERGY   = 100;$/;"	v	file:
+MAX_EPOINTS	gfrcsurr.cpp	/^static const int MAX_EPOINTS    = 100;$/;"	v	file:
+MAX_FACTORIAL	coupling.h	/^const int    MAX_FACTORIAL = 200;        \/\/ maximal factorial n!  (2 x Lmax)$/;"	v
+MAX_GAUSS20	gfrcsurr.cpp	/^static int MAX_GAUSS20 = 10;$/;"	v	file:
+MAX_INTDATA	endflib.h	/^static const int MAX_INTDATA   =  500000;  \/\/ integer data max size of 2 MB$/;"	v
+MAX_ITERATION	coulomb.cpp	/^static const int    MAX_ITERATION      =  50000;$/;"	v	file:
+MAX_L	coulomb.cpp	/^static const int    MAX_L              =     60;$/;"	v	file:
+MAX_LEGCOEF	deceangdist.cpp	/^static const int MAX_LEGCOEF  =  60;$/;"	v	file:
+MAX_PAIRS	gfr.h	/^const int MAX_PAIRS     =   10;$/;"	v
+MAX_RESONANCE	gfr.h	/^const int MAX_RESONANCE = 5000;$/;"	v
+MAX_SECTION	endflib.h	/^static const int MAX_SECTION   =    1000;  \/\/ max number of sections defined by MF\/MT$/;"	v
+MAX_SUBBLOCK	endflib.h	/^static const int MAX_SUBBLOCK  =  100000;  \/\/ limit max number of sub-blocks (3.2MB)$/;"	v
+MAX_TEXTLENGTH	command.h	/^#define MAX_TEXTLENGTH /;"	d
+MAX_URESONANCE	gfrcsurr.cpp	/^static const int MAX_URESONANCE =  20;$/;"	v	file:
+MAX_XSEC	gfr.h	/^const int MAX_XSEC      =  100;$/;"	v
+MDEUTERON	constant.h	/^const double MDEUTERON   = 2.0141018     ; \/* Deuteron Weight [amu]          *\/$/;"	v
+METHOD_A	gfrcs7.cpp	/^#undef METHOD_A$/;"	d	file:
+METHOD_ORIG	gfrformula.cpp	/^#undef METHOD_ORIG$/;"	d	file:
+MHELIUM3	constant.h	/^const double MHELIUM3    = 3.0260294     ; \/* Helium-3 Weight [amu]          *\/$/;"	v
+MNEUTRON	constant.h	/^const double MNEUTRON    = 1.008664891   ; \/* Neutron Weight  [amu]          *\/$/;"	v
+MPROTON	constant.h	/^const double MPROTON     = 1.007276487   ; \/* Proton Weight   [amu]          *\/$/;"	v
+MTRITON	constant.h	/^const double MTRITON     = 3.0160494     ; \/* Triton Weight   [amu]          *\/$/;"	v
+MULT_MEMSIZE	endflib.h	/^static const int MULT_MEMSIZE  =       2;  \/\/ multiplication of memory size$/;"	v
+MassExcess	masstable.h	/^class MassExcess{$/;"	c
+MassTable	masstable_audi2011.h	/^static MassExcess MassTable[] = {$/;"	v
+MassTable	masstable_audi2012_frdm2012.h	/^static MassExcess MassTable[] = {$/;"	v
+MassTable	masstable_ripl2.h	/^static MassExcess MassTable[] = {$/;"	v
+MassTable	masstable_ripl3.h	/^static MassExcess MassTable[] = {$/;"	v
+MatrixInverse	matrix.cpp	/^int MatrixInverse(const int m, complex<double> *a)$/;"	f
+MatrixInverse1	matrix.cpp	/^int MatrixInverse1(const int m, complex<double> **a, complex<double> **b)$/;"	f
+MatrixInverse2	matrix.cpp	/^int MatrixInverse2(const int m, complex<double> **a, complex<double> **b)$/;"	f
+MatrixInverseCalc1	matrix.cpp	/^int MatrixInverseCalc1(const int n, complex<double> *a)$/;"	f
+MatrixInverseCalc2	matrix.cpp	/^int MatrixInverseCalc2(const int n, complex<double> **a,  complex<double> *b)$/;"	f
+MatrixInverseCholeski	matrix.cpp	/^int MatrixInverseCholeski(const int n, complex<double> *a)$/;"	f
+MatrixLUDecomposition	matrix.cpp	/^int MatrixLUDecomposition(const int n, complex<double> **a)$/;"	f
+MatrixPrint	matrix.cpp	/^void MatrixPrint(const int m, complex<double> **u)$/;"	f
+MatrixPrint	matrix.cpp	/^void MatrixPrint(const int m, complex<double> *u)$/;"	f
+NRANGE	gfr.h	/^const int NRANGE        =   10;$/;"	v
+Ndiv	deceprocgroup.cpp	/^static const int Ndiv = 10;$/;"	v	file:
+Notice	dece.cpp	/^void Notice(string module){$/;"	f
+OnceCalled	gfr.h	/^  void OnceCalled(){ first_call = false; }$/;"	f	class:System
+Output	global.h	/^  string Output                ;    \/\/ file name table\/extract output will be written$/;"	m	class:GlobalOption
+P	gfr.h	/^  double P(){ return L.imag(); }$/;"	f	class:ChannelWaveFunc
+PERMITTIV	constant.h	/^const double PERMITTIV   = 5.60958617e+37; \/* permittivity [MeV fm \/C^2]     *\/$/;"	v
+PI	constant.h	/^const double PI          = 3.14159265358979323846;  \/* circular constant     *\/$/;"	v
+PI	polysq.h	/^const double PI         =  3.14159265358979323846  ;  \/* circular constant    *\/$/;"	v
+ParPair	gfr.h	/^  ParPair(){$/;"	f	class:ParPair
+ParPair	gfr.h	/^class ParPair{$/;"	c
+Pcross	gfr.h	/^  Pcross(){$/;"	f	class:Pcross
+Pcross	gfr.h	/^class Pcross{$/;"	c
+PeekObject	dece.cpp	/^#undef PeekObject /;"	d	file:
+RMLAllocateMemory	gfrcs7.cpp	/^void RMLAllocateMemory(const int ner, System *sys, ENDF *lib)$/;"	f
+RMLArrangeMatrix	gfrcs7.cpp	/^int RMLArrangeMatrix(const int k, RMLParameter *r, double **p, ChannelWaveFunc *wf, int *mtid, int *dptr, double *gm, complex<double> *phi0, complex<double> *phiC)$/;"	f
+RMLChannel	gfr.h	/^  RMLChannel(){$/;"	f	class:RMLChannel
+RMLChannel	gfr.h	/^class RMLChannel{$/;"	c
+RMLCopyCrossSection	gfrcs7.cpp	/^Pcross RMLCopyCrossSection(const double elab, GFRcross *sig)$/;"	f
+RMLCrossSection	gfrcs7.cpp	/^void RMLCrossSection(const int mch, RMLChannel *chn, GFRcross *z, int *mtid, int *dptr, complex<double> *sm, complex<double> *xm, complex<double> *phiC)$/;"	f
+RMLFreeMemory	gfrcs7.cpp	/^void RMLFreeMemory(const int nj)$/;"	f
+RMLIncidentChannel	gfrcs7.cpp	/^double RMLIncidentChannel(const double elab, System *sys)$/;"	f
+RMLLoadParticlePairs	gfrcs7.cpp	/^int RMLLoadParticlePairs(int idx, System *sys, ENDF *lib)$/;"	f
+RMLLoadResonanceParameters	gfrcs7.cpp	/^int RMLLoadResonanceParameters(int idx, System *sys, ENDF *lib)$/;"	f
+RMLMainCalc	gfrcs7.cpp	/^void RMLMainCalc(const double elab, System *sys, GFRcross *sig)$/;"	f
+RMLMatrices	gfrcs7.cpp	/^void RMLMatrices(const double elab, const int mch, RMLParameter *r, double **p, ChannelWaveFunc *wf, int *mtid, int *dptr, complex<double> *sm, complex<double> *xm, complex<double> *phi0, complex<double> *phiC)$/;"	f
+RMLParameter	gfr.h	/^  RMLParameter(){$/;"	f	class:RMLParameter
+RMLParameter	gfr.h	/^class RMLParameter{$/;"	c
+RMLStoreChannelParameter	gfrcs7.cpp	/^void RMLStoreChannelParameter(System *sys, RMLParameter *r, RMLChannel *chn)$/;"	f
+RMLStorePenetrability	gfrcs7.cpp	/^void RMLStorePenetrability(System *sys, RMLParameter *r, RMLChannel *chn, double **p)$/;"	f
+RMLStorePhaseShift	gfrcs7.cpp	/^void RMLStorePhaseShift(RMLParameter *r, RMLChannel *chn, ChannelWaveFunc *wf)$/;"	f
+RMLoadResonances	gfrcs3.cpp	/^int RMLoadResonances(int idx, System *sys, ENDF *lib)$/;"	f
+RMMainCalc	gfrcs3.cpp	/^Pcross RMMainCalc(const double elab, System *sys)$/;"	f
+RMResonance	gfr.h	/^class RMResonance : public Resonance{$/;"	c
+RMResonancePenetrability	gfrcs3.cpp	/^void RMResonancePenetrability(const int ner, System *sys, ENDF *lib)$/;"	f
+RMScatteringRadius	gfrcs3.cpp	/^void RMScatteringRadius(const int ner, System *sys, const double elab, ENDF *lib)$/;"	f
+ReadRangeMax	global.h	/^  double ReadRangeMax          ;    \/\/ data reading range, high-side$/;"	m	class:GlobalOption
+ReadRangeMin	global.h	/^  double ReadRangeMin          ;    \/\/ data reading range, low-side$/;"	m	class:GlobalOption
+ReadXdataConversion	global.h	/^  double ReadXdataConversion   ;    \/\/ conversion factor of energy when importing data$/;"	m	class:GlobalOption
+ReadYdataConversion	global.h	/^  double ReadYdataConversion   ;    \/\/ conversion factor of cross section$/;"	m	class:GlobalOption
+Record	endflib.h	/^    Record(){$/;"	f	class:Record
+Record	endflib.h	/^    Record(double a, double b, int c, int d, int e, int f){$/;"	f	class:Record
+Record	endflib.h	/^class Record{$/;"	c
+Resonance	gfr.h	/^class Resonance{$/;"	c
+Rfunc	coulomb.cpp	/^inline static double Rfunc(int k, double eta)$/;"	f	file:
+S	gfr.h	/^  complex<double> S;$/;"	m	class:SElement
+S	gfr.h	/^  double S(){ return L.real(); }$/;"	f	class:ChannelWaveFunc
+SElement	gfr.h	/^  SElement(){$/;"	f	class:SElement
+SElement	gfr.h	/^class SElement{$/;"	c
+Sfunc	coulomb.cpp	/^inline static double Sfunc(int k, double eta, double rho)$/;"	f	file:
+Smat	gfr.cpp	/^Smatrix Smat;$/;"	v
+Smatrix	gfr.h	/^  Smatrix(){$/;"	f	class:Smatrix
+Smatrix	gfr.h	/^class Smatrix{$/;"	c
+System	gfr.h	/^  System(){$/;"	f	class:System
+System	gfr.h	/^class System{$/;"	c
+TEXT_WIDTH	endflib.h	/^#define TEXT_WIDTH /;"	d
+TEXT_WIDTH	endftext.h	/^#define TEXT_WIDTH /;"	d
+TINY_NUMBER	coulomb.cpp	/^static const double TINY_NUMBER        =  1e-64;$/;"	v	file:
+TerminateCode	dece.cpp	/^int TerminateCode(string module)$/;"	f
+Tfunc	coulomb.cpp	/^inline static double Tfunc(int k, double eta, double rho)$/;"	f	file:
+UBWResonance	gfr.h	/^class UBWResonance : public Resonance{$/;"	c
+URResonance	gfr.h	/^  URResonance(){$/;"	f	class:URResonance
+URResonance	gfr.h	/^class URResonance {$/;"	c
+VALUE_CUTOFF	coulomb.cpp	/^static const double VALUE_CUTOFF       =  1e-24;$/;"	v	file:
+VLIGHT	constant.h	/^const double VLIGHT      = 2.99792458e+23; \/* light velocty [fm\/sec]         *\/$/;"	v
+VLIGHTSQ	constant.h	/^const double VLIGHTSQ    = 8.98755179e+46; \/* VLIGHT*VLIGHT                  *\/$/;"	v
+WarningMessage	dece.cpp	/^void WarningMessage()$/;"	f
+WriteXdataConversion	global.h	/^  double WriteXdataConversion  ;    \/\/ conversion factor when tabulating energy$/;"	m	class:GlobalOption
+WriteYdataConversion	global.h	/^  double WriteYdataConversion  ;    \/\/ conversion factor when tabulating cross section$/;"	m	class:GlobalOption
+Z	kalbach.h	/^    unsigned int Z;$/;"	m	class:ZAnumber
+ZAnumber	kalbach.h	/^    ZAnumber(){$/;"	f	class:ZAnumber
+ZAnumber	kalbach.h	/^    ZAnumber(int z, int a){$/;"	f	class:ZAnumber
+ZAnumber	kalbach.h	/^class ZAnumber{ $/;"	c
+__CSTDLIB__	endflib.h	/^#define __CSTDLIB__$/;"	d
+__CSTRING_H__	endftext.h	/^#define __CSTRING_H__$/;"	d
+__ENDFLIB_H__	dece.h	/^#define __ENDFLIB_H__$/;"	d
+a	gfr.h	/^  double          a;       \/\/ channel radius$/;"	m	class:ChannelWaveFunc
+add	gfr.h	/^  void add(const int t, const double d){$/;"	f	class:GFRcross
+addDict	endflib.h	/^  bool addDict(int n1, int n2, int c, int k){$/;"	f	class:ENDFDict
+addata	deceangdist.cpp	/^static bool   addata = true;$/;"	v	file:
+addpoint	decepoint.cpp	/^void addpoint(ENDF *lib, const double x, const double y)$/;"	f
+addsection	dececalc.cpp	/^void addsection(char pm, ENDF *src, ENDF *dest)$/;"	f
+allocated	endflib.h	/^  bool      allocated;  \/\/ memory allocation flag$/;"	m	class:ENDF
+allocated	endftext.h	/^    bool allocated;     \/\/ flag for memory allocation$/;"	m	class:ENDFText
+allocated	gfr.h	/^  bool   allocated; \/\/ memory allocation flag$/;"	m	class:GFRcross
+allocated	gfr.h	/^  bool   allocated;$/;"	m	class:RMLParameter
+allocated	gfr.h	/^  bool   allocated;$/;"	m	class:URResonance
+allocated	gfr.h	/^  bool allocated;$/;"	m	class:Smatrix
+alpha	gfr.h	/^  double alpha;               \/\/ alpha = kR$/;"	m	class:System
+alpha	gfr.h	/^  double alpha;$/;"	m	class:Pcross
+alpha_effective	gfr.h	/^  double alpha_effective;     \/\/ k a(effective) $/;"	m	class:RMLChannel
+alpha_true	gfr.h	/^  double alpha_true;          \/\/ k a(true)$/;"	m	class:RMLChannel
+ap_pen	gfrcs1.cpp	/^static double ap_pen = 0.0, ap_phi = 0.0;$/;"	v	file:
+ap_pen	gfrcs3.cpp	/^static double ap_pen = 0.0, ap_phi = 0.0;$/;"	v	file:
+ap_phi	gfrcs1.cpp	/^static double ap_pen = 0.0, ap_phi = 0.0;$/;"	v	file:
+ap_phi	gfrcs3.cpp	/^static double ap_pen = 0.0, ap_phi = 0.0;$/;"	v	file:
+apl	gfr.h	/^  double *apl;                \/\/ L-dependent radius;$/;"	m	class:System
+argc	command.cpp	/^static int argc = 0;$/;"	v	file:
+arrange_matrixRM	gfrformula.cpp	/^double arrange_matrixRM(double d, double *x, RMResonance *res)$/;"	f
+arrange_matrixSLBW	gfrformula.cpp	/^double arrange_matrixSLBW(double d, double *x, BWResonance *res)$/;"	f
+avefission_flag	gfr.h	/^  int    avefission_flag;     \/\/ averaged fission width given$/;"	m	class:System
+awr	deceangdist.cpp	/^static double za = 0.0, awr = 0.0;$/;"	v	file:
+base	decetable32.cpp	/^static double base[] = {1.0, 1e+1, 1e+2, 1e+3, 1e+4, 1e+5, 1e+6};$/;"	v	file:
+blank	deceoutput.cpp	/^static string blank = "           ";$/;"	v	file:
+blank	endflib.cpp	/^static string blank = "           ";$/;"	v	file:
+breit_wigner_profile	gfrformula.cpp	/^inline complex<double> breit_wigner_profile(complex<double> e, double e0, double g)$/;"	f
+bw	gfr.h	/^  UBWResonance *bw;$/;"	m	class:URResonance
+c1	endflib.h	/^    double    c1;$/;"	m	class:Record
+c2	endflib.h	/^    double    c2;$/;"	m	class:Record
+capture	gfr.h	/^  double capture;$/;"	m	class:Pcross
+cbuf	endflib.h	/^  char      *cbuf;        \/\/ buffer for TEXT lines and TPID$/;"	m	class:ENDFDict
+cg1	coupling.cpp	/^inline double cg1(const int x1, const int x2, const int x3)$/;"	f
+cg2	coupling.cpp	/^inline double cg2(const int k, const int q0, const int z1, const int z2, const int w1, const int w2, const int w3, const int mm)$/;"	f
+cg3	coupling.cpp	/^inline double cg3(const int x1, const int x2, const int x3, const int y1, const int y2, const int y3)$/;"	f
+charge	gfr.h	/^  bool   charge;              \/\/ flag for charged particle channel$/;"	m	class:RMLChannel
+charged_particle_file	deceread.cpp	/^static bool   charged_particle_file = false;$/;"	v	file:
+checkDataSize	endflib.h	/^  bool checkDataSize(int mi, int mx){$/;"	f	class:ENDF
+checkSUBBLOCK	endflib.h	/^  bool checkSUBBLOCK(void){$/;"	f	class:ENDF
+chmax	gfrcs7.cpp	/^static int msize = 0, chmax = 0;$/;"	v	file:
+clear	gfr.h	/^  void clear(){$/;"	f	class:GFRcross
+clear	gfr.h	/^  void clear(){$/;"	f	class:Pcross
+clebsh_gordan	coupling.cpp	/^double clebsh_gordan(const int j1, const int j2, const int m1, const int m2, const int j3)$/;"	f
+clebsh_gordan	coupling.cpp	/^double clebsh_gordan(const int j1, const int j2, const int m1, const int m2, const int j3, const int m3)$/;"	f
+cmd	command.cpp	/^CLine cmd;$/;"	v
+cont	endflib.h	/^  Record    cont[3];      \/\/ CONT Records$/;"	m	class:ENDFDict
+copy	endftext.h	/^  void copy(char *src){$/;"	f	class:ENDFText
+coulomb	coulomb.cpp	/^void coulomb(const int l, const double rho, const double eta, complex<double> *Coul0, complex<double> *Coul1)$/;"	f
+coulomb	gfr.h	/^  double coulomb;             \/\/ Coulomb parmaeter$/;"	m	class:RMLChannel
+coulomb_function	coulomb.cpp	/^void coulomb_function(const int lmax, const double rho, const double eta, complex<double> *Coul0, complex<double> *Coul1)$/;"	f
+coulomb_phaseshift	coulomb.cpp	/^double coulomb_phaseshift(const int l, const double eta)$/;"	f
+ctr	endflib.h	/^  int       ctr;        \/\/ pointer to currently running block$/;"	m	class:ENDF
+d	gfr.h	/^  double   d ;      \/* average energy spacing *\/$/;"	m	class:UBWResonance
+datacopied	deceheader.cpp	/^static bool datacopied = false;$/;"	v	file:
+dataload	gfrcs1.cpp	/^static bool dataload = false;$/;"	v	file:
+dataload	gfrcs3.cpp	/^static bool dataload = false;$/;"	v	file:
+dataload	gfrcs7.cpp	/^static bool dataload = false;$/;"	v	file:
+ddxKalbach	kalbach.cpp	/^void ddxKalbach($/;"	f
+ddxKalbachAfac	kalbach.cpp	/^double ddxKalbachAfac(const int a, const int b, const double eout, const double sa, const double sb, const double ecms)$/;"	f
+ddxKalbachSetParm	kalbach.cpp	/^void ddxKalbachSetParm($/;"	f
+decetable4LEG	decetable4.cpp	/^int decetable4LEG(ENDF *lib, int idx)$/;"	f
+decetable4TAB	decetable4.cpp	/^int decetable4TAB(ENDF *lib, int idx)$/;"	f
+delpoint	decepoint.cpp	/^void delpoint(ENDF *lib, const double x)$/;"	f
+dff	gfr.h	/^  double dff ;      \/* degree-of-freedom for neutron width *\/$/;"	m	class:URResonance
+dfg	gfr.h	/^  double dfg ;      \/* degree-of-freedom for neutron width *\/$/;"	m	class:URResonance
+dfn	gfr.h	/^  double dfn ;      \/* degree-of-freedom for neutron width *\/$/;"	m	class:URResonance
+dfx	gfr.h	/^  double dfx ;      \/* degree-of-freedom for neutron width *\/$/;"	m	class:URResonance
+dictsort	deceoutput.cpp	/^void dictsort(ENDFDict *dict)$/;"	f
+ecms	gfr.h	/^  double ecms;                \/\/ CMS energy$/;"	m	class:RMLChannel
+ecms	gfr.h	/^  double ecms;                \/\/ CMS energy$/;"	m	class:System
+ejcid	kalbach.cpp	/^static int     ejcid = 0;       \/\/ ejectile particle ID$/;"	v	file:
+elastic	gfr.h	/^  double elastic;$/;"	m	class:Pcross
+element	gfr.h	/^  SElement *element;$/;"	m	class:Smatrix
+emax	gfr.h	/^  double *emax;               \/\/ Emax for the range$/;"	m	class:System
+emaxRR	endflib.h	/^  double    emaxRR;       \/\/ energy boundary of resolved resonance region$/;"	m	class:ENDFDict
+emaxRe	endflib.h	/^  double    emaxRe;       \/\/ either emaxRR or emaxUR depending on LSSF flag$/;"	m	class:ENDFDict
+emaxUR	endflib.h	/^  double    emaxUR;       \/\/ energy boundary of unresolved resonance region$/;"	m	class:ENDFDict
+emin	gfr.h	/^  double *emin;               \/\/ Emin for the range$/;"	m	class:System
+energy	gfr.h	/^  double  *energy;            \/\/ resonance energy$/;"	m	class:RMLParameter
+energy	gfr.h	/^  double energy;    \/\/ LAB energy$/;"	m	class:GFRcross
+energy	gfr.h	/^  double energy;$/;"	m	class:Pcross
+energy_step_accuracy	gfrenergy.cpp	/^static double energy_step_accuracy  = 0.01;$/;"	v	file:
+energy_step_expansion	gfrenergy.cpp	/^static double energy_step_expansion = 1.2;$/;"	v	file:
+energy_step_shrink	gfrenergy.cpp	/^static double energy_step_shrink    = 0.8;$/;"	v	file:
+eps	decepoint.cpp	/^static const double eps = 1.0e-7;$/;"	v	file:
+eps	polysq.cpp	/^static const double eps = 1.0e-03;$/;"	v	file:
+er	gfr.h	/^  double  er ;      \/* resonance energy *\/$/;"	m	class:Resonance
+estep	gfrenergy.cpp	/^static double estep[nstep] = {$/;"	v	file:
+exist	endflib.h	/^  bool exist(int n1, int n2){$/;"	f	class:ENDFDict
+fact	gfr.cpp	/^double gcLorentzianWidth = 0.0, *fact;$/;"	v
+factorial_allocate	coupling.cpp	/^void factorial_allocate()$/;"	f
+factorial_delete	coupling.cpp	/^void factorial_delete()$/;"	f
+filescan	dece.cpp	/^static bool   filescan = false;$/;"	v	file:
+findBoundary	deceread.cpp	/^double findBoundary(ENDF *lib)$/;"	f
+findIndex	gfr.h	/^  int findIndex(int pl, int pj2, int ps2){$/;"	f	class:Smatrix
+first_call	gfr.h	/^  bool   first_call;          \/\/ flag for multiple energy, start new calculation$/;"	m	class:System
+firstcall	decememory.cpp	/^static bool firstcall = true;$/;"	v	file:
+firstcall	deceoperation.cpp	/^static bool firstcall = true;$/;"	v	file:
+fission	gfr.h	/^  double fission;$/;"	m	class:Pcross
+fixdictionary	deceoutput.cpp	/^void fixdictionary(ifstream *fp, ENDFDict *dict)$/;"	f
+format	gfr.h	/^  int    format;              \/\/ format, should be 3$/;"	m	class:System
+foutstream	deceoperation.cpp	/^static ofstream  foutstream;$/;"	v	file:
+fpen	gfr.h	/^  int    fpen     ; \/* flag for penetrability *\/$/;"	m	class:ParPair
+fsft	gfr.h	/^  int    fsft     ; \/* flag for shift factor *\/$/;"	m	class:ParPair
+fwx	gfr.h	/^  double *fwx;                \/\/ fission widths$/;"	m	class:System
+gamma	gfr.h	/^  double **gamma;             \/\/ partial width$/;"	m	class:RMLParameter
+gammaunit_flag	gfr.h	/^  int    gammaunit_flag;      \/\/ IFG= 0: in eV, 1: in sqrt(eV)$/;"	m	class:System
+gauss20_a	gfrcsurr.cpp	/^gauss20_a[]={$/;"	v	file:
+gauss20_x	gfrcsurr.cpp	/^gauss20_x[]={$/;"	v	file:
+gcKfactor	gfr.h	/^const double gcKfactor = 0.2196771;$/;"	v
+gcLorentzianWidth	gfr.cpp	/^double gcLorentzianWidth = 0.0, *fact;$/;"	v
+geneADdata	deceangdist.cpp	/^int geneADdata(int mt, int ne, double eth, double *en, double *x, double **y, double **lg, Record *cont)$/;"	f
+geneCSdata	deceread.cpp	/^int geneCSdata(int n, double *x, double *y, double eth, double eres, double *xdat)$/;"	f
+geneCSdata1	deceread.cpp	/^int geneCSdata1(int n, double *x, double *y, double eth, double eres, double *xdat)$/;"	f
+geneCSdata2	deceread.cpp	/^int geneCSdata2(int n, double *x, double *y, double eres, double *xdat)$/;"	f
+generatepointwise	deceoperation.cpp	/^static bool generatepointwise = false;$/;"	v	file:
+get	gfr.h	/^  double get(const int t){$/;"	f	class:GFRcross
+getA	kalbach.h	/^    unsigned int getA(){ return (A); }$/;"	f	class:ZAnumber
+getAWI	endflib.h	/^  double getAWI  (){ return cont[1].c1; }$/;"	f	class:ENDFDict
+getAWR	endflib.h	/^  double getAWR  (){ return head.c2; }$/;"	f	class:ENDFDict
+getCTR	endflib.h	/^  int  getCTR (void)   { return ctr; }$/;"	f	class:ENDF
+getDICTcont	endflib.h	/^  Record getDICTcont(int i){ return cont[i]; }$/;"	f	class:ENDFDict
+getDICThead	endflib.h	/^  Record getDICThead(){ return head; }$/;"	f	class:ENDFDict
+getELIS	endflib.h	/^  double getELIS (){ return cont[0].c1; }$/;"	f	class:ENDFDict
+getEMAX	endflib.h	/^  double getEMAX (){ return cont[1].c2; }$/;"	f	class:ENDFDict
+getENDFcont	endflib.h	/^  Record getENDFcont(){ return rdata[ctr]; }$/;"	f	class:ENDF
+getENDFhead	endflib.h	/^  Record getENDFhead(){ return head; }$/;"	f	class:ENDF
+getENDFmat	endflib.h	/^  int getENDFmat(){ return mat; }$/;"	f	class:ENDF
+getENDFmf	endflib.h	/^  int getENDFmf (){ return mf; }$/;"	f	class:ENDF
+getENDFmt	endflib.h	/^  int getENDFmt (){ return mt; }$/;"	f	class:ENDF
+getElement	gfr.h	/^  complex<double> getElement(int k){$/;"	f	class:Smatrix
+getElement	gfr.h	/^  complex<double> getElement(int k, int *pl, int *pj2, int *ps2){$/;"	f	class:Smatrix
+getID	endflib.h	/^  int getID(int n1, int n2){$/;"	f	class:ENDFDict
+getISIZE	endflib.h	/^  int getISIZE(void) { return isize; }$/;"	f	class:ENDF
+getIndex	gfr.h	/^  int  getIndex   ( )    { return(index); }$/;"	f	class:Smatrix
+getLDRV	endflib.h	/^  int    getLDRV (){ return cont[2].l1; }$/;"	f	class:ENDFDict
+getLFI	endflib.h	/^  int    getLFI  (){ return head.l2; }$/;"	f	class:ENDFDict
+getLIS	endflib.h	/^  int    getLIS  (){ return cont[0].l1; }$/;"	f	class:ENDFDict
+getLISO	endflib.h	/^  int    getLISO (){ return cont[0].l2; }$/;"	f	class:ENDFDict
+getLREL	endflib.h	/^  int    getLREL (){ return cont[1].l1; }$/;"	f	class:ENDFDict
+getLRP	endflib.h	/^  int    getLRP  (){ return head.l1; }$/;"	f	class:ENDFDict
+getMAT	endflib.h	/^  int    getMAT(){ return mat; }$/;"	f	class:ENDFDict
+getN	kalbach.h	/^    unsigned int getN(){ return (A-Z); }$/;"	f	class:ZAnumber
+getNFOR	endflib.h	/^  int    getNFOR (){ return cont[0].n2; }$/;"	f	class:ENDFDict
+getNI	endflib.h	/^  int getNI (void) {$/;"	f	class:ENDF
+getNLIB	endflib.h	/^  int    getNLIB (){ return head.n1; }$/;"	f	class:ENDFDict
+getNMOD	endflib.h	/^  int    getNMOD (){ return head.n2; }$/;"	f	class:ENDFDict
+getNSUB	endflib.h	/^  int    getNSUB (){ return cont[1].n1; }$/;"	f	class:ENDFDict
+getNVER	endflib.h	/^  int    getNVER (){ return cont[1].n2; }$/;"	f	class:ENDFDict
+getNWD	endflib.h	/^  int    getNWD  (){ return cont[2].n1; }$/;"	f	class:ENDFDict
+getNX	endflib.h	/^  int getNX (void) {$/;"	f	class:ENDF
+getNXC	endflib.h	/^  int    getNXC  (){ return cont[2].n2; }$/;"	f	class:ENDFDict
+getNch	gfr.h	/^  int getNch(){ return nch; }$/;"	f	class:GFRcross
+getPOS	endflib.h	/^  int getPOS (void) { return nb; }$/;"	f	class:ENDF
+getProj	endflib.h	/^  int    getProj (){ return(getNSUB()\/10); } \/\/ no way to get projectile$/;"	f	class:ENDFDict
+getRSIZE	endflib.h	/^  int getRSIZE(void) { return rsize; }$/;"	f	class:ENDF
+getSEC	endflib.h	/^  int    getSEC(){ return sec; }$/;"	f	class:ENDFDict
+getSTA	endflib.h	/^  double getSTA  (){ return cont[0].c2; }$/;"	f	class:ENDFDict
+getSTDHeader	endflib.h	/^  bool getSTDHeader(){ return stdheader; }$/;"	f	class:ENDFDict
+getTEMP	endflib.h	/^  double getTEMP (){ return cont[2].c1; }$/;"	f	class:ENDFDict
+getText	endftext.h	/^  void getText(){$/;"	f	class:ENDFText
+getXSIZE	endflib.h	/^  int getXSIZE(void) { return xsize; }$/;"	f	class:ENDF
+getZ	kalbach.h	/^    unsigned int getZ(){ return (Z); }$/;"	f	class:ZAnumber
+getZA	endflib.h	/^  double getZA   (){ return head.c1; }$/;"	f	class:ENDFDict
+getlen	endftext.h	/^  int getlen(){ return length; }$/;"	f	class:ENDFText
+gettext	command.cpp	/^void gettext(string delim, char *str)$/;"	f
+getval	command.cpp	/^double getval(string delim)$/;"	f
+gf	gfr.h	/^  double  gf ;      \/* fission channel width *\/$/;"	m	class:BWResonance
+gf	gfr.h	/^  double  gf ;      \/* fission channel width *\/$/;"	m	class:UBWResonance
+gf1	gfr.h	/^  double gf1 ;      \/* first fission channel width *\/$/;"	m	class:RMResonance
+gf2	gfr.h	/^  double gf2 ;      \/* seconf fission channel width *\/$/;"	m	class:RMResonance
+gfrAngDist	gfr.cpp	/^void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de, double da)$/;"	f
+gfrAngDistSmooth	gfr.cpp	/^void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)$/;"	f
+gfrAutoEnergyRRR	gfrenergy.cpp	/^int gfrAutoEnergyRRR(System *sys, ENDF *lib2, double *elab, const double ebr)$/;"	f
+gfrAutoEnergyURR	gfrenergy.cpp	/^int gfrAutoEnergyURR(ENDF *lib2, double *elab, const double ebr, const double ebu)$/;"	f
+gfrBackGround	gfr.cpp	/^Pcross  gfrBackGround(ENDFDict *dict, ENDF **lib, const double elab, const bool dupflag)$/;"	f
+gfrBackGroundFILE	gfr.cpp	/^Pcross  gfrBackGroundFILE(ifstream *fp, ENDF *lib, const double elab, const bool dupflag)$/;"	f
+gfrBreitWignerURR	gfrcsurr.cpp	/^Pcross gfrBreitWignerURR(int ke, double gj, double elab, double alpha, ChannelWaveFunc *wfn, URResonance *res)$/;"	f
+gfrBreitWignerUmatrix	gfrformula.cpp	/^Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)$/;"	f
+gfrCompoundReaction	gfrlegcoef.cpp	/^double gfrCompoundReaction(System *sys)$/;"	f
+gfrCrossSection	gfrcross.cpp	/^Pcross gfrCrossSection(const int urr, const double elab, System *sys, ENDF *lib)$/;"	f
+gfrCrossSection1	gfrcs1.cpp	/^Pcross gfrCrossSection1(const int lrf, const int ner, const double elab, System *sys, ENDF *lib)$/;"	f
+gfrCrossSection3	gfrcs3.cpp	/^Pcross gfrCrossSection3(const int ner, const double elab, System *sys, ENDF *lib)$/;"	f
+gfrCrossSection7	gfrcs7.cpp	/^Pcross gfrCrossSection7(const int ner, const double elab, System *sys, ENDF *lib)$/;"	f
+gfrCrossSectionURR	gfrcsurr.cpp	/^Pcross gfrCrossSectionURR(const int ner, const double elab, System *sys, ENDF *lib)$/;"	f
+gfrCrossSectionURR	gfrcsurr.cpp	/^Pcross gfrCrossSectionURR(int km, int ke, int ner, System *sys, URResonance *res, ENDF *lib)$/;"	f
+gfrENDFChannelRadius	gfr.h	/^static inline double gfrENDFChannelRadius(int a)$/;"	f
+gfrFindEnergyRange	gfrcross.cpp	/^int gfrFindEnergyRange(const int urr, const double elab, System *sys)$/;"	f
+gfrFixedEnergyRRR	gfrenergy.cpp	/^int gfrFixedEnergyRRR(double emin, double emax, double de, double *elab, const double ebr, const double ebu)$/;"	f
+gfrGetOnePoint	gfr.cpp	/^double gfrGetOnePoint(ifstream *fp, ENDFDict *dict, const int mt, const double elab)$/;"	f
+gfrIncludeResonanceEnergies	gfrenergy.cpp	/^int gfrIncludeResonanceEnergies(bool RRR, ENDF *lib2, double *elab)$/;"	f
+gfrLegendreCoefficient	gfrlegcoef.cpp	/^void gfrLegendreCoefficient(System *sys, double *pl)$/;"	f
+gfrLfunction	gfrcross.cpp	/^complex<double> gfrLfunction(const int l, const double alpha, const double eta)$/;"	f
+gfrMLBreitWigner	gfrformula.cpp	/^Pcross gfrMLBreitWigner(const int kmax, const int l, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)$/;"	f
+gfrMLBreitWignerENDF	gfrformula.cpp	/^Pcross gfrMLBreitWignerENDF(const int kmax, const int l, const int s2, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)$/;"	f
+gfrMoldauer	gfrcsurr.cpp	/^double gfrMoldauer(int n, double *tc, double *nu, double *wfc)$/;"	f
+gfrPenetrability	gfrcross.cpp	/^void gfrPenetrability(const int l, const double a, ChannelWaveFunc *wfn)$/;"	f
+gfrPrintCrossSection	gfr.cpp	/^static void gfrPrintCrossSection (const double elab, Pcross crs)$/;"	f	file:
+gfrPtCross	gfr.cpp	/^void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de)$/;"	f
+gfrPtCrossFILE	gfr.cpp	/^Pcross gfrPtCrossFILE(ifstream *fp, ENDFDict *dict, const double elab)$/;"	f
+gfrReadHEADData	gfr.cpp	/^void gfrReadHEADData(System *sys, ENDF *lib)$/;"	f
+gfrReichMoore	gfrformula.cpp	/^Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2, const int tspin2, const double e, ChannelWaveFunc *wfn, RMResonance *res)$/;"	f
+gfrSLBreitWigner	gfrformula.cpp	/^Pcross gfrSLBreitWigner(const int kmax, const int l, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)$/;"	f
+gfrScanThermal	gfr.cpp	/^void gfrScanThermal(ifstream *fp, ENDFDict *dict, double elab)$/;"	f
+gfrSetEnergy	gfrcross.cpp	/^void gfrSetEnergy(const double elab, System *sys)$/;"	f
+gfrSmatrixElement	gfr.cpp	/^void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de)$/;"	f
+gfrSortResonanceEnergies	gfrenergy.cpp	/^void gfrSortResonanceEnergies(double *e, const int np)$/;"	f
+gfrSubsectionRRR	gfrcross.cpp	/^void gfrSubsectionRRR(const int idx, const double elab, System *sys, ENDF *lib)$/;"	f
+gfrSubsectionURR	gfrcross.cpp	/^void gfrSubsectionURR(const int lrf, const int idx, System *sys, ENDF *lib)$/;"	f
+gfrUFindRange	gfrcsurr.cpp	/^int gfrUFindRange(double elab, URResonance *res, bool *itp)$/;"	f
+gfrUInterpolation	gfrcsurr.cpp	/^Pcross gfrUInterpolation(double elab, Pcross z1, Pcross z2)$/;"	f
+gfrURetrieveParameterA	gfrcsurr.cpp	/^int gfrURetrieveParameterA(const int nl, int idx, ENDF *lib, URResonance *res)$/;"	f
+gfrURetrieveParameterB	gfrcsurr.cpp	/^int gfrURetrieveParameterB(const int nl, int idx, ENDF *lib, URResonance *res, const int ne, double *fwx)$/;"	f
+gfrURetrieveParameterC	gfrcsurr.cpp	/^int gfrURetrieveParameterC(const int nl, int idx, ENDF *lib, URResonance *res)$/;"	f
+gg	gfr.h	/^  double  gg ;      \/* capture channel width *\/$/;"	m	class:Resonance
+gn	gfr.h	/^  double  gn ;      \/* neutron channel width *\/$/;"	m	class:Resonance
+grpEnergyGrid0	groupstructure.h	/^static double grpEnergyGrid0[grpEnergyPoint0] = {$/;"	v
+grpEnergyGrid1	groupstructure.h	/^static double grpEnergyGrid1[grpEnergyPoint1] = {$/;"	v
+grpEnergyGrid2	groupstructure.h	/^static double grpEnergyGrid2[grpEnergyPoint2] = {$/;"	v
+grpEnergyGrid3	groupstructure.h	/^static double grpEnergyGrid3[grpEnergyPoint3] = {$/;"	v
+grpEnergyGrid4	groupstructure.h	/^static double grpEnergyGrid4[grpEnergyPoint4] = {$/;"	v
+grpEnergyPoint0	groupstructure.h	/^static const int grpEnergyPoint0 = 641;$/;"	v
+grpEnergyPoint1	groupstructure.h	/^static const int grpEnergyPoint1 =  71;$/;"	v
+grpEnergyPoint2	groupstructure.h	/^static const int grpEnergyPoint2 =  176;$/;"	v
+grpEnergyPoint3	groupstructure.h	/^static const int grpEnergyPoint3 = 726;$/;"	v
+grpEnergyPoint4	groupstructure.h	/^static const int grpEnergyPoint4 = 619;$/;"	v
+grpStructureName0	groupstructure.h	/^static const string grpStructureName0 = "SAND-IIa 640";$/;"	v
+grpStructureName1	groupstructure.h	/^static const string grpStructureName1 = "LANL70";$/;"	v
+grpStructureName2	groupstructure.h	/^static const string grpStructureName2 = "VITAMINE-J 175";$/;"	v
+grpStructureName3	groupstructure.h	/^static const string grpStructureName3 = "SAND-IIa 725";$/;"	v
+grpStructureName4	groupstructure.h	/^static const string grpStructureName4 = "LANL 618";$/;"	v
+gt	gfr.h	/^  double  gt ;      \/* neutron channel width *\/$/;"	m	class:BWResonance
+gx	gfr.h	/^  double  gx ;      \/* other channel width *\/$/;"	m	class:BWResonance
+gx	gfr.h	/^  double  gx ;      \/* other channel width *\/$/;"	m	class:UBWResonance
+halfint	coupling.cpp	/^static inline bool halfint(int x){$/;"	f	file:
+head	endflib.h	/^  Record    head;         \/\/ Tape HEAD Record$/;"	m	class:ENDFDict
+head	endflib.h	/^  Record    head;       \/\/ Head Record$/;"	m	class:ENDF
+id	endflib.h	/^  int       *id;          \/\/ ID for ENDF data on memory$/;"	m	class:ENDFDict
+idata	endflib.h	/^  int       *idata;     \/\/ integer data buffer$/;"	m	class:ENDF
+idx	gfr.h	/^  int    *idx;                \/\/ pointer to the data block$/;"	m	class:System
+incid	kalbach.cpp	/^static int     incid = 0;       \/\/ incident particle ID$/;"	v	file:
+incident_spin2	gfr.h	/^  int    incident_spin2;      \/\/ incident particle spin x 2$/;"	m	class:System
+inclCTR	endflib.h	/^  void inclCTR (void) { ctr ++; }$/;"	f	class:ENDF
+inclIndex	gfr.h	/^  void inclIndex  ( )    { index ++;  }$/;"	f	class:Smatrix
+inclPOS	endflib.h	/^  void inclPOS (void) { nb ++; }$/;"	f	class:ENDF
+increaseIDATA	endflib.h	/^  int increaseIDATA(int mi){$/;"	f	class:ENDF
+increaseSUBBLOCK	endflib.h	/^  int increaseSUBBLOCK(){$/;"	f	class:ENDF
+increaseXDATA	endflib.h	/^  int increaseXDATA(int mx){$/;"	f	class:ENDF
+index	gfr.h	/^  int  index;$/;"	m	class:Smatrix
+inelastic	gfr.h	/^  double inelastic;$/;"	m	class:Pcross
+integ_interval	deceprocgroup.cpp	/^static inline double integ_interval(ENDF *lib, const int n, const double e0, const double e1)$/;"	f	file:
+intscheme	endfio.cpp	/^inline string intscheme(int i)$/;"	f
+inverse	polycalc.cpp	/^int inverse(double *a, int n)$/;"	f
+invert_matrix	gfrformula.cpp	/^void invert_matrix(complex<double> *a)$/;"	f
+iptr	endflib.h	/^  int      **iptr;      \/\/ int pointer for the 2-dim array$/;"	m	class:ENDF
+isFirstCall	gfr.h	/^  bool isFirstCall(){ return first_call; }$/;"	f	class:System
+isFission	endflib.h	/^  bool isFission(){$/;"	f	class:ENDFDict
+isLastCall	gfr.h	/^  bool isLastCall(){ return last_call; }$/;"	f	class:System
+isalloc	endflib.h	/^  bool isalloc(void) { return allocated; }$/;"	f	class:ENDF
+isize	endflib.h	/^  int       isize;      \/\/ integer data buffer size$/;"	m	class:ENDF
+itp	gfr.h	/^  int    itp ;$/;"	m	class:URResonance
+j2	gfr.h	/^  int     j2 ;      \/* resonance spin x2 *\/$/;"	m	class:Resonance
+j2	gfr.h	/^  int     j2;                 \/\/ resonance spin x2$/;"	m	class:RMLParameter
+j2	gfr.h	/^  int    j2  ;$/;"	m	class:URResonance
+j2	gfr.h	/^  int j2 ;$/;"	m	class:SElement
+justquit	dece.cpp	/^static bool   justquit = false;$/;"	v	file:
+kmax	gfrcs1.cpp	/^static int kmax = 0;$/;"	v	file:
+kmax	gfrcs3.cpp	/^static int kmax = 0;$/;"	v	file:
+l	gfr.h	/^  int      l ;      \/* resonance angular momentum *\/$/;"	m	class:Resonance
+l	gfr.h	/^  int     *l;                 \/\/ channel angular momentum$/;"	m	class:RMLParameter
+l	gfr.h	/^  int    l   ;$/;"	m	class:URResonance
+l	gfr.h	/^  int l  ;$/;"	m	class:SElement
+l1	endflib.h	/^    int       l1;$/;"	m	class:Record
+l2	endflib.h	/^    int       l2;$/;"	m	class:Record
+last_call	gfr.h	/^  bool   last_call;           \/\/ reset loaded data$/;"	m	class:System
+least_sq	polycalc.cpp	/^double least_sq(const int n, const int m,$/;"	f
+legendre	decemisc.cpp	/^double legendre(int n, double t)$/;"	f
+length	endftext.h	/^    int  length;        \/\/ text data length$/;"	m	class:ENDFText
+lib	dece.cpp	/^static ENDF   *lib[MAX_SECTION];$/;"	v	file:
+line	command.h	/^  char   line[MAX_TEXTLENGTH];$/;"	m	class:CLine
+line	endflib.cpp	/^static string line;$/;"	v	file:
+loginterpol	deceread.cpp	/^double loginterpol(int n, double e, double *x, double *y, int *idx)$/;"	f
+lrf	gfr.h	/^  int    *lrf;                \/\/ resonance formula$/;"	m	class:System
+lru	gfr.h	/^  int    *lru;                \/\/ resolved or unresolved$/;"	m	class:System
+ma	kalbach.cpp	/^static double  ma = 0.0, mb[7]; \/\/ reduced masses$/;"	v	file:
+main	dece.cpp	/^int main(int argc, char *argv[])$/;"	f
+makeMF1	deceoutput.cpp	/^void makeMF1(ifstream *fpin, ENDFDict *dict)$/;"	f
+mass	gfr.h	/^  double mass[2]  ; \/* pair mass numbers *\/ $/;"	m	class:ParPair
+mass	masstable.h	/^  float        mass;  \/\/ mass excess$/;"	m	class:MassExcess
+mass_excess	masstable.cpp	/^double mass_excess(int z, int a)$/;"	f
+mat	deceangdist.cpp	/^static int    mat = 0;$/;"	v	file:
+mat	endflib.h	/^  int       mat;          \/\/ ENDF MAT number$/;"	m	class:ENDFDict
+mat	endflib.h	/^  int       mat;        \/\/ ENDF MAT number$/;"	m	class:ENDF
+matrix_choleski	polycalc.cpp	/^int matrix_choleski(double *a, int n)$/;"	f
+matrix_inverse	polycalc.cpp	/^int matrix_inverse(double *a, int n)$/;"	f
+max3	coupling.cpp	/^static inline int max3(int a, int b, int c){$/;"	f	file:
+max4	coupling.cpp	/^static inline int max4(int a, int b, int c, int d){$/;"	f	file:
+mb	kalbach.cpp	/^static double  ma = 0.0, mb[7]; \/\/ reduced masses$/;"	v	file:
+memalloc	endflib.h	/^  void memalloc(){$/;"	f	class:ENDF
+memalloc	gfr.h	/^  void memalloc(const int n){$/;"	f	class:GFRcross
+memalloc	gfr.h	/^  void memalloc(int m){$/;"	f	class:URResonance
+memalloc	gfr.h	/^  void memalloc(int n){$/;"	f	class:Smatrix
+memalloc	gfr.h	/^  void memalloc(int n, int m){$/;"	f	class:RMLParameter
+memfree	endflib.h	/^  void memfree(){$/;"	f	class:ENDF
+memfree	gfr.h	/^  void memfree(){$/;"	f	class:GFRcross
+memfree	gfr.h	/^  void memfree(){$/;"	f	class:Smatrix
+memoryPrint	decememory.cpp	/^void memoryPrint(ENDF *lib)$/;"	f
+memoryTotal	decememory.cpp	/^void memoryTotal()$/;"	f
+memresize	endflib.h	/^  void memresize(const int nr, const int ni, const int nx){$/;"	f	class:ENDF
+memsize	decememory.cpp	/^static unsigned long memsize = 0;$/;"	v	file:
+memused	decememory.cpp	/^static unsigned long memused = 0;$/;"	v	file:
+mergeCSdata	deceread.cpp	/^int mergeCSdata(int n, double *x, double *y, double eres, double *xdat, double *xbak)$/;"	f
+message	dece.cpp	/^ostringstream message;$/;"	v
+mf	command.h	/^  int    mf;$/;"	m	class:CLine
+mf	endflib.h	/^  int       *mf;          \/\/ ENDF MF number$/;"	m	class:ENDFDict
+mf	endflib.h	/^  int       mf;         \/\/ ENDF MF number$/;"	m	class:ENDF
+mfr	deceprocgroup.cpp	/^static int mfr[ncx] = {3, 3, 3,  3,  3,  3,  3,  3,   3,   3,   3,   3,   3,   3,   1};$/;"	v	file:
+mfs	endflib.cpp	/^static int mfs = 0;$/;"	v	file:
+min3	coupling.cpp	/^static inline int min3(int a, int b, int c){$/;"	f	file:
+mod	endflib.h	/^  int       *mod;         \/\/ MOD number$/;"	m	class:ENDFDict
+modMT	endflib.h	/^  void modMT(int i, int t){$/;"	f	class:ENDFDict
+modpoint	decepoint.cpp	/^void modpoint(ENDF *lib, const double x, const double y)$/;"	f
+mratio	gfr.h	/^  double mratio;              \/\/ mass ratio, (M+m)\/M to convert into LAB$/;"	m	class:RMLChannel
+msize	gfrcs7.cpp	/^static int msize = 0, chmax = 0;$/;"	v	file:
+mt	command.h	/^  int    mt;$/;"	m	class:CLine
+mt	endflib.h	/^  int       *mt;          \/\/ ENDF MT number$/;"	m	class:ENDFDict
+mt	endflib.h	/^  int       mt;         \/\/ ENDF MT number$/;"	m	class:ENDF
+mt	gfr.h	/^  int    mt       ; \/* MT number *\/$/;"	m	class:ParPair
+mtend	command.h	/^  int    mtend;$/;"	m	class:CLine
+mtr	deceprocgroup.cpp	/^static int mtr[ncx] = {1, 2, 4, 16, 17, 18, 22, 28, 102, 103, 104, 105, 106, 107, 452};$/;"	v	file:
+mtr	deceprocpointwise.cpp	/^static int mtr[ncx] = {1, 2, 102, 18}; \/\/ MT numbers for reconstructed cross sections$/;"	v	file:
+mts	endflib.cpp	/^static int mts = 0;$/;"	v	file:
+n1	endflib.h	/^    int       n1;$/;"	m	class:Record
+n2	endflib.h	/^    int       n2;$/;"	m	class:Record
+nMassTable	masstable_audi2011.h	/^static const int nMassTable = 9073;$/;"	v
+nMassTable	masstable_audi2012_frdm2012.h	/^static int nMassTable = 9416;$/;"	v
+nMassTable	masstable_ripl2.h	/^static const int nMassTable = 9151;$/;"	v
+nMassTable	masstable_ripl3.h	/^static const int nMassTable = 9073;$/;"	v
+naps	gfr.h	/^  int    *naps;               \/\/ NAPS channel radius control$/;"	m	class:System
+nb	endflib.h	/^  int       nb;         \/\/ total number of blocks$/;"	m	class:ENDF
+nc	endflib.h	/^  int       *nc;          \/\/ Line count$/;"	m	class:ENDFDict
+nch	gfr.h	/^  int    nch;       \/\/ number of reaction channels$/;"	m	class:GFRcross
+nchannel	gfr.h	/^  int     nchannel;           \/\/ number of channels$/;"	m	class:RMLParameter
+ncx	deceprocgroup.cpp	/^static const int ncx = 15;$/;"	v	file:
+ncx	deceprocpointwise.cpp	/^static const int ncx = 4;$/;"	v	file:
+ne	gfr.h	/^  int    ne  ;$/;"	m	class:URResonance
+newsec	dece.cpp	/^static int    newsec   = 0;$/;"	v	file:
+nfw	gfr.h	/^  int     nfw;                \/\/ energy-dependent fission width, energy points$/;"	m	class:System
+nj	gfr.h	/^  int    nj;                  \/\/ number of J states$/;"	m	class:System
+nl	gfr.h	/^  int    nl;                  \/\/ number of orbital angular momentum$/;"	m	class:System
+npair	gfr.h	/^  int    npair;               \/\/ number of two-particle pairs$/;"	m	class:System
+nrange	gfr.h	/^  int    nrange;              \/\/ number of energy range$/;"	m	class:System
+nresonance	gfr.h	/^  int     nresonance;         \/\/ number of resonances$/;"	m	class:RMLParameter
+nro	gfr.h	/^  int    *nro;                \/\/ NRO energy dependent radii flag$/;"	m	class:System
+nstep	gfrenergy.cpp	/^static const int nstep = 18;$/;"	v	file:
+numline	endflib.h	/^inline int numline(int n)$/;"	f
+omAsymptoticClosed	coulomb.cpp	/^double omAsymptoticClosed(const double rm, const double coulomb)$/;"	f
+omCoulombBarnett	coulomb.cpp	/^void omCoulombBarnett(int lmax, double rho, double eta, complex<double> *c0, complex<double> *c1)$/;"	f
+omCoulombClosed	coulomb.cpp	/^void omCoulombClosed(const int lmax, const double rhox, const double eta, complex<double> *C0, complex<double> *C1)$/;"	f
+omCoulombFRatio	coulomb.cpp	/^void omCoulombFRatio(const int lambda, const double eta, const double rho, double *fw)$/;"	f
+omCoulombFrecur	coulomb.cpp	/^void omCoulombFrecur(const int lambda, const double eta, const double rho, double *fw, complex<double> *c0, complex<double> *c1)$/;"	f
+omCoulombPowerSeries	coulomb.cpp	/^double omCoulombPowerSeries(const double eta, const double rho)$/;"	f
+omCoulombWRatio	coulomb.cpp	/^complex<double> omCoulombWRatio(const int lambda, const double eta, const double rho)$/;"	f
+open	gfr.h	/^  bool   open;                \/\/ flag for open channel$/;"	m	class:RMLChannel
+operation	command.cpp	/^string operation = "";$/;"	v
+operator !=	kalbach.h	/^    bool operator!=(ZAnumber x){$/;"	f	class:ZAnumber
+operator +	gfr.h	/^  Pcross operator+(Pcross x){$/;"	f	class:Pcross
+operator +	kalbach.h	/^    ZAnumber operator+(ZAnumber x){$/;"	f	class:ZAnumber
+operator -	gfr.h	/^  Pcross operator-(Pcross x){$/;"	f	class:Pcross
+operator -	kalbach.h	/^    ZAnumber operator-(ZAnumber x){$/;"	f	class:ZAnumber
+operator ==	kalbach.h	/^    bool operator==(ZAnumber x){$/;"	f	class:ZAnumber
+opt	dece.cpp	/^GlobalOption  opt;$/;"	v
+opt1	command.h	/^  int    opt1;$/;"	m	class:CLine
+opt2	command.h	/^  int    opt2;$/;"	m	class:CLine
+opt3	command.h	/^  int    opt3;$/;"	m	class:CLine
+optionPrint	deceglobaloption.cpp	/^void optionPrint()$/;"	f
+optionSet	deceglobaloption.cpp	/^void optionSet(string ope, string option, const double x)$/;"	f
+optionSet	deceglobaloption.cpp	/^void optionSet(string ope, string option, string value)$/;"	f
+optionToggle	deceglobaloption.cpp	/^void optionToggle(string ope, string option)$/;"	f
+other	gfr.h	/^  double other;$/;"	m	class:Pcross
+outVal	decetable.h	/^static inline void outVal(double x)$/;"	f
+outVal	decetable.h	/^static inline void outVal(int w, int p, double x)$/;"	f
+outVal	decetable.h	/^static inline void outVal(int x)$/;"	f
+outVal	endfio.cpp	/^static inline void outVal(double x)$/;"	f	file:
+p	gfr.h	/^  double          p;       \/\/ phase$/;"	m	class:ChannelWaveFunc
+p	gfr.h	/^  double   p ;      \/* PL(e0) *\/$/;"	m	class:BWResonance
+p	gfr.h	/^  double   p ;      \/* PL(e0) *\/$/;"	m	class:RMResonance
+parity	coupling.cpp	/^static inline int parity(int x){$/;"	f	file:
+parity	gfr.h	/^  int     parity;             \/\/ parity$/;"	m	class:RMLParameter
+parity	gfr.h	/^  int    parity[2]; \/* parity *\/$/;"	m	class:ParPair
+parm	command.h	/^  char   parm[MAX_TEXTLENGTH];$/;"	m	class:CLine
+paste	endftext.h	/^  void paste(int c, char *dst){$/;"	f	class:ENDFText
+pen	gfrcs7.cpp	/^static double ***pen;$/;"	v	file:
+phase	gfr.h	/^  complex<double> phase;   \/\/ hard-sphare phase, exp(-phi)$/;"	m	class:ChannelWaveFunc
+phase2	gfr.h	/^  complex<double> phase2;  \/\/ 2 x phase, exp(-2 phi)$/;"	m	class:ChannelWaveFunc
+phaseC	gfr.h	/^  complex<double> phaseC;  \/\/ Coulomb phase, exp(-phi_c)$/;"	m	class:ChannelWaveFunc
+pidx	gfr.h	/^  int     *pidx;              \/\/ particle pair index$/;"	m	class:RMLParameter
+polyDesignMatrix	polysq.cpp	/^void polyDesignMatrix(const int n, const int m, double *x, double *f)$/;"	f
+polysq	polysq.cpp	/^int polysq(const int n, const int m, double *xdata, double *ydata, double *a)$/;"	f
+ppr	gfrcs7.cpp	/^static ParPair *ppr;$/;"	v	file:
+print	endftext.h	/^  void print(){$/;"	f	class:ENDFText
+proton	gfr.h	/^  double proton;$/;"	m	class:Pcross
+qselect	dececalc.cpp	/^int qselect(int k1, int k2, double q1, double q2)$/;"	f
+qvalue	gfr.h	/^  double qvalue   ; \/* Q-value *\/$/;"	m	class:ParPair
+qvalue	masstable.cpp	/^double qvalue(const int proj, const int targ, int mt)$/;"	f
+racah	coupling.cpp	/^double racah(const int a, const int b, const int c, const int d, const int e, const int f)$/;"	f
+radius	gfr.h	/^  double radius;              \/\/ channel_radius [fm]$/;"	m	class:System
+radius_effective	gfr.h	/^  double  *radius_effective;  \/\/ effective channel radius$/;"	m	class:RMLParameter
+radius_true	gfr.h	/^  double  *radius_true;       \/\/ true channel radius$/;"	m	class:RMLParameter
+rdata	endflib.h	/^  Record    *rdata;     \/\/ CONT data buffer$/;"	m	class:ENDF
+read	endftext.h	/^  void read(char *src){$/;"	f	class:ENDFText
+readADdata	deceangdist.cpp	/^int readADdata(char *file, int ofset, int mt, double *x, double **y, double *en)$/;"	f
+readCSdata	deceread.cpp	/^int readCSdata(char *file, int ofset, const int mt, double *x, double *y)$/;"	f
+readISdata	deceread.cpp	/^int readISdata(char *file, int ofset, const int mt, double *x, double *y, double *elev)$/;"	f
+readNUdata	deceread.cpp	/^int readNUdata(char *file, int ofset, double *x, double *y)$/;"	f
+reduced_mass	gfr.h	/^  double reduced_mass;        \/\/ reduced mass$/;"	m	class:RMLChannel
+reduced_mass	gfr.h	/^  double reduced_mass;        \/\/ reduced mass$/;"	m	class:System
+reduced_matrix_element	coupling.cpp	/^double reduced_matrix_element(const int lt, const int st, const int jt,$/;"	f
+relativ_flag	gfr.h	/^  int    relativ_flag;        \/\/ relativistic flag$/;"	m	class:System
+res	gfrcs1.cpp	/^static BWResonance *res;$/;"	v	file:
+res	gfrcs3.cpp	/^static RMResonance *res;$/;"	v	file:
+res	gfrcs7.cpp	/^static RMLParameter *res;$/;"	v	file:
+resetCTR	endflib.h	/^  void resetCTR (void) { ctr = 0; }$/;"	f	class:ENDF
+resetIndex	gfr.h	/^  void resetIndex ( )    { index = 0; }$/;"	f	class:Smatrix
+resetPOS	endflib.h	/^  void resetPOS(){$/;"	f	class:ENDF
+resetSEC	endflib.h	/^  void   resetSEC(){ sec = 0; }$/;"	f	class:ENDFDict
+row	decetable32.cpp	/^static int    row[]  = {0, 0, 18, 13, 11, 9, 8};$/;"	v	file:
+rsize	endflib.h	/^  int       rsize;      \/\/ CONT data buffer size$/;"	m	class:ENDF
+s	gfr.h	/^  double   s ;      \/* SL(e0) *\/$/;"	m	class:BWResonance
+s	gfr.h	/^  double   s ;      \/* SL(e0) *\/$/;"	m	class:RMResonance
+s2	gfr.h	/^  int     *s2;                \/\/ channel spin x2$/;"	m	class:RMLParameter
+s2	gfr.h	/^  int s2 ;$/;"	m	class:SElement
+sa	kalbach.cpp	/^static double  sa = 0.0, sb[7]; \/\/ separation energies$/;"	v	file:
+savestream	deceoperation.cpp	/^static streambuf *savestream;$/;"	v	file:
+sb	kalbach.cpp	/^static double  sa = 0.0, sb[7]; \/\/ separation energies$/;"	v	file:
+scanDict	endflib.h	/^  int scanDict(int n1, int n2){$/;"	f	class:ENDFDict
+sec	endflib.h	/^  int       sec;          \/\/ number of sections$/;"	m	class:ENDFDict
+selfshield_flag	gfr.h	/^  int    selfshield_flag;     \/\/ self-shielding flag$/;"	m	class:System
+seqno	endflib.cpp	/^static int    seqno = 1;$/;"	v	file:
+set	gfr.h	/^  void set(const int t, const double d){$/;"	f	class:GFRcross
+setAWI	endflib.h	/^  void   setAWI  (double awi ){ cont[1].c1 = awi ; }$/;"	f	class:ENDFDict
+setAWR	endflib.h	/^  void   setAWR  (double awr ){ head.c2 = awr;  }$/;"	f	class:ENDFDict
+setCoulombPhase	gfr.h	/^  void setCoulombPhase(double z){$/;"	f	class:ChannelWaveFunc
+setDICTcont	endflib.h	/^  void   setDICTcont(int i, Record r){ if(0 <= i && i < 3) cont[i] = r; }$/;"	f	class:ENDFDict
+setDICThead	endflib.h	/^  void   setDICThead(Record r){ head = r; }$/;"	f	class:ENDFDict
+setData	gfr.h	/^  void setData(const double x, complex<double> y1, complex<double> y2){$/;"	f	class:ChannelWaveFunc
+setELIS	endflib.h	/^  void   setELIS (double elis){ cont[0].c1 = elis; }$/;"	f	class:ENDFDict
+setEMAX	endflib.h	/^  void   setEMAX (double emax){ cont[1].c2 = emax; }$/;"	f	class:ENDFDict
+setENDFhead	endflib.h	/^  void setENDFhead(Record r){$/;"	f	class:ENDF
+setENDFhead	endflib.h	/^  void setENDFhead(double c1, double c2, int l1, int l2, int n1, int n2){$/;"	f	class:ENDF
+setENDFmat	endflib.h	/^  void setENDFmat(int n){ mat = n; }$/;"	f	class:ENDF
+setENDFmf	endflib.h	/^  void setENDFmf (int n){ mf  = n; }$/;"	f	class:ENDF
+setENDFmt	endflib.h	/^  void setENDFmt (int n){ mt  = n; }$/;"	f	class:ENDF
+setEboundary	endflib.h	/^  void setEboundary(double e1, double e2, double e3){$/;"	f	class:ENDFDict
+setElement	gfr.h	/^  void setElement(int pl, int pj2, int ps2, complex<double> z){$/;"	f	class:Smatrix
+setID	endflib.h	/^  void setID(int i, int k){$/;"	f	class:ENDFDict
+setIndex	gfr.h	/^  void setIndex   (int k){ index = k; }$/;"	f	class:Smatrix
+setLDRV	endflib.h	/^  void   setLDRV (int    ldrv){ cont[2].l1 = ldrv; }$/;"	f	class:ENDFDict
+setLFI	endflib.h	/^  void   setLFI  (int    lfi ){ head.l2 = lfi;  }$/;"	f	class:ENDFDict
+setLIS	endflib.h	/^  void   setLIS  (int    lis ){ cont[0].l1 = lis ; }$/;"	f	class:ENDFDict
+setLISO	endflib.h	/^  void   setLISO (int    liso){ cont[0].l2 = liso; }$/;"	f	class:ENDFDict
+setLREL	endflib.h	/^  void   setLREL (int    lrel){ cont[1].l1 = lrel; }$/;"	f	class:ENDFDict
+setLRP	endflib.h	/^  void   setLRP  (int    lrp ){ head.l1 = lrp;  }$/;"	f	class:ENDFDict
+setMAT	endflib.h	/^  void   setMAT(int n){ mat = n; }$/;"	f	class:ENDFDict
+setNFOR	endflib.h	/^  void   setNFOR (int    nfor){ cont[0].n2 = nfor; }$/;"	f	class:ENDFDict
+setNLIB	endflib.h	/^  void   setNLIB (int    nlib){ head.n1 = nlib; }$/;"	f	class:ENDFDict
+setNMOD	endflib.h	/^  void   setNMOD (int    nmod){ head.n2 = nmod; }$/;"	f	class:ENDFDict
+setNSUB	endflib.h	/^  void   setNSUB (int    nsub){ cont[1].n1 = nsub; }$/;"	f	class:ENDFDict
+setNVER	endflib.h	/^  void   setNVER (int    nver){ cont[1].n2 = nver; }$/;"	f	class:ENDFDict
+setNWD	endflib.h	/^  void   setNWD  (int    nwd ){ cont[2].n1 = nwd;  }$/;"	f	class:ENDFDict
+setNXC	endflib.h	/^  void   setNXC  (int    nxc ){ cont[2].n2 = nxc;  }$/;"	f	class:ENDFDict
+setPhase	gfr.h	/^  void setPhase(complex<double> y){$/;"	f	class:ChannelWaveFunc
+setRecord	endflib.h	/^    void setRecord(double a, double b, int c, int d, int e, int f){$/;"	f	class:Record
+setSTA	endflib.h	/^  void   setSTA  (double sta ){ cont[0].c2 = sta ; }$/;"	f	class:ENDFDict
+setSTDHeader	endflib.h	/^  void setSTDHeader(bool c){ stdheader = c; }$/;"	f	class:ENDFDict
+setTEMP	endflib.h	/^  void   setTEMP (double temp){ cont[2].c1 = temp; }$/;"	f	class:ENDFDict
+setTotal	gfr.h	/^  void setTotal(){$/;"	f	class:Pcross
+setZA	endflib.h	/^  void   setZA   (double za  ){ head.c1 = za;   }$/;"	f	class:ENDFDict
+setZA	kalbach.h	/^    void setZA(int z, int a){$/;"	f	class:ZAnumber
+size	gfr.h	/^  int  size;$/;"	m	class:Smatrix
+spin2	gfr.h	/^  int    spin2[2] ; \/* spin x2 *\/$/;"	m	class:ParPair
+stdheader	endflib.h	/^  bool      stdheader;    \/\/ flag for standard header$/;"	m	class:ENDFDict
+storeMF4	deceangdist.cpp	/^void storeMF4(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)$/;"	f
+storeMF6	deceangdist.cpp	/^void storeMF6(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)$/;"	f
+sum	gfr.h	/^  double sum(){$/;"	f	class:GFRcross
+swap	deceoutput.cpp	/^inline void swap(int *a, int *b)$/;"	f
+target_A	gfr.h	/^  unsigned int target_A;$/;"	m	class:System
+target_Z	gfr.h	/^  unsigned int target_Z;$/;"	m	class:System
+target_parity	gfr.h	/^  int    target_parity;       \/\/ target parity$/;"	m	class:System
+target_spin2	gfr.h	/^  int    target_spin2;        \/\/ target spin x 2$/;"	m	class:System
+tempfile	dece.cpp	/^string        tempfile = "DECETempfile.dat";$/;"	v
+text	command.h	/^  char   text[MAX_TEXTLENGTH];$/;"	m	class:CLine
+text	endflib.h	/^  char      *text[5];     \/\/ text data field$/;"	m	class:ENDFDict
+text	endftext.h	/^    char *text;         \/\/ data content$/;"	m	class:ENDFText
+threshold	masstable.cpp	/^double threshold(const int za, double q)$/;"	f
+total	gfr.h	/^  double total;$/;"	m	class:Pcross
+tpid	endflib.h	/^  char      *tpid;        \/\/ Tape ID $/;"	m	class:ENDFDict
+triangle	coupling.cpp	/^double triangle(const int a, const int b, const int c)$/;"	f
+type	gfr.h	/^  int    *type;     \/\/ reaction type ( = MT number )$/;"	m	class:GFRcross
+verbflag	dece.cpp	/^static bool   verbflag = false;$/;"	v	file:
+version	dece.cpp	/^static string version  = "1.2.6 Garnet (Oct. 2022)";$/;"	v	file:
+w6j0	coupling.cpp	/^inline double w6j0(const int i, int *x)$/;"	f
+w6j1	coupling.cpp	/^inline double w6j1(int *x)$/;"	f
+wave_number	gfr.h	/^  double wave_number;         \/\/ wave number$/;"	m	class:RMLChannel
+wave_number	gfr.h	/^  double wave_number;         \/\/ wave number$/;"	m	class:System
+wfunc	deceprocgroup.cpp	/^static inline double wfunc(const int k, double x)$/;"	f	file:
+wigner_3j	coupling.cpp	/^double wigner_3j(const int j1, const int j2, const int j3, const int j4, const int j5, const int j6)$/;"	f
+wigner_6j	coupling.cpp	/^double wigner_6j(const int j1,const int j2,const int j3,const int j4,const int j5,const int j6)$/;"	f
+wigner_9j	coupling.cpp	/^double wigner_9j(const int j1,const int j2,const int j3,$/;"	f
+x	command.h	/^  double x;$/;"	m	class:CLine
+xdata	endflib.h	/^  double    *xdata;     \/\/ floating-point (double) data buffer$/;"	m	class:ENDF
+xmax	command.h	/^  double xmax;$/;"	m	class:CLine
+xmin	command.h	/^  double xmin;$/;"	m	class:CLine
+xpos	endftext.h	/^    int xpos, ypos;     \/\/ location (X-line,Y-column) of the text data$/;"	m	class:ENDFText
+xptr	endflib.h	/^  double   **xptr;      \/\/ double pointer for the 2-dim array$/;"	m	class:ENDF
+xsec	gfr.h	/^  double *xsec;     \/\/ cross section$/;"	m	class:GFRcross
+xsize	endflib.h	/^  int       xsize;      \/\/ double data buffer size$/;"	m	class:ENDF
+y	command.h	/^  double y;$/;"	m	class:CLine
+ypos	endftext.h	/^    int xpos, ypos;     \/\/ location (X-line,Y-column) of the text data$/;"	m	class:ENDFText
+z_coefficient	coupling.cpp	/^double z_coefficient(const int l1, const int j1, const int l2, const int j2, const int s, const int ll)$/;"	f
+za	deceangdist.cpp	/^static double za = 0.0, awr = 0.0;$/;"	v	file:
+za	masstable.h	/^  unsigned int za;    \/\/ Z*1000 + A$/;"	m	class:MassExcess
+zbar_coefficient	coupling.cpp	/^double zbar_coefficient(const int l1, const int j1, const int l2, const int j2, const int s, const int ll)$/;"	f
+zero	gfr.h	/^  void zero(){$/;"	f	class:GFRcross
+znum	gfr.h	/^  int    znum[2]  ; \/* pair atomic numbers *\/$/;"	m	class:ParPair
+~ENDF	endflib.h	/^  ~ENDF(){$/;"	f	class:ENDF
+~ENDFDict	endflib.h	/^  ~ENDFDict(){$/;"	f	class:ENDFDict
+~ENDFText	endftext.h	/^  ~ENDFText(){$/;"	f	class:ENDFText
+~GFRcross	gfr.h	/^  ~GFRcross(){$/;"	f	class:GFRcross
+~RMLParameter	gfr.h	/^  ~RMLParameter(){$/;"	f	class:RMLParameter
+~Smatrix	gfr.h	/^  ~Smatrix(){$/;"	f	class:Smatrix
+~System	gfr.h	/^  ~System(){$/;"	f	class:System
+~URResonance	gfr.h	/^  ~URResonance(){$/;"	f	class:URResonance
