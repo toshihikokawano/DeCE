@@ -17,22 +17,30 @@ using namespace std;
 void DeceLibRead(ENDFDict *dict, ENDF *lib, char *file)
 {
   ifstream fpin;
+  int mf = lib->getENDFmf();
+  int mt = lib->getENDFmt();
 
   fpin.open(file);
   if(!fpin){ message << "cannot open data file " << file; TerminateCode("DeceLibRead"); }
 
-  ENDFRead(&fpin,lib,lib->getENDFmf(),lib->getENDFmt());
+  int c = ENDFRead(&fpin,lib,lib->getENDFmf(),lib->getENDFmt());
   fpin.close();
 
-  /*** replace ZA and AWR from Dictionary */
-  Record head = lib->getENDFhead();
-  head.c1 = dict->getZA();
-  head.c2 = dict->getAWR();
+  if(c < 0){
+    message << "no section to be imported from " << file << " for MF/MT = " << mf << "/" << mt;
+    WarningMessage();
+  }
+  else{
+    /*** replace ZA and AWR from Dictionary */
+    Record head = lib->getENDFhead();
+    head.c1 = dict->getZA();
+    head.c2 = dict->getAWR();
 
-  lib->setENDFhead(head);
+    lib->setENDFhead(head);
 
-  message << "MF " << lib->getENDFmf() << " MT " << lib->getENDFmt() << " imported from " << file;
-  Notice("DeceLibRead");
+    message << "MF " << lib->getENDFmf() << " MT " << lib->getENDFmt() << " imported from " << file;
+    Notice("DeceLibRead");
+  }
 }
 
 

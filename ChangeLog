@@ -1,3 +1,19 @@
+2022-12-28  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decelibread.cpp (DeceLibRead): updated
+	warning message changed when MF/MT not given in a provided file
+
+2022-12-27  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (DeceRead): bug fixed
+	reading MF1/MT455 skipped decay constants
+
+2022-12-16  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/decefactor.cpp (DeceFactorMF1): new function
+	(DeceFactor): updated
+	operation factor works for MF1/MT452 and 456, but not 455
+
 2022-10-28  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceoperation.cpp (DeceOperationREAD): updated

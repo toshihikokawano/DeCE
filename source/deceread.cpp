@@ -149,6 +149,15 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     lib->setENDFmf(mf);
     lib->setENDFmt(mt);
 
+    if(mt == 455){
+      Record clist = lib->rdata[0];
+      double *xlist = new double [clist.n1];
+      for(int i=0 ; i<clist.n1 ; i++) xlist[i] = lib->xptr[0][i];
+      ENDFPackLIST(clist,xlist,lib);
+//    ENDFWriteLIST(lib);
+      delete [] xlist;
+    }
+
     if(readflag == 1){
       /*** keep INT in the first range (assume there is only one INT range for the resonance)*/
       if( lib->idata[1] != 2 ){
@@ -169,6 +178,7 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
       idat[0] = np;
       idat[1] = 2;
     }
+
 
     ENDFPackTAB1(cont,idat,xdat,lib);
 //  ENDFWriteHEAD(lib);

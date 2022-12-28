@@ -10,6 +10,7 @@ using namespace std;
 #include "dece.h"
 #include "terminate.h"
 
+static void DeceFactorMF1(ENDF *, double, double, double, double);
 static void DeceFactorMF3(ENDF *, double, double, double, double);
 static void DeceFactorMF4P1(ENDF *, double, double, double);
 
@@ -21,7 +22,7 @@ static void DeceFactorMF4P1(ENDF *, double, double, double);
 void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
                 double x, double y, double xmin, double xmax)
 {
-  if( (mf != 3) && (mf != 4) ){
+  if( (mf != 1) && (mf != 3) && (mf != 4) ){
     message << "DeceFactor does not work for MF = " << mf <<", MT = " << mt;
     WarningMessage();
     return;
@@ -30,6 +31,14 @@ void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
   int k0 = dict->getID(mf,mt);
   if(k0 < 0){ message << "MT number " << mt << " not found"; TerminateCode("DeceFactor"); }
 
+  if(mf == 1){
+    if(mt == 455){
+      message << "DeceFactor does not work for MF = " << mf <<", MT = " << mt;
+      WarningMessage();
+      return;
+    }
+    DeceFactorMF1(lib[k0],x,y,xmin,xmax);
+  }
   if(mf == 3){
     DeceFactorMF3(lib[k0],x,y,xmin,xmax);
   }
@@ -44,9 +53,41 @@ void DeceFactor(ENDFDict *dict, ENDF *lib[], const int mf, const int mt,
 
   message << "MF" << mf << ":MT" << mt << " rescaled by factor " << y;
   if( (xmin < xmax) && (xmin >= 0.0) && (xmax > 0.0) ){
-    message << "in the energy range [" << xmin << "," << xmax <<"]";
+    message << " in the energy range [" << xmin << "," << xmax <<"]";
   }
   Notice("DeceFactor");
+}
+
+
+/**********************************************************/
+/*      Rescaling MF1 Nu-bar Data                         */
+/**********************************************************/
+void DeceFactorMF1(ENDF *lib, double x, double y, double xmin, double xmax)
+{
+  Record head = lib->getENDFhead();
+
+  /*** LNU : nu given by polynomial (1) or table (2) */
+  int lnu  = head.l2;
+  if(lnu == 1){
+    /*** range does not work */
+    if( (xmin >= 0.0) && (xmax > 0.0) ){
+      message << "DeceFactor does not work for polynomials when range is given";
+      WarningMessage();
+      return;
+    }
+
+    int nc = lib->rdata[0].n1;
+
+    double f = 0.0;
+    if(x == 0.0) f = y; // multiplied by a factor
+    else{
+      double nu = lib->xdata[0];
+      for(int i=1 ; i<nc ; i++) nu += lib->xdata[i] * pow(x,(double)i);
+      if(nu != 0.0) f = y/nu; // scaled at x
+    }
+    for(int i=0 ; i<nc ; i++) lib->xdata[i] *= f;
+  }
+  else DeceFactorMF3(lib,x,y,xmin,xmax);
 }
 
 

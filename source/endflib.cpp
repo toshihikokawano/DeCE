@@ -1464,7 +1464,7 @@ inline double ENDFPadExp(string str)
   }
   if(found && (epos > 0)){
     /*** zero padding if there is blank between numeric and E */
-    for(unsigned int i=epos-1 ; i>=0 ; i--){
+    for(int i=epos-1 ; i>=0 ; i--){
       if(str[i] == ' ') str[i] = '0';
       else if( (str[i] >= '0' && str[i] <= '9') || str[i]=='.' ) break;
     }
