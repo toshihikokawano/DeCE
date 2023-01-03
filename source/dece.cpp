@@ -75,8 +75,6 @@ int main(int argc, char *argv[])
                ENDFPrintLineNumber(opt.LineNumber); break;
     case 'v':  verbflag = true;        break;
     case 'h':  DeceHelp();             break;
-    case 'n':  opt.LineNumber = true;
-               ENDFPrintLineNumber(opt.LineNumber);  break;
     default:                           break;
     }
   }
