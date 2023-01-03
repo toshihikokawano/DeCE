@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
   bool     reconr = false;
 
   /*** command line options */
-  while((p=getopt(argc,argv,"o:f:t:e:rqsvhn"))!=-1){
+  while((p = getopt(argc,argv,"o:f:t:e:rqsnvh")) != -1){
     switch(p){
     case 'o':  libname_out = optarg;   break;
     case 'f':  mfin = atoi(optarg);    break;
@@ -71,6 +71,8 @@ int main(int argc, char *argv[])
     case 'q':  justquit = true;        break;
     case 's':  filescan = true;
                justquit = true;        break;
+    case 'n':  opt.LineNumber = true;
+               ENDFPrintLineNumber(opt.LineNumber); break;
     case 'v':  verbflag = true;        break;
     case 'h':  DeceHelp();             break;
     case 'n':  opt.LineNumber = true;

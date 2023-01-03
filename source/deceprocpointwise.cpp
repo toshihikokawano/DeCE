@@ -17,8 +17,8 @@ static int  DeceReconstructResonance (ENDFDict *, ENDF **, double **);
 static int  DeceCopyHighEnergyCrossSection (ENDFDict *, ENDF **, int, double **);
 static void DeceCheckNegativeCrossSection (const int, double **);
 
-static const int ncx = 4;
-static int mtr[ncx] = {1, 2, 102, 18}; // MT numbers for reconstructed cross sections
+static const int ncx = 6;
+static int mtr[ncx] = {1, 2, 102, 18, 600, 800}; // MT numbers for reconstructed cross sections
 
 /**********************************************************/
 /*      Generate Pointwise Cross Section                  */
@@ -93,6 +93,24 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
     }
   }
 
+  /*** create MT 103 and 107 if charged particle channels exist */
+  for(int j=1 ; j<ncx ; j++){
+    /*** add MT 600 - 649 to make 103 */
+    if(mtr[j] == 600){
+      DeceCreateLib(dict,3,900);
+      DeceCalc(dict,lib,900,600,649,':');
+      DeceCalc(dict,lib,103,103,900,'+');
+//    ENDFWrite(lib[dict->getID(3,103)]);
+    }
+    /*** add MT 800 - 849 to make 107 */
+    else if(mtr[j] == 800){
+      DeceCreateLib(dict,3,900);
+      DeceCalc(dict,lib,900,800,849,':');
+      DeceCalc(dict,lib,107,107,900,'+');
+//    ENDFWrite(lib[dict->getID(3,107)]);
+    }
+  }
+
   for(int j=0 ; j<ncx ; j++){
     delete [] xdat[j];
   }
@@ -128,6 +146,8 @@ int DeceReconstructResonance(ENDFDict *dict, ENDF *lib[], double **xdat)
     xdat[1][i2+1] = crs.elastic;
     xdat[2][i2+1] = crs.capture;
     if(dict->isFission()) xdat[3][i2+1] = crs.fission;
+    xdat[4][i2+1] = crs.proton;
+    xdat[5][i2+1] = crs.alpha;
   }
 
   /*** unresolved resonance cross sections */
@@ -149,6 +169,8 @@ int DeceReconstructResonance(ENDFDict *dict, ENDF *lib[], double **xdat)
       xdat[1][i2+1] = crs.elastic;
       xdat[2][i2+1] = crs.capture;
       if(dict->isFission()) xdat[3][i2+1] = crs.fission;
+      xdat[4][i2+1] = crs.proton;
+      xdat[5][i2+1] = crs.alpha;
     }
   }
 

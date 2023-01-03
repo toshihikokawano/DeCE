@@ -28,8 +28,11 @@ static bool   charged_particle_file = false;
 
 /**********************************************************/
 /*      Read in External Data from a File                 */
+/*      readflag: 0 general case                          */
+/*                1 add background in RR                  */
+/*                2 force replace all the cross section   */
 /**********************************************************/
-void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, int ofset, bool mflag)
+void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, const int ofset, const int readflag)
 {
   int      nc = 0, np = 0;
   double   *cx, *cy, *xdat, elev = 0.0, qm = 0.0, qi = 0.0, et = 0.0;
@@ -98,7 +101,7 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     }
 
     /*** check resonance boundary, when data will be merged */
-    if(mflag){
+    if(readflag == 1){
       double ebtest = findBoundary(lib);
       if(ebtest < dict->emaxRe && ebtest != 1.0e-05){
         message << "maybe background cross sections given for MT = " << mt << " at E1 = " << dict->emaxRe << "  E2 = " << ebtest;
@@ -111,8 +114,9 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
 
     /*** generate floating point data */
     np = nc;
-    if(mflag) np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->xptr[0]);
-    else      np = geneCSdata(nc,cx,cy,et,dict->emaxRe,xdat);
+    if(readflag == 1)      np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->xptr[0]);
+    else if(readflag == 2) np = geneCSdata(nc,cx,cy,-1.0,0.0,xdat);
+    else                   np = geneCSdata(nc,cx,cy,et,dict->emaxRe,xdat);
 
     message << "number of points added " << np;
     Notice("DeceRead");
@@ -145,7 +149,16 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     lib->setENDFmf(mf);
     lib->setENDFmt(mt);
 
-    if(mflag){
+    if(mt == 455){
+      Record clist = lib->rdata[0];
+      double *xlist = new double [clist.n1];
+      for(int i=0 ; i<clist.n1 ; i++) xlist[i] = lib->xptr[0][i];
+      ENDFPackLIST(clist,xlist,lib);
+//    ENDFWriteLIST(lib);
+      delete [] xlist;
+    }
+
+    if(readflag == 1){
       /*** keep INT in the first range (assume there is only one INT range for the resonance)*/
       if( lib->idata[1] != 2 ){
         cont.setRecord(qm,qi,0,0,2,np);
@@ -166,13 +179,14 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
       idat[1] = 2;
     }
 
+
     ENDFPackTAB1(cont,idat,xdat,lib);
 //  ENDFWriteHEAD(lib);
 //  ENDFWriteTAB1(lib);
 //  ENDFWriteSEND(lib);
   }
   else{
-    if(!mflag) DeceDelete(dict,mf,mt);
+    if(readflag != 1) DeceDelete(dict,mf,mt);
   }
 
   /*** Clean all */
@@ -416,6 +430,10 @@ int geneCSdata(int n, double *x, double *y, double eth, double eres, double *xda
   /*** for the threshold reaction */
   if(eth > 0.0){
     i = geneCSdata1(n,x,y,eth,eres,xdat);
+  }
+  /*** ignore resonance region and replace all the data points by input */
+  else if(eth < 0.0){
+    i = geneCSdata2(n,x,y,0.0,xdat);
   }
   /*** for the non-threshold reaction */
   else{

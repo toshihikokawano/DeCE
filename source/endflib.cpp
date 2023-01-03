@@ -1454,10 +1454,22 @@ inline double ENDFPadExp(string str)
 
   /*** search for E, if exists return the floating point number */
   bool found = false;
+  unsigned int epos = 0;
   for(unsigned int i=0 ; i<str.size() ; i++){
-    if(toupper(str[i]) == 'E') found = true;
+    if(toupper(str[i]) == 'E'){
+      found = true;
+      epos = i;
+      break;
+    }
   }
-  if(found)  return(atof(str.c_str()));
+  if(found && (epos > 0)){
+    /*** zero padding if there is blank between numeric and E */
+    for(int i=epos-1 ; i>=0 ; i--){
+      if(str[i] == ' ') str[i] = '0';
+      else if( (str[i] >= '0' && str[i] <= '9') || str[i]=='.' ) break;
+    }
+    return(atof(str.c_str()));
+  }
 
   int len = str.size();
   int p1 = 0, p2 = 0, p3 = 0;

@@ -129,7 +129,7 @@ void DeceTableMF8MT457(ENDF *lib)
     int    ner  = lib->rdata[idx].n2;
 
     cout << "#    Radiation" << setw(14) << n << endl;
-    cout << "#         STYP" << setw(14) << (int)styp << "  decay radiation type" << endl;
+    cout << "#         STYP" << setw(14) << (int)styp << "  decay radiation type (0:g, 1:b, 2:EC,b+, 4:alpha, 5:n, 6:SF, 7:p, 8:e" << endl;
     cout << "#         LCON" << setw(14) << lcon << "  0: no continuum, 1: only continuum, 2: both discrete and continuum" << endl;
     cout << "#          NER" << setw(14) << ner << "  total number of discrete energies" << endl;
 
