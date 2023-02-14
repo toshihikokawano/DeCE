@@ -25,6 +25,16 @@ multiread 3 600 649 "data/CoHLevelExcite2.dat"
 echo "read (n,alpha) partial cross sections"
 multiread 3 800 849 "data/CoHLevelExcite3.dat"
 
+echo "read (n,d) partial cross sections"
+multiread 3 650 699 "data/CoHLevelExcite4.dat"
+
+echo "read (n,t) partial cross sections"
+multiread 3 700 749 "data/CoHLevelExcite5.dat"
+
+echo "read (n,h) partial cross sections"
+multiread 3 750 799 "data/CoHLevelExcite6.dat"
+
+
 echo "read inelastic scattering cross sections"
 multiread 3 51 91 "data/CoHLevelExcite1.dat"
 
@@ -35,10 +45,19 @@ echo "read inelastic scattering angular distributions"
 multiangdist 6 51 90 "data/CoHLegendreCoefficient1.dat"
 
 echo "read proton angular distributions"
-multiangdist 6 600 648 "data/CoHLegendreCoefficient2.dat"
+multiangdist 6 600 649 "data/CoHLegendreCoefficient2.dat"
 
 echo "read alpha-particle angular distributions"
-multiangdist 6 800 848 "data/CoHLegendreCoefficient3.dat"
+multiangdist 6 800 849 "data/CoHLegendreCoefficient3.dat"
+
+echo "read deuteron angular distributions"
+multiangdist 6 650 699 "data/CoHLegendreCoefficient4.dat"
+
+echo "read triton angular distributions"
+multiangdist 6 700 749 "data/CoHLegendreCoefficient5.dat"
+
+echo "read helium3 angular distributions"
+multiangdist 6 750 799 "data/CoHLegendreCoefficient6.dat"
 
 
 echo "construct MF3MT4 from MT51 - MT91"
@@ -50,6 +69,15 @@ calc 103 = 600 : 649
 echo "constract (n,alpha) cross section from MT800 - MT849"
 calc 107 = 800 : 849
 
+echo "constract (n,d) cross section from MT650 - MT699"
+calc 104 = 650 : 699
+
+echo "constract (n,t) cross section from MT700 - MT749"
+calc 105 = 700 : 749
+
+echo "constract (n,h) cross section from MT750 - MT799"
+calc 106 = 750 : 799
+
 
 echo "sum all the partial cross sections to create non-elastic"
 calc 3 = 4 +  16
@@ -57,6 +85,9 @@ calc 3 = 3 +  22
 calc 3 = 3 +  28
 calc 3 = 3 + 102
 calc 3 = 3 + 103
+calc 3 = 3 + 104
+calc 3 = 3 + 105
+calc 3 = 3 + 106
 calc 3 = 3 + 107
 
 echo "re-calculate elastic by subtracting non-elastic from total"
@@ -68,7 +99,10 @@ calc 1 = 2 + 3
 echo "remove non-elastic"
 delete 3 3
 
-echo "remove total (n,p) and (n,alpha)"
+echo "remove total (n,p), (n,d), (n,t), (n,h), and (n,alpha)"
 delete 3 103
+delete 3 104
+delete 3 105
+delete 3 106
 delete 3 107
 

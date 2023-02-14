@@ -25,6 +25,15 @@ read 3 103 "data/CoHParticleProduction.dat"
 echo "read (n,alpha)"
 read 3 107 "data/CoHParticleProduction.dat"
 
+echo "read (n,d)"
+read 3 104 "data/CoHParticleProduction.dat"
+
+echo "read (n,t)"
+read 3 105 "data/CoHParticleProduction.dat"
+
+echo "read (n,h)"
+read 3 106 "data/CoHParticleProduction.dat"
+
 echo "read inelastic scattering cross sections"
 multiread 3 51 91 "data/CoHLevelExcite1.dat"
 
@@ -43,6 +52,9 @@ calc 3 = 3 +  22
 calc 3 = 3 +  28
 calc 3 = 3 + 102
 calc 3 = 3 + 103
+calc 3 = 3 + 104
+calc 3 = 3 + 105
+calc 3 = 3 + 106
 calc 3 = 3 + 107
 
 echo "re-calculate elastic by subtracting non-elastic from total"

@@ -265,8 +265,8 @@ void DeceHeaderReplaceData(ENDFDict *dict)
   for(int i=0 ; i<5 ; i++) dict->text[3][i] = '-';
   for(int i=0 ; i<6 ; i++) dict->text[4][i] = '-';
 
-  sprintf(&dict->text[2][22],"MATERIAL "); dict->text[2][31] = ' ';
-  sprintf(&dict->text[2][31],"%4d",dict->getMAT());
+  snprintf(&dict->text[2][22],sizeof(&dict->text[2]),"MATERIAL "); dict->text[2][31] = ' ';
+  snprintf(&dict->text[2][31],sizeof(&dict->text[2]),"%4d",dict->getMAT());
   for(int i=35 ; i<66 ; i++) dict->text[2][i] = ' ';
 
   for(int i=0 ; i<5 ; i++){
