@@ -41,9 +41,9 @@ static const int WFIELD =    14; // data field width
 static const double duplicatepoint = 0.0;
 
 
-void   processMF12 (int, ENDF *);
-void   processMF14 (     ENDF *);
-void   processMF15 (int, ENDF *);
+void   processMF12 (const int, const int, ENDF *);
+void   processMF14 (const int,            ENDF *);
+void   processMF15 (           const int, ENDF *);
 int    dataread    (ifstream *);
 int    datadummy   (int);
 inline double coltodbl (string, int);
@@ -95,9 +95,10 @@ int main(int argc, char *argv[])
 
   if(ne > 0){
     ne = datadummy(ne);
-    processMF12(ne,&lib12);
-    processMF14(   &lib14);
-    processMF15(ne,&lib15);
+    int nk = 1; // number of subsections
+    processMF12(nk,ne,&lib12);
+    processMF14(nk,   &lib14);
+    processMF15(   ne,&lib15);
   }
 
   delete [] ctab;
@@ -109,10 +110,9 @@ int main(int argc, char *argv[])
 }
 
 
-void processMF12(int ne, ENDF *lib)
+void processMF12(const int nk, const int ne, ENDF *lib)
 {
   Record head = lib->getENDFhead();
-  int    nk   = 1; // number of subsections
   int    lo   = 1; // multiplicities
 
   /*** reset index, set HEAD record, MF and MT */
@@ -133,11 +133,10 @@ void processMF12(int ne, ENDF *lib)
 }
 
 
-void processMF14(ENDF *lib)
+void processMF14(const int nk, ENDF *lib)
 {
   Record head = lib->getENDFhead();
   int li = 1; // isotropic angular distributoin
-  int nk = 0;
 
   /*** reset index, set HEAD record, MF and MT */
   head.setRecord(head.c1,head.c2,li,0,nk,0);
@@ -148,7 +147,7 @@ void processMF14(ENDF *lib)
 }
 
 
-void processMF15(int ne, ENDF *lib)
+void processMF15(const int ne, ENDF *lib)
 {
   Record head = lib->getENDFhead();
   int    nc   = 1; // number of subsections

@@ -15,8 +15,8 @@ using namespace std;
 
 //#define NEUTRON_INELASTIC_ONLY
 
-const int NSUB = 200;  // maximum 200 levels
-const int NSEC = 600;  // 200 levels for n, p, and alpha
+const int NSUB =  50;  // maximum 50 levels for each particle
+const int NSEC = 300;  // 50 levels for n, p, a, d, t, and h
 
 int    main       (int, char *[]);
 int    processMF12(ifstream *, ENDF **);
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
   awr = head.c2;
   mat = wrk.getENDFmat();
 
-  /*** read ECLIPSE data */
+  /*** read CoH output with -q1 option */
   fpin.open(datname.c_str());
   if(!fpin){
     cerr << "data file cannot open" << endl;  exit(-1);
@@ -64,28 +64,39 @@ int main(int argc, char *argv[])
 
   fpin.close();
 
-  /*** generate MF12 */
-  for(int i=0 ; i<nmt ; i++){
+  /*** generate MF12 in the MT order */
+  for(int mt = 51 ; mt < 850 ; mt++){
+
 #ifdef NEUTRON_INELASTIC_ONLY
-    if(lib[i]->getENDFmt() >= 91) continue;
+    if(mt >= 91) continue;
 #endif
-    ENDFWriteMF12(lib[i]);
+
+    for(int i=0 ; i<nmt ; i++){
+      if(lib[i]->getENDFmt() == mt) ENDFWriteMF12(lib[i]);
+    }
   }
   ENDFWriteFEND(mat);
 
   /*** generate MF14, isotropic angular distribution */
   wrk.setENDFmf(14);
-  for(int i=0 ; i<nmt ; i++){
-    Record cont = lib[i]->rdata[0];
-    int nk = cont.n2;
-    head.setRecord(za,awr,1,0,nk,0);
-    int mt = lib[i]->getENDFmt();
-    wrk.setENDFmt(mt);
-    wrk.setENDFhead(head);
+
+  for(int mt = 51 ; mt < 850 ; mt++){
+
 #ifdef NEUTRON_INELASTIC_ONLY
-    if(lib[i]->getENDFmt() >= 91) continue;
+    if(mt >= 91) continue;
 #endif
-    ENDFWriteMF14(&wrk);
+
+    for(int i=0 ; i<nmt ; i++){
+      if(lib[i]->getENDFmt() == mt){
+        Record cont = lib[i]->rdata[0];
+        int nk = cont.n2;
+        head.setRecord(za,awr,1,0,nk,0);
+        int mt = lib[i]->getENDFmt();
+        wrk.setENDFmt(mt);
+        wrk.setENDFhead(head);
+        ENDFWriteMF14(&wrk);
+      }
+    }
   }
   ENDFWriteFEND(mat);
 
@@ -100,28 +111,35 @@ int main(int argc, char *argv[])
 /**********************************************************/
 int processMF12(ifstream *fp, ENDF **lib)
 {
-  string dat1, dat2, line;
-  double ex[NSUB], xdat[2*NSUB];
+  bool   withconv = false;
+  string dat1, dat2, dat3, line;
+  double *ex = new double [NSUB];
+  double *xdat = new double [3 * NSUB];
+
   const int lo = 2;
-  const int lg = 1;
   const int lp = 0;
 
   while(1){
     getline(*fp,line);
     if(fp->eof() != 0) break;
-    if(line == "#gammaray") break;
+    if(line == "#gammaray"){
+      withconv = false; break;
+    }
+    else if(line == "#gammaraywithconversion"){
+      withconv = true; break;
+    }
   }
 
-  int np  = 0;
+  int lg = (withconv) ? 2 : 1; // 1: GP is always 1.0, 2: GP (gamma-ray probability) given
+
   int nmt = 0;
   while(1){
     getline(*fp,line);
     if(fp->eof() != 0) break;
     if(line.length() == 0) break;
-    if(np > 3) break;
 
-    dat1 = line.substr( 5, 4);
-    int nk = atoi(&dat1[0]);
+    dat1 = line.substr( 5, 4);  int nk = atoi(&dat1[0]); // number of levels
+    dat2 = line.substr( 0, 5);  int np = atoi(&dat2[0]); // particle ID
 
     /*** skip capture part */
     if(np == 0){
@@ -138,6 +156,7 @@ int processMF12(ifstream *fp, ENDF **lib)
         ex[k] = 0.0;
         continue;
       }
+      if(k >= 41) continue; // this is because CoH produces 41 levels
 
       dat1 = line.substr( 9, 4);  // number of gamma-rays
       dat2 = line.substr(13,13);  // level energy
@@ -147,23 +166,46 @@ int processMF12(ifstream *fp, ENDF **lib)
 
       int gt=0;
       for(int g=0 ; g<nt ; g++){
-        dat1 = line.substr(26+17*g, 4); // final state
-        dat2 = line.substr(30+17*g,13); // branching ratio
+        if(withconv){
+          dat1 = line.substr(26 + 30*g,  4); // final state
+          dat2 = line.substr(30 + 30*g, 13); // branching ratio
+          dat3 = line.substr(43 + 30*g, 13); // gamma-ray emission probability
+        }
+        else{
+          dat1 = line.substr(26 + 17*g,  4); // final state
+          dat2 = line.substr(30 + 17*g, 13); // branching ratio
+        }
 
         /*** eliminate zero transitios */
+        double es = ex[ atoi(&dat1[0]) ];
         double br = atof(&dat2[0]);
-        if(br>0.0){
-          xdat[2*gt  ] = ex[ atoi(&dat1[0]) ];
-          xdat[2*gt+1] = br;
+        double gp = (withconv) ? atof(&dat3[0]) : 1.0;
+
+        if(br > 0.0){
+          if(withconv){
+            xdat[3*gt  ] = es;
+            xdat[3*gt + 1] = br;
+            xdat[3*gt + 2] = gp;
+          }
+          else{
+            xdat[2*gt    ] = es;
+            xdat[2*gt + 1] = br;
+          }
           gt++;
         }
       }
       nt = gt;
 
       int mt = 0;
-      if(     np == 1) mt =  50 + k;
-      else if(np == 2) mt = 600 + k;
-      else if(np == 3) mt = 800 + k;
+      switch(np){
+      case 1: mt =  50 + k; break;
+      case 2: mt = 600 + k; break;
+      case 3: mt = 800 + k; break;
+      case 4: mt = 650 + k; break;
+      case 5: mt = 700 + k; break;
+      case 6: mt = 750 + k; break;
+      default: cerr << "particle ID " << np << " out of range" << endl;  exit(-1);
+      }
 
       Record head(za,awr,lo,lg,k,0);
       lib[nmt]->setENDFhead(head);
@@ -171,13 +213,16 @@ int processMF12(ifstream *fp, ENDF **lib)
       lib[nmt]->setENDFmf(mf);
       lib[nmt]->setENDFmt(mt);
 
-      Record cont(ex[k],0.0,lp,0,2*nt,nt);
+      Record cont(ex[k],0.0,lp,0,(lg+1)*nt,nt);
       ENDFPackLIST(cont,xdat,lib[nmt]);
       nmt ++;
     }
 
     np ++;
   }
+
+  delete [] ex;
+  delete [] xdat;
 
   return(nmt);
 }

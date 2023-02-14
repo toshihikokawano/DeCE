@@ -1,3 +1,8 @@
+2023-02-13  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/decemf12.cpp (processMF12): updated
+	gamma transition probability array includes the probabilities of gamma emission, when the header line is gammaraywithconversion
+
 2022-12-28  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/decelibread.cpp (DeceLibRead): updated
