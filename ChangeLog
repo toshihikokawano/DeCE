@@ -1,3 +1,8 @@
+2023-02-20  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (readISdata): bug fixed
+	reading MT 600, 650, etc data skipped because of zero excitation energy
+
 2023-02-13  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* tools/decemf12.cpp (processMF12): updated

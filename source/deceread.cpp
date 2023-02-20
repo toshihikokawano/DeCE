@@ -323,7 +323,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   double eth = 0.0;
   for(int i=0 ; i<ofset ; i++) s1 >> eth;
 
-  if(eth == 0.0){
+  if(eth == 0.0 && (mt != 600) && (mt != 650) && (mt != 700) && (mt !=750) && (mt != 800)){
     message << "MF3:MT" << mt << " from " << file << " has zero excitation energy, cannot read";
     Notice("DeceRead:readISdata");
     return 0;
