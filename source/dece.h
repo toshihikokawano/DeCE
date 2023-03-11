@@ -69,6 +69,9 @@ void   DeceShowHeaderText (ENDFDict *);
 void   DeceEditHeaderText (ENDFDict *, string, char *);
 void   DeceFixAWR       (ENDFDict *);
 
+/*** decemod4 */
+void   DeceResonanceAngularDistribution(ENDFDict *, ENDF **, int);
+
 /*** decemod6 */
 void   DeceBoundCorrect (ENDFDict *, ENDF **, const int);
 void   DeceDuplicatePoint (ENDFDict *, ENDF **, const int, double);
@@ -80,6 +83,7 @@ void   gfrScanThermal   (ifstream *, ENDFDict *, double);
 double gfrGetOnePoint   (ifstream *, ENDFDict *, const double);
 void   gfrPtCross       (ENDFDict *, ENDF **, double, double, double);
 void   gfrAngDist       (ENDFDict *, ENDF **, double, double, double, double);
+int    gfrAngDist       (ENDFDict *, ENDF **, double *, double **);
 void   gfrAngDistSmooth (ENDFDict *, ENDF **, double);
 void   gfrSmatrixElement(ENDFDict *, ENDF **, double, double, double);
 

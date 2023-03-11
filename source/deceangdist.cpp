@@ -269,7 +269,7 @@ int geneADdata(int mt, int ne, double eth, double *en, double *x, double **y, do
 /**********************************************************/
 /*      Store Legendre Coefficients in ENDF lib (MF4)     */
 /**********************************************************/
-void storeMF4(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)
+void storeMF4(const int mt, const int ne, double **xdat, Record *xcont, ENDF *lib)
 {
   Record cont;
   int    idat[2];
@@ -300,7 +300,7 @@ void storeMF4(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)
 /**********************************************************/
 /*      Store Legendre Coefficients in ENDF lib (MF6)     */
 /**********************************************************/
-void storeMF6(int mt, int ne, double **xdat, Record *xcont, ENDF *lib)
+void storeMF6(const int mt, const int ne, double **xdat, Record *xcont, ENDF *lib)
 {
   Record cont;
   int    idat[2];

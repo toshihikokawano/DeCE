@@ -16,6 +16,7 @@ dece_SOURCES = \
 	decelibread.cpp \
 	decememory.cpp \
 	decemisc.cpp \
+	decemod4.cpp \
 	decemod6.cpp \
 	deceoperation.cpp \
 	deceoutput.cpp \

@@ -58,11 +58,13 @@ reconstruct 1 10 1
 
 <pre id="syn">
    reconangdist <i>X-min</i> <i>X-max</i> <i>delta-X</i>
+   reconangdist <i>X</i>
+   reconangdist
 </pre>
 
 <p>Elastic scattering angular distributions for given energy points
-are calculated from the resonance parameters. This is not fully
-functional.</p>
+are calculated from the resonance parameters. See <code>reconstruct</code>
+for the energy range parameters.</p>
 
 
 <h2><a name="smoothangdist">smoothangdist (energy averaged Legendre coefficients from resonance parameters)</a></h2>
@@ -76,6 +78,20 @@ scattering. The Legendre coefficients are calculated from the resolved
 resonance parameters at equi-distant energy points, then smoothed
 by a Gaussian weighting function, with the width of <i>width</i>.</p>
 
+
+
+<h2><a name="resonanceangdist">resonanceangdist (merge energy averaged Legendre coefficients with existing elastic scattering angular distributions)</a></h2>
+
+<pre id="syn">
+   resonanceangdist <i> npoint </i>
+</pre>
+
+<p>Replace Legendre coefficients given in MF4/MT2 by the smoothed (energy-averaged)
+Legendre coefficients produced from resolved resonance parameters.
+This command replaces the coefficients inside the resonance region only.
+Above the resonance region, existing coefficients will be kept.
+<i>npoint</i> is the number of energy points given inside the resonance region.
+This excludes the boundary energy point, so that the actual number will be +1.</p>
 
 <hr>
 <a href="ope3.html">    [BACK] </a>

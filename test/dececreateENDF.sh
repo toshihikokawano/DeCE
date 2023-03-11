@@ -39,12 +39,12 @@ fi
 echo "produce MF6, and store in $work6"
 cat /dev/null > $workmf6
 if [ $chargediscrete = "true" ]; then
-    for mt in 16  22  28  102 649 699 749 799 849;do
+    for mt in 16  22  28  91 102 649 699 749 799 849;do
         echo "make MF6 $mt from data/CoHSpectrum.dat"
         $toolbase/$decemf6 -t $mt -e data/CoHSpectrum_chargediscrete.dat -f $workfile >> $workmf6
     done
 else
-    for mt in 16  22  28  102 103 107;do
+    for mt in 16  22  28  91 102 103 107;do
         echo "make MF6 $mt from data/CoHSpectrum.dat"
         $toolbase/$decemf6 -t $mt -e data/CoHSpectrum.dat -f $workfile >> $workmf6
     done
@@ -65,6 +65,7 @@ if [ $chargediscrete = "true" ]; then
 libread 6  16 "$workmf6"
 libread 6  22 "$workmf6"
 libread 6  28 "$workmf6"
+libread 6  91 "$workmf6"
 libread 6 102 "$workmf6"
 libread 6 649 "$workmf6"
 libread 6 699 "$workmf6"
@@ -91,6 +92,7 @@ else
 libread 6  16 "$workmf6"
 libread 6  22 "$workmf6"
 libread 6  28 "$workmf6"
+libread 6  91 "$workmf6"
 libread 6 102 "$workmf6"
 libread 6 103 "$workmf6"
 libread 6 107 "$workmf6"

@@ -162,6 +162,9 @@ string CmdExtractArgument(void)
     cmd.xmax  =      getval(d1);
     cmd.x     =      getval(d1);
   }
+  else if(ope == "resonanceangdist"){
+    cmd.opt1  = (int)getval(d1);
+  }
   else if(ope == "group"){
     cmd.opt1  = (int)getval(d1);
     cmd.opt2  = (int)getval(d1);

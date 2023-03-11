@@ -32,6 +32,7 @@ static void DeceOperationBOUNDCORRECT    (ENDFDict *, ENDF **);
 static void DeceOperationGENPROD         (ENDFDict *, ENDF **);
 static void DeceOperationISOANGDIST      (ENDFDict *, ENDF **);
 static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
+static void DeceOperationRESONANCEANGDIST(ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
 static void DeceOperationGROUP           (ENDFDict *, ENDF **);
 
@@ -185,6 +186,10 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** SMOOTHANGDIST: calculate energy averaged Legendre coefficients in RRR */
   else if( (ope == "reconstruct") || (ope == "reconangdist") || (ope == "smoothangdist") || (ope == "smatrixelement") ){
     DeceOperationRECONSTRUCT(dict,lib);
+  }
+  /*** RESONANCANGDIST: replace elastic scattering angular distribution by resonances */
+  else if(ope == "resonanceangdist"){
+    DeceOperationRESONANCEANGDIST(dict,lib);
   }
 
 
@@ -559,6 +564,19 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
     }
   }
   DeceOutputResume();
+}
+
+
+/**********************************************************/
+/* RESOANCEANGDIST                                        */
+/*      replace elastic scattering angular distributions  */
+/*      by those from resonance parameters                */
+/**********************************************************/
+void DeceOperationRESONANCEANGDIST(ENDFDict *dict, ENDF *lib[])
+{
+  if( (dict->getID(2,151) >= 0) && (dict->getID(4,2) >= 0) ){
+    DeceResonanceAngularDistribution(dict,lib,cmd.opt1);
+  }
 }
 
 
