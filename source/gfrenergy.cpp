@@ -142,10 +142,10 @@ int gfrAutoEnergyRRR(System *sys, ENDF *lib2, double *elab, const double ebr)
 //   char stri[15], strj[15];
 //   int j = 0;
 //   do{
-//     sprintf(strj,"% 13.6e",elab[j]);
+//     snprintf(strj,15,"% 13.6e",elab[j]);
 //     int i = j+1;
 //     do{
-//       sprintf(stri,"% 13.6e",elab[i]);
+//       snprintf(stri,15,"% 13.6e",elab[i]);
 //       if(!strncmp(stri,strj,14)){
 //         /*** shift array */
 //         for(int m=i+1; m<np ; m++) elab[m-1] = elab[m];
@@ -160,7 +160,7 @@ int gfrAutoEnergyRRR(System *sys, ENDF *lib2, double *elab, const double ebr)
 /*
   char strj[15];
   for(int i=0 ; i<np ; i++){
-    sprintf(strj,"% 13.6e",elab[i]);
+    snprintf(strj,15,"% 13.6e",elab[i]);
     cout << setw(5) << i<< setw(13) << strj << endl;
   }
 */
