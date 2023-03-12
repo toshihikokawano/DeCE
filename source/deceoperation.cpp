@@ -325,7 +325,7 @@ void DeceOperationREAD(ENDFDict *dict, ENDF *lib[])
     DeceCreateLib(dict,cmd.mf,mt);
     if(ope == "mergeread")
       DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,1);
-    if(ope == "replaceread")
+    else if(ope == "replaceread")
       DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,2);
     else
       DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,0);
