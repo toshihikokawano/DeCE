@@ -183,6 +183,23 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
 
 /**********************************************************/
+/*      GFR L-Max from Resonances                         */
+/**********************************************************/
+int gfrLMax(ENDFDict *dict, ENDF *lib[])
+{
+  int lmax = 0;
+  System sys;
+  int kres = dict->getID(2,151);
+  if(kres >= 0){
+    gfrReadHEADData(&sys,lib[kres]);
+    gfrCrossSection(0,dict->emaxRR,&sys,lib[kres]);
+    lmax = sys.nl - 1;
+  }
+  return(lmax);
+}
+
+
+/**********************************************************/
 /*      GFR Generate Legendre Coefficient from Resonances */
 /**********************************************************/
 void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de, double da)
@@ -278,12 +295,16 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   }
 }
 
-
-int gfrAngDist(ENDFDict *dict, ENDF *lib[], double *edat, double **pdat)
+/*** simplified version */
+int gfrAngDistSimple(ENDFDict *dict, ENDF *lib[], const int psize, double *xdat, double **pdat)
 {
   System sys;
   Pcross c;
   double *pleg;
+
+  int lsize = 2 * gfrLMax(dict,lib) + 1;
+
+  if(psize < lsize) lsize = psize;
 
   pleg = new double [LMAX*2];
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
@@ -292,11 +313,12 @@ int gfrAngDist(ENDFDict *dict, ENDF *lib[], double *edat, double **pdat)
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
 
-  int np = gfrAutoEnergyRRR(&sys,lib[kres],edat,dict->emaxRR);
+  int np = gfrAutoEnergyRRR(&sys,lib[kres],xdat,dict->emaxRR);
+
   for(int i=0 ; i<np ; i++){
-    c = gfrCrossSection(0,edat[i],&sys,lib[kres]);
+    c = gfrCrossSection(0,xdat[i],&sys,lib[kres]);
     gfrLegendreCoefficient(&sys,pleg);
-    for(int l=0 ; l<LMAX*2 ; l++) pdat[i][l] = pleg[l];
+    for(int l=0 ; l<lsize ; l++) pdat[i][l] = pleg[l];
   }
 
   Smat.memfree();

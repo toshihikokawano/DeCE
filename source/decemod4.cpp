@@ -15,7 +15,7 @@ using namespace std;
 
 static const int defaultenergypoints = 100;
 
-static int smoothedlegendre (ENDFDict *, ENDF *[], const int, double *, double **);
+static void smoothedlegendre (ENDFDict *, ENDF *[], const int, const int, double *, double **);
 static void updateMF4 (const int, const int, const int, double **, Record *, ENDF *);
 
 
@@ -43,19 +43,23 @@ void DeceResonanceAngularDistribution(ENDFDict *dict, ENDF *lib[], int np)
   else np ++; // add boundary point
   double de = dict->emaxRR / (np - 1);
 
+  /*** L-max of Legendre coefficients */
+  int psize = 2 * gfrLMax(dict,lib) + 1;
+
+  /*** allocate data */
   double *xres = new double [np];
   double **pres = new double * [np];
   for(int i=0 ; i<np ; i++){
     xres[i] = de * i;
-    pres[i] = new double [LMAX*2];
-    for(int l=0 ; l<LMAX*2 ; l++) pres[i][l] = 0.0;
+    pres[i] = new double [psize];
+    for(int l=0 ; l<psize ; l++) pres[i][l] = 0.0;
   }
 
   /*** smoothed Legendre coefficients */
-  int lmax = smoothedlegendre(dict,lib,np,xres,pres);
+  smoothedlegendre(dict,lib,np,psize,xres,pres);
   // for(int n=0 ; n<np ; n++){
   //   cout << xres[n];
-  //   for(int l=0 ; l<lmax ; l++) cout << " " << pres[n][l];
+  //   for(int l=0 ; l<psize ; l++) cout << " " << pres[n][l];
   //   cout << endl;
   // }
 
@@ -104,8 +108,8 @@ void DeceResonanceAngularDistribution(ENDFDict *dict, ENDF *lib[], int np)
   /*** copy energies and Legendre coefficients */
   int n = 0;
   for(int i=0 ; i<np ; i++){
-    cont[i].setRecord(0.0,xres[i],0,0,lmax-1,0);
-    for(int l=0 ; l<lmax-1 ; l++) xdat[i][l] = pres[i][l+1];
+    cont[i].setRecord(0.0,xres[i],0,0,psize-1,0);
+    for(int l=0 ; l<psize-1 ; l++) xdat[i][l] = pres[i][l+1];
   }
   n += np;
 
@@ -140,33 +144,27 @@ void DeceResonanceAngularDistribution(ENDFDict *dict, ENDF *lib[], int np)
 /**********************************************************/
 /*      Calculate Smoothed Legendre Coefficients          */
 /**********************************************************/
-int smoothedlegendre(ENDFDict *dict, ENDF *lib[], const int np, double *eave, double **pave)
+void smoothedlegendre(ENDFDict *dict, ENDF *lib[], const int np, const int psize, double *eave, double **pave)
 {
   /*** allocate coefficients memory */
   double *edat = new double [MAX_DBLDATA/2];
   double **pdat = new double * [MAX_DBLDATA/2];
   for(int i=0 ; i<MAX_DBLDATA/2 ; i++){
-    pdat[i] = new double [LMAX*2];
+    pdat[i] = new double [psize];
     edat[i] = 0.0;
-    for(int l=0 ; l<LMAX*2 ; l++) pdat[i][l] = 0.0;
+    for(int l=0 ; l<psize ; l++) pdat[i][l] = 0.0;
   }
   
   /*** calculate Legendre coefficients */
-  int ne = gfrAngDist(dict,lib,edat,pdat);
-
-  /*** find Lmax at N = ne */
-  int lmax;
-  for(int l=LMAX*2 - 1 ; l >= 0 ; l--){
-    if(pdat[ne-1][l] != 0.0){ lmax = l+1; break; }
-  }
+  int ne = gfrAngDistSimple(dict,lib,psize,edat,pdat);
   // for(int n=0 ; n<ne ; n++){
   //   cout << edat[n];
-  //   for(int l=0 ; l<lmax ; l++) cout << " " << pdat[n][l];
+  //   for(int l=0 ; l<psize ; l++) cout << " " << pdat[n][l];
   //   cout << endl;
   // }
 
   double width = dict->emaxRR / (np - 1); // Gaussian averaging width = Delta E
-  double y[lmax];
+  double y[psize];
 
   /*** at each energy point, calculate Gaussian average */
   for(int i=1 ; i<np ; i++){
@@ -174,7 +172,7 @@ int smoothedlegendre(ENDFDict *dict, ENDF *lib[], const int np, double *eave, do
     double e1 = eave[i] + 2 * width;
 
     double x = 0.0;
-    for(int l=0 ; l<lmax ; l++) y[l] = 0.0;
+    for(int l=0 ; l<psize ; l++) y[l] = 0.0;
 
     for(int j=0 ; j<ne-1 ; j++){
       if( (edat[j] < e0) || (e1 < edat[j]) ) continue;
@@ -183,27 +181,25 @@ int smoothedlegendre(ENDFDict *dict, ENDF *lib[], const int np, double *eave, do
       double w = exp(-d*d / (width*width)) * (edat[j+1] - edat[j]);
 
       x += w;
-      for(int l=0 ; l<lmax ; l++) y[l] += w * pdat[j][l];
+      for(int l=0 ; l<psize ; l++) y[l] += w * pdat[j][l];
     }
-    for(int l=0 ; l<lmax ; l++) pave[i][l] = (x > 0.0) ? y[l] / x : 0.0;
+    for(int l=0 ; l<psize ; l++) pave[i][l] = (x > 0.0) ? y[l] / x : 0.0;
   }
 
   /*** isotropic at zero energy */
   eave[0] = edat[0];
   pave[0][0] = 1.0;
-  for(int l=1 ; l<lmax ; l++) pave[0][l] = 0.0;
+  for(int l=1 ; l<psize ; l++) pave[0][l] = 0.0;
 
   /*** normalize Legendre coefficients */
   for(int n=0 ; n<np ; n++){
-    for(int l=1 ; l<lmax ; l++) if(pave[n][0] != 0.0) pave[n][l] = pave[n][l]/pave[n][0];
+    for(int l=1 ; l<psize ; l++) if(pave[n][0] != 0.0) pave[n][l] = pave[n][l]/pave[n][0];
     pave[n][0] = 1.0;
   }
 
   delete [] edat;
   for(int i=0 ; i<MAX_DBLDATA/2 ; i++) delete [] pdat[i];
   delete [] pdat;
-
-  return lmax;
 }
 
 

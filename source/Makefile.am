@@ -8,6 +8,7 @@ dece_SOURCES = \
 	deceapplyfunc.cpp \
 	dececalc.cpp \
 	decechangeint.cpp \
+	decechecktotal.cpp \
 	decedelete.cpp \
 	deceextract.cpp \
 	decefactor.cpp \

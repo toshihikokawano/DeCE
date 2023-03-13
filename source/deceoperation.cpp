@@ -126,6 +126,11 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationCHECKTHRESHOLD(dict,lib);
   }
 
+  /*** CHECHKTOTAL: check if sum partial = total in MF3 */
+  else if( ope == "checktotal"){
+    DeceCheckTotal(dict,lib);
+  }
+
 
   //--------------------------------------------------------
   //  MF1 manipulations
@@ -354,9 +359,16 @@ void DeceOperationANGDIST(ENDFDict *dict, ENDF *lib[])
 /**********************************************************/
 void DeceOperationLIBREAD(ENDFDict *dict, ENDF *lib[])
 {
+  if(cmd.mt == 0){
+    cmd.mt = 1;
+    cmd.mtend = 850;
+  }
+
   for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
-    DeceCreateLib(dict,cmd.mf,mt);
-    DeceLibRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.text);
+    if( DeceLibScan(cmd.mf,mt,cmd.text) ){
+      DeceCreateLib(dict,cmd.mf,mt);
+      DeceLibRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.text);
+    }
   }
 }
 

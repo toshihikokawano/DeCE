@@ -34,6 +34,7 @@ void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, int)
 
 /*** decelibread.cpp */
 void   DeceLibRead      (ENDFDict *, ENDF *, char *);
+bool   DeceLibScan      (const int, const int, char *);
 
 /*** decetable.cpp */
 void   DeceTable        (ENDFDict *, ENDF *[], ifstream *, const int, const int);
@@ -80,10 +81,9 @@ void   DeceIsotropicAngularDistribution (ENDFDict *, ENDF **, const int);
 
 /*** gfr.cpp */
 void   gfrScanThermal   (ifstream *, ENDFDict *, double);
-double gfrGetOnePoint   (ifstream *, ENDFDict *, const double);
 void   gfrPtCross       (ENDFDict *, ENDF **, double, double, double);
 void   gfrAngDist       (ENDFDict *, ENDF **, double, double, double, double);
-int    gfrAngDist       (ENDFDict *, ENDF **, double *, double **);
+int    gfrAngDistSimple (ENDFDict *, ENDF **, const int, double *, double **);
 void   gfrAngDistSmooth (ENDFDict *, ENDF **, double);
 void   gfrSmatrixElement(ENDFDict *, ENDF **, double, double, double);
 
@@ -95,6 +95,9 @@ void   DeceGenerateGroup (ENDFDict *, ENDF **, const int,  const int, string);
 
 /*** decescanindex.cpp */
 void   DeceScanIndex    (ENDFDict *);
+
+/*** deceschecktotal.cpp */
+void DeceCheckTotal (ENDFDict *, ENDF **);
 
 /*** deceglobaloption.cpp */
 void   DeceGlobalOption (string, string, string, const double);
