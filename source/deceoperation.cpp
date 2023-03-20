@@ -347,7 +347,7 @@ void DeceOperationANGDIST(ENDFDict *dict, ENDF *lib[])
 {
   for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
     DeceCreateLib(dict,cmd.mf,mt);
-    DeceAngdist(dict,lib,cmd.mf,mt,cmd.text,cmd.opt1);
+    DeceAngdist(dict,lib,cmd.mf,mt,cmd.text,cmd.topt,cmd.opt1);
   }
 }
 

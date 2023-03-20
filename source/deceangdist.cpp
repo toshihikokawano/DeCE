@@ -3,15 +3,19 @@
 /******************************************************************************/
 
 #include <iostream>
+#include <iomanip>
 #include <ostream>
 #include <cmath>
+#include <cstring>
 
 using namespace std;
 
+#include "constant.h"
 #include "dece.h"
 #include "global.h"
 #include "terminate.h"
 #include "polysq.h"
+#include "masstable.h"
 
 static const int ANGLE_POINTS = 180;
 static const int MAX_ENERGY   = 100;
@@ -20,7 +24,8 @@ static const int MAX_LEGCOEF  =  60;
 static int  readADdata (char *, int, int, double *, double **, double *);
 static int  geneADdata (int, int, double, double *, double *, double **, double  **, Record *);
 static void storeMF4   (int, int, double **, Record *, ENDF *);
-static void storeMF6   (int, int, double **, Record *, ENDF *);
+static void storeMF6   (int, int, double **, Record *, ENDF *, char *);
+static int  discretegammaspec (const int, const int, const int, double *, double *, double *, char *);
 
 static bool   addata = true;
 static double za = 0.0, awr = 0.0;
@@ -29,7 +34,7 @@ static int    mat = 0;
 /**********************************************************/
 /*      Read in External Data from a File                 */
 /**********************************************************/
-void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *datafile, int ofset)
+void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *datafile, char *gammafile, int ofset)
 {
   double   *cx=NULL, **cy=NULL, *en=NULL, **lg=NULL;
   Record   *cont;
@@ -80,7 +85,7 @@ void DeceAngdist(ENDFDict *dict, ENDF *lib[], const int mf, const int mt, char *
     awr  = dict->getAWR();
 
     if(mf == 4) storeMF4(mt,ne,lg,cont,lib[k4]);
-    else        storeMF6(mt,ne,lg,cont,lib[k4]);
+    else        storeMF6(mt,ne,lg,cont,lib[k4],gammafile);
   }
   else{
     DeceDelete(dict,mf,mt);
@@ -300,18 +305,30 @@ void storeMF4(const int mt, const int ne, double **xdat, Record *xcont, ENDF *li
 /**********************************************************/
 /*      Store Legendre Coefficients in ENDF lib (MF6)     */
 /**********************************************************/
-void storeMF6(const int mt, const int ne, double **xdat, Record *xcont, ENDF *lib)
+void storeMF6(const int mt, const int ne, double **xdat, Record *xcont, ENDF *lib, char *gfile)
 {
+  double  zap  = 1.0; // product identifier (assume neutron)
+  double  awp  = 1.0; // product mass
+
+  int pid = 0, mt0 = mt;
+  if(      ( 50 <= mt) && (mt <=  91)) { zap =    1.0; awp = 1.0;                   pid = 1; mt0 =  50; }
+  else if( (600 <= mt) && (mt <= 649)) { zap = 1001.0; awp = MPROTON   / MNEUTRON;  pid = 2; mt0 = 600; }
+  else if( (650 <= mt) && (mt <= 699)) { zap = 1002.0; awp = MDEUTERON / MNEUTRON;  pid = 4; mt0 = 650; }
+  else if( (700 <= mt) && (mt <= 749)) { zap = 1003.0; awp = MTRITON   / MNEUTRON;  pid = 5; mt0 = 700; }
+  else if( (750 <= mt) && (mt <= 799)) { zap = 2003.0; awp = MHELIUM3  / MNEUTRON;  pid = 6; mt0 = 750; }
+  else if( (800 <= mt) && (mt <= 849)) { zap = 2004.0; awp = MALPHA    / MNEUTRON;  pid = 3; mt0 = 800; }
+
+  bool gammaspec = false;
+  if( (strlen(gfile) > 0) && (mt != mt0) ) gammaspec = true;
+
   Record cont;
   int    idat[2];
   double zdat[4];
 
   int     lct  = 2;   // center-of-mass system
-  int     nk   = 2;   // number of subsection, incl. recoil
+  int     nk   = (gammaspec) ? 3 : 2;   // number of subsection, incl. recoil and gamma lines
   int     lip  = 0;   // isomer flag
   int     law  = 2;   // two-body scattering
-  double  zap  = 1.0; // product identifier (assume neutron)
-  double  awp  = 1.0; // product mass
 
   /*** Make HEAD CONT */
   lib->setENDFmat(mat);
@@ -336,6 +353,7 @@ void storeMF6(const int mt, const int ne, double **xdat, Record *xcont, ENDF *li
   idat[0] = ne;             // NE incident energies
   idat[1] = 2;              // lin-lin interpolation
 
+
   /*** change NW in the case of MF6 */
   for(int i=0 ; i<ne ; i++){
     Record r =   xcont[i];
@@ -346,12 +364,228 @@ void storeMF6(const int mt, const int ne, double **xdat, Record *xcont, ENDF *li
 
 
   /*** Make TAB1 for recoil */
-  zap = za;
-  awp = awr;
+  zap = za + 1.0 - zap;     // neutron incident assumed
+  int z = zap/1000;
+  int a = zap - z*1000;
+  double mass = mass_excess(z,a);
+  awp = (mass / AMUNIT + a) / MNEUTRON;  // recoil mass
   law = 4;                  // discrete two body recoil
   cont.setRecord(zap, awp, lip, law, 1, 2);
   idat[0] = 2;              // two points
   idat[1] = 2;              // lin-lin interpolation
   ENDFPackTAB1(cont, idat, zdat, lib);
+
+  /*** add discrete gamma-ray spectrum */
+  if(gammaspec){
+    int nlev = mt - mt0;
+
+    /*** possible total number of transitions */
+    int ntot = nlev * (nlev + 1)/2; 
+
+    double *x = new double [ntot];
+    double *y = new double [ntot];
+    double q = 0.0; // multiplicity
+
+    /*** gamma-ray spectrum data */
+    int ngamma = discretegammaspec(mt,mt0,pid,x,y,&q,gfile);
+
+    zap = 0.0;
+    awp = 0.0;
+    lip = 0;
+    law = 1;
+
+    zdat[1] = zdat[3] = q;
+
+    /*** first CONT and yield */
+    cont.setRecord(zap, awp, lip, law, 1, 2);
+    ENDFPackTAB1(cont, idat, zdat, lib);
+
+    /*** TAB2 for two points */
+    int lang = 1;
+    int lep  = 2;
+    cont.setRecord(0.0, 0.0, lang, lep, 1, 2);
+
+    int nd  = ngamma;
+    int na  = 0;
+    int nep = ngamma;
+    int nw  = nep * (na + 2);
+    Record cdat[2];
+    double *xtab[2];
+    for(int i=0 ; i<2 ; i++) xtab[i] = new double [2*ngamma];
+
+    cdat[0].setRecord(0.0, zdat[0], nd, na, nw, nep);
+    cdat[1].setRecord(0.0, zdat[2], nd, na, nw, nep);
+    for(int i=0 ; i<ngamma ; i++){
+      xtab[0][2*i  ] = xtab[1][2*i  ] = x[i];
+      xtab[0][2*i+1] = xtab[1][2*i+1] = y[i];
+    }
+    ENDFPackTAB2(cont, cdat, idat, xtab, lib);
+
+    delete [] x;
+    delete [] y;
+    for(int i=0 ; i<2 ; i++) delete [] xtab[i];
+  }
 }
 
+
+
+/**********************************************************/
+/*      Produce Discrete Transision Spectrum              */
+/**********************************************************/
+int discretegammaspec(const int mt, const int mt0, const int pid, double *x, double *y, double *q, char *datafile)
+{
+  const double pcut = 1e-11; // cut-off for gamma-ray production probability 
+  const int mlev = 50; // max number of levels allowed by ENDF
+
+  int nlev = mt - mt0;
+  int ntot = nlev * (nlev + 1)/2;
+
+  double **br = new double * [mlev];
+  double **gp = new double * [mlev];
+  int    **fs = new int * [mlev];
+  int     *ng = new int [mlev];
+  double  *ex = new double [mlev];
+
+  for(int i=0 ; i<mlev ; i++){
+    br[i] = new double [mlev]; // branching ratio
+    gp[i] = new double [mlev]; // gamma-ray probability
+    fs[i] = new int [mlev];    // decay final state
+    for(int j=0 ; j< mlev ; j++){
+      br[i][j] = gp[i][j] = 0.0;
+      fs[i][j] = 0;
+    }
+    ex[i] = 0.0;
+    ng[i] = 0;
+  }
+
+  /*** read gamma-ray branching ratio data */
+  ifstream fpin;
+  fpin.open(datafile);
+  if(!fpin){
+    message << "data file " << datafile << " cannot open";
+    TerminateCode("DeCEMod6:DeceAddDiscrete:discretegammaspec");
+  }
+
+  bool   withconv = false;
+  string dat1, dat2, dat3, line;
+  while(1){
+    getline(fpin,line);
+    if(fpin.eof() != 0) break;
+    if(line == "#gammaray"){
+      withconv = false; break;
+    }
+    else if(line == "#gammaraywithconversion"){
+      withconv = true; break;
+    }
+  }
+
+  while(1){
+    getline(fpin,line);
+    if(fpin.eof() != 0) break;
+    if(line.length() == 0) break;
+
+    dat1 = line.substr( 5, 4);  int n = atoi(&dat1[0]); // number of levels
+    dat2 = line.substr( 0, 5);  int p = atoi(&dat2[0]); // particle ID
+
+    /*** for each discrete level */
+    for(int k=0 ; k<n ; k++){
+      getline(fpin,line);
+
+      /*** when found, copy branching ratio data to array */
+      if( (p == pid) && (k < mlev) ){
+
+        dat1 = line.substr( 9, 4);  // number of gamma-rays
+        dat2 = line.substr(13,13);  // level energy
+
+        ng[k] = atoi(&dat1[0]);
+        ex[k] = atof(&dat2[0]) * 1e+6;
+
+        for(int g=0 ; g<ng[k] ; g++){
+          if(withconv){
+            dat1 = line.substr(26 + 30*g,  4); // final state
+            dat2 = line.substr(30 + 30*g, 13); // branching ratio
+            dat3 = line.substr(43 + 30*g, 13); // gamma-ray emission probability
+          }
+          else{
+            dat1 = line.substr(26 + 17*g,  4); // final state
+            dat2 = line.substr(30 + 17*g, 13); // branching ratio
+          }
+          fs[k][g] = atoi(&dat1[0]);
+          br[k][g] = atof(&dat2[0]);
+          gp[k][g] = (withconv) ? atof(&dat3[0]) : 1.0;
+        }
+      }
+    }
+  }
+  fpin.close();
+
+  /*** level population for gamma-ray cascade calculation */
+  double *lpop = new double [nlev + 1];
+  for(int k=0; k<nlev ; k++) lpop[k] = 0.0;
+  lpop[nlev] = 1.0;
+
+  /*** generate discrete gamma spectrum from given level */
+  int n = 0;
+  for(int k=nlev ; k>=0 ; k--){
+    for(int g=0 ; g<ng[k] ; g++){
+      double eg = ex[k] - ex[ fs[k][g] ];  // gamma-ray energy
+      double dp = br[k][g] * gp[k][g];     // emission probability
+      lpop[ fs[k][g] ] += dp;              // increment population of the final state
+
+      /*** discrete gamma spectrum */
+      double p = dp * lpop[k];
+      if(p > pcut){
+        x[n] = eg;
+        y[n] = dp * lpop[k];
+        n++;
+        if(n >= ntot) break;
+      }
+    }
+    if(n >= ntot) break;
+  }
+  delete [] lpop;
+
+
+  /*** sort the gamma lines by energies */
+  double z;
+  for(int j=0 ; j<n ; j++){
+    int k = j;
+    for(int i=j ; i<n ; i++){
+      if(x[i] > x[k]) k = i;
+    }
+    z = x[j];  x[j] = x[k];  x[k] = z;
+    z = y[j];  y[j] = y[k];  y[k] = z;
+  }
+
+  /*** normalize spectrum and calculate multiplicity */
+  double psum = 0.0, eave = 0.0;
+  for(int i=0 ; i<n ; i++){
+    psum += y[i];
+    eave += x[i] * y[i];
+  }
+  if(psum > 0.0){
+    eave /= psum;
+    for(int i=0 ; i<n ; i++) y[i] /= psum;
+    *q = ex[nlev] / eave;
+  }
+  else *q = 0.0;
+
+  for(int i=0 ; i< mlev ; i++){
+    delete [] br[i];
+    delete [] gp[i];
+    delete [] fs[i];
+  }
+  delete [] br;
+  delete [] gp;
+  delete [] fs;
+
+  delete [] ng;
+  delete [] ex;
+
+  message << "number of " << n << " gammas included in " << mt << " produced by " << datafile << " from ";
+  message << setw(13) << setprecision(6) << x[n-1] << " to ";
+  message << setw(13) << setprecision(6) << x[0];
+  Notice("DeceMod6:discretegammaspec");
+
+  return n;
+}

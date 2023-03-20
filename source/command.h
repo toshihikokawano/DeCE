@@ -15,6 +15,7 @@ class CLine{
   char   line[MAX_TEXTLENGTH];
   char   parm[MAX_TEXTLENGTH];
   char   text[MAX_TEXTLENGTH];
+  char   topt[MAX_TEXTLENGTH];
   int    mf;
   int    mt;
   int    mtend;
@@ -30,6 +31,7 @@ class CLine{
     line[0] = '\0';
     parm[0] = '\0';
     text[0] = '\0';
+    topt[0] = '\0';
     mf      = 0;
     mt      = 0;
     mtend   = 0;
@@ -44,9 +46,10 @@ class CLine{
 };
 
 
-string   CmdGetOperation      (void);
-int      CmdFgetOneline       (void);
-string   CmdExtractArgument   (void);
-void     CmdExtractString     (char *);
-bool     CmdCheckChar         (char);
+string   CmdGetOperation (void);
+int      CmdFgetOneline (void);
+string   CmdExtractArgument (void);
+void     CmdExtractString (char *);
+void     CmdExtractSecondString (char *);
+bool     CmdCheckChar (char);
 

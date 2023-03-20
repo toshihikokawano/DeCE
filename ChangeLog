@@ -1,3 +1,29 @@
+2023-03-19  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/endflib.cpp (ENDFPackCopyCONT, ENDFPackCopyLIST, ENDFPackCopyTAB1, ENDFPackCopyTAB2, ENDFPackCopyTAB21): new functions
+	add a subsection from source object to new object
+
+	* test/input/input22.dece: new test
+	merge elastic scattering angular distributions by resonances
+
+	* test/dececreateENDF.sh: updated
+	produce four different ENDF depending on options
+
+2023-03-18  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/command.cpp (CmdExtractString): updated
+	(extractstring): new function
+	wrapper to take the second text argument
+
+	* source/deceangdist.cpp (storeMF6): updated
+	command angdist for MT > 50 takes two file names, 1st for Legendre, 2nd for gamma branching ratio
+	two body angular distribution includes discrete gamma-ray spectrum
+
+2023-03-17  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceangdist.cpp (storeMF6): bug fixed
+	zap and awp for charged particle emission fixed
+
 2023-03-12  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/decelibread.cpp (DeceLibScan): new function

@@ -5,59 +5,85 @@ echo "remove from 20 to 150 MeV data"
 delpoint 3 1 2.000001e+7 1.5e+8
 
 echo "read elastic scattering from file"
-read 3 2 "data/CoHCrossSection.dat"
+read 3 2 "DATADIR/CoHCrossSection.dat"
 
 echo "read (n,gamma) reaction"
-read 3 102 "data/CoHCrossSection.dat"
+read 3 102 "DATADIR/CoHCrossSection.dat"
 
 echo "read (n,2n)"
-read 3 16 "data/CoHParticleProduction.dat"
+read 3 16 "DATADIR/CoHParticleProduction.dat"
 
 echo "read (n,n alpha)"
-read 3 22 "data/CoHParticleProduction.dat"
+read 3 22 "DATADIR/CoHParticleProduction.dat"
 
 echo "read (n,n p)"
-read 3 28 "data/CoHParticleProduction.dat"
+read 3 28 "DATADIR/CoHParticleProduction.dat"
+
+echo "read (n,n d)"
+read 3 32 "DATADIR/CoHParticleProduction.dat"
+
+echo "read (n,2n p)"
+read 3 41 "DATADIR/CoHParticleProduction.dat"
+
+echo "read (n,n 2p)"
+read 3 44 "DATADIR/CoHParticleProduction.dat"
+
+echo "read (n,n p alpha)"
+read 3 45 "DATADIR/CoHParticleProduction.dat"
+
+echo "read (n,2alpha)"
+read 3 108 "DATADIR/CoHParticleProduction.dat"
+
+echo "read (n,2p)"
+read 3 111 "DATADIR/CoHParticleProduction.dat"
+
+echo "read (n,p alpha)"
+read 3 112 "DATADIR/CoHParticleProduction.dat"
+
+echo "read (n,d alpha)"
+read 3 117 "DATADIR/CoHParticleProduction.dat"
+
 
 echo "read (n,p) partial cross sections"
-multiread 3 600 649 "data/CoHLevelExcite2.dat"
+multiread 3 600 649 "DATADIR/CoHLevelExcite2.dat"
 
 echo "read (n,alpha) partial cross sections"
-multiread 3 800 849 "data/CoHLevelExcite3.dat"
+multiread 3 800 849 "DATADIR/CoHLevelExcite3.dat"
 
 echo "read (n,d) partial cross sections"
-multiread 3 650 699 "data/CoHLevelExcite4.dat"
+multiread 3 650 699 "DATADIR/CoHLevelExcite4.dat"
 
 echo "read (n,t) partial cross sections"
-multiread 3 700 749 "data/CoHLevelExcite5.dat"
+multiread 3 700 749 "DATADIR/CoHLevelExcite5.dat"
 
 echo "read (n,h) partial cross sections"
-multiread 3 750 799 "data/CoHLevelExcite6.dat"
+multiread 3 750 799 "DATADIR/CoHLevelExcite6.dat"
 
 
 echo "read inelastic scattering cross sections"
-multiread 3 51 91 "data/CoHLevelExcite1.dat"
+multiread 3 51 91 "DATADIR/CoHLevelExcite1.dat"
+
 
 echo "read elastic scattering angular distributions"
-angdist 4 2 "data/CoHLegendreCoefficient1.dat"
+angdist 4 2 "DATADIR/CoHLegendreCoefficient1.dat"
 
 echo "read inelastic scattering angular distributions"
-multiangdist 6 51 90 "data/CoHLegendreCoefficient1.dat"
+multiangdist 6 51 90 "DATADIR/CoHLegendreCoefficient1.dat"     DISCRETEGAMMASPEC
 
 echo "read proton angular distributions"
-multiangdist 6 600 649 "data/CoHLegendreCoefficient2.dat"
+multiangdist 6 600 649 "DATADIR/CoHLegendreCoefficient2.dat"   DISCRETEGAMMASPEC
 
 echo "read alpha-particle angular distributions"
-multiangdist 6 800 849 "data/CoHLegendreCoefficient3.dat"
+multiangdist 6 800 849 "DATADIR/CoHLegendreCoefficient3.dat"   DISCRETEGAMMASPEC
 
 echo "read deuteron angular distributions"
-multiangdist 6 650 699 "data/CoHLegendreCoefficient4.dat"
+multiangdist 6 650 699 "DATADIR/CoHLegendreCoefficient4.dat"   DISCRETEGAMMASPEC
 
 echo "read triton angular distributions"
-multiangdist 6 700 749 "data/CoHLegendreCoefficient5.dat"
+multiangdist 6 700 749 "DATADIR/CoHLegendreCoefficient5.dat"   DISCRETEGAMMASPEC
 
 echo "read helium3 angular distributions"
-multiangdist 6 750 799 "data/CoHLegendreCoefficient6.dat"
+multiangdist 6 750 799 "DATADIR/CoHLegendreCoefficient6.dat"   DISCRETEGAMMASPEC
 
 
 echo "construct MF3MT4 from MT51 - MT91"
@@ -83,12 +109,20 @@ echo "sum all the partial cross sections to create non-elastic"
 calc 3 = 4 +  16
 calc 3 = 3 +  22
 calc 3 = 3 +  28
+calc 3 = 3 +  32
+calc 3 = 3 +  41
+calc 3 = 3 +  44
+calc 3 = 3 +  45
 calc 3 = 3 + 102
 calc 3 = 3 + 103
 calc 3 = 3 + 104
 calc 3 = 3 + 105
 calc 3 = 3 + 106
 calc 3 = 3 + 107
+calc 3 = 3 + 108
+calc 3 = 3 + 111
+calc 3 = 3 + 112
+calc 3 = 3 + 117
 
 echo "re-calculate elastic by subtracting non-elastic from total"
 calc 2 = 1 - 3
@@ -99,10 +133,10 @@ calc 1 = 2 + 3
 echo "remove non-elastic"
 delete 3 3
 
-echo "remove total (n,p), (n,d), (n,t), (n,h), and (n,alpha)"
-delete 3 103
-delete 3 104
-delete 3 105
-delete 3 106
-delete 3 107
+# echo "remove total (n,p), (n,d), (n,t), (n,h), and (n,alpha)"
+# delete 3 103
+# delete 3 104
+# delete 3 105
+# delete 3 106
+# delete 3 107
 

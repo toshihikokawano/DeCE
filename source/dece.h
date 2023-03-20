@@ -30,7 +30,7 @@ void   DeceDelete       (ENDFDict *, const int, const int);
 void   DeceRead         (ENDFDict *, ENDF *, const int, const int, char *, const int, const int);
 
 /*** deceangdist.cpp */
-void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, int);
+void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, char *, int);
 
 /*** decelibread.cpp */
 void   DeceLibRead      (ENDFDict *, ENDF *, char *);
@@ -78,6 +78,7 @@ void   DeceBoundCorrect (ENDFDict *, ENDF **, const int);
 void   DeceDuplicatePoint (ENDFDict *, ENDF **, const int, double);
 void   DeceGenProdCS    (ENDFDict *, ENDF **, const int, const int);
 void   DeceIsotropicAngularDistribution (ENDFDict *, ENDF **, const int);
+void   DeceAddDiscreteGamma (ENDFDict *, ENDF **, const int, char *);
 
 /*** gfr.cpp */
 void   gfrScanThermal   (ifstream *, ENDFDict *, double);

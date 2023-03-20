@@ -68,7 +68,7 @@ void DeceResonanceAngularDistribution(ENDFDict *dict, ENDF *lib[], int np)
   int    idx  = 0;
   int    li   = lib[k4]->rdata[idx++].l1;   // 0: non-isotropic, 1: isotropic
 
-  if(ltt != 1){
+  if( !((ltt == 1)  || (ltt = 3))){
     message << "MF/MT = " << mf << "/" << mt << " is not Legendre coefficients";
     TerminateCode("DeceResonanceAngulardistribution");
   }
@@ -214,7 +214,7 @@ void updateMF4(const int mf, const int mt, const int ne, double **xdat, Record *
 
   /*** Make HEAD and CONT */
   int    lvt  = 0; // transformation matrix not given
-  int    ltt  = 1; // Legendre parameters given
+  int    ltt  = lib4->getENDFhead().l2; // Legendre parameters given
   int    li   = 0; // not isotropic
   int    lct  = 2; // center-of-mass system
 
@@ -234,6 +234,13 @@ void updateMF4(const int mf, const int mt, const int ne, double **xdat, Record *
   idat[0] = ne;     // there are NE incident energies
   idat[1] = 2;      // lin-lin interpolation
   ENDFPackTAB2(cont, xcont, idat, xdat, &lib);
+
+  if(ltt == 3){
+    /*** copy TAB21 from source */
+    int idx = lib4->rdata[1].n2 + 2; // skip first 2 subsections
+    ENDFPackCopyTAB21(lib4,&lib,idx);
+  }
+
 //ENDFWrite(&lib);
   ENDFLibCopy(&lib,lib4);
 }

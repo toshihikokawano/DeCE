@@ -44,12 +44,14 @@ void DeceTableMF6(ENDF *lib3, ENDF *lib6)
   for(int ik=0 ; ik<nk ; ik++){
     Record cont = lib6->rdata[idx];
     int    zap  = (int)cont.c1;
+    double awp  = cont.c2;
     int    lip  = cont.l1;
     int    law  = cont.l2;
     int    np   = cont.n2;
  
     cout << "#   Subsection" << setw(14) << ik << endl;
     cout << "#          ZAP" << setw(14) << zap << endl;
+    cout << "#          AWP"; outVal(awp); cout << endl;
     cout << "#          LIP" << setw(14) << lip << "  product modifier" << endl;
     cout << "#          LAW" << setw(14) << law << "  distribution law" << endl;
     cout << "#           NP" << setw(14) << np  << "  yield energy points" << endl;
