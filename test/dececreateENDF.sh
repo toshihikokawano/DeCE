@@ -20,7 +20,7 @@ discretegammaspec=true
 #    discrete gamma transition table constains gamma-ray probabilities
 #    need to prepare different data file, see gbranch.dat and gbranch_withconversion.dat
 
-withconversion=true
+withconversion=false
 
 # resonanceangdist
 #    generate Legendre coefficients from given resonance parameters
