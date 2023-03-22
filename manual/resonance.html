@@ -26,7 +26,7 @@
 resolved resonance parameters, though the resonance formulae
 are limited to Multi-Level Breit-Wigner, or Reich-Moore. 
 <i>X-min</i> is the lowest energy, <i>X-max</i> is the highest
-energy, and <i>delta-X</i> is the energ increment.</p>
+energy, and <i>delta-X</i> is the energy increment.</p>
 
 <p>As in the second syntax, if <i>delta-X</i> is not given, 
 cross section at a given energy is calculated. </p>
@@ -86,12 +86,18 @@ by a Gaussian weighting function, with the width of <i>width</i>.</p>
    resonanceangdist <i> npoint </i>
 </pre>
 
-<p>Replace Legendre coefficients given in MF4/MT2 by the smoothed (energy-averaged)
-Legendre coefficients produced from resolved resonance parameters.
-This command replaces the coefficients inside the resonance region only.
-Above the resonance region, existing coefficients will be kept.
+<p>Replace Legendre coefficients given in MF4/MT2 by the smoothed
+(energy-averaged) Legendre coefficients produced from resolved
+resonance parameters.  This command replaces the coefficients inside
+the resonance region only, and it works when Legendre coefficients are
+MF4/MT2 are given (not tabulated angular distributions). Above the
+resonance region, existing coefficients will be kept.
 <i>npoint</i> is the number of energy points given inside the resonance region.
-This excludes the boundary energy point, so that the actual number will be +1.</p>
+This excludes the boundary energy point, so that the actual number will be +1.
+The energy-average is performed by the Gaussian smoothing with the energy
+width of the resonance region divided by <i>npoint</i>.
+
+</p>
 
 <hr>
 <a href="ope3.html">    [BACK] </a>

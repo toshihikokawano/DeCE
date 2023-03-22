@@ -250,6 +250,7 @@ data block specified by a combination of MF and MT numbers.</p>
   <li> manipulate a data-point in a section (insertion, replacement, scaling, and delete)
   <li> read data in an external file, and convert them into ENDF-6
   <li> reconstruct pointwise cross sections from given resonance parameters
+  <li> produce energy-averaged cross sections (group constants) for some limited energy structure
   <li> renumber all the sections, make a new dictionary, 
        update <code>NWD</code> and <code>NXC</code> in the header section, 
        then write the entire data on a new file.
@@ -297,6 +298,9 @@ DeCE still has a data size limit, which is defined in endflib.h.
 A new version name, Jadeite, was assigned. Jadeite also includes
 the more stabilized resonance reconstruction functionality by 
 adding a Coulomb function for charged particle channels.</p>
+
+<p> The version Garet, which is a maintenance release, was released in
+2022 that includes some minor revisions and bug fixes.</p>
 
 <p style="text-align:center;">
 <img src="decereconst1.png" width="400" height="280" alt="cross section reconstructed" title="cross section reconstructed" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;">
