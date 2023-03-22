@@ -102,10 +102,11 @@ PROGRAMS = $(bin_PROGRAMS)
 am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) \
 	coulomb.$(OBJEXT) dece.$(OBJEXT) deceangdist.$(OBJEXT) \
 	deceapplyfunc.$(OBJEXT) dececalc.$(OBJEXT) \
-	decechangeint.$(OBJEXT) decedelete.$(OBJEXT) \
-	deceextract.$(OBJEXT) decefactor.$(OBJEXT) \
-	deceglobaloption.$(OBJEXT) deceheader.$(OBJEXT) \
-	decelibread.$(OBJEXT) decememory.$(OBJEXT) decemisc.$(OBJEXT) \
+	decechangeint.$(OBJEXT) decechecktotal.$(OBJEXT) \
+	decedelete.$(OBJEXT) deceextract.$(OBJEXT) \
+	decefactor.$(OBJEXT) deceglobaloption.$(OBJEXT) \
+	deceheader.$(OBJEXT) decelibread.$(OBJEXT) \
+	decememory.$(OBJEXT) decemisc.$(OBJEXT) decemod4.$(OBJEXT) \
 	decemod6.$(OBJEXT) deceoperation.$(OBJEXT) \
 	deceoutput.$(OBJEXT) decepoint.$(OBJEXT) \
 	deceprocgroup.$(OBJEXT) deceprocpointwise.$(OBJEXT) \
@@ -146,10 +147,11 @@ am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coulomb.Po \
 	./$(DEPDIR)/coupling.Po ./$(DEPDIR)/dece.Po \
 	./$(DEPDIR)/deceangdist.Po ./$(DEPDIR)/deceapplyfunc.Po \
 	./$(DEPDIR)/dececalc.Po ./$(DEPDIR)/decechangeint.Po \
-	./$(DEPDIR)/decedelete.Po ./$(DEPDIR)/deceextract.Po \
-	./$(DEPDIR)/decefactor.Po ./$(DEPDIR)/deceglobaloption.Po \
-	./$(DEPDIR)/deceheader.Po ./$(DEPDIR)/decelibread.Po \
-	./$(DEPDIR)/decememory.Po ./$(DEPDIR)/decemisc.Po \
+	./$(DEPDIR)/decechecktotal.Po ./$(DEPDIR)/decedelete.Po \
+	./$(DEPDIR)/deceextract.Po ./$(DEPDIR)/decefactor.Po \
+	./$(DEPDIR)/deceglobaloption.Po ./$(DEPDIR)/deceheader.Po \
+	./$(DEPDIR)/decelibread.Po ./$(DEPDIR)/decememory.Po \
+	./$(DEPDIR)/decemisc.Po ./$(DEPDIR)/decemod4.Po \
 	./$(DEPDIR)/decemod6.Po ./$(DEPDIR)/deceoperation.Po \
 	./$(DEPDIR)/deceoutput.Po ./$(DEPDIR)/decepoint.Po \
 	./$(DEPDIR)/deceprocgroup.Po ./$(DEPDIR)/deceprocpointwise.Po \
@@ -327,6 +329,7 @@ dece_SOURCES = \
 	deceapplyfunc.cpp \
 	dececalc.cpp \
 	decechangeint.cpp \
+	decechecktotal.cpp \
 	decedelete.cpp \
 	deceextract.cpp \
 	decefactor.cpp \
@@ -335,6 +338,7 @@ dece_SOURCES = \
 	decelibread.cpp \
 	decememory.cpp \
 	decemisc.cpp \
+	decemod4.cpp \
 	decemod6.cpp \
 	deceoperation.cpp \
 	deceoutput.cpp \
@@ -498,6 +502,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceapplyfunc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/dececalc.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decechangeint.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decechecktotal.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decedelete.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceextract.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decefactor.Po@am__quote@ # am--include-marker
@@ -506,6 +511,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decelibread.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decememory.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decemisc.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decemod4.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decemod6.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceoperation.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceoutput.Po@am__quote@ # am--include-marker
@@ -706,6 +712,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/deceapplyfunc.Po
 	-rm -f ./$(DEPDIR)/dececalc.Po
 	-rm -f ./$(DEPDIR)/decechangeint.Po
+	-rm -f ./$(DEPDIR)/decechecktotal.Po
 	-rm -f ./$(DEPDIR)/decedelete.Po
 	-rm -f ./$(DEPDIR)/deceextract.Po
 	-rm -f ./$(DEPDIR)/decefactor.Po
@@ -714,6 +721,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/decelibread.Po
 	-rm -f ./$(DEPDIR)/decememory.Po
 	-rm -f ./$(DEPDIR)/decemisc.Po
+	-rm -f ./$(DEPDIR)/decemod4.Po
 	-rm -f ./$(DEPDIR)/decemod6.Po
 	-rm -f ./$(DEPDIR)/deceoperation.Po
 	-rm -f ./$(DEPDIR)/deceoutput.Po
@@ -812,6 +820,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/deceapplyfunc.Po
 	-rm -f ./$(DEPDIR)/dececalc.Po
 	-rm -f ./$(DEPDIR)/decechangeint.Po
+	-rm -f ./$(DEPDIR)/decechecktotal.Po
 	-rm -f ./$(DEPDIR)/decedelete.Po
 	-rm -f ./$(DEPDIR)/deceextract.Po
 	-rm -f ./$(DEPDIR)/decefactor.Po
@@ -820,6 +829,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/decelibread.Po
 	-rm -f ./$(DEPDIR)/decememory.Po
 	-rm -f ./$(DEPDIR)/decemisc.Po
+	-rm -f ./$(DEPDIR)/decemod4.Po
 	-rm -f ./$(DEPDIR)/decemod6.Po
 	-rm -f ./$(DEPDIR)/deceoperation.Po
 	-rm -f ./$(DEPDIR)/deceoutput.Po

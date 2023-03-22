@@ -2,7 +2,7 @@
 
 if [ $# -ne 1 ]; then
     echo 'decetest.sh N'
-    echo '   where N = 1 ... 20'
+    echo '   where N = 1 ... 22'
     exit 1
 fi
 
@@ -127,6 +127,10 @@ elif [ $testcase = "20" ]; then
 ###################################################
 elif [ $testcase = "21" ]; then
     echo '# Set energy range for data modification by functions'
+
+###################################################
+elif [ $testcase = "22" ]; then
+    echo '# Reconstruct elastic scattering Legendre coefficients from resonance parameters'
 
 ###################################################
 else

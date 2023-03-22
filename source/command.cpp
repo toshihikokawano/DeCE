@@ -11,6 +11,8 @@ using namespace std;
 
 static double getval  (string);
 static void   gettext (string, char *);
+static int    extractstring (char *, int);
+
 static int argc = 0;
 
 CLine cmd;
@@ -71,6 +73,7 @@ string CmdExtractArgument(void)
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
     CmdExtractString(cmd.text);
+    CmdExtractSecondString(cmd.topt);
     cmd.opt1  = (int)getval(d1);
     cmd.mtend = cmd.mt;
   }
@@ -79,6 +82,7 @@ string CmdExtractArgument(void)
     cmd.mt    = (int)getval(d1);
     cmd.mtend = (int)getval(d1);
     CmdExtractString(cmd.text);
+    CmdExtractSecondString(cmd.topt);
     cmd.opt1  = (int)getval(d1);
   }
   else if(ope == "addpoint" || ope == "delpoint" || ope == "modpoint"){
@@ -157,10 +161,14 @@ string CmdExtractArgument(void)
     gettext(d1,cmd.parm);
     CmdExtractString(cmd.text);
   }
+
   else if(ope == "reconstruct" || ope == "reconangdist" || ope == "smoothangdist" || ope == "smatrixelement"){
     cmd.xmin  =      getval(d1);
     cmd.xmax  =      getval(d1);
     cmd.x     =      getval(d1);
+  }
+  else if(ope == "resonanceangdist"){
+    cmd.opt1  = (int)getval(d1);
   }
   else if(ope == "group"){
     cmd.opt1  = (int)getval(d1);
@@ -235,7 +243,19 @@ string CmdGetOperation()
 /**********************************************************/
 /*      Extract Quoted Text from Line                     */
 /**********************************************************/
+static int isave = 0;
 void CmdExtractString(char *d)
+{
+  isave = extractstring(d,0);
+}
+
+void CmdExtractSecondString(char *d)
+{
+  extractstring(d,isave);
+  isave = 0;
+}
+
+int extractstring(char *d, int ix)
 {
   char *s = cmd.line;
   int lens = strlen(s);
@@ -245,8 +265,8 @@ void CmdExtractString(char *d)
   argc++;
 
   /*** first quotation location */
-  int i0=0, i1=0;
-  for(int i=0 ; i<lens ; i++){
+  int i0 = 0, i1 = 0;
+  for(int i=ix ; i<lens ; i++){
     if((s[i] == quote1) || (s[i] == quote2)){
       /*** ignore if back-spaced */
       if((i > 0) && s[i-1] == '\\') continue;
@@ -254,7 +274,7 @@ void CmdExtractString(char *d)
       break;
     }
   }
-  if(i0 == 0) return;
+  if(i0 == 0) return 0;
 
   /*** second quotation location */
   for(int i=i0 ; i<lens ; i++){
@@ -273,6 +293,8 @@ void CmdExtractString(char *d)
     }
     d[k] = '\0';
   }
+
+  return i1 + 2;
 }
 
 

@@ -44,3 +44,20 @@ void DeceLibRead(ENDFDict *dict, ENDF *lib, char *file)
 }
 
 
+/**********************************************************/
+/*      Check If Section is Given in a File               */
+/**********************************************************/
+bool DeceLibScan(const int mf, const int mt, char *file)
+{
+  ifstream fpin;
+  ENDF lib;
+
+  fpin.open(file);
+  if(!fpin){ message << "cannot open data file " << file; TerminateCode("DeceLibScan"); }
+  int c = ENDFRead(&fpin,&lib,mf,mt);
+  fpin.close();
+
+  return ((c < 0) ? false : true);
+}
+
+

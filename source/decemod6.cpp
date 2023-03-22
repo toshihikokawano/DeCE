@@ -3,6 +3,7 @@
 /******************************************************************************/
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
 
 using namespace std;
@@ -295,7 +296,6 @@ void DeceIsotropicAngularDistribution(ENDFDict *dict, ENDF *lib[], const int mt)
 
   lib[k6]->setENDFhead(head);
 
-
   int    idat[2];
   double xdat[4];
 
@@ -312,5 +312,4 @@ void DeceIsotropicAngularDistribution(ENDFDict *dict, ENDF *lib[], const int mt)
   ENDFWriteHEAD(lib[k6]);
   ENDFWriteTAB1(lib[k6]);
   ENDFWriteSEND(lib[k6]);
-
 }

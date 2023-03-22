@@ -438,6 +438,29 @@ the data are two-dimensional, an array of CONT record is given.</p>
 
 
 
+<h3><a name="ENDFPack">ENDFPackCopy</a></h3>
+
+<pre id="syn">
+void ENDFPackCopyCONT  (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+void ENDFPackCopyLIST  (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+void ENDFPackCopyTAB1  (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+void ENDFPackCopyTAB2  (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+void ENDFPackCopytAB21 (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+</pre>
+
+<p>Instead of providing data arrays to pack the ENDF object, these functions
+allow to copy a specific subsection from another ENDF object. The <i>i</i>-th
+block in the <i>src</i> ENDF object will be appended to the <i>dst</i> object.
+The insertion location is always just after the last block stored in the
+destination object.</p>
+
+<p>Because there is no way to know what is the structure of <i>i</i>-th block,
+one has to choose the appropriate function depending on the <i>src</i> object
+structure.</p>
+
+
+
+
 <h2><a name="DataManipulation"> Data Object Manipulating Functions </a></h2>
 
 

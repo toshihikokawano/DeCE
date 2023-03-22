@@ -32,6 +32,7 @@ static void DeceOperationBOUNDCORRECT    (ENDFDict *, ENDF **);
 static void DeceOperationGENPROD         (ENDFDict *, ENDF **);
 static void DeceOperationISOANGDIST      (ENDFDict *, ENDF **);
 static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
+static void DeceOperationRESONANCEANGDIST(ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
 static void DeceOperationGROUP           (ENDFDict *, ENDF **);
 
@@ -125,6 +126,11 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationCHECKTHRESHOLD(dict,lib);
   }
 
+  /*** CHECHKTOTAL: check if sum partial = total in MF3 */
+  else if( ope == "checktotal"){
+    DeceCheckTotal(dict,lib);
+  }
+
 
   //--------------------------------------------------------
   //  MF1 manipulations
@@ -185,6 +191,10 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** SMOOTHANGDIST: calculate energy averaged Legendre coefficients in RRR */
   else if( (ope == "reconstruct") || (ope == "reconangdist") || (ope == "smoothangdist") || (ope == "smatrixelement") ){
     DeceOperationRECONSTRUCT(dict,lib);
+  }
+  /*** RESONANCANGDIST: replace elastic scattering angular distribution by resonances */
+  else if(ope == "resonanceangdist"){
+    DeceOperationRESONANCEANGDIST(dict,lib);
   }
 
 
@@ -320,7 +330,7 @@ void DeceOperationREAD(ENDFDict *dict, ENDF *lib[])
     DeceCreateLib(dict,cmd.mf,mt);
     if(ope == "mergeread")
       DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,1);
-    if(ope == "replaceread")
+    else if(ope == "replaceread")
       DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,2);
     else
       DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,0);
@@ -337,7 +347,7 @@ void DeceOperationANGDIST(ENDFDict *dict, ENDF *lib[])
 {
   for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
     DeceCreateLib(dict,cmd.mf,mt);
-    DeceAngdist(dict,lib,cmd.mf,mt,cmd.text,cmd.opt1);
+    DeceAngdist(dict,lib,cmd.mf,mt,cmd.text,cmd.topt,cmd.opt1);
   }
 }
 
@@ -349,9 +359,16 @@ void DeceOperationANGDIST(ENDFDict *dict, ENDF *lib[])
 /**********************************************************/
 void DeceOperationLIBREAD(ENDFDict *dict, ENDF *lib[])
 {
+  if(cmd.mt == 0){
+    cmd.mt = 1;
+    cmd.mtend = 850;
+  }
+
   for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
-    DeceCreateLib(dict,cmd.mf,mt);
-    DeceLibRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.text);
+    if( DeceLibScan(cmd.mf,mt,cmd.text) ){
+      DeceCreateLib(dict,cmd.mf,mt);
+      DeceLibRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.text);
+    }
   }
 }
 
@@ -559,6 +576,19 @@ void DeceOperationRECONSTRUCT(ENDFDict *dict, ENDF *lib[])
     }
   }
   DeceOutputResume();
+}
+
+
+/**********************************************************/
+/* RESOANCEANGDIST                                        */
+/*      replace elastic scattering angular distributions  */
+/*      by those from resonance parameters                */
+/**********************************************************/
+void DeceOperationRESONANCEANGDIST(ENDFDict *dict, ENDF *lib[])
+{
+  if( (dict->getID(2,151) >= 0) && (dict->getID(4,2) >= 0) ){
+    DeceResonanceAngularDistribution(dict,lib,cmd.opt1);
+  }
 }
 
 

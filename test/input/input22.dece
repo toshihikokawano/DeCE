@@ -1,0 +1,16 @@
+echo "read elastic scattering cross section"
+read 3 2  "data/CoHCrossSection.dat"
+
+echo "read elastic scattering angular distribution in MF4"
+angdist 4 2  "data/CoHAngularDistribution.dat"
+
+echo "replace Legendre coefficients by resonance parameter in MF4"
+resonanceangdist 100
+
+echo "set angle increment to be 1 degree"
+set AngleStep 1
+
+echo "print differential data at equi-anglar points"
+table 4 2
+
+quit

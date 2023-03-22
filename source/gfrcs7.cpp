@@ -569,7 +569,11 @@ double RMLIncidentChannel(const double elab, System *sys)
 /**********************************************************/
 void RMLStoreChannelParameter(System *sys, RMLParameter *r, RMLChannel *chn)
 {
+  int lmax = 0;
   for(int c=0 ; c<r->nchannel ; c++){
+
+    /*** find Lmax for angular distribution calculation */
+    if(r->l[c] > lmax) lmax = r->l[c];
 
     /*** exit channel reduced mass, masses are given as ratios to neutron */
     chn[c].reduced_mass =  ppr[r->pidx[c]].mass[0] * ppr[r->pidx[c]].mass[1] 
@@ -610,6 +614,9 @@ void RMLStoreChannelParameter(System *sys, RMLParameter *r, RMLChannel *chn)
     cout << "  Eff: " << setw(10) << r->radius_effective[c] << setw(11) << chn[c].alpha_effective << endl;
 #endif
   }
+
+  /*** set number of L */
+  sys->nl = lmax + 1;
 }
 
 

@@ -1010,6 +1010,76 @@ void ENDFPackTAB21(Record cont, int *idat, Record *cdat, int **itab, double **xt
 
 
 /**********************************************************/
+/*      Pack Data from Source Object                      */
+/**********************************************************/
+void ENDFPackCopyCONT(ENDF *src, ENDF *dst, int idx)
+{
+  Record cont = src->rdata[idx];
+  ENDFPackCONT(cont, dst);
+}
+
+void ENDFPackCopyLIST(ENDF *src, ENDF *dst, int idx)
+{
+  Record cont = src->rdata[idx];
+  double *xptr = src->xptr[idx];
+  ENDFPackLIST(cont, xptr, dst);
+}
+
+void ENDFPackCopyTAB1(ENDF *src, ENDF *dst, int idx)
+{
+  Record cont = src->rdata[idx];
+  int    *iptr = src->iptr[idx];
+  double *xptr = src->xptr[idx];
+  ENDFPackTAB1(cont, iptr, xptr, dst);
+}
+
+void ENDFPackCopyTAB2(ENDF *src, ENDF *dst, int idx)
+{
+  Record cont = src->rdata[idx];
+  int   *idat = src->iptr[idx];  
+  idx ++;
+
+  int n = cont.n1;
+  Record  *cptr = new Record [n];
+  double **xptr = new double * [n];
+
+  for(int i=0 ; i<n ; i++){
+    cptr[i] = src->rdata[idx + i];
+    xptr[i] = src->xptr[idx + i];
+  }
+
+  ENDFPackTAB2(cont,cptr,idat,xptr,dst);
+
+  delete [] cptr;
+  delete [] xptr;
+}
+
+void ENDFPackCopyTAB21(ENDF *src, ENDF *dst, int idx)
+{
+  Record cont = src->rdata[idx];
+  int   *idat = src->iptr[idx];  
+  idx ++;
+
+  int n = cont.n2;
+  Record  *cptr = new Record [n];
+  int    **iptr = new int * [n];
+  double **xptr = new double * [n];
+
+  for(int i=0 ; i<n ; i++){
+    cptr[i] = src->rdata[idx + i];
+    iptr[i] = src->iptr[idx + i];
+    xptr[i] = src->xptr[idx + i];
+  }
+
+  ENDFPackTAB21(cont,idat,cptr,iptr,xptr,dst);
+
+  delete [] cptr;
+  delete [] iptr;
+  delete [] xptr;
+}
+
+
+/**********************************************************/
 /*      Copy Object                                       */
 /**********************************************************/
 void ENDFLibCopy(ENDF *libsrc, ENDF *libdst)

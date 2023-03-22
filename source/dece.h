@@ -30,10 +30,11 @@ void   DeceDelete       (ENDFDict *, const int, const int);
 void   DeceRead         (ENDFDict *, ENDF *, const int, const int, char *, const int, const int);
 
 /*** deceangdist.cpp */
-void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, int);
+void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, char *, int);
 
 /*** decelibread.cpp */
 void   DeceLibRead      (ENDFDict *, ENDF *, char *);
+bool   DeceLibScan      (const int, const int, char *);
 
 /*** decetable.cpp */
 void   DeceTable        (ENDFDict *, ENDF *[], ifstream *, const int, const int);
@@ -69,17 +70,21 @@ void   DeceShowHeaderText (ENDFDict *);
 void   DeceEditHeaderText (ENDFDict *, string, char *);
 void   DeceFixAWR       (ENDFDict *);
 
+/*** decemod4 */
+void   DeceResonanceAngularDistribution(ENDFDict *, ENDF **, int);
+
 /*** decemod6 */
 void   DeceBoundCorrect (ENDFDict *, ENDF **, const int);
 void   DeceDuplicatePoint (ENDFDict *, ENDF **, const int, double);
 void   DeceGenProdCS    (ENDFDict *, ENDF **, const int, const int);
 void   DeceIsotropicAngularDistribution (ENDFDict *, ENDF **, const int);
+void   DeceAddDiscreteGamma (ENDFDict *, ENDF **, const int, char *);
 
 /*** gfr.cpp */
 void   gfrScanThermal   (ifstream *, ENDFDict *, double);
-double gfrGetOnePoint   (ifstream *, ENDFDict *, const double);
 void   gfrPtCross       (ENDFDict *, ENDF **, double, double, double);
 void   gfrAngDist       (ENDFDict *, ENDF **, double, double, double, double);
+int    gfrAngDistSimple (ENDFDict *, ENDF **, const int, double *, double **);
 void   gfrAngDistSmooth (ENDFDict *, ENDF **, double);
 void   gfrSmatrixElement(ENDFDict *, ENDF **, double, double, double);
 
@@ -91,6 +96,9 @@ void   DeceGenerateGroup (ENDFDict *, ENDF **, const int,  const int, string);
 
 /*** decescanindex.cpp */
 void   DeceScanIndex    (ENDFDict *);
+
+/*** deceschecktotal.cpp */
+void DeceCheckTotal (ENDFDict *, ENDF **);
 
 /*** deceglobaloption.cpp */
 void   DeceGlobalOption (string, string, string, const double);

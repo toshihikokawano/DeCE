@@ -136,13 +136,13 @@ and the last 40th column is the continuum inelastic.</p>
 <h2><a name="angdist">angdist (read scattering angular distribution data from file)</a></h2>
 
 <pre id="syn">
-   angdist  <i>MFnumber</i> <i>MTnumber</i> "file_name"
+   angdist  <i>MFnumber</i> <i>MTnumber</i> "file_name"  [ "gamma_branch_file_name" ]
 </pre>
 
 <p>DeCE creates scattering angular distribution data in MF=4, MT=2,
 51, 52 ...  The MF number should be 4 for the elastic scattering,
 while it can be 4 or 6 for the inelastic scattering. The charged
-particle angular distributions are in MF6. The data file may
+particle angular distributions will be compiled in MF6. The data file may
 contain either the differential cross sections or the Legendre
 expansion coefficients, which is indicated by the keyword in the data
 file (<code>Angdist</code> or <code>Legcoef</code>).</p>
@@ -190,12 +190,47 @@ given.</p>
 <p>The angular data points and the maximum Legendre coefficients
 to be read by DeCE are defined in <code>deceangdist.cpp</code></p>
 
+<p> When the angular distributions are stored in MF6, the discrete gamma-ray
+energy spectra are also stored in the same section when gamma_branch_file is provided.
+The data format of the gamma_branch_file looks </p>
+
+<pre id="dat">
+#gammaray
+    0  27 28  59
+        0   0 0.000000e+00
+        1   1 3.394210e-01   0 1.000000e+00
+        2   1 4.649760e-01   0 1.000000e+00
+        3   2 8.779470e-01   1 1.420986e-02   0 9.857901e-01
+</pre>
+
+<p>for the case of no internal conversion coefficient (ICC) case. The first
+four integers mean the particle ID (0 for photon, 1 for neutorn, 2 for
+proton, 3 for alpha-particle, 4 for deuteron, 5 for triton, and 5 for
+helium-3). The second number is the number of discrete levels,
+followed by the Z and A numbers of this isotope. Z and A are not used
+by DeCE.  The following each line shows the level index, number of
+gamma-ray branches, the level excitation energy, and pairs of the
+final state level index and branching ratios.</p>
+
+<p>When ICC is provided, the data file contains</p>
+
+<pre id="dat">
+#gammaraywithconversion
+    0  27 28  59
+        0   0 0.000000e+00
+        1   1 3.394210e-01   0 1.000000e+00 9.959167e-01
+        2   1 4.649760e-01   0 1.000000e+00 9.984026e-01
+        3   2 8.779470e-01   1 1.420986e-02 9.990010e-01   0 9.857901e-01 9.997401e-01
+</pre>
+
+<p> where the decay data are given by triplets (final state level
+index, branching ratio, and ICC).<p>
 
 
 <h2><a name="multiangdist">multiangdist (read multiple angular distribution data from file)</a></h2>
 
 <pre id="syn">
-   multiangdist  <i>MFnumber</i> <i>MTstart</i> <i>MTlast</i> "file_name"
+   multiangdist  <i>MFnumber</i> <i>MTstart</i> <i>MTlast</i> "file_name" [ "gamma_branch_file_name" ]
 </pre>
 
 <p>DeCE reads angular distribution data in the specified data file,
@@ -210,7 +245,9 @@ ranging from <i>MTstart</i> to <i>MTlast</i>.</p>
 
 <p>DeCE imports a specified MF/MT section from another ENDF-6 file, and
 replace by that, or creates a new section if it does not exist.  The
-external file can be a full ENDF-6 file, or just a section.</p>
+external file can be a full ENDF-6 file, or just a section. When <i>MTnumber = 0</i>
+all the MTs in the given <i>MFnumber</i> will be imported.</p>
+
 
 <p>When the ZA and AWR parameters in the external file are different
 from the current data, DeCE replace them by the current ones, but
