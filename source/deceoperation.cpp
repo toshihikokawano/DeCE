@@ -404,7 +404,7 @@ void DeceOperationEXTRACT(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 
 
 /**********************************************************/
-/* ADDPOINT, DELPOINT                                     */
+/* ADDPOINT, DELPOINT, MODPOINT                           */
 /*      insert, delete, modify one (x,y) data point  y    */
 /* addpoint MF MT Xdata Ydata                             */
 /* delpoint MF MT Xdata                                   */

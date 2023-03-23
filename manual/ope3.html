@@ -22,7 +22,7 @@
 
 <p>This operation inserts a new data point (X-data,Y-data) in the
 <i>MFnumber</i> <i>MTnumber</i> section. Although the MF number must
-be specified, the current DeCE works only for MF3. The position of the
+be specified, the current DeCE works only for MF=3. The position of the
 new data is automatically determined. If the energy of <i>X-data</i>
 already exists in the section, the new point will be after that point,
 so that this energy point will be a duplicated point. To overwrite,
@@ -267,70 +267,6 @@ MF3 MT5 cross section and production ratio in given in MF=6,
 and store the results in MF3. <i>ZAP</i> is the particle ID,
 1 for neutron, 1001 for proton, etc. </p>
 
-
-<h1><a name="gfr">Resonance Range </a></h1>
-
-<h2><a name="reconstruct">reconstruct (cross section from resonance parameters)</a></h2>
-
-<pre id="syn">
-   reconstruct <i>X-min</i> <i>X-max</i> <i>delta-X</i>
-   reconstruct <i>X</i>
-   reconstruct
-</pre>
-
-<p>DeCE is capable of re-constructing cross sections from
-resolved and unresolved resonance parameters, though the resonance formulae
-are limited to Multi-Level Breit-Wigner, or Reich-Moore. 
-<i>X-min</i> is the lowest energy, <i>X-max</i> is the highest
-energy, and <i>delta-X</i> is the energ increment.</p>
-
-<p>As in the second syntax, if <i>delta-X</i> is not given, 
-cross section at a given energy is calculated. </p>
-
-<p>When no argument is provided, DeCE determines the energy
-grid automatically, and gives the cross sections in the
-resonance region.</p>
-
-<pre>
-reconstruct 1 10 1
-</pre>
-
-<pre id="dat">
-# Energy[eV]  Total[b]     Elastic[b]   Capture[b]   Fission[b]
- 1.000000e+00 5.615689e+00 4.836800e+00 7.788892e-01 0.000000e+00
- 2.000000e+00 5.388448e+00 4.837591e+00 5.508570e-01 0.000000e+00
- 3.000000e+00 5.288238e+00 4.838384e+00 4.498540e-01 0.000000e+00
- 4.000000e+00 5.228833e+00 4.839177e+00 3.896552e-01 0.000000e+00
- 5.000000e+00 5.188553e+00 4.839971e+00 3.485812e-01 0.000000e+00
- 6.000000e+00 5.159033e+00 4.840766e+00 3.182671e-01 0.000000e+00
- 7.000000e+00 5.136273e+00 4.841561e+00 2.947113e-01 0.000000e+00
- 8.000000e+00 5.118084e+00 4.842357e+00 2.757271e-01 0.000000e+00
- 9.000000e+00 5.103159e+00 4.843154e+00 2.600050e-01 0.000000e+00
- 1.000000e+01 5.090658e+00 4.843951e+00 2.467071e-01 0.000000e+00
-</pre>
-
-
-<h2><a name="reconangdist">reconangdist (angular distribution from resonance parameters)</a></h2>
-
-<pre id="syn">
-   reconangdist <i>X-min</i> <i>X-max</i> <i>delta-X</i>
-</pre>
-
-<p>Elastic scattering angular distributions for given energy points
-are calculated from the resonance parameters. This is not fully
-functional.</p>
-
-
-<h2><a name="smoothangdist">smoothangdist (energy averaged Legendre coefficients from resonance parameters)</a></h2>
-
-<pre id="syn">
-   smoothangdist <i>width</i>
-</pre>
-
-<p>Produce smoothed (energy-averaged) Legendre coefficients for elastic
-scattering. The Legendre coefficients are calculated from the resolved 
-resonance parameters at equi-distant energy points, then smoothed
-by a Gaussian weighting function, with the width of <i>width</i>.</p>
 
 
 <hr>
