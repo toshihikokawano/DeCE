@@ -29,14 +29,15 @@ guaranteed.</p>
    pointwise
 </pre>
 
-<p>This command converts the resonance parameters into pointwise cross sections,
-so that the cross sections are given in the entire energy range. The conversion
-is performed for the total (MT=1), elastic (2), capture (102), and fission (18).
-In the current version, no charged particle channels nor inelastic scattering will
-be processed, even they are given in the resolved resonance parameters.</p>
+<p>This command converts the resonance parameters into pointwise cross
+sections, so that the cross sections are given in the entire energy
+range. The conversion is performed for the total (MT=1), elastic (2),
+capture (102), and fission (18), as well as proton (103 / 600) and
+alpha-particle (107 / 800) if they are given.</p>
 
-<p>The original subsections, MF3, MT1, 2, 18, and 102, will be
-replaced by the reconstructed cross sections, and the high energy
+
+<p>The original subsections, MF3, MT1, 2, 18, 102, 103, and 107 will
+be replaced by the reconstructed cross sections, and the high energy
 parts follow. The cross section data can be printed by the
 usual <code>table</code> and <code>extract</code> commands. </p>
 
@@ -94,14 +95,14 @@ pointwise
 group 1 1
 </pre>
 <pre id="dat">
-# Emin          Emax                     1             2             4            16           102
-  1.067700e+01  6.144210e+01  5.250782e+00  5.250474e+00  0.000000e+00  0.000000e+00  3.070095e-04
-  6.144210e+01  1.013010e+02  5.246507e+00  5.246314e+00  0.000000e+00  0.000000e+00  1.934187e-04
-  1.013010e+02  1.300730e+02  5.243267e+00  5.243105e+00  0.000000e+00  0.000000e+00  1.626474e-04
+# Emin          Emax                     1             2             4            16  ...
+  1.067700e+01  6.144210e+01  5.250782e+00  5.250474e+00  0.000000e+00  0.000000e+00
+  6.144210e+01  1.013010e+02  5.246507e+00  5.246314e+00  0.000000e+00  0.000000e+00
+  1.013010e+02  1.300730e+02  5.243267e+00  5.243105e+00  0.000000e+00  0.000000e+00  ...
   ...
-  1.000000e+07  1.284030e+07  4.071515e+00  2.377243e+00  1.623207e+00  9.748975e-02  7.428526e-04
-  1.284030e+07  1.648720e+07  3.777010e+00  2.100591e+00  8.127038e-01  7.275485e-01  8.853935e-04
-  1.648720e+07  2.000000e+07  3.449234e+00  1.714869e+00  3.657938e-01  1.171327e+00  6.166756e-04
+  1.000000e+07  1.284030e+07  4.071515e+00  2.377243e+00  1.623207e+00  9.748975e-02
+  1.284030e+07  1.648720e+07  3.777010e+00  2.100591e+00  8.127038e-01  7.275485e-01
+  1.648720e+07  2.000000e+07  3.449234e+00  1.714869e+00  3.657938e-01  1.171327e+00  ...
 </pre>
 
 

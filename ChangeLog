@@ -1,3 +1,8 @@
+2023-03-22  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* manual/index.html: updated
+	manual updated
+
 2023-03-19  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/endflib.cpp (ENDFPackCopyCONT, ENDFPackCopyLIST, ENDFPackCopyTAB1, ENDFPackCopyTAB2, ENDFPackCopyTAB21): new functions

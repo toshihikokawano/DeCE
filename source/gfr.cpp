@@ -433,16 +433,9 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
 /**********************************************************/
 void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de)
 {
-  const int ndiv = 10000;
   System sys;
   ChannelWaveFunc wfn;
   double *elab;
-
-  if( (emin == 0.0) && (emax == 0.0) && (de == 0.0) ){
-    emax = dict->emaxRR;
-    de   = emax / ndiv;
-    emin = de;
-  }
 
   elab = new double [MAX_DBLDATA/2];
 

@@ -109,6 +109,9 @@ option.
 <p> Print a given MF/MT section from the ENDF-6 file.
 The output format is in the ENDF-6 format, but no line number.</p>
 
+<p> In the case of MF=2 (resonance parameters), <i>MTnumber</i> can
+be omitted.</p>
+
 <pre>
 extract 1 455
 </pre>
@@ -132,6 +135,9 @@ extract 1 455
 
 <p> Same as <code>extract</code>, but the output data are converted
 into a more friendly table format.</p>
+
+<p> In the case of MF=2 (resonance parameters), <i>MTnumber</i> can
+be omitted.</p>
 
 <pre>
 table 2
@@ -184,6 +190,14 @@ table 33 16
 </pre>
 
 
+<p>For cross sections, the unit of output quantities can be changed
+by <a href="option.html">option</a> <code>WriteXdataConversion</code>
+and <code>WriteYdataConversion</code>. For example, setting
+<code>WriteXdataConversion</code> to 1e-6 gives the output energy
+in MeV.</p>
+
+
+
 <h2><a name="delete">delete (delete section) </a></h2>
 
 <pre id="syn">
@@ -210,7 +224,7 @@ section. </p>
 removed.</p>
 
 
-<h2><a name="duplicate">duplicate (copy section) </a></h2>
+<h2><a name="duplicate">duplicate / copy (copy section) </a></h2>
 
 <pre id="syn">
    duplicate <i>MFnumber</i> <i>MTsrc</i> <i>MTdist</i>
@@ -225,7 +239,8 @@ sections are the same, and hence given one time.</p>
 <p>The copied section will be created if it does not exist on a memory,
 or replaced by the source section data if exist. The new section
 will be on a memory, unless <code>extract, table</code> operations are
-performed after <code>duplicate</code>.</p>
+performed after <code>duplicate, copy</code>. Note that
+<code>duplicate</code> and <code>copy</code> are identical.</p>
 
 
 
@@ -239,11 +254,11 @@ performed after <code>duplicate</code>.</p>
    calc <i>MTdest</i> = <i>MTsrc1</i> : <i>MTsrc2</i>
 </pre>
 
-<p>This operation calculate the sum (+), difference (-), product (*),
-and quotient (/) of two MT sections, and store the results in the
+<p>This operation calculates the sum (+), difference (-), product (*),
+and quotient (/) of two MT sections in MF=3, and stores the results in the
 MT=<i>MTdest</i> section.  The MF in this case should be
 always 3 (cross section).  When MF=3, MT=<i>MTdest</i>
-exists, the data are replaced by the calculated numbers The
+exists, the data are replaced by the calculated numbers. The
 calculation is done on a memory, and no output is made by this
 operation. To print out the calculated results, <code>extract,
 table</code> operations should be used after this operation.</p>
@@ -275,7 +290,7 @@ Q-value is taken from the (n,n alpha) section, because the threshold
 energy of this reaction is lower than that of (n,2n).</p>
 
 <p>Note that the selection of Q-value is still ambiguous. DeCE may 
-confuse in some cases.</p>
+be confused in some cases.</p>
 
 
 <h2><a name="make4">make4 (create MF/MT=3/4 section) </a></h2>
