@@ -176,8 +176,8 @@ void processMF15(const int ne, ENDF *lib)
   xdat[3] = 1.0;           // fraction
   ENDFPackTAB1(cont,idat,xdat,lib);  // make a TAB1
 
-  /*** TAB2 for the spectrun data */
-  /*** TAB1 for ourter loop */
+  /*** TAB2 for the spectrum data */
+  /*** TAB1 for outer loop */
   cont.setRecord(0.0, 0.0, 0, 0, 1, ne);
   idat[0] = ne;            // there are NE incident energies
   idat[1] = 2;             // lin-lin interpolation
@@ -214,7 +214,7 @@ int dataread(ifstream *fp)
       double e = coltodbl(line,1) * 1e+6;
       double y = coltodbl(line,2);
       
-      if(e == 0.0) e= 1e-11;
+      if(e == 0.0) e = 1e-5;
 
       ctab[ne].c2  = e;
       ydat[2*ne  ] = e;
