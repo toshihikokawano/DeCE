@@ -1,3 +1,8 @@
+2023-09-13  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/deceprocpointwise.cpp (DeceGeneratePointwise): updated
+	check if MT103 and 107 exist before adding them
+
 2023-03-22  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* manual/index.html: updated
