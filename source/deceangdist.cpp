@@ -18,7 +18,7 @@ using namespace std;
 #include "masstable.h"
 
 static const int ANGLE_POINTS = 180;
-static const int MAX_ENERGY   = 100;
+static const int MAX_ENERGY   = 500;
 static const int MAX_LEGCOEF  =  60;
 
 static int  readADdata (char *, int, int, double *, double **, double *);

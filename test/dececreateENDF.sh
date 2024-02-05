@@ -93,11 +93,19 @@ if [ $chargediscrete = "true" ]; then
     for mt in 16  17  22  28  32  33  34  37  41  42  44  45  91 102 108 111 112 117 649 699 749 799 849;do
         echo "make MF6 $mt from ${datadir}/CoHSpectrum.dat"
         $toolbase/$decemf6 -t $mt -e ${datadir}/CoHSpectrum_chargediscrete.dat -f $workfile >> $workmf6
+        if [ $? != 0 ]; then
+            echo "making MF6 failed"
+            exit -1
+        fi
     done
 else
     for mt in 16  17  22  28  32  33  34  37  41  42  44  45  91 102 103 104 105 106 107 108 111 112 117;do
         echo "make MF6 $mt from ${datadir}/CoHSpectrum.dat"
         $toolbase/$decemf6 -t $mt -e ${datadir}/CoHSpectrum.dat -f $workfile >> $workmf6
+        if [ $? != 0 ]; then
+            echo "making MF6 failed"
+            exit -1
+        fi
     done
 fi
 
@@ -110,8 +118,16 @@ if [ $discretegammaspec = "false" ]; then
     echo "produce MF12 and MF14, and store in $workmf12"
     if [ $withconversion = "true" ]; then
         $toolbase/$decemf12 ${datadir}/gbranch_withconversion.dat $workfile > $workmf12
+        if [ $? != 0 ]; then
+            echo "making MF12 failed"
+            exit -1
+        fi
     else
         $toolbase/$decemf12 ${datadir}/gbranch.dat $workfile > $workmf12
+        if [ $? != 0 ]; then
+            echo "making MF12 failed"
+            exit -1
+        fi
     fi
 fi
 
