@@ -33,7 +33,7 @@ void DeceTableMF4(ENDF *lib)
 
   cout << "# Angular distribution" << endl;
   cout << "#          LVT" << setw(14) << lvt << "  0:transformation matrix not give, 1:given" << endl;
-  cout << "#          LTT" << setw(14) << ltt << "  0:isotropic, 1:Legendre, 2:tabulated" << endl;
+  cout << "#          LTT" << setw(14) << ltt << "  0:isotropic, 1:Legendre, 2:tabulated, 3:Legendre(low) + tabulated(hight)" << endl;
   cout << "#           LI" << setw(14) << li  << "  0:non-isotropic, 1:isotropic" << endl;
   cout << "#          LCT" << setw(14) << lct << "  1:LAB, 2:CMS" << endl;
 

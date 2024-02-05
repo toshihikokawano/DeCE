@@ -631,7 +631,9 @@ class Smatrix{
 /**************************************/
 /*      gfr.cpp                       */
 /**************************************/
-void    gfrReadHEADData           (System *, ENDF *);
+double  gfrGetOnePoint (ifstream *, ENDFDict *, const double);
+int     gfrLMax (ENDFDict *, ENDF **);
+void    gfrReadHEADData (System *, ENDF *);
 
 
 /**************************************/

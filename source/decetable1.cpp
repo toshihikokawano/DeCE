@@ -71,12 +71,16 @@ void  DeceTableMF1MT455(ENDF *lib)
 {
   Record head = lib->getENDFhead();
 
+  /*** LDG : energy-dependent delayed-group constants */
+  int ldg  = head.l1;
+
   /*** LNU : nu given by polynomial (1) or table (2) */
   int lnu  = head.l2;
 
   /*** precursor decay constants */
   int nnf = lib->rdata[0].n1;
   cout << "# Delayed neutron decay constants" << endl;
+  cout << "#          LDG" << setw(14) << ldg << "  energy dependent delayed-groups" << endl;
   cout << "#          NNF" << setw(14) << nnf << "  number of precursor families"  << endl;
   cout << "#   lambda grp   decay const" << endl;
   ENDFPrintLIST(lib,0,"Lambda Group","Decay Const");

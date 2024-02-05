@@ -26,7 +26,7 @@
 resolved resonance parameters, though the resonance formulae
 are limited to Multi-Level Breit-Wigner, or Reich-Moore. 
 <i>X-min</i> is the lowest energy, <i>X-max</i> is the highest
-energy, and <i>delta-X</i> is the energ increment.</p>
+energy, and <i>delta-X</i> is the energy increment.</p>
 
 <p>As in the second syntax, if <i>delta-X</i> is not given, 
 cross section at a given energy is calculated. </p>
@@ -58,11 +58,13 @@ reconstruct 1 10 1
 
 <pre id="syn">
    reconangdist <i>X-min</i> <i>X-max</i> <i>delta-X</i>
+   reconangdist <i>X</i>
+   reconangdist
 </pre>
 
 <p>Elastic scattering angular distributions for given energy points
-are calculated from the resonance parameters. This is not fully
-functional.</p>
+are calculated from the resonance parameters. See <code>reconstruct</code>
+for the energy range parameters.</p>
 
 
 <h2><a name="smoothangdist">smoothangdist (energy averaged Legendre coefficients from resonance parameters)</a></h2>
@@ -76,6 +78,47 @@ scattering. The Legendre coefficients are calculated from the resolved
 resonance parameters at equi-distant energy points, then smoothed
 by a Gaussian weighting function, with the width of <i>width</i>.</p>
 
+
+
+<h2><a name="smatrixelement">smatrixelement (S-matrix elements from resonance parameters)</a></h2>
+
+<pre id="syn">
+   smatrixelement <i>X-min</i> <i>X-max</i> <i>delta-X</i>
+   smatrixelement <i>X</i>
+   smatrixelement
+</pre>
+
+<pre id="dat">
+# Energy[eV]   0  1/2                  1  1/2                  1  3/2                
+   1.0000e-05  1.0000e+00 -5.2918e-06  1.0000e+00 -1.8803e-17  1.0000e+00 -1.7898e-17
+   1.1000e-05  1.0000e+00 -5.5501e-06  1.0000e+00 -2.1692e-17  1.0000e+00 -2.0649e-17
+   1.2000e-05  1.0000e+00 -5.7968e-06  1.0000e+00 -2.4716e-17  1.0000e+00 -2.3528e-17
+   1.3000e-05  1.0000e+00 -6.0335e-06  1.0000e+00 -2.7870e-17  1.0000e+00 -2.6529e-17
+   1.5000e-05  1.0000e+00 -6.4811e-06  1.0000e+00 -3.4542e-17  1.0000e+00 -3.2881e-17
+   1.7500e-05  1.0000e+00 -7.0003e-06  1.0000e+00 -4.3528e-17  1.0000e+00 -4.1435e-17 ...
+</pre>
+
+<p>Print S-matrix elements calculated from resolved resonance parameters. </p>
+
+
+<h2><a name="resonanceangdist">resonanceangdist (merge energy averaged Legendre coefficients with existing elastic scattering angular distributions)</a></h2>
+
+<pre id="syn">
+   resonanceangdist <i> npoint </i>
+</pre>
+
+<p>Replace Legendre coefficients given in MF4/MT2 by the smoothed
+(energy-averaged) Legendre coefficients produced from resolved
+resonance parameters.  This command replaces the coefficients inside
+the resonance region only, and it works when Legendre coefficients are
+MF4/MT2 are given (not tabulated angular distributions). Above the
+resonance region, existing coefficients will be kept.
+<i>npoint</i> is the number of energy points given inside the resonance region.
+This excludes the boundary energy point, so that the actual number will be +1.
+The energy-average is performed by the Gaussian smoothing with the energy
+width of the resonance region divided by <i>npoint</i>.
+
+</p>
 
 <hr>
 <a href="ope3.html">    [BACK] </a>

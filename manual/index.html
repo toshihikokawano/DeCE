@@ -8,13 +8,13 @@
 <body>
 
 <h1><a name = "top"> The Descriptive Correction of ENDF-6 Format Code </a><br/>
-     DeCE (Jadeite) Manual </h1>
+     DeCE (Garnet) Manual </h1>
 
 <p style="text-align:center;">
 <img src="DeCE.png" width="340" height="320" alt="DeCE Logo" title="DeCE" style="margin-top:20px;margin-bottom:20px;padding:0px;">
 </p>
 
-<p style="text-align:center;"> November, 2020 </p>
+<p style="text-align:center;"> Manual Updated (Mar. 2023) </p>
 <p style="text-align:right;"> Kawano Toshihiko </p>
 <p style="text-align:right;"> Los Alamos National Laboratory </p>
 
@@ -32,6 +32,8 @@
          History </a>
     <li> <a href="#reference">
          Reference </a>
+    <li> <a href="#source">
+         Source Code </a>
     </ul>
 <li> <a href="usage.html">
      How to Run the Code </a>
@@ -84,11 +86,13 @@
         <li> <a href="ope1.html#multidelete">
              multidelete (delete multiple sections)</a>
         <li> <a href="ope1.html#duplicate">
-             duplicate (copy section)</a>
+             duplicate / copy (copy section)</a>
         <li> <a href="ope1.html#calc">
              calc (calculate sum, difference, ratio, or product of two sections in MF3)</a>
         <li> <a href="ope1.html#make4">
              make4 (create MF/MT=3/4 section)</a>
+        <li> <a href="ope1.html#nutotal">
+             nutotal (create MF/MT=1/452 section)</a>
         </ul>
     <li> <a href="ope2.html">
          Create ENDF-6 Data From File </a>
@@ -149,6 +153,8 @@
              reconangdist (angular distribution from resonance parameters)</a>
         <li> <a href="resonance.html#smoothangdist">
              smoothangdist (energy averaged Legendre coefficients from resonance parameters)</a>
+        <li> <a href="resonance.html#resonanceangdist">
+             resonanceangdist (merge energy averaged Legendre coefficients with existing elastic scattering angular distributions)</a>
         </ul>
 
     <li> <a href="header.html">
@@ -246,6 +252,7 @@ data block specified by a combination of MF and MT numbers.</p>
   <li> manipulate a data-point in a section (insertion, replacement, scaling, and delete)
   <li> read data in an external file, and convert them into ENDF-6
   <li> reconstruct pointwise cross sections from given resonance parameters
+  <li> produce energy-averaged cross sections (group constants) for some limited energy structure
   <li> renumber all the sections, make a new dictionary, 
        update <code>NWD</code> and <code>NXC</code> in the header section, 
        then write the entire data on a new file.
@@ -267,8 +274,8 @@ They are known as "the Mohs scale of mineral hardness." The code was
 originally developed as a program <code>E-Type</code>, which was a
 converter program from the Hauser-Feshbach model code output into the
 ENDF-6 formatted data, first appeared in Summer 2009.  This was
-totally superseded by DeCE.  The current version, first built in November 2020,
-is Jadeite, whose Mohs scale is 6.5 - 7.</p>
+totally superseded by DeCE.  The current version, first built in October 2022,
+is Garnet, whose Mohs scale is 6.5 - 7.5.</p>
 
 <p>All versions up to DeCE (Fluorite) were just for the author's
 private use. Apatite is the first version of outside release (yet
@@ -294,6 +301,9 @@ A new version name, Jadeite, was assigned. Jadeite also includes
 the more stabilized resonance reconstruction functionality by 
 adding a Coulomb function for charged particle channels.</p>
 
+<p> The version Garet, which is a maintenance release, was released in
+2022 that includes some minor revisions and bug fixes.</p>
+
 <p style="text-align:center;">
 <img src="decereconst1.png" width="400" height="280" alt="cross section reconstructed" title="cross section reconstructed" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;">
 
@@ -307,6 +317,12 @@ adding a Coulomb function for charged particle channels.</p>
 <p>Toshihiko Kawano</p>
 <p>Journal of Nuclear Science and Technology, vol.56, issue 11, pages 1029-1035 (2019)</p>
 <p><a href="https://doi.org/10.1080/00223131.2019.1637797">https://doi.org/10.1080/00223131.2019.1637797 </a></p>
+
+
+<h2><a name="source"> Source Code </a></h2>
+
+<p>The DeCE source code is available at <a href="https://github.com/toshihikokawano/DeCE"> DeCE GitHub repository </a></p>
+
 
 <hr>
 <a href="#top">    [TOP]  </a>

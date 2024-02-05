@@ -1,12 +1,12 @@
 /******************************************************************************/
 /**                                                                          **/
-/**     DeCE Tools : Generate MF6 from CoH ECLIPSE output                    **/
+/**     DeCE Tools : Generate MF6 from CoH energy spectrum output            **/
 /**                                                            Oct. 2010     **/
 /**                                                            T. Kawano     **/
 /**                                       Los Alamos National Laboratory     **/
 /**                                                                          **/
 /**                                                                          **/
-/**     usage: decemf6 -t MTnumber -e ECLIPSE.dat -f ENDF.dat                **/
+/**     usage: decemf6 -t MTnumber -e CoHSpectrum.dat -f ENDF.dat            **/
 /**                                                                          **/
 /**     notes: this code is a part of the DeCE package                       **/
 /**            ENDF.dat must have corresponding subsection in MF3 section    **/
@@ -25,7 +25,7 @@ using namespace std;
 
 int main(int, char *[]);
 
-static const int NEIN   =   100; // max number of incident energies
+static const int NEMAX  =  1000; // max number of energy points
 static const int NDAT   =  5000; // max number of floating point data
 static const int NPAR   =     7; // max number of particles
 
@@ -34,6 +34,7 @@ static const int WFIELD =    13; // data field width
 static int mat = 9999;           // MAT number
 static int mt  =    0;           // MT number
 
+int    prescan    (ifstream *);
 int    dataread   (ifstream *, string);
 int    datarecord (ifstream *, int, int, double);
 
@@ -92,43 +93,46 @@ int main(int argc, char *argv[])
   int icond = ENDFReadMF3(&fpin,&lib,mt);
   fpin.close();
   if(icond < 0){
-    cerr << "MT number not given in MF3 for " << mt << endl;
-    exit(-1);
+    cerr << "Processing MT number " << mt << " skipped because not given in MF3" << endl;
+    exit(0);
   }
 
   mat = lib.getENDFmat();
 
-  /*** open ECLIPSE file */
+  /*** open CoH energy spectrum file */
   fpin.open(eclname.c_str());
   if(!fpin){
-    cerr << "ECLIPISE file cannot open" << endl;
+    cerr << "CoH energy spectrum file cannot open" << endl;
     exit(-1);
   }
+  int ne = prescan(&fpin);
+  fpin.close();
 
   /*** data arrays */
-  elab   = new double [NEIN];
-  gyield = new double [NEIN];
+  elab   = new double [ne + 1];
+  gyield = new double [ne + 1];
 
-  ng     = new int [NEIN];
+  ng     = new int [ne + 1];
   ns     = new int * [NPAR];
   nl     = new int * [NPAR];
   spc    = new double ** [NPAR];
   for(int p=0 ; p<NPAR ; p++){
-    ns[p]  = new int [NEIN];
-    nl[p]  = new int [NEIN];
-    spc[p] = new double * [NEIN];
-    for(int n=0 ; n<NEIN ; n++) spc[p][n] = new double [NDAT];
+    ns[p]  = new int [ne + 1];
+    nl[p]  = new int [ne + 1];
+    spc[p] = new double * [ne + 1];
+    for(int n=0 ; n<ne+1 ; n++) spc[p][n] = new double [NDAT];
   }
 
-  for(int n=0 ; n<NEIN ; n++){
+  for(int n=0 ; n<ne+1 ; n++){
     ng[n] = 0;
     elab[n] = gyield [n] = 0.0;
   }
   for(int p=0 ; p<NPAR ; p++){
-    for(int n=0 ; n<NEIN ; n++) ns[p][n] = nl[p][n] = 0;
+    for(int n=0 ; n<ne+1 ; n++) ns[p][n] = nl[p][n] = 0;
   }
 
-  int ne = dataread(&fpin,reacid);
+  fpin.open(eclname.c_str());
+  dataread(&fpin,reacid);
   fpin.close();
 
   if(ne > 0) processMF6(ne,&lib);
@@ -137,7 +141,7 @@ int main(int argc, char *argv[])
   delete [] gyield;
 
   for(int p=0 ; p<NPAR ; p++){
-    for(int n=0 ; n<NEIN ; n++) delete [] spc[p][n];
+    for(int n=0 ; n<ne+1 ; n++) delete [] spc[p][n];
     delete [] ns[p];
     delete [] nl[p];
     delete [] spc[p];
@@ -152,7 +156,7 @@ int main(int argc, char *argv[])
 
 
 /**********************************************************/
-/*      Generage Subsection in MF6                        */
+/*      Generate Subsection in MF6                        */
 /**********************************************************/
 void processMF6(int ne, ENDF *lib3)
 {
@@ -203,7 +207,7 @@ void mf6yield(int nelab, int pid, int nyield, double emin, double emax, ENDF *li
   int    idat[2], lip = 0, law = 1, nr = 1, np = 2;
   double *xdat, zap = 0.0, awr = 0.0, yield;
 
-  xdat = new double [NEIN*2];
+  xdat = new double [nelab*2];
 
   if(     pid == 0){ zap =    0.0;   awr = 0.000000; }
   else if(pid == 1){ zap =    1.0;   awr = 1.000000; }
@@ -367,24 +371,45 @@ void mf6spec(int nelab, int pid, double emin, ENDF *lib)
 /**********************************************************/
 /*      Analyze ECLIPSE Data                              */
 /**********************************************************/
+int prescan(ifstream *fp)
+{
+  string line;
+  int m = -1;  // number of energy points in the file
+
+  while(1){
+    getline(*fp,line);
+    if(fp->eof() != 0) break;
+    if( line.length() == 0 ) continue;
+    string key = line.substr(0,WFIELD);
+    if(key == "# ECLIPSE    "){
+      m++;
+      if(m >= NEMAX){
+        cerr << "too many energy point" << endl;  return(-1);
+      }
+      continue;
+    }
+  }
+
+  return(m);
+}
+
+
 int dataread(ifstream *fp, string rid)
 {
   string line;
-  int    m = -1;  // number of energy points in the file
+  int m = -1;
 
   bool rec = false;
   while(1){
     getline(*fp,line);
     if(fp->eof() != 0) break;
-    if( line.length() ==0 ) continue;
+    if( line.length() == 0 ) continue;
 
     string key = line.substr(0,WFIELD);
 
     /*** new incident energy section starts */
     if(key == "# ECLIPSE    "){
       m++;
-      if(m >= NEIN){ m = -1; break; }
-
       elab[m] = coltodbl(line,1) * 1e+06;
       rec = false;
       continue;

@@ -8,6 +8,7 @@
 
 using namespace std;
 
+#include "constant.h"
 #include "terminate.h"
 #include "polysq.h"
 

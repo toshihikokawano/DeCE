@@ -41,9 +41,9 @@ static const int WFIELD =    14; // data field width
 static const double duplicatepoint = 0.0;
 
 
-void   processMF12 (int, ENDF *);
-void   processMF14 (     ENDF *);
-void   processMF15 (int, ENDF *);
+void   processMF12 (const int, const int, ENDF *);
+void   processMF14 (const int,            ENDF *);
+void   processMF15 (           const int, ENDF *);
 int    dataread    (ifstream *);
 int    datadummy   (int);
 inline double coltodbl (string, int);
@@ -95,9 +95,10 @@ int main(int argc, char *argv[])
 
   if(ne > 0){
     ne = datadummy(ne);
-    processMF12(ne,&lib12);
-    processMF14(   &lib14);
-    processMF15(ne,&lib15);
+    int nk = 1; // number of subsections
+    processMF12(nk,ne,&lib12);
+    processMF14(nk,   &lib14);
+    processMF15(   ne,&lib15);
   }
 
   delete [] ctab;
@@ -109,10 +110,9 @@ int main(int argc, char *argv[])
 }
 
 
-void processMF12(int ne, ENDF *lib)
+void processMF12(const int nk, const int ne, ENDF *lib)
 {
   Record head = lib->getENDFhead();
-  int    nk   = 1; // number of subsections
   int    lo   = 1; // multiplicities
 
   /*** reset index, set HEAD record, MF and MT */
@@ -133,11 +133,10 @@ void processMF12(int ne, ENDF *lib)
 }
 
 
-void processMF14(ENDF *lib)
+void processMF14(const int nk, ENDF *lib)
 {
   Record head = lib->getENDFhead();
   int li = 1; // isotropic angular distributoin
-  int nk = 0;
 
   /*** reset index, set HEAD record, MF and MT */
   head.setRecord(head.c1,head.c2,li,0,nk,0);
@@ -148,7 +147,7 @@ void processMF14(ENDF *lib)
 }
 
 
-void processMF15(int ne, ENDF *lib)
+void processMF15(const int ne, ENDF *lib)
 {
   Record head = lib->getENDFhead();
   int    nc   = 1; // number of subsections
@@ -177,8 +176,8 @@ void processMF15(int ne, ENDF *lib)
   xdat[3] = 1.0;           // fraction
   ENDFPackTAB1(cont,idat,xdat,lib);  // make a TAB1
 
-  /*** TAB2 for the spectrun data */
-  /*** TAB1 for ourter loop */
+  /*** TAB2 for the spectrum data */
+  /*** TAB1 for outer loop */
   cont.setRecord(0.0, 0.0, 0, 0, 1, ne);
   idat[0] = ne;            // there are NE incident energies
   idat[1] = 2;             // lin-lin interpolation
@@ -215,7 +214,7 @@ int dataread(ifstream *fp)
       double e = coltodbl(line,1) * 1e+6;
       double y = coltodbl(line,2);
       
-      if(e == 0.0) e= 1e-11;
+      if(e == 0.0) e = 1e-5;
 
       ctab[ne].c2  = e;
       ydat[2*ne  ] = e;

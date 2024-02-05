@@ -183,11 +183,27 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
 
 /**********************************************************/
+/*      GFR L-Max from Resonances                         */
+/**********************************************************/
+int gfrLMax(ENDFDict *dict, ENDF *lib[])
+{
+  int lmax = 0;
+  System sys;
+  int kres = dict->getID(2,151);
+  if(kres >= 0){
+    gfrReadHEADData(&sys,lib[kres]);
+    gfrCrossSection(0,dict->emaxRR,&sys,lib[kres]);
+    lmax = sys.nl - 1;
+  }
+  return(lmax);
+}
+
+
+/**********************************************************/
 /*      GFR Generate Legendre Coefficient from Resonances */
 /**********************************************************/
 void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de, double da)
 {
-  const int ndiv = 100;
   System sys;
   Pcross c;
   double *elab, *pleg, *xang = NULL;
@@ -207,7 +223,7 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   gfrReadHEADData(&sys,lib[kres]);
 
   if(da > 0.0){
-    cout <<"# Energy[eV]   Angle[deg]   dsig[b/sr]" << endl;
+    cout <<"# Energy[eV]   Angle[deg]   dsig[b/sr]   Probability" << endl;
   }
    else{
     cout <<"# Energy[eV]   ";
@@ -217,12 +233,6 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
   cout.setf(ios::scientific, ios::floatfield);
   cout << setprecision(5);
-
-  if( (emin == 0.0) && (emax == 0.0) && (de == 0.0) ){
-    emax = dict->emaxRR;
-    de   = emax / ndiv;
-    emin = de;
-  }
 
   /*** when da > 0, calculate actual angular distributions */
   int nsig = 0;
@@ -235,8 +245,15 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     }
   }
 
-  /*** always equi-distant energy grid */
-  int np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
+  int np = 0;
+  if( (emin == 0.0) && (emax == 0.0) && (de == 0.0) ){
+    /*** automatic energy grid */
+    np = gfrAutoEnergyRRR(&sys,lib[kres],elab,dict->emaxRR);
+  }
+  else{
+    /*** equi-distant energy grid */
+    np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
+  }
 
   for(int i=0 ; i<np ; i++){
 
@@ -244,7 +261,7 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     c = gfrCrossSection(0,elab[i],&sys,lib[kres]);
 
     /*** Legendre coefficients calculated from the S-matrix elements */
-    gfrLegendreCoefficient(&sys,pleg);
+    gfrLegendreCoefficient(&sys,pleg);  // pleg includes 4pi
     if(gcLorentzianWidth > 0.0)  pleg[0] = gfrCompoundReaction(&sys);
 
     /*** when angle step is given, calculate actual distributions */
@@ -254,7 +271,9 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
         for(int l=0 ; l<LMAX ; l++) yang += (2*l+1.0) * pleg[l] * legendre(l,xang[n]) / (4.0*M_PI);
         cout << setw(13) << elab[i];
         cout << setw(13) << xang[n];
-        cout << setw(13) << yang << endl;
+        cout << setw(13) << yang;
+        if(pleg[0] == 0.0) cout << setw(13) << 0.0;
+        else               cout << setw(13) << yang / pleg[0] * 2*M_PI << endl;
       }
       cout << endl;
     }
@@ -276,6 +295,39 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   if(da > 0.0){
     delete [] xang;
   }
+}
+
+/*** simplified version */
+int gfrAngDistSimple(ENDFDict *dict, ENDF *lib[], const int psize, double *xdat, double **pdat)
+{
+  System sys;
+  Pcross c;
+  double *pleg;
+
+  int lsize = 2 * gfrLMax(dict,lib) + 1;
+
+  if(psize < lsize) lsize = psize;
+
+  pleg = new double [LMAX*2];
+  Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
+  factorial_allocate();
+
+  int kres = dict->getID(2,151);
+  gfrReadHEADData(&sys,lib[kres]);
+
+  int np = gfrAutoEnergyRRR(&sys,lib[kres],xdat,dict->emaxRR);
+
+  for(int i=0 ; i<np ; i++){
+    c = gfrCrossSection(0,xdat[i],&sys,lib[kres]);
+    gfrLegendreCoefficient(&sys,pleg);
+    for(int l=0 ; l<lsize ; l++) pdat[i][l] = pleg[l];
+  }
+
+  Smat.memfree();
+  delete [] pleg;
+  factorial_delete();
+
+  return np;
 }
 
 
@@ -328,9 +380,8 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
 
   for(int n=0 ; n<npoint ; n++){
     wsum[n] = 0.0;
-    for(int l=1 ; l<LMAX*2 ; l++) pave[n][l] = 0.0;
+    for(int l=0 ; l<LMAX*2 ; l++) pave[n][l] = 0.0;
   }
-
 
   for(int i=1 ; i<=np ; i++){
     double elab = i * de0;
@@ -384,24 +435,26 @@ void gfrAngDistSmooth(ENDFDict *dict, ENDF *lib[], double width)
 /**********************************************************/
 void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de)
 {
-  const int ndiv = 10000;
   System sys;
   ChannelWaveFunc wfn;
   double *elab;
 
-  if( (emin == 0.0) && (emax == 0.0) && (de == 0.0) ){
-    emax = dict->emaxRR;
-    de   = emax / ndiv;
-    emin = de;
-  }
-
   elab = new double [MAX_DBLDATA/2];
-  int np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
 
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
 
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
+
+  int np = 0;
+  if( (emin == 0.0) && (emax == 0.0) && (de == 0.0) ){
+    /*** automatic energy grid */
+    np = gfrAutoEnergyRRR(&sys,lib[kres],elab,dict->emaxRR);
+  }
+  else{
+    /*** equi-distant energy grid */
+    np = gfrFixedEnergyRRR(emin,emax,de,elab,dict->emaxRR,dict->emaxUR);
+  }
 
   cout.setf(ios::scientific, ios::floatfield);
   cout << setprecision(4);
@@ -415,7 +468,7 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, do
     cout << setw(3) << l;
     cout << setw(3) << j2 << "/2                ";
   }
-  cout <<" Hard-Sphere ";
+  if(sys.alpha > 0.0) cout <<" Hard-Sphere ";
   cout << endl;
 
   for(int i=0 ; i<np ; i++){
@@ -428,10 +481,12 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, do
       cout << setw(12) << Smat.getElement(j).imag();
     }
 
-    for(l=0 ; l<sys.nl ; l++){
-      gfrPenetrability(l,sys.alpha,&wfn);
-      cout << setw(12) <<  wfn.phase2.real();
-      cout << setw(12) <<  wfn.phase2.imag();
+    if(sys.alpha > 0.0){ // avoid RML case
+      for(l=0 ; l<sys.nl ; l++){
+        gfrPenetrability(l,sys.alpha,&wfn);
+        cout << setw(12) <<  wfn.phase2.real();
+        cout << setw(12) <<  wfn.phase2.imag();
+      }
     }
 
     cout << endl;

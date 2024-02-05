@@ -409,7 +409,7 @@ void ENDFPackCONT  (Record <i>cont</i>, ENDF <i>*lib</i>)
 void ENDFPackLIST  (Record <i>cont</i>, double <i>*xdat</i>, ENDF <i>*lib</i>)
 void ENDFPackTAB1  (Record <i>cont</i>, int <i>*idat</i>, double <i>*xdat</i>, ENDF <i>*lib</i>)
 void ENDFPackTAB2  (Record <i>cont</i>, Record <i>*cdat</i>, int <i>*idat</i>, double <i>**xtab</i>, ENDF <i>*lib</i>)
-void ENDFPackTAB21 (Record <i>cont</i>, int <i>*idat</i>, Record <i>*cdat</i>,
+void ENDFPackTAB21 (Record <i>cont</i>, Record <i>*cdat</i>, int <i>*idat</i>, 
                                  int <i>**itab</i>, double <i>**xtab</i>, ENDF <i>*lib</i>)
 </pre>
 
@@ -435,6 +435,29 @@ to be stored is given by the CONT record in the case of one-dim data. When
 the data are two-dimensional, an array of CONT record is given.</p>
 
 <p><code>ENDFPackTAB22</code> is not available in the current version.</p>
+
+
+
+<h3><a name="ENDFPack">ENDFPackCopy</a></h3>
+
+<pre id="syn">
+void ENDFPackCopyCONT  (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+void ENDFPackCopyLIST  (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+void ENDFPackCopyTAB1  (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+void ENDFPackCopyTAB2  (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+void ENDFPackCopytAB21 (ENDF <i>*src</i>, ENDF <i>dst</i>, int <i>idx</i>)
+</pre>
+
+<p>Instead of providing data arrays to pack the ENDF object, these functions
+allow to copy a specific subsection from another ENDF object. The <i>i</i>-th
+block in the <i>src</i> ENDF object will be appended to the <i>dst</i> object.
+The insertion location is always just after the last block stored in the
+destination object.</p>
+
+<p>Because there is no way to know what is the structure of <i>i</i>-th block,
+one has to choose the appropriate function depending on the <i>src</i> object
+structure.</p>
+
 
 
 

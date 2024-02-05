@@ -62,6 +62,7 @@ Files:
         decelibread.cpp       import a subsection from external ENDF file
         decememory.cpp        print internal memory usage
         decemisc.cpp          some mathematical functions
+        decemod4.cpp          manipulate sections in MF4
         decemod6.cpp          manipulate sections in MF6
         deceoperation.cpp     perform each given operation
         deceoutput.cpp        output whole ENDF data, renumbered, make new dictionary
@@ -124,7 +125,7 @@ Files:
         coupling.cpp
         matrix.h              matrix inversion
         matrix.cpp
-        coulomb.h             Coulomb function
+        coulomb.h             Coulomb function (from CoH3)
         coulimb.cpp
         kalbach.h             Kalbach systematics for DDX (from CoH3)
         kalbach.cpp
