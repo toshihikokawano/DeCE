@@ -223,7 +223,7 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
   gfrReadHEADData(&sys,lib[kres]);
 
   if(da > 0.0){
-    cout <<"# Energy[eV]   Angle[deg]   dsig[b/sr]" << endl;
+    cout <<"# Energy[eV]   Angle[deg]   dsig[b/sr]   Probability" << endl;
   }
    else{
     cout <<"# Energy[eV]   ";
@@ -261,7 +261,7 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
     c = gfrCrossSection(0,elab[i],&sys,lib[kres]);
 
     /*** Legendre coefficients calculated from the S-matrix elements */
-    gfrLegendreCoefficient(&sys,pleg);
+    gfrLegendreCoefficient(&sys,pleg);  // pleg includes 4pi
     if(gcLorentzianWidth > 0.0)  pleg[0] = gfrCompoundReaction(&sys);
 
     /*** when angle step is given, calculate actual distributions */
@@ -271,7 +271,9 @@ void gfrAngDist(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
         for(int l=0 ; l<LMAX ; l++) yang += (2*l+1.0) * pleg[l] * legendre(l,xang[n]) / (4.0*M_PI);
         cout << setw(13) << elab[i];
         cout << setw(13) << xang[n];
-        cout << setw(13) << yang << endl;
+        cout << setw(13) << yang;
+        if(pleg[0] == 0.0) cout << setw(13) << 0.0;
+        else               cout << setw(13) << yang / pleg[0] * 2*M_PI << endl;
       }
       cout << endl;
     }

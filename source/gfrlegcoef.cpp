@@ -18,6 +18,8 @@ extern Smatrix Smat;
 
 /**********************************************************/
 /*      Legendre Coefficient from Resonance Parameters    */
+/*      pl[] includes 4pi factor, so that pl[0] is        */
+/*      the elastic scattering cross section              */
 /**********************************************************/
 void gfrLegendreCoefficient(System *sys, double *pl)
 {

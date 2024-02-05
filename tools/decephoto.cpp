@@ -15,11 +15,10 @@ using namespace std;
 #include "../source/endflib.h"
 
 int main(int, char *[]);
-static void DecePhotoProduction(const int, const int, ENDF *);
-static inline void printdata(const string);
+static void DecePhotoProduction(const int, const int, ENDF *, double *, double *);
+static inline void printdata(const string, double *, double *, double *);
 
 static int np0, counter = 0;
-static double *x0, *y0, *y1, *y2;
 
 int main(int argc, char *argv[])
 {
@@ -30,6 +29,7 @@ int main(int argc, char *argv[])
   ifstream fpin;    // file pointer to input library
   ENDF     lib3;    // allocate cross section data block
   ENDF     lib6;    // allocate residual production data block
+  double *x0, *y0, *y1, *y2;
 
   x0 = new double [MAX_DBLDATA]; // common grid from photo-absorption cross section
   y0 = new double [MAX_DBLDATA]; // photo-abs cross section
@@ -73,70 +73,70 @@ int main(int argc, char *argv[])
   counter ++;
 
   /*** neutron production, ZAP = 1 */
-  DecePhotoProduction(1,np0,&lib6);
+  DecePhotoProduction(1,np0,&lib6,x0,y1);
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
-  printdata("neutron production");
+  printdata("neutron production",x0,y0,y2);
 
   /*** (g,n) */
-  DecePhotoProduction(zat - 1,np0,&lib6);    // (g,n)
+  DecePhotoProduction(zat - 1,np0,&lib6,x0,y1);    // (g,n)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
-  printdata("(g,n)");
+  printdata("(g,n)",x0,y0,y2);
 
   /*** (g,1nx) */
-  DecePhotoProduction(zat - 1002,np0,&lib6); // (g,n+p)
+  DecePhotoProduction(zat - 1002,np0,&lib6,x0,y1); // (g,n+p)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 2005,np0,&lib6); // + (g,n+A)
+  DecePhotoProduction(zat - 2005,np0,&lib6,x0,y1); // + (g,n+A)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  printdata("(g,1nx)");
+  printdata("(g,1nx)",x0,y0,y2);
 
   /*** (g,2n) */
-  DecePhotoProduction(zat - 2,np0,&lib6);    // (g,2n)
+  DecePhotoProduction(zat - 2,np0,&lib6,x0,y1);    // (g,2n)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
-  printdata("(g,2n)");
+  printdata("(g,2n)",x0,y0,y2);
 
   /*** (g,2nx) */
-  DecePhotoProduction(zat - 1003,np0,&lib6); // + (g,2n+p)
+  DecePhotoProduction(zat - 1003,np0,&lib6,x0,y1); // + (g,2n+p)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 2006,np0,&lib6); // + (g,2n+A)
+  DecePhotoProduction(zat - 2006,np0,&lib6,x0,y1); // + (g,2n+A)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  printdata("(g,2nx)");
+  printdata("(g,2nx)",x0,y0,y2);
 
   /*** (g,3n) */
-  DecePhotoProduction(zat - 3,np0,&lib6);    // (g,3n)
+  DecePhotoProduction(zat - 3,np0,&lib6,x0,y1);    // (g,3n)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
-  printdata("(g,3n)");
+  printdata("(g,3n)",x0,y0,y2);
 
   /*** (g,sn) */
-  DecePhotoProduction(zat - 1,np0,&lib6);    // (g,n)
+  DecePhotoProduction(zat - 1,np0,&lib6,x0,y1);    // (g,n)
   for(int i=0 ; i<np0 ; i++) y2[i]  = y1[i];
-  DecePhotoProduction(zat - 2,np0,&lib6);    // + (g,2n)
+  DecePhotoProduction(zat - 2,np0,&lib6,x0,y1);    // + (g,2n)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 3,np0,&lib6);    // + (g,3n)
+  DecePhotoProduction(zat - 3,np0,&lib6,x0,y1);    // + (g,3n)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 1002,np0,&lib6); // + (g,n+p)
+  DecePhotoProduction(zat - 1002,np0,&lib6,x0,y1); // + (g,n+p)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 2005,np0,&lib6); // + (g,n+A)
+  DecePhotoProduction(zat - 2005,np0,&lib6,x0,y1); // + (g,n+A)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 1003,np0,&lib6); // + (g,2n+p)
+  DecePhotoProduction(zat - 1003,np0,&lib6,x0,y1); // + (g,2n+p)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  DecePhotoProduction(zat - 2006,np0,&lib6); // + (g,2n+A)
+  DecePhotoProduction(zat - 2006,np0,&lib6,x0,y1); // + (g,2n+A)
   for(int i=0 ; i<np0 ; i++) y2[i] += y1[i];
-  printdata("(g,sn)");
+  printdata("(g,sn)",x0,y0,y2);
 
   /*** (g,p) */
-  DecePhotoProduction(zat - 1001,np0,&lib6); // (g,p)
+  DecePhotoProduction(zat - 1001,np0,&lib6,x0,y1); // (g,p)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
-  printdata("(g,p)");
+  printdata("(g,p)",x0,y0,y2);
 
   /*** (g,alpha) */
-  DecePhotoProduction(zat - 2004,np0,&lib6); // (g,A)
+  DecePhotoProduction(zat - 2004,np0,&lib6,x0,y1); // (g,A)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
-  printdata("(g,a)");
+  printdata("(g,a)",x0,y0,y2);
 
   /*** (g,4n) */
-  DecePhotoProduction(zat - 4,np0,&lib6);    // (g,4n)
+  DecePhotoProduction(zat - 4,np0,&lib6,x0,y1);    // (g,4n)
   for(int i=0 ; i<np0 ; i++) y2[i] = y1[i];
-  printdata("(g,4n)");
+  printdata("(g,4n)",x0,y0,y2);
 
 
   delete [] x0;
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
 }
 
 
-static inline void printdata(string title)
+static inline void printdata(string title, double *x0, double *y0, double *y2)
 {
   bool out = false;
   for(int i=0 ; i<np0 ; i++){
@@ -173,7 +173,7 @@ static inline void printdata(string title)
 /**********************************************************/
 /*      Process MF=6                                      */
 /**********************************************************/
-void DecePhotoProduction(const int k, const int np0, ENDF *lib6)
+void DecePhotoProduction(const int k, const int np0, ENDF *lib6, double *x0, double *y1)
 {
   for(int i=0 ; i<np0 ; i++) y1[i] = 0.0;
 
