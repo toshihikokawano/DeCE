@@ -569,7 +569,7 @@ void   ENDFPackCONT       (Record, ENDF *);
 void   ENDFPackLIST       (Record, double *, ENDF *);
 void   ENDFPackTAB1       (Record, int *, double *, ENDF *);
 void   ENDFPackTAB2       (Record, Record *, int *, double **, ENDF *);
-void   ENDFPackTAB21      (Record, int *, Record *, int **, double **, ENDF *);
+void   ENDFPackTAB21      (Record, Record *, int *, int **, double **, ENDF *);
 void   ENDFPackCopyCONT   (ENDF *, ENDF *, int);
 void   ENDFPackCopyLIST   (ENDF *, ENDF *, int);
 void   ENDFPackCopyTAB1   (ENDF *, ENDF *, int);

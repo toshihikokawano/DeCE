@@ -974,7 +974,7 @@ void ENDFPackTAB2(Record cont, Record *cdat, int *idat, double **xtab, ENDF *lib
 /**********************************************************/
 /*      Pack TAB2 Record (TAB1 Type)                      */
 /**********************************************************/
-void ENDFPackTAB21(Record cont, int *idat, Record *cdat, int **itab, double **xtab, ENDF *lib)
+void ENDFPackTAB21(Record cont, Record *cdat, int *idat, int **itab, double **xtab, ENDF *lib)
 {
   if( lib->checkSUBBLOCK() ) ENDFExceedSubBlock("PackTAB21",lib);
   int idx = lib->getPOS();
@@ -1071,7 +1071,7 @@ void ENDFPackCopyTAB21(ENDF *src, ENDF *dst, int idx)
     xptr[i] = src->xptr[idx + i];
   }
 
-  ENDFPackTAB21(cont,idat,cptr,iptr,xptr,dst);
+  ENDFPackTAB21(cont,cptr,idat,iptr,xptr,dst);
 
   delete [] cptr;
   delete [] iptr;

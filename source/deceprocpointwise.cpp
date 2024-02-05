@@ -95,18 +95,23 @@ void DeceGeneratePointwise(ENDFDict *dict, ENDF *lib[])
 
   /*** create MT 103 and 107 if charged particle channels exist */
   for(int j=1 ; j<ncx ; j++){
+
     /*** add MT 600 - 649 to make 103 */
     if(mtr[j] == 600){
       DeceCreateLib(dict,3,900);
       DeceCalc(dict,lib,900,600,649,':');
-      DeceCalc(dict,lib,103,103,900,'+');
+      if(dict->getID(3,103) < 0) DeceCreateLib(dict,3,103);
+      ENDFLibCopy(lib[dict->getID(3,900)],lib[dict->getID(3,103)]);
+      lib[dict->getID(3,103)]->setENDFmt(103);
 //    ENDFWrite(lib[dict->getID(3,103)]);
     }
     /*** add MT 800 - 849 to make 107 */
     else if(mtr[j] == 800){
       DeceCreateLib(dict,3,900);
       DeceCalc(dict,lib,900,800,849,':');
-      DeceCalc(dict,lib,107,107,900,'+');
+      if(dict->getID(3,107) < 0) DeceCreateLib(dict,3,107);
+      ENDFLibCopy(lib[dict->getID(3,900)],lib[dict->getID(3,107)]);
+      lib[dict->getID(3,107)]->setENDFmt(107);
 //    ENDFWrite(lib[dict->getID(3,107)]);
     }
   }
