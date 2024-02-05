@@ -10,13 +10,14 @@
 using namespace std;
 
 #include "dece.h"
+#include "decemisc.h"
 #include "gfr.h"
 #include "terminate.h"
 
 static const int defaultenergypoints = 100;
 
 static void smoothedlegendre (ENDFDict *, ENDF *[], const int, const int, double *, double **);
-static void updateMF4 (const int, const int, const int, double **, Record *, ENDF *);
+static void updateMF4 (const int, const int, const int, int **, double **, Record *, ENDF *);
 
 
 /**********************************************************/
@@ -57,21 +58,13 @@ void DeceResonanceAngularDistribution(ENDFDict *dict, ENDF *lib[], int np)
 
   /*** smoothed Legendre coefficients */
   smoothedlegendre(dict,lib,np,psize,xres,pres);
-  // for(int n=0 ; n<np ; n++){
-  //   cout << xres[n];
-  //   for(int l=0 ; l<psize ; l++) cout << " " << pres[n][l];
-  //   cout << endl;
-  // }
+
 
   Record head = lib[k4]->getENDFhead();
   int    ltt  = head.l2;   // 0: isotropic, 1: Legendre, 2: tabulated
   int    idx  = 0;
   int    li   = lib[k4]->rdata[idx++].l1;   // 0: non-isotropic, 1: isotropic
 
-  if( !((ltt == 1)  || (ltt = 3))){
-    message << "MF/MT = " << mf << "/" << mt << " is not Legendre coefficients";
-    TerminateCode("DeceResonanceAngulardistribution");
-  }
   if(li != 0){
     message << "MF/MT = " << mf << "/" << mt << " is isotropic";
     TerminateCode("DeceResonanceAngulardistribution");
@@ -80,8 +73,8 @@ void DeceResonanceAngularDistribution(ENDFDict *dict, ENDF *lib[], int np)
   int ne = lib[k4]->rdata[idx++].n2;
 
   /*** total number of energy points */
-  int npmax = 0;
-  int ne0 = 0;
+  int npmax = 0;  // total number of energy points in the new file
+  int ne0   = 0;  // number of energy points inside RRR given in the original file
   for(int i=0 ; i<ne ; i++){
     if(lib[k4]->rdata[idx + i].c2 >= xres[np-1]){
       ne0 = i;
@@ -90,54 +83,126 @@ void DeceResonanceAngularDistribution(ENDFDict *dict, ENDF *lib[], int np)
     }
   }
 
-  /*** highest L for memory allocation */
-  int nlmax = 0;
-  for(int i=0 ; i<ne ; i++){
-    int nl = lib[k4]->rdata[idx + i].n1;
-    if(nl > nlmax) nlmax = nl;
-  }
-
   /*** allocate double-data block for formatting */
   double **xdat = new double * [npmax];
-  Record *cont = new Record [npmax];
-  for(int i=0 ; i<npmax ; i++){
-    xdat[i] = new double [nlmax];
-    for(int j=0 ; j<nlmax ; j++) xdat[i][j] = 0.0;
-  }
+  int **idat = new int * [npmax];
+  Record *cont  = new Record [npmax];
 
-  /*** copy energies and Legendre coefficients */
-  int n = 0;
-  for(int i=0 ; i<np ; i++){
-    cont[i].setRecord(0.0,xres[i],0,0,psize-1,0);
-    for(int l=0 ; l<psize-1 ; l++) xdat[i][l] = pres[i][l+1];
-  }
-  n += np;
-
-  for(int i=ne0 ; i<ne ; i++){
-    int nl = lib[k4]->rdata[idx + i].n1;
-    cont[n].setRecord(0.0,lib[k4]->rdata[idx + i].c2,0,0,nl,0);
-
-    for(int j=0 ; j<nl ; j++){
-      xdat[n][j] = lib[k4]->xptr[idx + i][j];
+  /*** when all the data are Legendre coefficients */
+  if(ltt == 1){
+    /*** highest L for memory allocation */
+    int nlmax = 0;
+    for(int i=0 ; i<ne ; i++){
+      int nl = lib[k4]->rdata[idx + i].n1;
+      if(nl > nlmax) nlmax = nl;
     }
-    n ++;
+
+    /*** Npmax energy points x Nlmax L-values */
+    for(int i=0 ; i<npmax ; i++){
+      xdat[i] = new double [nlmax];
+      idat[i] = new int [2]; // not used
+      for(int j=0 ; j<nlmax ; j++) xdat[i][j] = 0.0;
+    }
+
+    /*** copy energies and Legendre coefficients */
+    int n = 0;
+    for(int i=0 ; i<np ; i++){
+      cont[i].setRecord(0.0,xres[i],0,0,psize-1,0);
+      for(int l=0 ; l<psize-1 ; l++) xdat[i][l] = pres[i][l+1];
+    }
+    n += np;
+
+    /*** copy the rest */
+    for(int i=ne0 ; i<ne ; i++){
+      int nl = lib[k4]->rdata[idx + i].n1;
+      cont[n].setRecord(0.0,lib[k4]->rdata[idx + i].c2,0,0,nl,0);
+
+      for(int j=0 ; j<nl ; j++){
+        xdat[n][j] = lib[k4]->xptr[idx + i][j];
+      }
+      n ++;
+    }
+  }
+
+  /*** when tabulated data */
+  else if(ltt == 2){
+    /*** look for the max number of angles */
+    int namax = 0;
+    for(int i=0 ; i<ne ; i++){
+      int na = lib[k4]->rdata[idx + i].n2;
+      if(na > namax) namax = na;
+    }
+
+    /*** Npmax energy points x Namax angles x 2 (angle,prob) sets */
+    for(int i=0 ; i<npmax ; i++){
+      xdat[i] = new double [2 * namax];
+      idat[i] = new int [2];
+      for(int j=0 ; j<2*namax ; j++) xdat[i][j] = 0.0;
+    }
+
+    /*** prepare angle, cos(t), from backward to front */
+    double step = 2.0 / (namax - 1.0);
+    double *tdat = new double [namax];
+
+    for(int j=0 ; j<namax ; j++){
+      tdat[j] = -1.0 + step * j;
+      if(fabs(tdat[j]) < 1e-10) tdat[j] = 0.0;
+    }
+
+    /*** copy energies and tabulated angular distributions */
+    int n = 0;
+    for(int i=0 ; i<np ; i++){
+      for(int j=0 ; j<namax ; j++){
+        double t = acos(tdat[j]) / M_PI * 180.0;
+        double f = 0.5;
+        for(int l=1 ; l<psize ; l++){
+          double p = (pres[i][0] == 0.0) ? 0.0 : pres[i][l] / pres[i][0];
+          f += (l+0.5) * p * legendre(l,t);
+        }
+        xdat[n][2*j  ] = tdat[j];
+        xdat[n][2*j+1] = f;
+      }
+      cont[n].setRecord(0.0,xres[i],0,0,1,namax);
+      idat[n][0] = namax;
+      idat[n][1] = 2; // linear interpolation between angles
+      n ++;
+    }
+
+    /*** copy the rest */
+    for(int i=ne0 ; i<ne ; i++){
+      cont[n] = lib[k4]->rdata[idx + i];
+      for(int j=0 ; j<2*cont[n].n2 ; j++){
+        xdat[n][j] = lib[k4]->xptr[idx + i][j];
+      }
+      idat[n][0] = lib[k4]->iptr[idx + i][0];
+      idat[n][1] = lib[k4]->iptr[idx + i][1];
+
+      n ++;
+    }
+
+    delete [] tdat;
   }
 
   /*** replace MF4/MT2 */
-  updateMF4(mf,mt,npmax,xdat,cont,lib[k4]);
+  updateMF4(mf,mt,npmax,idat,xdat,cont,lib[k4]);
 
-  message << "Legendre coefficients in MF4/MT2 below ";
-  message << setw(13) << setprecision(6) << xres[np-1] << " replaced by ";
-  message << setw(4) << np-1 << " resonance-reconstructed coefficients";
+  message << "angular distributions in MF4/MT2 below ";
+  message << setw(13) << setprecision(6) << xres[np-1];
+  message << " replaced by resonance-reconstructed data, ";
+  message << setw(4) << np-1 << " energy points";
   Notice("DeceResonanceAngularDistribution");
+
+  for(int i=0 ; i<npmax ; i++){
+    delete [] xdat[i];
+    delete [] idat[i];
+  }
+  delete [] xdat;
+  delete [] idat;
+  delete [] cont;
 
   for(int i=0 ; i<np ; i++) delete [] pres[i];
   delete [] pres;
   delete [] xres;
-
-  for(int i=0 ; i<npmax ; i++) delete [] xdat[i];
-  delete [] xdat;
-  delete [] cont;
 }
 
 
@@ -200,13 +265,23 @@ void smoothedlegendre(ENDFDict *dict, ENDF *lib[], const int np, const int psize
   delete [] edat;
   for(int i=0 ; i<MAX_DBLDATA/2 ; i++) delete [] pdat[i];
   delete [] pdat;
+/*
+  for(int n=0 ; n<np ; n++){
+    cout << eave[n];
+    for(int l=1 ; l<psize ; l++){
+      if(pave[n][0] == 0.0) cout << " " << 0.0;
+      else cout << " " << pave[n][l]/pave[n][0];
+    }
+    cout << endl;
+  }
+*/
 }
 
 
 /**********************************************************/
 /*      Store Legendre Coefficients in ENDF lib (MF4)     */
 /**********************************************************/
-void updateMF4(const int mf, const int mt, const int ne, double **xdat, Record *xcont, ENDF *lib4)
+void updateMF4(const int mf, const int mt, const int ne, int **itab, double **xtab, Record *xcont, ENDF *lib4)
 {
   ENDF   lib;
   Record cont;
@@ -233,7 +308,9 @@ void updateMF4(const int mf, const int mt, const int ne, double **xdat, Record *
   cont.setRecord(0.0, 0.0, 0, 0, 1, ne);
   idat[0] = ne;     // there are NE incident energies
   idat[1] = 2;      // lin-lin interpolation
-  ENDFPackTAB2(cont, xcont, idat, xdat, &lib);
+
+  if( (ltt == 1) || (ltt == 3) ) ENDFPackTAB2( cont, xcont, idat, xtab, &lib);
+  else ENDFPackTAB21(cont, xcont, idat, itab, xtab, &lib);
 
   if(ltt == 3){
     /*** copy TAB21 from source */
