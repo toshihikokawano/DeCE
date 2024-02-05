@@ -135,7 +135,7 @@ void processMF5(int ne, ENDF *lib)
     itab[i][0] = ctab[i].n2;  // number of outgoing energies
     itab[i][1] = 2;           // lin-lin interpolation
   }
-  ENDFPackTAB21(cont,idat,ctab,itab,xtab,lib);  // make a TAB2
+  ENDFPackTAB21(cont,ctab,idat,itab,xtab,lib);  // make a TAB2
 
   /*** output */
   ENDFWriteMF5(lib);
