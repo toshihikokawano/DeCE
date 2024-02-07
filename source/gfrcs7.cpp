@@ -345,7 +345,7 @@ void RMLMatrices(const double elab, const int mch, RMLParameter *r, double **p, 
 void RMLCrossSection(const int mch, RMLChannel *chn, GFRcross *z, int *mtid, int *dptr, complex<double> *sm, complex<double> *xm, complex<double> *phiC)
 {
   z->zero();
-  double sigtot = 0.0;
+//  double sigtot = 0.0;
 
   /*** elastic scattering case */
   double sigc = 0.0;
@@ -357,7 +357,7 @@ void RMLCrossSection(const int mch, RMLChannel *chn, GFRcross *z, int *mtid, int
       z->add(mtid[i0],norm(phiC[i0] - sm[ii]));
 
       /*** for neutron, total cross section is defined */
-      if(chn[dptr[i0]].coulomb == 0.0) sigtot += (1.0 - real(sm[ii]))*2.0;
+//      if(chn[dptr[i0]].coulomb == 0.0) sigtot += (1.0 - real(sm[ii]))*2.0;
 
       double cx = 0.0;
       for(int i1=0 ; i1<mch ; i1++){

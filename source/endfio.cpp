@@ -23,7 +23,7 @@ int ENDFRead(ifstream *fp, ENDF *lib, const int mf, const int mt)
 
   switch(mf){
   case  1: idx = ENDFReadMF1( fp,lib,mt); break;
-  case  2: idx = ENDFReadMF2( fp,lib   ); break;
+  case  2: idx = ENDFReadMF2( fp,lib,mt); break;
   case  3: idx = ENDFReadMF3( fp,lib,mt); break;
   case  4: idx = ENDFReadMF4( fp,lib,mt); break;
   case  5: idx = ENDFReadMF5( fp,lib,mt); break;
@@ -37,7 +37,7 @@ int ENDFRead(ifstream *fp, ENDF *lib, const int mf, const int mt)
   case 14: idx = ENDFReadMF14(fp,lib,mt); break;
   case 15: idx = ENDFReadMF15(fp,lib,mt); break;
   case 31: idx = ENDFReadMF31(fp,lib,mt); break;
-  case 32: idx = ENDFReadMF32(fp,lib   ); break;
+  case 32: idx = ENDFReadMF32(fp,lib,mt); break;
   case 33: idx = ENDFReadMF33(fp,lib,mt); break;
   case 34: idx = ENDFReadMF34(fp,lib,mt); break;
   case 35: idx = ENDFReadMF35(fp,lib,mt); break;
@@ -82,7 +82,7 @@ void ENDFWrite(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF1(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,1,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,1,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -166,9 +166,10 @@ void ENDFWriteMF1(ENDF *lib)
 /* MF2 :                                                  */
 /*       Resonance Parameters                             */
 /**********************************************************/
-int ENDFReadMF2(ifstream *fp, ENDF *lib)
+int ENDFReadMF2(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,2,151))< 0 ) return(-1);
+  if( mt != 151 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,2,mt)) < 0 ) return(-1);
 
   /*** second card */
   lib->resetPOS();
@@ -326,7 +327,7 @@ void ENDFWriteMF2(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF3(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,3,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,3,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   ENDFReadTAB1(fp,lib);
@@ -349,7 +350,7 @@ void ENDFWriteMF3(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF4(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,4,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,4,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -419,7 +420,7 @@ void ENDFWriteMF4(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF5(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,5,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,5,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -478,7 +479,7 @@ void ENDFWriteMF5(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF6(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,6,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,6,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -537,7 +538,7 @@ void ENDFWriteMF6(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF7(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,7,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,7,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -638,7 +639,7 @@ void ENDFWriteMF7(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF8(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,8,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,8,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -734,7 +735,7 @@ void ENDFWriteMF8(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF9(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,9,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,9,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -764,7 +765,7 @@ void ENDFWriteMF9(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF10(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,10,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,10,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -796,7 +797,7 @@ void ENDFWriteMF10(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF12(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,12,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,12,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -839,7 +840,7 @@ void ENDFWriteMF12(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF13(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,13,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,13,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -872,7 +873,7 @@ void ENDFWriteMF13(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF14(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,14,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,14,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -926,7 +927,7 @@ void ENDFWriteMF14(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF15(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,15,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,15,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -963,7 +964,7 @@ void ENDFWriteMF15(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF31(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,31,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,31,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -1014,9 +1015,10 @@ void ENDFWriteMF31(ENDF *lib)
 /* MF32 :                                                 */
 /*        Covariances of Resonance Parameters             */
 /**********************************************************/
-int ENDFReadMF32(ifstream *fp, ENDF *lib)
+int ENDFReadMF32(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,32,151))< 0 ) return(-1);
+  if( mt != 151 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,32,mt)) < 0 ) return(-1);
 
   /*** second card */
   lib->resetPOS();
@@ -1213,7 +1215,7 @@ void ENDFWriteMF32(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF33(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,33,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,33,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -1266,7 +1268,7 @@ void ENDFWriteMF33(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF34(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,34,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,34,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
@@ -1325,7 +1327,7 @@ void ENDFWriteMF34(ENDF *lib)
 /**********************************************************/
 int ENDFReadMF35(ifstream *fp, ENDF *lib, const int mt)
 {
-  if( (ENDFSeekHead(fp,lib,35,mt))< 0 ) return(-1);
+  if( (ENDFSeekHead(fp,lib,35,mt)) < 0 ) return(-1);
 
   lib->resetPOS();
   Record head = lib->getENDFhead();

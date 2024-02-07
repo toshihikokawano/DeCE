@@ -1,3 +1,9 @@
+2024-02-07  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/endfio.cpp (ENDFRead): modified
+	ENDFReadMF2 and MF32 now require MT number although it should be 151
+	problem happend when "libread 2" with MT = 0 is specified
+
 2024-02-02  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/decemod4.cpp (DeceResonanceAngularDistribution): updated

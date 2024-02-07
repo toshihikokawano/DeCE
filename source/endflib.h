@@ -592,7 +592,7 @@ int    ENDFRead           (ifstream *, ENDF *, const int, const int);
 void   ENDFWrite          (ENDF *);
 
 int    ENDFReadMF1        (ifstream *, ENDF *, const int);
-int    ENDFReadMF2        (ifstream *, ENDF *);
+int    ENDFReadMF2        (ifstream *, ENDF *, const int);
 int    ENDFReadMF3        (ifstream *, ENDF *, const int);
 int    ENDFReadMF4        (ifstream *, ENDF *, const int);
 int    ENDFReadMF5        (ifstream *, ENDF *, const int);
@@ -607,7 +607,7 @@ int    ENDFReadMF13       (ifstream *, ENDF *, const int);
 int    ENDFReadMF14       (ifstream *, ENDF *, const int);
 int    ENDFReadMF15       (ifstream *, ENDF *, const int);
 int    ENDFReadMF31       (ifstream *, ENDF *, const int);
-int    ENDFReadMF32       (ifstream *, ENDF *);
+int    ENDFReadMF32       (ifstream *, ENDF *, const int);
 int    ENDFReadMF33       (ifstream *, ENDF *, const int);
 int    ENDFReadMF34       (ifstream *, ENDF *, const int);
 int    ENDFReadMF35       (ifstream *, ENDF *, const int);
