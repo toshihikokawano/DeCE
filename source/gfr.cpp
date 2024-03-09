@@ -72,7 +72,7 @@ Pcross gfrPtCrossFILE(ifstream *fp, ENDFDict *dict, const double elab)
   int lrp  = dict->getLRP();   //  resonance parameter flag
   if(lrp < 0) return(crs);
 
-  ENDFReadMF2(fp,&librs);
+  ENDFReadMF2(fp,&librs,151);
 
   gfrReadHEADData(&sys,&librs);
 

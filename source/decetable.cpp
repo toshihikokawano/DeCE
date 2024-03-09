@@ -78,7 +78,7 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt)
 
     switch(mf){
     case  1: c = ENDFReadMF1( fp,&lib,mt);  break;
-    case  2: c = ENDFReadMF2( fp,&lib   );  break;
+    case  2: c = ENDFReadMF2( fp,&lib,mt);  break;
     case  3: c = ENDFReadMF3( fp,&lib,mt);  break;
     case  4: c = ENDFReadMF4( fp,&lib,mt);  break;
     case  5: c = ENDFReadMF5( fp,&lib,mt);  break;
@@ -93,7 +93,7 @@ void DeceFileToTable(ifstream *fp, const int mf, const int mt)
     case 14: c = ENDFReadMF14(fp,&lib,mt);  break;
     case 15: c = ENDFReadMF15(fp,&lib,mt);  break;
     case 31: c = ENDFReadMF31(fp,&lib,mt);  break;
-    case 32: c = ENDFReadMF32(fp,&lib   );  break;
+    case 32: c = ENDFReadMF32(fp,&lib,mt);  break;
     case 33: c = ENDFReadMF33(fp,&lib,mt);  break;
     case 34: c = ENDFReadMF34(fp,&lib,mt);  break;
     case 35: c = ENDFReadMF35(fp,&lib,mt);  break;

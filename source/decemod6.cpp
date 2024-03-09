@@ -97,6 +97,9 @@ void DeceBoundCorrect(ENDFDict *dict, ENDF *lib0[], const int mt)
         idx++;
       }
     }
+    else if(law == 4){
+      // no more data
+    }
     else{
       message << "currently boundcorrect cannot process ";
       message << "LAW = " << law << " for MT/" << mt << " ZAP = " << zap;
