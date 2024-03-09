@@ -322,7 +322,7 @@ void ENDFWriteMF2(ENDF *lib)
 
 /**********************************************************/
 /* MF3 :                                                  */
-/*       Neutron Cross Sections                           */
+/*       Reaction Cross Sections                          */
 /**********************************************************/
 int ENDFReadMF3(ifstream *fp, ENDF *lib, const int mt)
 {

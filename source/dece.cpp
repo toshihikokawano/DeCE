@@ -29,6 +29,7 @@ static void DeceMain          (string, string, ENDFDict *);
 static void DeceStoreData     (ENDFDict *, ifstream *);
 static void DeceReadMonitor   (const int, const int, const int, const int, const int, const int, const int);
 static void DeceHelp          (void);
+static void DeceHelpENDF      (void);
 static void DeceFreeMemory    (void);
 static void DeceBanner        (void);
 
@@ -61,7 +62,7 @@ int main(int argc, char *argv[])
   bool     reconr = false;
 
   /*** command line options */
-  while((p = getopt(argc,argv,"o:f:t:e:rqsnvh")) != -1){
+  while((p = getopt(argc,argv,"o:f:t:e:rqsnvhm")) != -1){
     switch(p){
     case 'o':  libname_out = optarg;   break;
     case 'f':  mfin = atoi(optarg);    break;
@@ -75,6 +76,7 @@ int main(int argc, char *argv[])
                ENDFPrintLineNumber(opt.LineNumber); break;
     case 'v':  verbflag = true;        break;
     case 'h':  DeceHelp();             break;
+    case 'm':  DeceHelpENDF();         break;
     default:                           break;
     }
   }
@@ -378,19 +380,114 @@ void DeceBanner()
 }
 
 
+/**********************************************************/
+/*      ENDF Help                                         */
+/**********************************************************/
+void DeceHelpENDF()
+{
+  cout <<
+"MF Numbers\n"
+"   1: General Information\n"
+"   2:Resonance Parameters\n"
+"   3:Reaction Cross Sections\n"
+"   4:Angular Distributions of Secondary Particles\n"
+"   5:Energy Distributions of Secondary Particles\n"
+"   6:Product Energy - Angle Distributions\n"
+"   7:Thermal Neutron Scattering Law Data\n"
+"   8:Radioactive Decay and Fission Product Data\n"
+"   9:Multiplicities for Production of Radioactive Nuclides\n"
+"  10:Cross Sections for Production of Radioactive Nuclides \n"
+"\n"
+"  12:Photon Production Multiplicities and Transition probability arrays\n"
+"  13:Photon Production Cross Sections\n"
+"  14:Photon Angular Distributions\n"
+"  15:Continuous Photon Energy Spectra\n"
+"\n"
+"  30:Data Covariances Obtained from Parameter Covariances and Sensitivities\n"
+"  31:Covariances of the Average Number of Neutrons per Fission\n"
+"  32:Covariances of Resonance Parameters\n"
+"  33:Covariances of Neutron Cross Sections \n"
+"  34:Covariances for Angular Distributions of Secondary Particles\n"
+"  35:Covariances for Energy Distributions of Secondary Particles\n"
+"  40:Covariances for Production of Radioactive Nuclei\n"
+"\n"
+"\n"
+"MT numbers\n"
+"\n"
+"  1: Neutron total cross sections\n"
+"  2: Elastic scattering cross section for incident particles\n"
+"  3: Nonelastic neutron cross section\n"
+"  4: Inelastic scattering, Sum of MT = 50 - 91\n"
+"  5: Sum of all reactions not given explicitly in another MT number\n"
+"\n"
+" 11: (z, 2n d)\n"
+" 16: (z, 2n)\n"
+" 17: (z, 3n)\n"
+" 18: (z, fission)\n"
+" 19: (n, f) First-chance neutron-induced fission\n"
+" 20: (n, n f) Second-chance neutron-induced fission\n"
+" 21: (n, 2n f) Third-chance neutron-induced fission\n"
+" 22: (z, n alpha)\n"
+" 23: (n, n3 alpha) \n"
+" 24: (z, 2n alpha)\n"
+" 25: (z, 3n alpha)\n"
+" 28: (z, n p) \n"
+" 29: (z, n 2alpha)\n"
+" 30: (z, 2n 2alpha)\n"
+" 32: (z, n d)\n"
+" 33: (z, n t)\n"
+" 34: (z, n 3He)\n"
+" 35: (z, n d 2alpha)\n"
+" 36: (z, n t 2alpha)\n"
+" 37: (z, 4n)\n"
+" 38: (n, 3n f) Fourth-chance fission cross section\n"
+" 41: (z, 2n p)\n"
+" 42: (z, 3n p)\n"
+" 44: (z, n 2p) \n"
+" 45: (z, n p alpha)\n"
+" 50: (y, n0) Production of a neutron, leaving the residual nucleus in the ground state\n"
+" 51 - 90: (z, nx) Production of a neutron, with residual in the x-th excited state\n"
+" 91: (z, nc) Production of a neutron in the continuum\n"
+"\n"
+"102: (z, gamma) Radiative capture\n"
+"103: (z, p)\n"
+"104: (z, d)\n"
+"105: (z, t)\n"
+"106: (z, 3He)\n"
+"107: (z, alpha)\n"
+"108: (z, 2alpha)\n"
+"109: (z, 3alpha)\n"
+"111: (z,2p)\n"
+"112: (z, p alpha)\n"
+"113: (z, t 2alpha)\n"
+"114: (z, d 2alpha)\n"
+"115: (z, p d)\n"
+"116: (z, p t)\n"
+"117: (z, d alpha)\n"
+"\n"
+"151: Resonance parameters\n"
+"\n"
+"451: Heading or title information\n"
+"452: nu_T , average total (prompt plus delayed) number of neutrons released per fission\n"
+"454: Independent fission product yield data\n"
+"455: nu_d, average number of delayed neutrons released per fission\n"
+"456: nu_p, average number of prompt neutrons released per fission\n"
+"457: Radioactive decay data\n"
+"458: Energy release in fission for incident neutrons\n"
+"459: Cumulative fission product yield data\n"
+"460: Delayed fission photons\n"
+"\n"
+"600 - 648: (z, p_x) Production of a proton, with residual in the x-th excited state\n"
+"649: (z, p_c) Production of a proton in the continuum\n"
+"650 - 698: (z, d_x) Production of a deuteron, with residual in the x-th excited state\n"
+"699: (z, d_c) Production of a deuteron in the continuum\n"
+"700 - 748: (z, t_x) Production of a triton, with residual in the x-th excited state\n"
+"749: (z, t_c) Production of a triton in the continuum\n"
+"750 - 798: (z, 3He_x) Production of a 3He, with residual in the x-th excited state\n"
+"799: (z, 3He_c) Production of a 3He in the continuum\n"
+"800 - 848: (z, alpha_x) Production of an alpha partcle, with residual in the x-th excited state\n"
+"849: (z, alpha_c) Production of an alpha in the continuum\n"
+"\n";
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  exit(0);
+}
