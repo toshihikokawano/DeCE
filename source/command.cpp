@@ -77,6 +77,11 @@ string CmdExtractArgument(void)
     cmd.opt1  = (int)getval(d1);
     cmd.mtend = cmd.mt;
   }
+  else if(ope == "readisomer"){
+    cmd.mf    = (int)getval(d1);
+    cmd.mt    = (int)getval(d1);
+    CmdExtractString(cmd.text);
+  }
   else if(ope == "multiread" || ope == "multiangdist" || ope == "multilibread"){
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);

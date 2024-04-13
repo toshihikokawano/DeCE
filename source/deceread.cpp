@@ -35,11 +35,12 @@ static bool   charged_particle_file = false;
 void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, const int ofset, const int readflag)
 {
   int      nc = 0, np = 0;
-  double   *cx, *cy, *xdat, elev = 0.0, qm = 0.0, qi = 0.0, et = 0.0;
+  double   qm = 0.0, qi = 0.0;
+  double   *cx, *cy, *xdat;
   ostringstream os;
 
   if((mf != 1) && (mf != 3)){
-    message << "MF" << mf << " different from MF1 or MF3";
+    message << "MF" << mf << " should be 1, 3, or 10";
     WarningMessage();
     return;
   }
@@ -65,6 +66,8 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
 
   /*** in the case of cross sections in MF3 */
   if(mf == 3){
+    double elev = 0.0, et = 0.0;
+
     /*** cross section to discrete levels */
     if( (51 <= mt && mt <= 91) || (600 <= mt && mt <= 849) ){
       nc = readISdata(datafile,ofset,mt,cx,cy,&elev);
@@ -206,7 +209,7 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
   ifstream fp;
   string   line;
 
-  /*** default CoH3 output file structure in CrossSection.dat */
+  /*** default CoH3 output file structure in CoHParticleProduction.dat */
   if(ofset == 0){
     switch(mt){
     case   1: ofset =  1; break;

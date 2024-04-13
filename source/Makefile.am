@@ -25,6 +25,7 @@ dece_SOURCES = \
 	deceprocgroup.cpp \
 	deceprocpointwise.cpp \
 	deceread.cpp \
+	decereadisomer.cpp \
 	decereadjust.cpp \
 	decescanindex.cpp \
 	decetable.cpp \

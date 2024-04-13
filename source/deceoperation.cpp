@@ -16,6 +16,7 @@ static void DeceOperationCALC            (ENDFDict *, ENDF **);
 static void DeceOperationDUPLICATE       (ENDFDict *, ENDF **);
 static void DeceOperationDELETE          (ENDFDict *);
 static void DeceOperationREAD            (ENDFDict *, ENDF **);
+static void DeceOperationREADISOMER      (ENDFDict *, ENDF **);
 static void DeceOperationANGDIST         (ENDFDict *, ENDF **);
 static void DeceOperationLIBREAD         (ENDFDict *, ENDF **);
 static void DeceOperationTABLE           (ENDFDict *, ENDF **, ifstream *);
@@ -69,6 +70,11 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** READ: read tabulated cross section data file, and replace section */
   else if( (ope == "read") || (ope == "multiread") || (ope == "mergeread") || (ope == "replaceread")){
     DeceOperationREAD(dict,lib);
+  }
+
+  /*** READISOMER: read tabulated isomeric ratio data file */
+  else if( ope == "readisomer"){
+    DeceOperationREADISOMER(dict,lib);
   }
 
   /*** ANGDIST: read tabulated angular distribution data file */
@@ -335,6 +341,18 @@ void DeceOperationREAD(ENDFDict *dict, ENDF *lib[])
     else
       DeceRead(dict,lib[dict->getID(cmd.mf,mt)],cmd.mf,mt,cmd.text,cmd.opt1,0);
   }
+}
+
+
+/**********************************************************/
+/* READISOMER                                             */
+/*      read MF9 or MF10 data from external file          */
+/* readisomer MF MT "datafile"                            */
+/**********************************************************/
+void DeceOperationREADISOMER(ENDFDict *dict, ENDF *lib[])
+{
+  DeceCreateLib(dict,cmd.mf,cmd.mt);
+  DeceReadIsomer(dict,lib[dict->getID(cmd.mf,cmd.mt)],cmd.mf,cmd.mt,cmd.text,cmd.opt1);
 }
 
 

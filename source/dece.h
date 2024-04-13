@@ -29,6 +29,9 @@ void   DeceDelete       (ENDFDict *, const int, const int);
 /*** deceread.cpp */
 void   DeceRead         (ENDFDict *, ENDF *, const int, const int, char *, const int, const int);
 
+/*** decereadisomer.cpp */
+void   DeceReadIsomer   (ENDFDict *, ENDF *, const int, const int, char *, const int);
+
 /*** deceangdist.cpp */
 void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, char *, int);
 
