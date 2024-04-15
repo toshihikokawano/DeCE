@@ -40,7 +40,7 @@ double mass_excess(int z, int a)
 /**********************************************************/
 /*      Q-value Calculation                               */
 /**********************************************************/
-double qvalue(const int proj, const int targ, int mt)
+double mass_qvalue(const int proj, const int targ, int mt)
 {
   double q = 0.0, e1 = 0.0;
   int z = targ/1000;
@@ -124,7 +124,7 @@ double qvalue(const int proj, const int targ, int mt)
 /**********************************************************/
 /*      Threshold Energy                                  */
 /**********************************************************/
-double threshold(const int za, double q)
+double mass_threshold(const int za, double q)
 {
   int z = za/1000;
   int a = za - z*1000;

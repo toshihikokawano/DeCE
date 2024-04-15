@@ -69,7 +69,28 @@ string CmdExtractArgument(void)
   else if(ope == "tpid"){
     CmdExtractString(cmd.text);
   }
-  else if(ope == "read" || ope == "angdist" || ope == "libread" || ope == "mergeread" || ope == "replaceread"){
+  else if(ope == "read" || ope == "libread" || ope == "mergeread" || ope == "replaceread"){
+    cmd.mf    = (int)getval(d1);
+    cmd.mt    = (int)getval(d1);
+    CmdExtractString(cmd.text);
+    cmd.opt1  = (int)getval(d1);
+    cmd.mtend = cmd.mt;
+  }
+  else if(ope == "readisomer"){
+    cmd.mt    = (int)getval(d1);
+    CmdExtractString(cmd.text);
+    cmd.opt1  = (int)getval(d1);
+    cmd.opt2  = (int)getval(d1);
+    cmd.mtend = cmd.mt;
+  }
+  else if(ope == "multiread" || ope == "multilibread"){
+    cmd.mf    = (int)getval(d1);
+    cmd.mt    = (int)getval(d1);
+    cmd.mtend = (int)getval(d1);
+    CmdExtractString(cmd.text);
+    cmd.opt1  = (int)getval(d1);
+  }
+  else if(ope == "angdist"){
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
     CmdExtractString(cmd.text);
@@ -77,12 +98,7 @@ string CmdExtractArgument(void)
     cmd.opt1  = (int)getval(d1);
     cmd.mtend = cmd.mt;
   }
-  else if(ope == "readisomer"){
-    cmd.mf    = (int)getval(d1);
-    cmd.mt    = (int)getval(d1);
-    CmdExtractString(cmd.text);
-  }
-  else if(ope == "multiread" || ope == "multiangdist" || ope == "multilibread"){
+  else if(ope == "multiangdist"){
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
     cmd.mtend = (int)getval(d1);
@@ -258,6 +274,9 @@ void CmdExtractSecondString(char *d)
 {
   extractstring(d,isave);
   isave = 0;
+
+  /*** if second text not given */
+  if(strlen(d) == 0) argc--;
 }
 
 int extractstring(char *d, int ix)
@@ -273,7 +292,7 @@ int extractstring(char *d, int ix)
   int i0 = 0, i1 = 0;
   for(int i=ix ; i<lens ; i++){
     if((s[i] == quote1) || (s[i] == quote2)){
-      /*** ignore if back-spaced */
+      /*** ignore if back-slashed */
       if((i > 0) && s[i-1] == '\\') continue;
       i0 = i+1;
       break;

@@ -72,8 +72,8 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationREAD(dict,lib);
   }
 
-  /*** READISOMER: read tabulated isomeric ratio data file */
-  else if( ope == "readisomer"){
+  /*** READISOMER: read tabulated isomeric ratio datafile */
+  else if( (ope == "readisomer") ){
     DeceOperationREADISOMER(dict,lib);
   }
 
@@ -346,13 +346,22 @@ void DeceOperationREAD(ENDFDict *dict, ENDF *lib[])
 
 /**********************************************************/
 /* READISOMER                                             */
-/*      read MF9 or MF10 data from external file          */
-/* readisomer MF MT "datafile"                            */
+/*      read MF9 data from external file                  */
+/* readisomer MT "datafile" datacolumn [datacolumn2]      */
 /**********************************************************/
 void DeceOperationREADISOMER(ENDFDict *dict, ENDF *lib[])
 {
+  string ope = CmdGetOperation();
+
+  cmd.mf = 9;
   DeceCreateLib(dict,cmd.mf,cmd.mt);
-  DeceReadIsomer(dict,lib[dict->getID(cmd.mf,cmd.mt)],cmd.mf,cmd.mt,cmd.text,cmd.opt1);
+  DeceRead(dict,lib[dict->getID(cmd.mf,cmd.mt)],cmd.mf,cmd.mt,cmd.text,cmd.opt1,cmd.opt2);
+
+  if(dict->getID(cmd.mf,cmd.mt) >= 0){
+    cmd.mf = 8;
+    DeceCreateLib(dict,cmd.mf,cmd.mt);
+    DeceRead(dict,lib[dict->getID(cmd.mf,cmd.mt)],cmd.mf,cmd.mt,cmd.text,cmd.opt1,cmd.opt2);
+  }
 }
 
 

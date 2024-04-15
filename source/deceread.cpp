@@ -4,26 +4,23 @@
 
 #include <iostream>
 #include <ostream>
-#include <cmath>
 
 using namespace std;
 
 #include "dece.h"
+#include "deceread.h"
 #include "global.h"
 #include "terminate.h"
 #include "masstable.h"
 
-static int    readCSdata    (char *, int, const int, double *, double *);
-static int    readISdata    (char *, int, const int, double *, double *, double *);
-static int    readNUdata    (char *, int,            double *, double *);
-static int    geneCSdata    (int, double *, double *, double, double, double *);
-static int    geneCSdata1   (int, double *, double *, double, double, double *);
-static int    geneCSdata2   (int, double *, double *, double, double *);
-static int    mergeCSdata   (int, double *, double *, double, double *, double *);
+static void   DeceReadMF1   (ENDFDict *, ENDF *, const int, char *, const int);
+static void   DeceReadMF3   (ENDFDict *, ENDF *, const int, char *, const int, const int);
+static void   DeceReadMF8   (ENDFDict *, ENDF *, const int, char *, const int, const int);
+static void   DeceReadMF9   (ENDFDict *, ENDF *, const int, char *, const int, const int);
+static struct Qval qvalues (const int, const int, const int, const int, const double, const double);
 static double findBoundary  (ENDF *);
-static double loginterpol   (int, double, double *, double *, int *);
 
-static bool   charged_particle_file = false;
+static double *cx, *cy, *xdat;
 
 
 /**********************************************************/
@@ -34,111 +31,119 @@ static bool   charged_particle_file = false;
 /**********************************************************/
 void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, const int ofset, const int readflag)
 {
-  int      nc = 0, np = 0;
-  double   qm = 0.0, qi = 0.0;
-  double   *cx, *cy, *xdat;
-  ostringstream os;
-
-  if((mf != 1) && (mf != 3)){
-    message << "MF" << mf << " should be 1, 3, or 10";
-    WarningMessage();
-    return;
-  }
-  if((mt <= 0) || (mt >= 1000)){
-    message << "MT" << mt << " out of range";
-    WarningMessage();
-    return;
-  }
-
-  /*** allocate data array and open data file */
+  /*** allocate data array */
   cx   = new double [MAX_DBLDATA];
   cy   = new double [MAX_DBLDATA];
   xdat = new double [MAX_DBLDATA*2];
 
-  /*** ZA, AWR, and MAT number from Dictionary */
-  double za   = dict->getZA();    //  1000*Z + A number
-  double awr  = dict->getAWR();   //  mass ratio to neutron 1.008665
-  double elis = dict->getELIS();  //  target excitation energy
-  int    mat  = dict->getMAT();
+  /*** for each MF case */
+  if     (mf ==  1) DeceReadMF1(dict,lib,mt,datafile,ofset);
+  else if(mf ==  3) DeceReadMF3(dict,lib,mt,datafile,ofset,readflag);
+  else if(mf ==  8) DeceReadMF8(dict,lib,mt,datafile,ofset,readflag);
+  else if(mf ==  9) DeceReadMF9(dict,lib,mt,datafile,ofset,readflag);
+  else{
+    message << "MF" << mf << " should be 1, 3, or 9";
+    WarningMessage();
+  }
+
+  ENDFWrite(lib);
+
+  /*** Clean all */
+  delete [] cx;
+  delete [] cy;
+  delete [] xdat;
+}
+
+
+/**********************************************************/
+/*      Read External File in MF 1                        */
+/**********************************************************/
+void DeceReadMF1(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const int ofset)
+{
+  const int mf = 1;
+
+  /*** number of prompt/delayed neutrons, MT=455, 456 */
+  int np = readNUdata(datafile,ofset,cx,cy);
+
+  if(np == 0){
+    message << "no nu data to be added from " << datafile << " for MT = " << mt;
+    WarningMessage();
+
+    DeceDelete(dict,mf,mt);
+    return;
+  }
+
+  for(int i=0 ; i<np ; i++){
+    xdat[2*i  ] = cx[i];
+    xdat[2*i+1] = cy[i];
+  }
+
+  /*** make TAB1 */
+  Record cont;
+  int    idat[2];
+
+  /*** Make HEAD and CONT */
+  int lnu = 2; // tabulated nu case
+  lib->setENDFhead(dict->getZA(),dict->getAWR(),0,lnu,0,0);
+  lib->setENDFmat(dict->getMAT());
+  lib->setENDFmf(1);
+  lib->setENDFmt(mt);
+
+  cont.setRecord(0.0,0.0,0,0,1,np);
+  idat[0] = np;
+  idat[1] = 2;
+
+  ENDFPackTAB1(cont,idat,xdat,lib);
+
+  message << "number of points added " << np << " in MF:" << mf << " MT:" << mt;
+  Notice("DeceRead:DeceReadMF1");
+
+  return;
+}
+
+
+/**********************************************************/
+/*      Read External File in MF 3                       */
+/**********************************************************/
+void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const int ofset, const int readflag)
+{
+  const int mf = 3;
+  double elev = 0.0;
 
   /*** determine if the file is for charged particle incident reactions */
-  if(dict->getProj() > 1) charged_particle_file = true;
+  if(dict->getProj() > 1) readSetCharged();
 
-  /*** in the case of cross sections in MF3 */
-  if(mf == 3){
-    double elev = 0.0, et = 0.0;
-
-    /*** cross section to discrete levels */
-    if( (51 <= mt && mt <= 91) || (600 <= mt && mt <= 849) ){
-      nc = readISdata(datafile,ofset,mt,cx,cy,&elev);
-    }
-    /*** general case */
-    else{
-      nc = readCSdata(datafile,ofset,mt,cx,cy);
-    }
-    if(nc == 0){
-      message << "no cross section data to be added from " << datafile << " for MT = " << mt;
-      WarningMessage();
-    }
-
-    /*** find Q-values */
-    /*** for MT=4, there is no way to get QI */
-    qm = qvalue(dict->getProj(), (int)za,mt) + elis;
-    qi = qm;
-    et = 0.0;
-
-    /*** determine the threshold energy */
-    if( (51 <= mt) && (mt <= 91) ){
-      /*** inelastic scattering */
-      qi = elis - elev;
-      et = threshold((int)za,qi);
-    }
-    else if( (600 <= mt) && (mt <= 849) ){
-      /*** discrete transition by charged particle */
-      qi = qm - elev;
-      if(qi < 0.0) et = threshold((int)za,qi);
-    }
-    else{
-      /*** all other reactions */
-      if(qm < 0.0) et = threshold((int)za,qm);
-    }
-
-    /*** check resonance boundary, when data will be merged */
-    if(readflag == 1){
-      double ebtest = findBoundary(lib);
-      if(ebtest < dict->emaxRe && ebtest != 1.0e-05){
-        message << "maybe background cross sections given for MT = " << mt << " at E1 = " << dict->emaxRe << "  E2 = " << ebtest;
-        WarningMessage();
-      }
-    }
-
-    message << "Q(mass) " << qm << " Q(level) " << qi << " Threshold Energy " << et << " Resonance Boundary " << dict->emaxRe;
-    Notice("DeceRead");
-
-    /*** generate floating point data */
-    np = nc;
-    if(readflag == 1)      np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->xptr[0]);
-    else if(readflag == 2) np = geneCSdata(nc,cx,cy,-1.0,0.0,xdat);
-    else                   np = geneCSdata(nc,cx,cy,et,dict->emaxRe,xdat);
-
-    message << "number of points added " << np;
-    Notice("DeceRead");
-
+  /*** cross section to discrete levels */
+  int nc = 0;
+  if( (51 <= mt && mt <= 91) || (600 <= mt && mt <= 849) ){
+    nc = readISdata(datafile,ofset,mt,cx,cy,&elev);
   }
-  /*** for number of prompt/delayed neutrons, MT=455, 456 */
+  /*** general case */
   else{
-    nc = readNUdata(datafile,ofset,cx,cy);
-    if(nc == 0){
-      message << "no nu data to be added from " << datafile << " for MT = " << mt;
+    nc = readCSdata(datafile,ofset,mt,cx,cy);
+  }
+  if(nc == 0){
+    message << "no cross section data to be added from " << datafile << " for MT = " << mt;
+    WarningMessage();
+  }
+
+  /*** calculate Qm and Qi */
+  struct Qval q = qvalues((int)dict->getZA(),dict->getProj(),(int)dict->getZA(),mt,dict->getELIS(),elev);
+
+  /*** check resonance boundary, when data will be merged */
+  if(readflag == 1){
+    double ebtest = findBoundary(lib);
+    if(ebtest < dict->emaxRe && ebtest != 1.0e-05){
+      message << "maybe background cross sections given for MT = " << mt << " at E1 = " << dict->emaxRe << "  E2 = " << ebtest;
       WarningMessage();
     }
-
-    np = nc;
-    for(int i=0 ; i<np ; i++){
-      xdat[2*i  ] = cx[i];
-      xdat[2*i+1] = cy[i];
-    }
   }
+
+  /*** generate floating point data */
+  int np = nc;
+  if(readflag == 1)      np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->xptr[0]);
+  else if(readflag == 2) np = geneCSdata(nc,cx,cy,-1.0,0.0,xdat);
+  else                   np = geneCSdata(nc,cx,cy,q.et,dict->emaxRe,xdat);
 
   if(np > 1){
     /*** make TAB1 */
@@ -146,506 +151,178 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
     int    idat[4];
 
     /*** Make HEAD and CONT */
-    int lnu = (mf == 3) ? 0 : 2; // tabulated nu case
-    lib->setENDFhead(za,awr,0,lnu,0,0);
-    lib->setENDFmat(mat);
+    lib->setENDFhead(dict->getZA(),dict->getAWR(),0,0,0,0);
+    lib->setENDFmat(dict->getMAT());
     lib->setENDFmf(mf);
     lib->setENDFmt(mt);
-
-    if(mt == 455){
-      Record clist = lib->rdata[0];
-      double *xlist = new double [clist.n1];
-      for(int i=0 ; i<clist.n1 ; i++) xlist[i] = lib->xptr[0][i];
-      ENDFPackLIST(clist,xlist,lib);
-//    ENDFWriteLIST(lib);
-      delete [] xlist;
-    }
 
     if(readflag == 1){
       /*** keep INT in the first range (assume there is only one INT range for the resonance)*/
       if( lib->idata[1] != 2 ){
-        cont.setRecord(qm,qi,0,0,2,np);
+        cont.setRecord(q.qm,q.qi,0,0,2,np);
         idat[0] = lib->idata[0];
         idat[1] = lib->idata[1];
         idat[2] = np;
         idat[3] = 2;
       }
       else{
-        cont.setRecord(qm,qi,0,0,1,np);
+        cont.setRecord(q.qm,q.qi,0,0,1,np);
         idat[0] = np;
         idat[1] = 2;
       }
     }
     else{
-      cont.setRecord(qm,qi,0,0,1,np);
+      cont.setRecord(q.qm,q.qi,0,0,1,np);
       idat[0] = np;
       idat[1] = 2;
     }
 
-
     ENDFPackTAB1(cont,idat,xdat,lib);
-//  ENDFWriteHEAD(lib);
-//  ENDFWriteTAB1(lib);
-//  ENDFWriteSEND(lib);
   }
   else{
     if(readflag != 1) DeceDelete(dict,mf,mt);
   }
 
-  /*** Clean all */
-  delete [] cx;
-  delete [] cy;
-  delete [] xdat;
+  message << "number of points added " << np << " in MF:" << mf << " MT:" << mt;
+  Notice("DeceRead:DeceReadMF3");
 
   return;
 }
 
 
 /**********************************************************/
-/*      Read in Cross Section Data                        */
+/*      Read External File in MF 8                        */
 /**********************************************************/
-int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
+void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const int ofset1, const int ofset2)
 {
-  ifstream fp;
-  string   line;
+  const int mf = 8;
+  double elfs = 0.0;
+  int lfs = 0, izap = 0, lmf = 9;
 
-  /*** default CoH3 output file structure in CoHParticleProduction.dat */
-  if(ofset == 0){
-    switch(mt){
-    case   1: ofset =  1; break;
-    case   2: ofset =  2; break;
-    case 102: ofset =  4; break;
-    case   4: ofset =  5; break;
-    case  18: ofset =  6; break;
+  /*** number of subsections, limited up to meta2 */
+  int ns = 1;
+  if(ofset2 != 0) ns = 2;
 
-    case 103: ofset =  2; break;
-    case 107: ofset =  3; break;
-    case 104: ofset =  4; break;
-    case 105: ofset =  5; break;
-    case 106: ofset =  6; break;
+  int no = 1; // decay chain not given here
 
-    case  16: ofset =  7; break;
-    case  28: ofset =  8; break;
-    case  22: ofset =  9; break;
-    case  32: ofset = 10; break;
-    case  33: ofset = 11; break;
-    case  34: ofset = 12; break;
+  /*** Make HEAD and CONT */
+  lib->setENDFhead(dict->getZA(),dict->getAWR(),dict->getLIS(),dict->getLISO(),ns,no);
+  lib->setENDFmat(dict->getMAT());
+  lib->setENDFmf(mf);
+  lib->setENDFmt(mt);
 
-    case 111: ofset = 13; break;
-    case 112: ofset = 14; break;
-    case 115: ofset = 15; break;
-    case 108: ofset = 16; break;
-    case 117: ofset = 17; break;
+  for(int is=0 ; is<ns ; is++){
 
-    case  17: ofset = 18; break;
-    case  41: ofset = 19; break;
-    case  24: ofset = 20; break;
-    case  45: ofset = 21; break;
-    case  44: ofset = 22; break;
+    /*** isomeric ratio data */
+    int ofset = (is == 0) ? ofset1 : ofset2;
+    readMSdata(datafile,ofset,cx,cy,&lfs,&izap,&elfs);
 
-    case  37: ofset = 23; break;
+    /*** make TAB1 */
+    Record cont;
+    cont.setRecord((double)izap,elfs,lmf,lfs,0,0);
 
-    default : break;
-    }
+    ENDFPackCONT(cont,lib);
+
+    message << "isomer state in " << izap << " excitation energy:" << elfs << " LFS:" << lfs;
+    Notice("DeceRead:DeceReadMF8");
   }
 
-  if(ofset == 0){
-    message << "MF3:MT" << mt << " cannot read from " << file << " because ofset is not given";
-    Notice("DeceRead:readCSdata");
-    return 0;
-  }
-
-  fp.open(file);
-  if(!fp){ message << "cannot open data file " << file; TerminateCode("readCSdata"); }
-
-  int nc=0;
-  while(getline(fp,line)){
-    if(line[0] == '#') continue;
-    if(line.length() == 0) continue;
-
-    istringstream ss(line);
-    ss >> x[nc];
-    for(int i=0 ; i<ofset ; i++) ss >> y[nc];
-
-    /*** in case blank line is given, skip it */
-    if(x[nc] == 0.0) continue;
-
-    /*** convert energy unit into eV */
-    x[nc] *= opt.ReadXdataConversion;
-
-    /*** convert cross section unit into barns */
-    y[nc] *= opt.ReadYdataConversion;
-
-    /*** skip data if range is set by options */
-    if(DeceCheckReadRange(x[nc])) continue;
-
-    nc++;
-    if(nc >= MAX_DBLDATA){ message << "too many energy points, " << nc; TerminateCode("readCSdata"); }
-  }
-
-  fp.close();
-
-  if(nc >= 1){
-    message << "MF3:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
-    Notice("DeceRead:readCSdata");
-  }
-
-  return nc;
+  return;
 }
 
 
 /**********************************************************/
-/*      Read in Inelastic Scattering Cross Section Data   */
+/*      Read External File in MF 9                        */
 /**********************************************************/
-int readISdata(char *file, int ofset, const int mt, double *x, double *y, double *elev)
+void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const int ofset1, const int ofset2)
 {
-  ifstream fp;
-  string   line;
+  const int mf = 9;
+  double elev = 0.0;
+  int lfs = 0, izap = 0;
 
-  if(ofset == 0){
-    if(      ( 51 <= mt) && (mt <=  91) ) ofset = mt  - 50 + 1;
-    else if( (600 <= mt) && (mt <= 640) ) ofset = mt - 600 + 1;
-    else if( (650 <= mt) && (mt <= 690) ) ofset = mt - 650 + 1;
-    else if( (700 <= mt) && (mt <= 740) ) ofset = mt - 700 + 1;
-    else if( (750 <= mt) && (mt <= 790) ) ofset = mt - 750 + 1;
-    else if( (800 <= mt) && (mt <= 840) ) ofset = mt - 800 + 1;
-    else if( (mt == 649) || (mt == 699) || (mt == 749) || (mt == 799) || (mt == 849) ) ofset = 42;
+  /*** number of subsections, limited up to meta2 */
+  int ns = 1;
+  if(ofset2 != 0) ns = 2;
+
+  /*** Make HEAD and CONT */
+  lib->setENDFhead(dict->getZA(),dict->getAWR(),dict->getLIS(),0,ns,0);
+  lib->setENDFmat(dict->getMAT());
+  lib->setENDFmf(mf);
+  lib->setENDFmt(mt);
+
+  int ntotal = 0;
+  for(int is=0 ; is<ns ; is++){
+
+    /*** isomeric ratio data */
+    int ofset = (is == 0) ? ofset1 : ofset2;
+    int nc = readMSdata(datafile,ofset,cx,cy,&lfs,&izap,&elev);
+
+    /*** calculate Qm and Qi */
+    struct Qval q = qvalues((int)dict->getZA(),dict->getProj(),(int)dict->getZA(),mt,dict->getELIS(),elev);
+
+    /*** ignore resonance range, and include Ethresh only */
+    int np = nc;
+    np = geneCSdata(nc,cx,cy,q.et,0.0,xdat);
+
+    /*** make TAB1 */
+    Record cont;
+    int    idat[2];
+
+    cont.setRecord(q.qm,q.qi,izap,lfs,1,np);
+    idat[0] = np;
+    idat[1] = 2;
+
+    ENDFPackTAB1(cont,idat,xdat,lib);
+
+    message << "number of points added " << np << " in MF:" << mf << " MT:" << mt << " LFS:" << lfs;
+    Notice("DeceRead:DeceReadMF9");
+
+    ntotal += np;
   }
 
-  if(ofset == 0){
-    message << "MF3:MT" << mt << " cannot read from " << file << " because ofset is not given";
-    Notice("DeceRead:readISdata");
-    return 0;
+  if(ntotal == 0){
+    message << "no isomeric ratio data to be added from " << datafile << " for MT = " << mt;
+    WarningMessage();
+    DeceDelete(dict,mf,mt);
   }
 
-  fp.open(file);
-  if(!fp){ message << "cannot open data file " << file; TerminateCode("readISdata"); }
-
-  getline(fp,line);
-  istringstream s1(&line[1]);  // skip comment #
-  double eth = 0.0;
-  for(int i=0 ; i<ofset ; i++) s1 >> eth;
-
-  if(eth == 0.0 && (mt != 600) && (mt != 650) && (mt != 700) && (mt !=750) && (mt != 800)){
-    message << "MF3:MT" << mt << " from " << file << " has zero excitation energy, cannot read";
-    Notice("DeceRead:readISdata");
-    return 0;
-  }
-
-  *elev = eth * opt.ReadXdataConversion;
-
-  int nc = 0;
-  while(getline(fp,line)){
-    if(line.length() == 0) continue;
-
-    istringstream s2(line);
-    s2 >> x[nc];
-    for(int i=0 ; i<ofset ; i++) s2 >> y[nc];
-
-    /*** skip blank line */
-    if(x[nc] == 0.0) continue;
-
-    x[nc] *= opt.ReadXdataConversion;
-    y[nc] *= opt.ReadYdataConversion;
-
-    /*** skip data if range is set by options */
-    if(DeceCheckReadRange(x[nc])) continue;
-
-    if( (mt >= 600) || (y[nc] > 0.0) ) nc++;
-    if(nc >= MAX_DBLDATA){ message << "too many energy points, " << nc; TerminateCode("readISdata"); }
-  }
-
-  fp.close();
-
-  /*** check non-zero data */
-  bool zero = true;
-  for(int i=0 ; i<nc ; i++){
-    if(y[i] > 0.0){
-      zero = false;
-      break;
-    }
-  }
-  if(zero) nc = 0;
-
-  if(nc >= 1){
-    message << "MF3:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
-    Notice("DeceRead:readISdata");
-  }
-
-  return nc;
+  return;
 }
 
 
 /**********************************************************/
-/*      Read in Nu-p, Nu-d Data                           */
+/*      Calculate Qm, Qi                                  */
 /**********************************************************/
-int readNUdata(char *file, int ofset, double *x, double *y)
+Qval qvalues(const int za, const int proj, const int targ, const int mt, const double elis, const double el)
 {
-  ifstream fp;
-  string   line;
+  /*** find Q-values */
+  double qm = mass_qvalue(proj,targ,mt) + elis;
+  double qi = qm;
+  double et = 0.0;
 
-  fp.open(file);
-  if(!fp){ message << "cannot open data file " << file; TerminateCode("readNUdata"); }
-
-  if(ofset == 0) ofset = 1;
-
-  int nc=0;
-  while(getline(fp,line)){
-    if(line[0] == '#') continue;
-    if(line.length() == 0) continue;
-
-    istringstream ss(line);
-    ss >> x[nc];
-    for(int i=0 ; i<ofset ; i++) ss >> y[nc];
-
-    /*** in case blank line is given, skip it */
-    if(x[nc] == 0.0) continue;
-
-    x[nc] *= opt.ReadXdataConversion;
-
-    /*** skip data if range is set by options */
-    if(DeceCheckReadRange(x[nc])) continue;
-
-    nc++;
-    if(nc >= MAX_DBLDATA){ message << "too many energy points, " << nc; TerminateCode("readNUdata"); }
+  /*** determine the threshold energy */
+  /*** for MT=4, there is no way to get QI unless Elev is given */
+  if( (mt == 4) || ((51 <= mt) && (mt <= 91)) ){
+    /*** inelastic scattering */
+    qi = elis - el;
+    et = mass_threshold(za,qi);
   }
-
-  fp.close();
-
-  if(nc >= 1){
-    message << "MF3:MT455(6) " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
-    Notice("DeceRead:readNUdata");
+  else if( (600 <= mt) && (mt <= 849) ){
+    /*** discrete transition by charged particle */
+    qi = qm - el;
+    if(qi < 0.0) et = mass_threshold((int)za,qi);
   }
-
-  return nc;
-}
-
-
-/**********************************************************/
-/*      Replace XY Data by Inputs                         */
-/**********************************************************/
-int geneCSdata(int n, double *x, double *y, double eth, double eres, double *xdat)
-{
-  if(n == 0) return 0;
-
-  int i = 0;
-
-  /*** for the threshold reaction */
-  if(eth > 0.0){
-    i = geneCSdata1(n,x,y,eth,eres,xdat);
-  }
-  /*** ignore resonance region and replace all the data points by input */
-  else if(eth < 0.0){
-    i = geneCSdata2(n,x,y,0.0,xdat);
-  }
-  /*** for the non-threshold reaction */
   else{
-    i = geneCSdata2(n,x,y,eres,xdat);
+    /*** all other reactions */
+    if(qm < 0.0) et = mass_threshold((int)za,qm);
   }
 
-  return(i/2);
-}
+  Qval q{qm,qi,et};
 
+  message << "Q(mass) " << q.qm << " Q(level) " << q.qi << " Threshold Energy " << q.et;
+  Notice("DeceRead:qvalues");
 
-/**********************************************************/
-/*      Threshold Reaction Case                           */
-/**********************************************************/
-int geneCSdata1(int n, double *x, double *y, double eth, double eres, double *xdat)
-{
-  int i = 0;
-
-  xdat[i++] = eth;
-  xdat[i++] = 0.0;
-
-  /*** if E(threshold) is inside the resonance range place zeros from Eth to Eres */
-  if(eth < eres){
-    xdat[i++] = eres;
-    xdat[i++] = 0.0;
-
-    /*** duplicated point at Eres */
-    int skip = 0;
-    double yint = loginterpol(n,eres,x,y,&skip);
-    xdat[i++] = eres;
-    xdat[i++] = yint;
-
-    /*** copy all the rest */
-    for(int j=skip ; j<n ; j++){
-      xdat[i++] = x[j];
-      xdat[i++] = y[j];
-    }
-  }
-  /*** if Eth is larger than Eres, omit entire resonance range */
-  else{
-    /*** remove points below Eth if given */
-    int skip = 0;
-    for(int j=0 ; j<n ; j++){
-      if(x[j] > eth){ skip = j; break; }
-    }
-
-    for(int j=skip ; j<n ; j++){
-      xdat[i++] = x[j];
-      xdat[i++] = y[j];
-    }
-  }
-
-  return i;
-}
-
-
-/**********************************************************/
-/*      Non-Threshold Reaction Case                       */
-/**********************************************************/
-int geneCSdata2(int n, double *x, double *y, double eres, double *xdat)
-{
-  const double e0 = 1.0000e-05; // lowest energy
-  const double e1 = 2.5300e-02; // thermal point
-
-  int i = 0;
-  int skip = 0;
-
-  /*** when resonance region exists */
-  if(eres > 0.0){
-    /*** Insert thermal point, start at the resonance boundary */
-    xdat[i++] = e0;
-    xdat[i++] = 0.0;
-    if(!charged_particle_file){
-      xdat[i++] = e1;
-      xdat[i++] = 0.0;
-    }
-
-    /*** duplicated point at Eres, we hope Eres is bigger than 0.0253 */
-    xdat[i++] = eres;
-    xdat[i++] = 0.0;
-
-    /*** find Y-value at Eres */
-    double yint = loginterpol(n,eres,x,y,&skip);
-    xdat[i++] = eres;
-    xdat[i++] = yint;
-  }
-
-  /*** no resonance case */
-  else{
-    xdat[i++] = e0;
-    xdat[i++] = loginterpol(n,e0,x,y,&skip);
-
-    if(!charged_particle_file){
-      /*** insert data points when energies below thermal are given */
-      bool thermal = false;
-      for(skip=0 ; skip<n ; skip++){
-
-        double eps = fabs(x[skip] / e1 -1.0);
-
-        if( (e0 < x[skip]) && (x[skip] < e1) ){
-          xdat[i++] = x[skip];
-          xdat[i++] = y[skip];
-        }
-        /*** if thermal is already given */
-        else if(eps < 1e-10){
-          xdat[i++] = x[skip];
-          xdat[i++] = y[skip];
-          thermal = true;
-          break;
-        }
-      }
-
-      if(!thermal){
-        xdat[i++] = e1;
-        xdat[i++] = loginterpol(n,e1,x,y,&skip);
-      }
-      else skip ++;
-
-      /*** avoid long linear interpolation by duplicating the first data point */
-      if( (xdat[i-1] == 0.0) && (y[skip] > 0.0) ){
-        xdat[i++] = x[skip];
-        xdat[i++] = 0.0;
-      }
-    }
-  }
-
-  /*** copy all the rest */
-  for(int j=skip ; j<n ; j++){
-    xdat[i++] = x[j];
-    xdat[i++] = y[j];
-  }
-
-  return i;
-}
-
-
-/**********************************************************/
-/*      Resonance Background + New XY Data                */
-/**********************************************************/
-int mergeCSdata(int n, double *x, double *y, double eres, double *xdat, double *xbak)
-{
-  if(n == 0) return 0;
-
-  int i = 0;
-
-  /*** copy old data up to Eres */
-  for(int j=0 ; ; j++){
-    xdat[i++] = xbak[2*j  ];
-    xdat[i++] = xbak[2*j+1];
-    if(xbak[2*j] >= eres) break;
-  }
-
-  /*** start at the resonance boundary */
-  int skip = 0;
-  double yint = loginterpol(n,eres,x,y,&skip);
-  xdat[i++] = eres;
-  xdat[i++] = yint;
-
-  bool onetrip = false;
-  for(int j=skip ; j<n ; j++){
-    /*** insert 1-point before data start */
-    if(skip>1 && !onetrip && j>=1 && y[j-1]==0.0){
-      xdat[i++] = x[j-1];
-      xdat[i++] = 0.0;
-      onetrip = true;
-    }
-    xdat[i++] = x[j];
-    xdat[i++] = y[j];
-  }
-
-  return(i/2);
-}
-
-
-/**********************************************************/
-/*      Interpolation                                     */
-/**********************************************************/
-double loginterpol(int n, double e, double *x, double *y, int *idx)
-{
-  double z = 0.0;
-
-  /*** if E is lower than the given data range, set zero  */
-  if(e < x[0]){
-    z = 0.0;
-    *idx = 0;
-  }
-  /*** if higher than the range, use the same highest value */
-  else if(e > x[n-1]){
-    z = y[n-1];
-    *idx = n;
-  }
-  /*** otherwise interpolate */
-  else{
-    int m = 0;
-    for(int i=0 ; i<n-1 ; i++){
-      if(x[i] <= e && e < x[i+1]){ m = i; break; }
-    }
-    /*** when both points are positive, linear interpolation in log-log space */
-    if( (y[m] > 0.0) && (y[m+1] > 0.0) ){
-      z = (log(y[m+1]) - log(y[m])) / (log(x[m+1]) - log(x[m])) * (log(e) - log(x[m])) + log(y[m]);
-      z = exp(z);
-    }
-    /*** when one point is zero, linear interpolation */
-    else{
-      z = (y[m+1] - y[m]) / (x[m+1] - x[m]) * (e - x[m]) + y[m];
-    }
-    *idx = m+1;
-  }
-
-  return (z);
+  return q;
 }
 
 

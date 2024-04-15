@@ -25,7 +25,7 @@ dece_SOURCES = \
 	deceprocgroup.cpp \
 	deceprocpointwise.cpp \
 	deceread.cpp \
-	decereadisomer.cpp \
+	decereadfile.cpp \
 	decereadjust.cpp \
 	decescanindex.cpp \
 	decetable.cpp \
@@ -71,6 +71,7 @@ dece_SOURCES = \
 	dece.h \
 	decemisc.h \
 	decetable.h \
+	deceread.h \
 	endflib.h \
 	endftext.h \
 	gfr.h \

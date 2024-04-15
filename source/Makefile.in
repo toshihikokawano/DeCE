@@ -110,7 +110,7 @@ am_dece_OBJECTS = command.$(OBJEXT) coupling.$(OBJEXT) \
 	decemod6.$(OBJEXT) deceoperation.$(OBJEXT) \
 	deceoutput.$(OBJEXT) decepoint.$(OBJEXT) \
 	deceprocgroup.$(OBJEXT) deceprocpointwise.$(OBJEXT) \
-	deceread.$(OBJEXT) decereadisomer.$(OBJEXT) \
+	deceread.$(OBJEXT) decereadfile.$(OBJEXT) \
 	decereadjust.$(OBJEXT) decescanindex.$(OBJEXT) \
 	decetable.$(OBJEXT) decetable1.$(OBJEXT) decetable10.$(OBJEXT) \
 	decetable12.$(OBJEXT) decetable13.$(OBJEXT) \
@@ -156,7 +156,7 @@ am__depfiles_remade = ./$(DEPDIR)/command.Po ./$(DEPDIR)/coulomb.Po \
 	./$(DEPDIR)/deceoutput.Po ./$(DEPDIR)/decepoint.Po \
 	./$(DEPDIR)/deceprocgroup.Po ./$(DEPDIR)/deceprocpointwise.Po \
 	./$(DEPDIR)/deceqvalue.Po ./$(DEPDIR)/deceread.Po \
-	./$(DEPDIR)/decereadisomer.Po ./$(DEPDIR)/decereadjust.Po \
+	./$(DEPDIR)/decereadfile.Po ./$(DEPDIR)/decereadjust.Po \
 	./$(DEPDIR)/decescanindex.Po ./$(DEPDIR)/decetable.Po \
 	./$(DEPDIR)/decetable1.Po ./$(DEPDIR)/decetable10.Po \
 	./$(DEPDIR)/decetable12.Po ./$(DEPDIR)/decetable13.Po \
@@ -346,7 +346,7 @@ dece_SOURCES = \
 	deceprocgroup.cpp \
 	deceprocpointwise.cpp \
 	deceread.cpp \
-	decereadisomer.cpp \
+	decereadfile.cpp \
 	decereadjust.cpp \
 	decescanindex.cpp \
 	decetable.cpp \
@@ -392,6 +392,7 @@ dece_SOURCES = \
 	dece.h \
 	decemisc.h \
 	decetable.h \
+	deceread.h \
 	endflib.h \
 	endftext.h \
 	gfr.h \
@@ -521,7 +522,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceprocpointwise.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceqvalue.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/deceread.Po@am__quote@ # am--include-marker
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decereadisomer.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decereadfile.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decereadjust.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decescanindex.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/decetable.Po@am__quote@ # am--include-marker
@@ -732,7 +733,7 @@ distclean: distclean-am
 	-rm -f ./$(DEPDIR)/deceprocpointwise.Po
 	-rm -f ./$(DEPDIR)/deceqvalue.Po
 	-rm -f ./$(DEPDIR)/deceread.Po
-	-rm -f ./$(DEPDIR)/decereadisomer.Po
+	-rm -f ./$(DEPDIR)/decereadfile.Po
 	-rm -f ./$(DEPDIR)/decereadjust.Po
 	-rm -f ./$(DEPDIR)/decescanindex.Po
 	-rm -f ./$(DEPDIR)/decetable.Po
@@ -841,7 +842,7 @@ maintainer-clean: maintainer-clean-am
 	-rm -f ./$(DEPDIR)/deceprocpointwise.Po
 	-rm -f ./$(DEPDIR)/deceqvalue.Po
 	-rm -f ./$(DEPDIR)/deceread.Po
-	-rm -f ./$(DEPDIR)/decereadisomer.Po
+	-rm -f ./$(DEPDIR)/decereadfile.Po
 	-rm -f ./$(DEPDIR)/decereadjust.Po
 	-rm -f ./$(DEPDIR)/decescanindex.Po
 	-rm -f ./$(DEPDIR)/decetable.Po

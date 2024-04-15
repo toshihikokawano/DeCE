@@ -13,5 +13,5 @@ class MassExcess{
 /*      masstable.cpp                 */
 /**************************************/
 double  mass_excess           (int, int);
-double  qvalue                (int, int, int);
-double  threshold             (int, double);
+double  mass_qvalue           (int, int, int);
+double  mass_threshold        (int, double);

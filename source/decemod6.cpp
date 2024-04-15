@@ -264,7 +264,7 @@ void DeceGenProdCS(ENDFDict *dict, ENDF *lib[], const int mt1, const int zap1)
   int    idat[2];
   int    za = (int)dict->getZA();
 
-  double qm = qvalue(dict->getProj(),za,mt1);
+  double qm = mass_qvalue(dict->getProj(),za,mt1);
   cont.setRecord(qm,qm,0,0,1,ndat);
 
   idat[0] = ndat;
