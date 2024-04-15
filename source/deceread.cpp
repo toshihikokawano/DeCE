@@ -26,7 +26,7 @@ static double *cx, *cy, *xdat;
 /**********************************************************/
 /*      Read in External Data from a File                 */
 /*      readflag: 0 general case                          */
-/*                1 add background in RR                  */
+/*                1 add background in RR (merge)          */
 /*                2 force replace all the cross section   */
 /**********************************************************/
 void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, const int ofset, const int readflag)
@@ -141,7 +141,15 @@ void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
 
   /*** generate floating point data */
   int np = nc;
-  if(readflag == 1)      np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->xptr[0]);
+  if(readflag == 1){
+    /*** check if b.g. is given */
+    if(lib->rdata[0].n2 == 0){
+      message << "no background cross section is given for MT = " << mt;
+      WarningMessage();
+      np = 0;
+    }
+    else np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->rdata[0].n2,lib->xptr[0]);
+  }
   else if(readflag == 2) np = geneCSdata(nc,cx,cy,-1.0,0.0,xdat);
   else                   np = geneCSdata(nc,cx,cy,q.et,dict->emaxRe,xdat);
 
@@ -293,7 +301,7 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
 /**********************************************************/
 /*      Calculate Qm, Qi                                  */
 /**********************************************************/
-Qval qvalues(const int za, const int proj, const int targ, const int mt, const double elis, const double el)
+struct Qval qvalues(const int za, const int proj, const int targ, const int mt, const double elis, const double el)
 {
   /*** find Q-values */
   double qm = mass_qvalue(proj,targ,mt) + elis;
@@ -317,7 +325,7 @@ Qval qvalues(const int za, const int proj, const int targ, const int mt, const d
     if(qm < 0.0) et = mass_threshold((int)za,qm);
   }
 
-  Qval q{qm,qi,et};
+  struct Qval q = {qm,qi,et};
 
   message << "Q(mass) " << q.qm << " Q(level) " << q.qi << " Threshold Energy " << q.et;
   Notice("DeceRead:qvalues");

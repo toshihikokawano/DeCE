@@ -458,14 +458,14 @@ int geneCSdata2(int n, double *x, double *y, double eres, double *xdat)
 /**********************************************************/
 /*      Resonance Background + New XY Data                */
 /**********************************************************/
-int mergeCSdata(int n, double *x, double *y, double eres, double *xdat, double *xbak)
+int mergeCSdata(int n, double *x, double *y, double eres, double *xdat, const int m, double *xbak)
 {
   if(n == 0) return 0;
 
   int i = 0;
 
   /*** copy old data up to Eres */
-  for(int j=0 ; ; j++){
+  for(int j=0 ; j<m ; j++){
     xdat[i++] = xbak[2*j  ];
     xdat[i++] = xbak[2*j+1];
     if(xbak[2*j] >= eres) break;

@@ -22,4 +22,4 @@ int    readISdata  (char *, int, const int, double *, double *, double *);
 int    readNUdata  (char *, int,            double *, double *);
 int    readMSdata  (char *, int,            double *, double *, int *, int *, double *);
 int    geneCSdata  (int, double *, double *, double, double, double *);
-int    mergeCSdata (int, double *, double *, double, double *, double *);
+int    mergeCSdata (int, double *, double *, double, double *, const int, double *);

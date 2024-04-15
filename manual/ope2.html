@@ -20,12 +20,11 @@
    read  <i>MFnumber</i> <i>MTnumber</i> "file_name" [<i>offset</i>]
 </pre>
 
-<p>DeCE can read cross section data from external data files,
-and store the data into a specified MF,MT section.
-In the current version, the MF number should be 1 or 3, so that
-only cross section or average number of neutron data can be read
-by the <code>read</code> command.
-The file name must be quoted by the quotation marks.</p>
+<p>DeCE can read cross section data from external data files, and
+store the data into a specified MF,MT section.  In the current
+version, the MF number should be 1 (number of fission neutrons), 3
+(cross sections), or 9 (isomer production).  The file name must be
+quoted by the quotation marks.</p>
 
 <p>The data in the external data file are in the table format, like</p>
 <pre id="dat">
@@ -43,14 +42,18 @@ The file name must be quoted by the quotation marks.</p>
  9.000000e-01 4.735559e+03 3.920111e+01
  1.000000e+00 4.550877e+03 3.409828e+01
 </pre>
-<p>where the energies are in MeV, and the cross sections in milli-barns
-as a default.
-When <i>offset</i> is not given, DeCE reads the first column as the energy,
-and the second column as the cross section. When <i>offset=2</i> is specified for example,
-the second column data will be skipped and the third column data are copied.</p> 
+<p>where the energies are in MeV, and the cross sections in
+milli-barns as a default. When <i>offset</i> is not given, DeCE reads
+the first column as the energy, and the second column as the cross
+section. When <i>offset=2</i> is specified for example, the second
+column data will be skipped and the third column data are copied.</p>
 
 <p>The unit of the external data can be changed by the <a href="option.html">option</a>
 <code>ReadXdataConversion</code> and <code>ReadYdataConversion</code>. 
+
+<p>The <code>read</code> command automatically inserts the lowest energy
+point (10<sup>-5</sup> eV) and the thermal energy point (0.0253 eV), which
+are probably zero, unless no resonance parameters are given. </p>
 
 
 <p>Often the energy range given in the file does not match the ENDF-6
@@ -114,6 +117,34 @@ is for the 2nd level (MF=52), and so forth.</p>
 
 
 
+<h2><a name="mergeread">mergeread (read cross sections from file and merge with existing data)</a></h2>
+
+<pre id="syn">
+   mergeread  <i>MFnumber</i> <i>MTnumber</i> "file_name" [<i>offset</i>]
+</pre>
+
+
+<p>When background cross sections are given in the resonance region,
+the <code>read</code> command may overwrite the background. 
+<code>mergeread</code> replaces the cross sections above the resonance
+region only, and maintain the background cross section in the
+resonance region.</p>
+
+
+
+<h2><a name="replaceread">replaceread (read cross sections from file, ignore existing data and resonance range)</a></h2>
+
+<pre id="syn">
+   replaceread  <i>MFnumber</i> <i>MTnumber</i> "file_name" [<i>offset</i>]
+</pre>
+
+<p>Existing data in <i>MF,MT</i> will be overwritten by the external data
+in the entire energy range. The lowest and thermal points are not produced
+be DeCE, so that these two points (at least the lowest energy) should be
+given in the external data file. Or, you can add these data points
+by <a href="ope3.html#addpoint">addpoint</a>. </p>
+
+
 <h2><a name="multiread">multiread (read multiple cross section data from file)</a></h2>
 
 <pre id="syn">
@@ -132,6 +163,9 @@ alpha), (x,np alpha), (x,n2p), (x,4n), (x,5n). For the partial
 inelastic scattering - Energy, elastic, 1st level, 2nd level, 3rd level ...
 and the last 40th column is the continuum inelastic.</p>
 
+<p><code>multiread</code> repeats the <code>read</code> in the range of
+MT numbers. To use <code>mergeread</code> and <code>replaceread</code>
+for multiple MT numbers, you have to do it one by one.</p>
 
 
 <h2><a name="angdist">angdist (read scattering angular distribution data from file)</a></h2>
