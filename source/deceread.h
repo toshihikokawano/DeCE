@@ -12,14 +12,23 @@ struct Qval
   double et; // threshold energy
 };
 
+struct Prod
+{
+  int       za; // product 1000*Z + A
+  int    nx[3]; // meta state state index
+  double ex[3]; // excitation energy of first meta
+  double th[3]; // half-life
+};
+
 
 /**************************************/
 /*      decereadfile.cpp              */
 /**************************************/
 void   readSetCharged (void);
-int    readCSdata  (char *, int, const int, double *, double *);
-int    readISdata  (char *, int, const int, double *, double *, double *);
-int    readNUdata  (char *, int,            double *, double *);
-int    readMSdata  (char *, int,            double *, double *, int *, int *, double *);
+int    readCSdata      (char *, int, const int, double *, double *);
+int    readISdata      (char *, int, const int, double *, double *, double *);
+int    readNUdata      (char *, int,            double *, double *);
+struct Prod readMShead (char *, const int);
+int    readMSdata (char *, const int, const int, double *, double *);
 int    geneCSdata  (int, double *, double *, double, double, double *);
 int    mergeCSdata (int, double *, double *, double, double *, const int, double *);

@@ -28,6 +28,7 @@ void   DeceDelete       (ENDFDict *, const int, const int);
 
 /*** deceread.cpp */
 void   DeceRead         (ENDFDict *, ENDF *, const int, const int, char *, const int, const int);
+void   DeceReadRadioactive (ENDFDict *, ENDF *, ENDF *, const int, const int, char *, const int);
 
 /*** deceangdist.cpp */
 void   DeceAngdist      (ENDFDict *, ENDF **, const int, const int, char *, char *, int);

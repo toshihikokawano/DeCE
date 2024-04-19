@@ -15,8 +15,8 @@ using namespace std;
 
 static void   DeceReadMF1   (ENDFDict *, ENDF *, const int, char *, const int);
 static void   DeceReadMF3   (ENDFDict *, ENDF *, const int, char *, const int, const int);
-static void   DeceReadMF8   (ENDFDict *, ENDF *, const int, char *, const int, const int);
-static void   DeceReadMF9   (ENDFDict *, ENDF *, const int, char *, const int, const int);
+static void   DeceReadMF8   (ENDFDict *, ENDF *, const int, const int, char *, const int);
+static void   DeceReadMF9   (ENDFDict *, ENDF *, const int, const int, char *, const int);
 static struct Qval qvalues (const int, const int, const int, const int, const double, const double);
 static double findBoundary  (ENDF *);
 
@@ -31,22 +31,60 @@ static double *cx, *cy, *xdat;
 /**********************************************************/
 void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, const int ofset, const int readflag)
 {
+  if( (mf != 1) && (mf != 3)){
+    message << "MF" << mf << " should be 1 or 3";
+    WarningMessage();
+    return;
+  }
+
   /*** allocate data array */
   cx   = new double [MAX_DBLDATA];
   cy   = new double [MAX_DBLDATA];
   xdat = new double [MAX_DBLDATA*2];
 
   /*** for each MF case */
-  if     (mf ==  1) DeceReadMF1(dict,lib,mt,datafile,ofset);
-  else if(mf ==  3) DeceReadMF3(dict,lib,mt,datafile,ofset,readflag);
-  else if(mf ==  8) DeceReadMF8(dict,lib,mt,datafile,ofset,readflag);
-  else if(mf ==  9) DeceReadMF9(dict,lib,mt,datafile,ofset,readflag);
-  else{
-    message << "MF" << mf << " should be 1, 3, or 9";
+  if(mf == 1) DeceReadMF1(dict,lib,mt,datafile,ofset);
+  else        DeceReadMF3(dict,lib,mt,datafile,ofset,readflag);
+//ENDFWrite(lib);
+
+  /*** Clean all */
+  delete [] cx;
+  delete [] cy;
+  delete [] xdat;
+}
+
+
+/**********************************************************/
+/*      Read in Radioactive Data from a File              */
+/*      up to 3 levels for each nuclide                   */
+/*      specfied by ofset[0], [1], and [2]                */
+/**********************************************************/
+void DeceReadRadioactive(ENDFDict *dict, ENDF *lib8, ENDF *lib9, const int mf, const int mt, char *datafile, const int ofset)
+{
+  if( (mf != 9) && (mf != 10)){
+    message << "MF" << mf << " should be 9 or 10";
     WarningMessage();
+    return;
   }
 
-  ENDFWrite(lib);
+  if(ofset == 0){
+    message << "reading radioactive data needs to specify data column";
+    TerminateCode("DeceReadRadioactive");
+  }
+
+
+  /*** allocate data array */
+  cx   = new double [MAX_DBLDATA];
+  cy   = new double [MAX_DBLDATA];
+  xdat = new double [MAX_DBLDATA*2];
+
+  /*** create MF8 first */
+  DeceReadMF8(dict,lib8,mf,mt,datafile,ofset);
+  ENDFWrite(lib8);
+
+  /*** create MF9 or 10 */
+  DeceReadMF9(dict,lib9,mf,mt,datafile,ofset);
+  ENDFWrite(lib9);
 
   /*** Clean all */
   delete [] cx;
@@ -201,17 +239,16 @@ void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
 /**********************************************************/
 /*      Read External File in MF 8                        */
 /**********************************************************/
-void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const int ofset1, const int ofset2)
+void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int lmf, const int mt, char *datafile, int ofset)
 {
   const int mf = 8;
-  double elfs = 0.0;
-  int lfs = 0, izap = 0, lmf = 9;
+  const int no = 1; // decay chain not given here
 
-  /*** number of subsections, limited up to meta2 */
-  int ns = 1;
-  if(ofset2 != 0) ns = 2;
+  struct Prod prd = readMShead(datafile,ofset);
 
-  int no = 1; // decay chain not given here
+  /*** number of states to be included (for T1/2 > 0) */
+  int ns = 0;
+  for(int i=0 ; i<3 ; i++) if(prd.th[i] > 0.0) ns ++;
 
   /*** Make HEAD and CONT */
   lib->setENDFhead(dict->getZA(),dict->getAWR(),dict->getLIS(),dict->getLISO(),ns,no);
@@ -220,37 +257,31 @@ void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
   lib->setENDFmt(mt);
 
   for(int is=0 ; is<ns ; is++){
+    if(prd.th[is] == 0.0) continue;
 
-    /*** isomeric ratio data */
-    int ofset = (is == 0) ? ofset1 : ofset2;
-    readMSdata(datafile,ofset,cx,cy,&lfs,&izap,&elfs);
-
+    /*** radioactive data */
     /*** make TAB1 */
     Record cont;
-    cont.setRecord((double)izap,elfs,lmf,lfs,0,0);
-
+    cont.setRecord((double)prd.za,prd.ex[is],lmf,prd.nx[is],0,0);
     ENDFPackCONT(cont,lib);
-
-    message << "isomer state in " << izap << " excitation energy:" << elfs << " LFS:" << lfs;
+    message << "radioactive state in " << prd.za << " excitation energy:" << prd.ex[is] << " LFS:" << prd.nx[is];
     Notice("DeceRead:DeceReadMF8");
   }
-
-  return;
 }
 
 
 /**********************************************************/
 /*      Read External File in MF 9                        */
 /**********************************************************/
-void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const int ofset1, const int ofset2)
+void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, const int ofset)
 {
-  const int mf = 9;
-  double elev = 0.0;
-  int lfs = 0, izap = 0;
+  struct Prod prd = readMShead(datafile,ofset);
+  double *cy0  = new double [MAX_DBLDATA];
+  double *cy1  = new double [MAX_DBLDATA];
+  double *cy2  = new double [MAX_DBLDATA];
 
-  /*** number of subsections, limited up to meta2 */
-  int ns = 1;
-  if(ofset2 != 0) ns = 2;
+  int ns = 0;
+  for(int i=0 ; i<3 ; i++) if(prd.th[i] > 0.0) ns ++;
 
   /*** Make HEAD and CONT */
   lib->setENDFhead(dict->getZA(),dict->getAWR(),dict->getLIS(),0,ns,0);
@@ -258,41 +289,66 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
   lib->setENDFmf(mf);
   lib->setENDFmt(mt);
 
+  int nc = readMSdata(datafile,mf,3*ofset-2,cx,cy0); // ground state
+           readMSdata(datafile,mf,3*ofset-1,cx,cy1); // first meta
+           readMSdata(datafile,mf,3*ofset  ,cx,cy2); // second meta
+
   int ntotal = 0;
   for(int is=0 ; is<ns ; is++){
+    if(prd.th[is] == 0.0) continue;
 
     /*** isomeric ratio data */
-    int ofset = (is == 0) ? ofset1 : ofset2;
-    int nc = readMSdata(datafile,ofset,cx,cy,&lfs,&izap,&elev);
+    if(mf == 9){
+      for(int j=0 ; j<nc ; j++){
+        if(cy0[j] > 0.0){
+          if     (is == 0) cy[j] = 1.0 - (cy1[j] + cy2[j]) / cy0[j];
+          else if(is == 1) cy[j] = cy1[j] / cy0[j];
+          else             cy[j] = cy2[j] / cy0[j];
+        }
+        else cy[j] = 0.0;
+      }
+    }
+    /*** production cross section data */
+    else{
+      for(int j=0 ; j<nc ; j++){
+        if     (is == 0) cy[j] = cy0[j];
+        else if(is == 1) cy[j] = cy1[j];
+        else             cy[j] = cy2[j];
+      }
+    }
 
     /*** calculate Qm and Qi */
-    struct Qval q = qvalues((int)dict->getZA(),dict->getProj(),(int)dict->getZA(),mt,dict->getELIS(),elev);
+    struct Qval q = qvalues((int)dict->getZA(),dict->getProj(),(int)dict->getZA(),mt,dict->getELIS(),prd.ex[is]);
 
     /*** ignore resonance range, and include Ethresh only */
-    int np = nc;
-    np = geneCSdata(nc,cx,cy,q.et,0.0,xdat);
+    int np = geneCSdata(nc,cx,cy,q.et,0.0,xdat);
 
     /*** make TAB1 */
     Record cont;
     int    idat[2];
 
-    cont.setRecord(q.qm,q.qi,izap,lfs,1,np);
+    cont.setRecord(q.qm,q.qi,prd.za,prd.nx[is],1,np);
     idat[0] = np;
     idat[1] = 2;
 
     ENDFPackTAB1(cont,idat,xdat,lib);
 
-    message << "number of points added " << np << " in MF:" << mf << " MT:" << mt << " LFS:" << lfs;
+    message << "number of points added " << np << " in MF:" << mf << " MT:" << mt << " LFS:" << prd.nx[is] << " Ex:" << prd.ex[is] << " T1/2:" << prd.th[is];
     Notice("DeceRead:DeceReadMF9");
 
     ntotal += np;
   }
 
   if(ntotal == 0){
-    message << "no isomeric ratio data to be added from " << datafile << " for MT = " << mt;
+    message << "no radiactive production data to be added from " << datafile << " for MT = " << mt;
     WarningMessage();
     DeceDelete(dict,mf,mt);
+    DeceDelete(dict,8,mt);
   }
+
+  delete [] cy0;
+  delete [] cy1;
+  delete [] cy2;
 
   return;
 }
@@ -308,26 +364,12 @@ struct Qval qvalues(const int za, const int proj, const int targ, const int mt, 
   double qi = qm;
   double et = 0.0;
 
-  /*** determine the threshold energy */
-  /*** for MT=4, there is no way to get QI unless Elev is given */
-  if( (mt == 4) || ((51 <= mt) && (mt <= 91)) ){
-    /*** inelastic scattering */
-    qi = elis - el;
-    et = mass_threshold(za,qi);
-  }
-  else if( (600 <= mt) && (mt <= 849) ){
-    /*** discrete transition by charged particle */
-    qi = qm - el;
-    if(qi < 0.0) et = mass_threshold((int)za,qi);
-  }
-  else{
-    /*** all other reactions */
-    if(qm < 0.0) et = mass_threshold((int)za,qm);
-  }
-
+  qi = qm - el;
+  if(qi < 0.0) et = mass_threshold((int)za,qi);
+   
   struct Qval q = {qm,qi,et};
 
-  message << "Q(mass) " << q.qm << " Q(level) " << q.qi << " Threshold Energy " << q.et;
+  message << "target excitation: " << elis << " residual excitation: " << el << " Q(mass): " << q.qm << " Q(level): " << q.qi << " threshold energy: " << q.et;
   Notice("DeceRead:qvalues");
 
   return q;

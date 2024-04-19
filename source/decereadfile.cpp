@@ -239,43 +239,72 @@ int readNUdata(char *file, int ofset, double *x, double *y)
 
 
 /**********************************************************/
-/*      Read in Meta-Stable Ratio Data                    */
+/*      Read in Radioactive Nuclide Data                  */
 /**********************************************************/
-int readMSdata(char *file, int ofset, double *x, double *y, int *lfs, int *izap, double *elev)
+struct Prod readMShead(char *file, const int ofset)
 {
   ifstream fp;
   string   line;
-  int      p = 0;
-  double   q = 0.0;
-
-  if(ofset == 0){ message << "reading isomeric ratio data needs to specify data column"; TerminateCode("readMSdata");}
 
   fp.open(file);
-  if(!fp){ message << "cannot open data file " << file; TerminateCode("readMSdata"); }
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readMShead"); }
 
-  /*** skip 2 lines, and locate excitation energy line */
-  getline(fp,line); // residual
-  istringstream s0(&line[13]);  // skip heading "# Nuclide  M "
-  p = 0;
-  for(int i=0 ; i<ofset * 2 ; i++) s0 >> p;
-  *izap = p;
+  getline(fp,line); // Nuclide
+  istringstream s0(&line[13]);  // skip heading "# Nuclide Ex "
+  int za = 0;
+  double ex[3];
+  for(int i=0 ; i<ofset ; i++){
+    s0 >> za;
+    s0 >> ex[1];
+    s0 >> ex[2];
+  }
+  ex[0] = 0.0;
+  ex[1] *= opt.ReadXdataConversion;
+  ex[2] *= opt.ReadXdataConversion;
 
-  getline(fp,line); // particles
+  getline(fp,line); // Particle
   istringstream s1(&line[13]);  // skip heading "# Particle L "
-  p = 0;
-  for(int i=0 ; i<ofset * 2 ; i++) s1 >> p;
-  *lfs = p;
+  int pid = 0, nx[3];
+  for(int i=0 ; i<ofset ; i++){
+    s1 >> pid;
+    s1 >> nx[1];
+    s1 >> nx[2];
+  }
+  nx[0] = 0;
 
-  getline(fp,line); // excitation energy
-  istringstream s2(&line[13]);  // skip heading "# Excitation "
-  q = 0.0;
-  for(int i=0 ; i<ofset ; i++) s2 >> q;
+  getline(fp,line); // HalfLife
+  istringstream s2(&line[13]);  // skip heading "# HalfLife   "
+  double th[3];
+  for(int i=0 ; i<ofset ; i++){
+    s2 >> th[0];
+    s2 >> th[1];
+    s2 >> th[2];
+  }
 
-  *elev = q * opt.ReadXdataConversion;
+  struct Prod prd;
+  prd.za = za;
+  for(int i=0 ; i<3 ; i++){
+    prd.nx[i] = nx[i];
+    prd.ex[i] = ex[i];
+    prd.th[i] = th[i];
+  }
 
-  getline(fp,line); // half-life
+  return prd;
+}
 
-  int nc=0;
+
+/**********************************************************/
+/*      Read in Radioactive Production Data               */
+/**********************************************************/
+int readMSdata(char *file, const int mf, const int ofset, double *x, double *y)
+{
+  ifstream fp;
+  string   line;
+
+  fp.open(file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readMShead"); }
+
+  int nc = 0;
   while(getline(fp,line)){
     if(line[0] == '#') continue;
     if(line.length() == 0) continue;
@@ -286,6 +315,7 @@ int readMSdata(char *file, int ofset, double *x, double *y, int *lfs, int *izap,
 
     if(x[nc] == 0.0) continue;
     x[nc] *= opt.ReadXdataConversion;
+    y[nc] *= opt.ReadYdataConversion;
     if(DeceCheckReadRange(x[nc])) continue;
 
     nc++;
@@ -293,10 +323,8 @@ int readMSdata(char *file, int ofset, double *x, double *y, int *lfs, int *izap,
   }
   fp.close();
 
-
   if(nc >= 1){
-    int mt = 0;
-    message << "MF10:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
+    message << "MF:" << mf << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
     Notice("DeceRead:readMSdata");
   }
 

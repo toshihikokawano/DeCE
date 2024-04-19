@@ -16,7 +16,7 @@ static void DeceOperationCALC            (ENDFDict *, ENDF **);
 static void DeceOperationDUPLICATE       (ENDFDict *, ENDF **);
 static void DeceOperationDELETE          (ENDFDict *);
 static void DeceOperationREAD            (ENDFDict *, ENDF **);
-static void DeceOperationREADISOMER      (ENDFDict *, ENDF **);
+static void DeceOperationREADRADIOACTIVE (ENDFDict *, ENDF **);
 static void DeceOperationANGDIST         (ENDFDict *, ENDF **);
 static void DeceOperationLIBREAD         (ENDFDict *, ENDF **);
 static void DeceOperationTABLE           (ENDFDict *, ENDF **, ifstream *);
@@ -72,9 +72,9 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
     DeceOperationREAD(dict,lib);
   }
 
-  /*** READISOMER: read tabulated isomeric ratio datafile */
-  else if( (ope == "readisomer") ){
-    DeceOperationREADISOMER(dict,lib);
+  /*** READRADIOACTIVE: read tabulated radioactive nuclide datafile */
+  else if( (ope == "readradioactive") ){
+    DeceOperationREADRADIOACTIVE(dict,lib);
   }
 
   /*** ANGDIST: read tabulated angular distribution data file */
@@ -345,23 +345,17 @@ void DeceOperationREAD(ENDFDict *dict, ENDF *lib[])
 
 
 /**********************************************************/
-/* READISOMER                                             */
-/*      read MF9 data from external file                  */
-/* readisomer MT "datafile" datacolumn [datacolumn2]      */
+/* READRADIOACTIVE                                        */
+/*      read MF9 or MF10 data from external file          */
+/* readradioactive MF MT "datafile" datacolumn [...]      */
 /**********************************************************/
-void DeceOperationREADISOMER(ENDFDict *dict, ENDF *lib[])
+void DeceOperationREADRADIOACTIVE(ENDFDict *dict, ENDF *lib[])
 {
   string ope = CmdGetOperation();
 
-  cmd.mf = 9;
   DeceCreateLib(dict,cmd.mf,cmd.mt);
-  DeceRead(dict,lib[dict->getID(cmd.mf,cmd.mt)],cmd.mf,cmd.mt,cmd.text,cmd.opt1,cmd.opt2);
-
-  if(dict->getID(cmd.mf,cmd.mt) >= 0){
-    cmd.mf = 8;
-    DeceCreateLib(dict,cmd.mf,cmd.mt);
-    DeceRead(dict,lib[dict->getID(cmd.mf,cmd.mt)],cmd.mf,cmd.mt,cmd.text,cmd.opt1,cmd.opt2);
-  }
+  DeceCreateLib(dict,8,cmd.mt);
+  DeceReadRadioactive(dict,lib[dict->getID(8,cmd.mt)],lib[dict->getID(cmd.mf,cmd.mt)],cmd.mf,cmd.mt,cmd.text,cmd.opt1);
 }
 
 

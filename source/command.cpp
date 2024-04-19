@@ -76,11 +76,11 @@ string CmdExtractArgument(void)
     cmd.opt1  = (int)getval(d1);
     cmd.mtend = cmd.mt;
   }
-  else if(ope == "readisomer"){
+  else if(ope == "readradioactive"){
+    cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
     CmdExtractString(cmd.text);
     cmd.opt1  = (int)getval(d1);
-    cmd.opt2  = (int)getval(d1);
     cmd.mtend = cmd.mt;
   }
   else if(ope == "multiread" || ope == "multilibread"){
