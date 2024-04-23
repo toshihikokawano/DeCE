@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <ostream>
+#include <cstdlib>
 #include <cmath>
 
 using namespace std;
@@ -265,10 +266,11 @@ struct Prod readMShead(char *file, const int ofset)
   getline(fp,line); // Particle
   istringstream s1(&line[13]);  // skip heading "# Particle L "
   int pid = 0, nx[3];
+  string s;
   for(int i=0 ; i<ofset ; i++){
     s1 >> pid;
-    s1 >> nx[1];
-    s1 >> nx[2];
+    s1 >> s; nx[1] = atoi(s.c_str());
+    s1 >> s; nx[2] = atoi(s.c_str());
   }
   nx[0] = 0;
 
@@ -289,6 +291,12 @@ struct Prod readMShead(char *file, const int ofset)
     prd.th[i] = th[i];
   }
 
+/*
+  cout << za << " " << pid << endl;
+  cout << "     " << nx[0] << " " << ex[0] << " " << th[0] << endl;
+  cout << "     " << nx[1] << " " << ex[1] << " " << th[1] << endl;
+  cout << "     " << nx[2] << " " << ex[2] << " " << th[2] << endl;
+*/
   return prd;
 }
 

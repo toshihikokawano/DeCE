@@ -72,7 +72,6 @@ void DeceReadRadioactive(ENDFDict *dict, ENDF *lib8, ENDF *lib9, const int mf, c
     TerminateCode("DeceReadRadioactive");
   }
 
-
   /*** allocate data array */
   cx   = new double [MAX_DBLDATA];
   cy   = new double [MAX_DBLDATA];
@@ -80,11 +79,11 @@ void DeceReadRadioactive(ENDFDict *dict, ENDF *lib8, ENDF *lib9, const int mf, c
 
   /*** create MF8 first */
   DeceReadMF8(dict,lib8,mf,mt,datafile,ofset);
-  ENDFWrite(lib8);
+//ENDFWrite(lib8);
 
   /*** create MF9 or 10 */
   DeceReadMF9(dict,lib9,mf,mt,datafile,ofset);
-  ENDFWrite(lib9);
+//ENDFWrite(lib9);
 
   /*** Clean all */
   delete [] cx;
@@ -243,12 +242,13 @@ void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int lmf, const int mt, char *d
 {
   const int mf = 8;
   const int no = 1; // decay chain not given here
+  const int maxlevel = 3; // default number of max levels, gs, m1, and m2
 
   struct Prod prd = readMShead(datafile,ofset);
 
   /*** number of states to be included (for T1/2 > 0) */
   int ns = 0;
-  for(int i=0 ; i<3 ; i++) if(prd.th[i] > 0.0) ns ++;
+  for(int i=0 ; i<maxlevel ; i++) if(prd.th[i] > 0.0) ns ++;
 
   /*** Make HEAD and CONT */
   lib->setENDFhead(dict->getZA(),dict->getAWR(),dict->getLIS(),dict->getLISO(),ns,no);
@@ -256,7 +256,7 @@ void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int lmf, const int mt, char *d
   lib->setENDFmf(mf);
   lib->setENDFmt(mt);
 
-  for(int is=0 ; is<ns ; is++){
+  for(int is=0 ; is<maxlevel ; is++){
     if(prd.th[is] == 0.0) continue;
 
     /*** radioactive data */
@@ -275,13 +275,15 @@ void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int lmf, const int mt, char *d
 /**********************************************************/
 void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, const int ofset)
 {
+  const int maxlevel = 3;
+
   struct Prod prd = readMShead(datafile,ofset);
   double *cy0  = new double [MAX_DBLDATA];
   double *cy1  = new double [MAX_DBLDATA];
   double *cy2  = new double [MAX_DBLDATA];
 
   int ns = 0;
-  for(int i=0 ; i<3 ; i++) if(prd.th[i] > 0.0) ns ++;
+  for(int i=0 ; i<maxlevel ; i++) if(prd.th[i] > 0.0) ns ++;
 
   /*** Make HEAD and CONT */
   lib->setENDFhead(dict->getZA(),dict->getAWR(),dict->getLIS(),0,ns,0);
@@ -294,16 +296,17 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
            readMSdata(datafile,mf,3*ofset  ,cx,cy2); // second meta
 
   int ntotal = 0;
-  for(int is=0 ; is<ns ; is++){
+  for(int is=0 ; is<maxlevel ; is++){
     if(prd.th[is] == 0.0) continue;
 
     /*** isomeric ratio data */
     if(mf == 9){
       for(int j=0 ; j<nc ; j++){
-        if(cy0[j] > 0.0){
-          if     (is == 0) cy[j] = 1.0 - (cy1[j] + cy2[j]) / cy0[j];
-          else if(is == 1) cy[j] = cy1[j] / cy0[j];
-          else             cy[j] = cy2[j] / cy0[j];
+        double ctot = cy0[j] + cy1[j] + cy2[j];
+        if(ctot > 0.0){
+          if     (is == 0) cy[j] = cy0[j] / ctot;
+          else if(is == 1) cy[j] = cy1[j] / ctot;
+          else             cy[j] = cy2[j] / ctot;
         }
         else cy[j] = 0.0;
       }
