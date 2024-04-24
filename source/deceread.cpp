@@ -326,6 +326,18 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
     /*** ignore resonance range, and include Ethresh only */
     int np = geneCSdata(nc,cx,cy,q.et,0.0,xdat);
 
+
+    /*** special case for capture, use a constant value in the resonance region */
+    if( (mf == 9) && (mt == 102)){
+      /*** look for the first non-zero data */
+      double cz = 0.0;
+      int    nz = 0;
+      for(int j=0 ; j<np ; j++){
+        if(xdat[2*j+1] != 0.0){ cz = xdat[2*j+1]; nz = j; break; }
+      }
+      for(int j=0 ; j<nz ; j++) xdat[2*j+1] = cz;
+    }
+
     /*** make TAB1 */
     Record cont;
     int    idat[2];
@@ -336,7 +348,7 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
 
     ENDFPackTAB1(cont,idat,xdat,lib);
 
-    message << "number of points added " << np << " in MF:" << mf << " MT:" << mt << " LFS:" << prd.nx[is] << " Ex:" << prd.ex[is] << " T1/2:" << prd.th[is];
+    message << "number of points added " << np << " in MF:" << mf << " MT:" << mt << " LFS:" << prd.nx[is] << " Ex:" << prd.ex[is] << " T(1/2):" << prd.th[is] << " sec";
     Notice("DeceRead:DeceReadMF9");
 
     ntotal += np;
