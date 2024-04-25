@@ -73,7 +73,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   }
 
   /*** READRADIOACTIVE: read tabulated radioactive nuclide datafile */
-  else if( (ope == "readradioactive") ){
+  else if(ope == "readradioactive"){
     DeceOperationREADRADIOACTIVE(dict,lib);
   }
 

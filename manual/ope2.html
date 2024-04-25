@@ -12,7 +12,7 @@
 <a href="ope3.html">    [NEXT] </a>
 <hr>
 
-<h1>Create ENDF-6 Data From File</h1>
+<h1>Create ENDF-6 Data From File (Cross Section)</h1>
 
 <h2><a name="read">read (read cross sections from file)</a></h2>
 
@@ -22,9 +22,9 @@
 
 <p>DeCE can read cross section data from external data files, and
 store the data into a specified MF,MT section.  In the current
-version, the MF number should be 1 (number of fission neutrons), 3
-(cross sections), or 9 (isomer production).  The file name must be
-quoted by the quotation marks.</p>
+version, the MF number should be 1 (number of fission neutrons) or 3
+(cross sections). The file name must be quoted by the quotation
+marks.</p>
 
 <p>The data in the external data file are in the table format, like</p>
 <pre id="dat">
@@ -45,7 +45,7 @@ quoted by the quotation marks.</p>
 <p>where the energies are in MeV, and the cross sections in
 milli-barns as a default. When <i>offset</i> is not given, DeCE reads
 the first column as the energy, and the second column as the cross
-section. When <i>offset=2</i> is specified for example, the second
+section. When <i>offset</i> = 2 is specified for example, the second
 column data will be skipped and the third column data are copied.</p>
 
 <p>The unit of the external data can be changed by the <a href="option.html">option</a>
@@ -168,134 +168,132 @@ MT numbers. To use <code>mergeread</code> and <code>replaceread</code>
 for multiple MT numbers, you have to do it one by one.</p>
 
 
-<h2><a name="angdist">angdist (read scattering angular distribution data from file)</a></h2>
+
+<h2><a name="readradioactive">readradioactive (read radioactive isotope production cross sections from file)</a></h2>
 
 <pre id="syn">
-   angdist  <i>MFnumber</i> <i>MTnumber</i> "file_name"  [ "gamma_branch_file_name" ]
+   readradioactive  <i>MFnumber</i> <i>MTnumber</i> "file_name" [<i>offset</i>]
 </pre>
 
-<p>DeCE creates scattering angular distribution data in MF=4, MT=2,
-51, 52 ...  The MF number should be 4 for the elastic scattering,
-while it can be 4 or 6 for the inelastic scattering. The charged
-particle angular distributions will be compiled in MF6. The data file may
-contain either the differential cross sections or the Legendre
-expansion coefficients, which is indicated by the keyword in the data
-file (<code>Angdist</code> or <code>Legcoef</code>).</p>
+<p>Similar to <code>read</code>, DeCE imports radioactive isotope
+production cross section data from external files. The data given in
+the file are cross sections.  The compiled data depend
+on <i>MFnumber</i>. When <i>MTnumber</i> = 9 the provided cross
+sections will be converted into multiplicities, while cross section
+data will be stored when <i>MTnumber</i> = 10. When the 
+data column option <i>ofset</i> is not given, DeCE will look for the 
+proper data column number by the data given in the header part.</p>
 
-<p>The format for the differential angular distribution data 
-is as follows.</p>
+
+<p>For the both <i>MTnumber</i> = 9 and 10 cases, a corresponding 
+MF=8 section is created automatically.</p>
+
+
+<p>Additional information of radioisotopes is required in the external data file 
+in the header pat. For example, neutron-induced reactions on <sup>89</sup>Y
+produces several radioactive isotoes. The inelastic scattering process
+may produce a meta-state <sup>89m</sup>Y at 909 keV, whose half-life is 16 sec.
+The neutron capture reaction also produces unstable ground <sup>90g</sup>Y
+and meta-state <sup>90m</sup>Y at 682 keV. The reuqired information is:</p>
+
+
+<ul>
+<li> radioisotope identifier, <i>ZA</i> 1000 x Z + A = 39090 for capture, and 39088 for (n,2n)
+<li> excitation energy of the meta-state, <i>Ex</i>
+<li> outgoing particle counting string <i>NNNNNN</i>. The first letter is the number of neutrons,
+     the second is for proton, third is the alpha-particle, deuteron, triton, and helium3.
+     For example, <i>NNNNNN</i> = 000000 for the capture, 200000 for the (n,2n) reaction.
+     This is used to locate the data column for a given MT number.</p>
+<li> excited state number <i>Nx</i> counting from the first excited state; 682 keV
+     level is the second excited state, so this number is 2.
+<li> half-life of the state <i>T(1/2)</i>. For the stable states, <i>T(1/2)</i> = 0.0.
+</ul>
+
+
+<p>The total number of the meta-states is limited to two. One
+radioactive isotope data must be given by a triple column - ground
+state, first meta, and second meta. Always the ground state production must
+be given, even if this state is stable. If there is no
+second meta, <i>Ex</i> and <i>Nx</i> can be any unreadable text. 
+However, <i>T(1/2)</i> should be zero to specify the data column will be skipped. <p>
+
+
+<p>The <i>ofset</i> parameter is given for the triple-column. In the
+ case below, <i>ofset</i> = 1 for the capture <i>ZA</i> = 39090, and
+<i>ofset</i> = 2 for the (n,2n) <i>ZA</i> = 39088. Since the excitation
+energy and the state number for the ground state are obvious, <i>ZA</i>
+and <i>NNNNNN</i> are given in their location. When <i>ofset</i> is not given,
+DeCE checks the outgoing particle counting to locate the proper column,
+like "000000" for the capture or "100000" for the inelastic scattering. </p>
+
 
 <pre id="dat">
-# 1.00000e-06    Angdist   1.986060e-01 2.646580e-01 2.795430e-01
- 1.000000e+00 1.970282e+04 0.000000e+00 0.000000e+00 0.000000e+00
- 2.000000e+00 1.970282e+04 0.000000e+00 0.000000e+00 0.000000e+00
+
+# Nuclide Ex         39090 6.816700e-01         ----        39089 9.089700e-01         ----
+# Particle L        000000            2         ----       100000            1         ----
+# HalfLife    2.304000e+05 1.148000e+04 0.000000e+00 0.000000e+00 1.566000e+01 0.000000e+00
+ 1.000000e-03 6.985171e+02 1.772155e+00 0.000000e+00 7.529975e+03 0.000000e+00 0.000000e+00
+ 5.000000e-03 3.056256e+02 1.396530e+00 0.000000e+00 3.865854e+03 0.000000e+00 0.000000e+00
+ 1.000000e-02 1.987390e+02 1.026473e+00 0.000000e+00 3.195056e+03 0.000000e+00 0.000000e+00
  ... (snip) ...
- 1.790000e+02 1.970283e+04 0.000000e+00 0.000000e+00 0.000000e+00
- 1.800000e+02 1.970283e+04 0.000000e+00 0.000000e+00 0.000000e+00
-# 1.00000e-05   Angdist    1.986060e-01 2.646580e-01 2.795430e-01
- 1.000000e+00 1.238493e+04 0.000000e+00 0.000000e+00 0.000000e+00
- 2.000000e+00 1.238493e+04 0.000000e+00 0.000000e+00 0.000000e+00
- ... (snip) ...
+ 1.000000e+00 2.463458e+01 1.784821e+00 0.000000e+00 2.491172e+03 5.743485e+01 0.000000e+00
+ 2.000000e+00 1.624750e+01 1.543434e+00 0.000000e+00 2.058722e+03 2.360404e+02 0.000000e+00
+ 3.000000e+00 1.442111e+01 1.681520e+00 0.000000e+00 1.715708e+03 5.041604e+02 0.000000e+00
 </pre>
 
-<p>In the first line, the neutron incident energy in MeV (default),
-the keyword of <code> Angist </code>, the first level excitation energy,
-the second level, etc, are given. The differential cross sections are
-given at 180 angular points at every 1 degree. These blocks are
-repeated for all incident energies. The unit of scattering cross section
-is arbitrary, since they will be normalized.</p>
+<p>From the table above, the production of radioactive isotopes of <sup>90g,m</sup>Y 
+is given by the multiplicities. Since in general the capture cross section is given
+by the resonance parameter, MF10 cannot be used in this case.</p>
 
-<p>When Legendre coefficients are given, the keyword
-is <code>Legcoef</code>, and maximum of 50 expansion coefficients are
-given.</p>
+<pre>
+readradioactive 9 102 "datafile"
+table 8 102
+table 9 102
+</pre>
 
 <pre id="dat">
-# 1.00000e-06   Legcoef    1.986060e-01 2.646580e-01 2.795430e-01
-            0 1.918427e+04 0.000000e+00 0.000000e+00 0.000000e+00
-            1 3.227445e-08 0.000000e+00 0.000000e+00 0.000000e+00
+ 3.908900+4 8.814210+1          0          0          2          13925 8102
+ 3.909000+4 0.000000+0          9          0          0          03925 8102
+ 3.909000+4 6.816700+5          9          2          0          03925 8102
+                                                                  3925 8  0
+ 3.908900+4 8.814210+1          0          0          2          03925 9102
+ 6.857137+6 6.857137+6      39090          0          1        1103925 9102
+        110          2                                            3925 9102
+ 1.000000-5 9.990527-1 2.530000-2 9.990527-1 1.000000+2 9.990527-13925 9102
+ 1.000000+2 9.990527-1 2.000000+2 9.988722-1 5.000000+2 9.982815-13925 9102
+ 6.000000+2 9.980966-1 7.000000+2 9.979227-1 8.000000+2 9.977604-13925 9102
  ... (snip) ...
-           49 0.000000e+00 0.000000e+00 0.000000e+00 0.000000e+00
-# 2.00000e+00   Legcoef    1.986060e-01 2.646580e-01 2.795430e-01
-            0 1.428037e+01 3.152489e+00 5.780398e+00 8.986116e+00
-            1 4.024690e+00 4.341183e-01 1.150535e+00 7.207134e-01
-            2 8.009362e-01-4.895771e-03 1.493828e-01-3.589658e-02
+ 1.800000+7 9.486121-1 1.850000+7 9.585109-1 1.900000+7 9.666975-13925 9102
+ 1.950000+7 9.732864-1 2.000000+7 9.784941-1                      3925 9102
+ 6.857137+6 6.175467+6      39090          2          1        1103925 9102
+        110          2                                            3925 9102
+ 1.000000-5 9.473159-4 2.530000-2 9.473159-4 1.000000+2 9.473159-43925 9102
+ 1.000000+2 9.473159-4 2.000000+2 1.127805-3 5.000000+2 1.718482-33925 9102
+ 6.000000+2 1.903382-3 7.000000+2 2.077293-3 8.000000+2 2.239649-33925 9102
  ... (snip) ...
 </pre>
 
-<p>The angular data points and the maximum Legendre coefficients
-to be read by DeCE are defined in <code>deceangdist.cpp</code></p>
 
-<p> When the angular distributions are stored in MF6, the discrete gamma-ray
-energy spectra are also stored in the same section when gamma_branch_file is provided.
-The data format of the gamma_branch_file looks </p>
+<p>For the 909-keV meta-state production by the inelastic scattering,
+these data can be stored either in MF9 or 10. Because the ground state
+is stable, only the excited state data will be stored. </p>
 
+<pre>
+readradioactive 10 4 "datafile"
+table 8 4
+table 10 4
+</pre>
 <pre id="dat">
-#gammaray
-    0  27 28  59
-        0   0 0.000000e+00
-        1   1 3.394210e-01   0 1.000000e+00
-        2   1 4.649760e-01   0 1.000000e+00
-        3   2 8.779470e-01   1 1.420986e-02   0 9.857901e-01
+ 3.908900+4 8.814210+1          0          0          1          13925 8  4
+ 3.908900+4 9.089700+5         10          1          0          03925 8  4
+                                                                  3925 8  0
+ 3.908900+4 8.814210+1          0          0          1          0392510  4
+ 0.000000+0-9.089700+5      39089          1          1         62392510  4
+         62          2                                            392510  4
+ 9.192826+5 0.000000+0 9.500000+5 3.534695-2 1.000000+6 5.743485-2392510  4
+ 1.100000+6 8.739968-2 1.200000+6 1.136811-1 1.300000+6 1.399402-1392510  4
+ ... (snip) ...
 </pre>
-
-<p>for the case of no internal conversion coefficient (ICC) case. The first
-four integers mean the particle ID (0 for photon, 1 for neutorn, 2 for
-proton, 3 for alpha-particle, 4 for deuteron, 5 for triton, and 5 for
-helium-3). The second number is the number of discrete levels,
-followed by the Z and A numbers of this isotope. Z and A are not used
-by DeCE.  The following each line shows the level index, number of
-gamma-ray branches, the level excitation energy, and pairs of the
-final state level index and branching ratios.</p>
-
-<p>When ICC is provided, the data file contains</p>
-
-<pre id="dat">
-#gammaraywithconversion
-    0  27 28  59
-        0   0 0.000000e+00
-        1   1 3.394210e-01   0 1.000000e+00 9.959167e-01
-        2   1 4.649760e-01   0 1.000000e+00 9.984026e-01
-        3   2 8.779470e-01   1 1.420986e-02 9.990010e-01   0 9.857901e-01 9.997401e-01
-</pre>
-
-<p> where the decay data are given by triplets (final state level
-index, branching ratio, and ICC).<p>
-
-
-<h2><a name="multiangdist">multiangdist (read multiple angular distribution data from file)</a></h2>
-
-<pre id="syn">
-   multiangdist  <i>MFnumber</i> <i>MTstart</i> <i>MTlast</i> "file_name" [ "gamma_branch_file_name" ]
-</pre>
-
-<p>DeCE reads angular distribution data in the specified data file,
-ranging from <i>MTstart</i> to <i>MTlast</i>.</p>
-
-
-<h2><a name="libread">libread (read a section from another file)</a></h2>
-
-<pre id="syn">
-   libread  <i>MFnumber</i> <i>MTnumber</i> "file_name"
-</pre>
-
-<p>DeCE imports a specified MF/MT section from another ENDF-6 file, and
-replace by that, or creates a new section if it does not exist.  The
-external file can be a full ENDF-6 file, or just a section. When <i>MTnumber = 0</i>
-all the MTs in the given <i>MFnumber</i> will be imported.</p>
-
-
-<p>When the ZA and AWR parameters in the external file are different
-from the current data, DeCE replace them by the current ones, but
-only in the HEAD part.</p>
-
-
-<h2><a name="multilibread">multilibread (read multiple sections from another file)</a></h2>
-
-<pre id="syn">
-   multilibread  <i>MFnumber</i> <i>MTstart</i> <i>MTlast</i> "file_name"
-</pre>
-
-<p>Repeat <code>libread</code> for the range of MT numbers.</p>
 
 
 <hr>

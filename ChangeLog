@@ -1,3 +1,16 @@
+2024-04-25  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/deceoperation.cpp (DeceOperationREADRADIOACTIVE): new function
+	* source/deceread.cpp (DeceReadRadioactive): new function
+	(DeceReadMF8): new function
+	(DeceReadMF9): new function
+	read radioactive isotope production data from file, and
+	produce MF=8, 9, and 10.
+
+	* source/deceread.h: new file
+	* source/decereadfile.cpp: new file
+	some functions separated from deceread.cpp
+
 2024-02-07  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/endfio.cpp (ENDFRead): modified

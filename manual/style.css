@@ -121,6 +121,8 @@ pre#prg    {font-size:12pt;
             background-color:#fff4f0;
             color:#050070;}
 
+i          {color:#f57676;}
+
 a          {font-family:sans-serif;}
 a:link     {text-decoration:none;color:#0000aa}
 a:visited  {text-decoration:none;color:#222299}

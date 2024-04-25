@@ -28,10 +28,10 @@ without any command-line options.</p>
 as indicated by a user. DeCE continues running until you
 type <code>quit, end</code> or <code>exit</code>.</p>
 
-<p>The second one is to use an option of <i>-o File_Name</i>.</p>
+<p>The second one is to use an option of <code>-o</code> <i>File_Name</i>.</p>
 
 <pre>
- % dece <i> -o ENDF_out.DAT ENDF_in.DAT</i>
+ % dece -o <i>ENDF_out.DAT ENDF_in.DAT</i>
 </pre>
 
 <p>Again DeCE will be in the interactive mode. Once DeCE processed all
@@ -41,11 +41,11 @@ the whole ENDF-6 formatted data on the <code>ENDF_out.DAT</code> file.</p>
 <p>DeCE can be used just only for renumbering, or for reformatting the
 comment section, without any numerical manipulation.  In this case,
 you can bypass the <code>quit</code> command by a command line
-option <i>-q</i>, which tells DeCE to exit right away and reformat the
+option <code>-q</code>, which tells DeCE to exit right away and reformat the
 file. </p>
 
 <pre>
- % dece <i> -q -o ENDF_out.DAT ENDF_in.DAT</i>
+ % dece -q -o <i>ENDF_out.DAT ENDF_in.DAT</i>
 </pre>
 
 
@@ -108,6 +108,9 @@ or a data file. In the case of command line,</p>
 
 <dt> <b>-s</b>
 <dd> Print a complete list of MF/MT numbers in the file, and quit.
+
+<dt> <b>-m</b>
+<dd> Print brief manual of MF and MT numbers
 </dl>
 
 
