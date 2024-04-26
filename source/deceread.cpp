@@ -67,11 +67,6 @@ void DeceReadRadioactive(ENDFDict *dict, ENDF *lib8, ENDF *lib9, const int mf, c
     return;
   }
 
-  if(ofset == 0){
-    message << "reading radioactive data needs to specify data column";
-    TerminateCode("DeceReadRadioactive");
-  }
-
   /*** allocate data array */
   cx   = new double [MAX_DBLDATA];
   cy   = new double [MAX_DBLDATA];
@@ -244,7 +239,7 @@ void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int lmf, const int mt, char *d
   const int no = 1; // decay chain not given here
   const int maxlevel = 3; // default number of max levels, gs, m1, and m2
 
-  struct Prod prd = readMShead(datafile,ofset);
+  struct Prod prd = readMShead(datafile,mt,ofset);
 
   /*** number of states to be included (for T1/2 > 0) */
   int ns = 0;
@@ -277,7 +272,7 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
 {
   const int maxlevel = 3;
 
-  struct Prod prd = readMShead(datafile,ofset);
+  struct Prod prd = readMShead(datafile,mt,ofset);
   double *cy0  = new double [MAX_DBLDATA];
   double *cy1  = new double [MAX_DBLDATA];
   double *cy2  = new double [MAX_DBLDATA];
@@ -291,9 +286,9 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
   lib->setENDFmf(mf);
   lib->setENDFmt(mt);
 
-  int nc = readMSdata(datafile,mf,3*ofset-2,cx,cy0); // ground state
-           readMSdata(datafile,mf,3*ofset-1,cx,cy1); // first meta
-           readMSdata(datafile,mf,3*ofset  ,cx,cy2); // second meta
+  int nc = readMSdata(datafile,mf,3*prd.col-2,cx,cy0); // ground state
+           readMSdata(datafile,mf,3*prd.col-1,cx,cy1); // first meta
+           readMSdata(datafile,mf,3*prd.col  ,cx,cy2); // second meta
 
   int ntotal = 0;
   for(int is=0 ; is<maxlevel ; is++){
@@ -323,12 +318,10 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
     /*** calculate Qm and Qi */
     struct Qval q = qvalues((int)dict->getZA(),dict->getProj(),(int)dict->getZA(),mt,dict->getELIS(),prd.ex[is]);
 
-    /*** ignore resonance range, and include Ethresh only */
-    int np = geneCSdata(nc,cx,cy,q.et,0.0,xdat);
+    int np = geneCSdata(nc,cx,cy,q.et,0.0,xdat); // ignore resonance range
 
-
-    /*** special case for capture, use a constant value in the resonance region */
-    if( (mf == 9) && (mt == 102)){
+    /*** non-threshold reaction */
+    if(q.et <= 0.0){
       /*** look for the first non-zero data */
       double cz = 0.0;
       int    nz = 0;
@@ -336,6 +329,7 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
         if(xdat[2*j+1] != 0.0){ cz = xdat[2*j+1]; nz = j; break; }
       }
       for(int j=0 ; j<nz ; j++) xdat[2*j+1] = cz;
+
     }
 
     /*** make TAB1 */
@@ -375,12 +369,9 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
 struct Qval qvalues(const int za, const int proj, const int targ, const int mt, const double elis, const double el)
 {
   /*** find Q-values */
-  double qm = mass_qvalue(proj,targ,mt) + elis;
-  double qi = qm;
-  double et = 0.0;
-
-  qi = qm - el;
-  if(qi < 0.0) et = mass_threshold((int)za,qi);
+  double qm = mass_qvalue(proj,targ,mt);
+  double qi = qm + elis - el;
+  double et = mass_threshold((int)za,qi);
    
   struct Qval q = {qm,qi,et};
 

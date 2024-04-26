@@ -2,7 +2,7 @@ DeCE : The Descriptive Correction of ENDF-6 Format Code
 
    Language C++
    Author   Kawano, T.
-   Version  1.2 (Garnet)
+   Version  1.2 (Quartz)
 
 DeCE is a C++ program to manipulate ENDF-6 formatted file interactively,
 inspired by the CRECTJ6 code by T. Nakagawa of JAEA (JAERI-DATA/CODE 
@@ -41,12 +41,14 @@ History:
    1.2.4 (Olivine)    : Jun. 2020   covariance printing improved version
    1.2.5 (Jadeite)    : Nov. 2020   memory allocation and GFR module improved version
    1.2.6 (Garet)      : Oct. 2022   maintenance release, minor revision
+   1.2.7 (Quartz)     : Apr. 2024   radioisotope production reading
 
 Files:
     source/
       [Main Program]
         constant.h            physical constatns definition
         dece.h                prototype definition of main modules
+        deceread.h            prototype definition of data reading functions
         decetable.h           prototype definition of functions in decetable sources
         terminate.h           code emergency stop
         dece.cpp              main program
@@ -69,8 +71,9 @@ Files:
         decepoint.cpp         manipulate one-point data
         deceprocpoitwise.cpp  create point-wise cross sections in MF3
         deceprocgroup.cpp     make a table of group average cross sections
-        deceread.cpp          read external file and make a section in MF3
+        deceread.cpp          read external file and make a section in MF1,3,9 and 10
         decereadjust.cpp      rescale partial cross section by the sum
+        decereadfile.cpp      subsidiary to deceread.cpp
         decescanindex.cpp     print contained MF and MT numbers
         decetable.cpp         output human readable table from ENDF data
         decetable1.cpp        part of decetable, for MF1

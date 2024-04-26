@@ -114,7 +114,7 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
   fp.close();
 
   if(nc >= 1){
-    message << "MF3:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
+    message << "MF3:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
     Notice("DeceRead:readCSdata");
   }
 
@@ -191,7 +191,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   if(zero) nc = 0;
 
   if(nc >= 1){
-    message << "MF3:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
+    message << "MF3:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
     Notice("DeceRead:readISdata");
   }
 
@@ -231,7 +231,7 @@ int readNUdata(char *file, int ofset, double *x, double *y)
   fp.close();
 
   if(nc >= 1){
-    message << "MF3:MT455(6) " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
+    message << "MF3:MT455(6) " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
     Notice("DeceRead:readNUdata");
   }
 
@@ -242,10 +242,62 @@ int readNUdata(char *file, int ofset, double *x, double *y)
 /**********************************************************/
 /*      Read in Radioactive Nuclide Data                  */
 /**********************************************************/
-struct Prod readMShead(char *file, const int ofset)
+struct Prod readMShead(char *file, const int mt, int ofset)
 {
   ifstream fp;
-  string   line;
+  string   line, s, p0 = "      ", p1;
+  struct Prod prd = {0, 0, 0, {0,0,0}, {0.0,0.0,0.0}, {0.0,0.0,0.0}};
+
+  if(ofset == 0){
+    switch(mt){
+    case 102: p0 =  "000000"; break;
+    case   4: p0 =  "100000"; break;
+    case 103: p0 =  "010000"; break;
+    case 107: p0 =  "001000"; break;
+    case 104: p0 =  "000100"; break;
+    case 105: p0 =  "000010"; break;
+    case 106: p0 =  "000001"; break;
+    case  16: p0 =  "200000"; break;
+    case  28: p0 =  "110000"; break;
+    case  22: p0 =  "101000"; break;
+    case  32: p0 =  "100100"; break;
+    case  33: p0 =  "100010"; break;
+    case  34: p0 =  "100001"; break;
+    case 111: p0 =  "020000"; break;
+    case 112: p0 =  "011000"; break;
+    case 115: p0 =  "010100"; break;
+    case 108: p0 =  "002000"; break;
+    case 117: p0 =  "001100"; break;
+    case  17: p0 =  "300000"; break;
+    case  41: p0 =  "210000"; break;
+    case  24: p0 =  "201000"; break;
+    case  45: p0 =  "111000"; break;
+    case  44: p0 =  "120000"; break;
+    case  37: p0 =  "400000"; break;
+    default: break;
+    }
+
+    fp.open(file);
+    if(!fp){ message << "cannot open data file " << file; TerminateCode("readMShead"); }
+
+    getline(fp,line); // Nuclide
+    getline(fp,line); // Particle
+    istringstream sp(&line[13]);  // skip heading "# Nuclide Ex "
+    bool found = false;
+    while(!sp.eof()){
+      sp >> p1;
+      sp >> s;
+      sp >> s;
+      ofset ++;
+      if(p0 == p1){ found = true;  break; }
+    }
+    fp.close();
+
+    if(!found){
+      message << "MF8:MT" << mt << " cannot read from " << file << " because ofset is not given";
+      TerminateCode("readMShead"); }
+  }
+
 
   fp.open(file);
   if(!fp){ message << "cannot open data file " << file; TerminateCode("readMShead"); }
@@ -255,9 +307,9 @@ struct Prod readMShead(char *file, const int ofset)
   int za = 0;
   double ex[3];
   for(int i=0 ; i<ofset ; i++){
-    s0 >> za;
-    s0 >> ex[1];
-    s0 >> ex[2];
+    s0 >> s; za    = atoi(s.c_str());
+    s0 >> s; ex[1] = atof(s.c_str());
+    s0 >> s; ex[2] = atof(s.c_str());
   }
   ex[0] = 0.0;
   ex[1] *= opt.ReadXdataConversion;
@@ -266,9 +318,8 @@ struct Prod readMShead(char *file, const int ofset)
   getline(fp,line); // Particle
   istringstream s1(&line[13]);  // skip heading "# Particle L "
   int pid = 0, nx[3];
-  string s;
   for(int i=0 ; i<ofset ; i++){
-    s1 >> pid;
+    s1 >> s; pid   = atoi(s.c_str());
     s1 >> s; nx[1] = atoi(s.c_str());
     s1 >> s; nx[2] = atoi(s.c_str());
   }
@@ -278,13 +329,15 @@ struct Prod readMShead(char *file, const int ofset)
   istringstream s2(&line[13]);  // skip heading "# HalfLife   "
   double th[3];
   for(int i=0 ; i<ofset ; i++){
-    s2 >> th[0];
-    s2 >> th[1];
-    s2 >> th[2];
+    s2 >> s; th[0] = atof(s.c_str());
+    s2 >> s; th[1] = atof(s.c_str());
+    s2 >> s; th[2] = atof(s.c_str());
   }
+  fp.close();
 
-  struct Prod prd;
-  prd.za = za;
+  prd.col = ofset;
+  prd.za  = za;
+  prd.pid = pid;
   for(int i=0 ; i<3 ; i++){
     prd.nx[i] = nx[i];
     prd.ex[i] = ex[i];
@@ -332,7 +385,7 @@ int readMSdata(char *file, const int mf, const int ofset, double *x, double *y)
   fp.close();
 
   if(nc >= 1){
-    message << "MF:" << mf << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file;
+    message << "MF:" << mf << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
     Notice("DeceRead:readMSdata");
   }
 

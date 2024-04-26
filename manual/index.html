@@ -8,13 +8,13 @@
 <body>
 
 <h1><a name = "top"> The Descriptive Correction of ENDF-6 Format Code </a><br/>
-     DeCE (Garnet) Manual </h1>
+     DeCE (Quartz) Manual </h1>
 
 <p style="text-align:center;">
 <img src="DeCE.png" width="340" height="320" alt="DeCE Logo" title="DeCE" style="margin-top:20px;margin-bottom:20px;padding:0px;">
 </p>
 
-<p style="text-align:center;"> Manual Updated (Mar. 2023) </p>
+<p style="text-align:center;"> Manual Updated (Apr. 2024) </p>
 <p style="text-align:right;"> Kawano Toshihiko </p>
 <p style="text-align:right;"> Los Alamos National Laboratory </p>
 
@@ -95,7 +95,7 @@
              nutotal (create MF/MT=1/452 section)</a>
         </ul>
     <li> <a href="ope2.html">
-         Create ENDF-6 Data From File </a>
+         Create ENDF-6 Data From File (Cross Section) </a>
         <ul>
         <li> <a href="ope2.html#read">
              read (read cross sections from file) </a>
@@ -105,37 +105,43 @@
              replaceread (read cross sections from file, ignore existing data and resonance range) </a>
         <li> <a href="ope2.html#multiread">
              multiread (read multiple cross section data from file)</a>
-        <li> <a href="ope2.html#angdist">
-             angdist (read scattering angular distribution data from file)</a>
-        <li> <a href="ope2.html#multiangdist">
-             multiangdist (read multiple angular distribution data from file)</a>
-        <li> <a href="ope2.html#libread">
-             libread (read a section from another file)</a>
-        <li> <a href="ope2.html#multilibread">
-             multilibread (read multiple sections from another file)</a>
+        <li> <a href="ope2.html#readradioactive">
+             readradioactive (read radioactive isotope production cross sections from file)</a>
         </ul>
     <li> <a href="ope3.html">
+         Create ENDF-6 Data From File (Scattering Angular Distribution) </a>
+        <ul>
+        <li> <a href="ope3.html#angdist">
+             angdist (read scattering angular distribution data from file)</a>
+        <li> <a href="ope3.html#multiangdist">
+             multiangdist (read multiple angular distribution data from file)</a>
+        <li> <a href="ope3.html#libread">
+             libread (read a section from another file)</a>
+        <li> <a href="ope3.html#multilibread">
+             multilibread (read multiple sections from another file)</a>
+        </ul>
+    <li> <a href="ope4.html">
          Data Point Manipulation </a>
         <ul>
-        <li> <a href="ope3.html#addpoint">
+        <li> <a href="ope4.html#addpoint">
              addpoint (add one data point) </a>
-        <li> <a href="ope3.html#delpoint">
+        <li> <a href="ope4.html#delpoint">
              delpoint (delete one data point, or multiple points) </a>
-        <li> <a href="ope3.html#modpoint">
+        <li> <a href="ope4.html#modpoint">
              modpoint (update one data point by input)</a>
-        <li> <a href="ope3.html#factor">
+        <li> <a href="ope4.html#factor">
              factor (multiply data points by a factor)</a>
-        <li> <a href="ope3.html#applyfunc">
+        <li> <a href="ope4.html#applyfunc">
              applyfunc (multiply data point by a function)</a>
-        <li> <a href="ope3.html#noramlize">
+        <li> <a href="ope4.html#noramlize">
              normalize (normalize data)</a>
-        <li> <a href="ope3.html#readjust">
+        <li> <a href="ope4.html#readjust">
              readjust (readjust partial cross sections by the sum)</a>
-        <li> <a href="ope3.html#changeint">
+        <li> <a href="ope4.html#changeint">
              changeint (modify interpolation law)</a>
-        <li> <a href="ope3.html#changeqval">
+        <li> <a href="ope4.html#changeqval">
              changeqval (modify Q-value)</a>
-        <li> <a href="ope3.html#checkthreshold">
+        <li> <a href="ope4.html#checkthreshold">
              checkthreshold (check threshold energy)</a>
 
 
@@ -177,7 +183,7 @@
     Options (set)</a>
 
 <li> <a href="option.html#memoryusage">
-    memoryusage (print memory usage table)</a>
+    Memoryusage (print memory usage table)</a>
 
 <li> <a href="processing.html">
     Data Processing </a>
@@ -236,7 +242,9 @@
 <p>DeCE is an ENDF-6 formatted file manipulation program, similar to
 STANEF by C.L. Dunford et al. (BNL), or FIXUP in PREPRO by D.E. Cullen
 (IAEA), but probably the closest to CRECTJ6 by T. Nakagawa (JAEA), as
-some data manupulation can be performed interactively.</p>
+some data manipulation can be performed interactively. Although there 
+is no official pronunciation of DeCE, I prefer to call it [ d&#237;&#720;s ].
+</p>
 
 <p>In this manual, the word <code>ENDF-6 file</code> is often used.  This
 does not refer to a particular name of libraries, like ENDF/B-VI, but
@@ -266,7 +274,7 @@ data block specified by a combination of MF and MT numbers.</p>
 which provide interface to the ENDF-6 specified data structure. The
 ENDF class is designed to be general so that it can be used in other
 user utility programs. This package offers some examples to use the
-ENDF class in the example direcrory.</p>
+ENDF class in the example directory.</p>
 
 
 
@@ -278,8 +286,8 @@ They are known as "the Mohs scale of mineral hardness." The code was
 originally developed as a program <code>E-Type</code>, which was a
 converter program from the Hauser-Feshbach model code output into the
 ENDF-6 formatted data, first appeared in Summer 2009.  This was
-totally superseded by DeCE.  The current version, first built in October 2022,
-is Garnet, whose Mohs scale is 6.5 - 7.5.</p>
+totally superseded by DeCE.  The current version
+is Quartz, and its Mohs scale is 7.</p>
 
 <p>All versions up to DeCE (Fluorite) were just for the author's
 private use. Apatite is the first version of outside release (yet
@@ -307,6 +315,13 @@ adding a Coulomb function for charged particle channels.</p>
 
 <p> The version Garet, which is a maintenance release, was released in
 2022 that includes some minor revisions and bug fixes.</p>
+
+<p> Quartz, released in 2024, includes several major upgrades;
+improved angular distribution with gamma-ray emission, produce
+energy-average elastic scattering angular distributions from
+resonances, gamma transition probability including gamma-ray
+conversion fraction, and reading radioactive isotope production cross
+sections.</p>
 
 <p style="text-align:center;">
 <img src="decereconst1.png" width="400" height="280" alt="cross section reconstructed" title="cross section reconstructed" style="margin-top:20px;margin-bottom:20px;margin-right:20pt;margin-left:20pt;padding:0px;">
