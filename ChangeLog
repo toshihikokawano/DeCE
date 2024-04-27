@@ -1,7 +1,8 @@
 2024-04-27  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* tools/deceangdist.cpp: updated
-	angular distribution from MF3 and 4 is constructed at a given energy
+	angular distribution from MF3 and 4 is constructed at a given energy,
+	or at built-in energy points
 
 2024-04-25  Toshihiko Kawano  <kawano@lanl.gov>
 

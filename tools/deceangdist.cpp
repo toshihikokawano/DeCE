@@ -1,6 +1,6 @@
 /******************************************************************************/
 /**                                                                          **/
-/**     DeCE Tools : Generate Elastic Angular Distributions from MF3/4 MT2   **/
+/**     DeCE Tools : Generate Elastic and Inelastic  Angular Distributions   **/
 /**                                                                          **/
 /******************************************************************************/
 
@@ -17,14 +17,17 @@ using namespace std;
 
 int    main (int, char *[]);
 void   tabulateAngDist (const double, const double, const double, ENDF *, ENDF *);
+void   findEnergyMF4 (const double, ENDF *);
+void   findEnergyMF6 (const double, ENDF *);
 int    calcAngDist (const double, const double, ENDF *);
 void   calcAngDistTAB (const double, const int, double *, ENDF *);
 void   calcAngDistLEG (const double, const int, double *, ENDF *);
-void   findEnergy (const double, ENDF *);
 void   printAngDist (const int, const double, const double);
 double legendre (int, double);
-inline double interpolation(const double, const double, const double, const double, const double);
+void   usage ();
 
+inline double interpolation(double x1, double x2, double y1, double y2, double x)
+{ return( (y2-y1)/(x2-x1) * (x-x1) + y1 ); }
 
 static const double DEFAULT_ANGSTEP  =  1.0;  // default calculation angle increment
 static const int    MAX_ANGLE        =  360;  // max number of angular points
@@ -38,7 +41,7 @@ static double default_egrid[MAX_EGRID] = {
  19.5, 20.0};
 
 static double *xdat, *ydat;
-static int dataptr = 0, mt = 2;
+static int dataptr = 0, mf = 4, mt = 2;
 
 /**********************************************************/
 /*      Differential Scattering Angular Distribution      */
@@ -47,74 +50,96 @@ int main(int argc, char *argv[])
 {
   ifstream fpin;
   string   libname = "";
-  ENDF     lib2, lib3, lib4;
+  ENDF     libcs, libad;
   double   angstep = DEFAULT_ANGSTEP;
   double   ein = 0.0;
   bool     autoenergy = false;
 
-  /*** command line options */
+  //----------------------------------- Command Line Options
   int p = 0;
-  while((p = getopt(argc,argv,"e:s:a")) != -1){
+  while((p = getopt(argc,argv,"e:s:t:ah")) != -1){
     switch(p){
     case 'e':
-      ein = atof(optarg);
-      break;
+      ein = atof(optarg);      break;
     case 's':
-      angstep = atof(optarg);
-      break;
+      angstep = atof(optarg);  break;
+    case 't':
+      mt = atoi(optarg);       break;
     case 'a':
       autoenergy = true;
-      ein = default_egrid[0];
-      break;
-    default:
-      break;
+      ein = default_egrid[0];  break;
+    case 'h':
+      usage();                 break;
+    default:                   break;
     }
   }
-
   if(optind < argc) libname = argv[optind];
 
   /*** check input data */
-  if(libname == "" || ein == 0.0){
-    cerr << "usage: deceangdist -f ENDF_file -e energy" << endl;  exit(-1);
-  }
+  if(libname == "" || ein == 0.0){ usage(); }
   if(angstep < 0.0 || angstep > 180.0){
     cerr << "invalid angle step " << angstep << endl;  exit(-1);
+  }
+  if(mt != 2){
+    if( (mt < 51) || (mt > 90) ){
+      cerr << "invalid MT number " << mt << endl; exit(-1);
+    }
   }
 
   /*** scan ENDF file and store data in dict */
   ENDFDict dict;
   if(ENDFScanLibrary(libname,&dict) < 0){
-    cerr << "ENDF file cannot open " << libname << endl;
-    exit(-1);
+    cerr << "ENDF file cannot open " << libname << endl;  exit(-1);
   }
 
 
-  /*** main calculation */
+  //--------------------------------------- Main Calculation
   /*** open ENDF file */
   fpin.open(libname.c_str());
 
   /*** look for the resonance boundary */
-  ENDFReadMF2(&fpin,&lib2,151);
-  ENDFMF2boundary(&dict,&lib2);
+  ENDFReadMF2(&fpin,&libcs,151);
+  ENDFMF2boundary(&dict,&libcs);
 
+  /*** allocate data arrays */
   xdat = new double [MAX_ANGLE]; // angular points
   ydat = new double [MAX_ANGLE]; // differential scattering probabilities
 
   /*** read ENDF tape */
-  ENDFReadMF3(&fpin,&lib3,mt);
-  ENDFReadMF4(&fpin,&lib4,mt);
+  libcs.resetPOS(); // reuse libcs object
+  ENDFReadMF3(&fpin,&libcs,mt);
+
+  /*** determine MF number by MT */
+  if(mt == 2){
+    mf = 4;
+    ENDFRead(&fpin,&libad,mf,mt);
+  }
+  else{
+    int cnd = ENDFRead(&fpin,&libad,4,mt); // try if MF4 is given
+    if(cnd >= 0) mf = 4;
+    else{
+      cnd = ENDFRead(&fpin,&libad,6,mt);   // if not, see MF6
+      if(cnd >= 0) mf = 6;
+      else{
+        cerr << "MF:MT " << mf << ":" << mt << " not given in " << libname << endl; exit(-1);
+      }
+    }
+  }
+
+  /*** close file */
   fpin.close();
 
   /*** process at each incident energy */
   if(autoenergy){
     for(int i=0 ; i<MAX_EGRID ; i++){
       ein = default_egrid[i] * 1e+6;
-      tabulateAngDist(ein,dict.emaxRe,angstep,&lib3,&lib4);
+      tabulateAngDist(ein,dict.emaxRe,angstep,&libcs,&libad);
     }
   }
-  else tabulateAngDist(ein,dict.emaxRe,angstep,&lib3,&lib4);
+  else tabulateAngDist(ein,dict.emaxRe,angstep,&libcs,&libad);
 
-  /*** clean up */
+
+  //------------------------------------------- Post Process
   delete [] xdat;
   delete [] ydat;
 
@@ -125,21 +150,138 @@ int main(int argc, char *argv[])
 /**********************************************************/
 /*      Tabulate Scattering Angular Distribution          */
 /**********************************************************/
-void tabulateAngDist(const double ein, const double eres, const double step, ENDF *lib3, ENDF *lib4)
+void tabulateAngDist(const double ein, const double eres, const double step, ENDF *libcs, ENDF *libad)
 {
   const double eps = 1.0e-10;
 
-  findEnergy(ein,lib4);
-  int nt = calcAngDist(ein,step,lib4);
+  if(mf == 4) findEnergyMF4(ein,libad);
+  else        findEnergyMF6(ein,libad);
+
+  int nt = calcAngDist(ein,step,libad);
 
   /*** when inside resonance, take the cross section at 1 keV above the boundary */
   double ex = ein;
   if(ein < eres) ex = eres + 1000.0;
 
-  double sigma = ENDFInterpolation(lib3,ex,false,0);
-  
+  double sigma = ENDFInterpolation(libcs,ex,false,0);
+
   /*** print results */
   if(sigma > eps) printAngDist(nt,ein,sigma);
+}
+
+
+/**********************************************************/
+/*      Locate Angular Distribution Data at Given Energy  */
+/**********************************************************/
+void findEnergyMF4(const double ein, ENDF *lib)
+{
+  Record head = lib->getENDFhead();
+  int    ltt  = head.l2;   // 0: isotropic, 1: Legendre, 2: tabulated
+  int    idx  = 0;
+  Record cont = lib->rdata[idx ++];
+  int    li   = cont.l1;   // 0: non-isotropic, 1: isotropic
+
+  bool found  = false;
+  int  dtype  = 0;
+
+  if(li == 1){
+    dataptr = 0; // isotropic case
+    return;
+  }
+  else{
+    /*** find two energy points Ein lies in between  */
+    Record cont = lib->rdata[idx ++];
+    int    ne = cont.n2;
+
+    for(int i=0 ; i<ne-1 ; i++){
+      double e1  = lib->rdata[idx  ].c2;
+      double e2  = lib->rdata[idx+1].c2;
+      if(e1 < ein && ein <= e2 ){
+        dtype = (ltt == 3) ? 1 : ltt;;
+        found = true;
+        break;
+      }
+      idx ++;
+    }
+
+    /*** when LTT = 3, and Ein is higher than the first energy region */
+    if(!found && (ltt == 3)){
+      idx ++;
+      cont = lib->rdata[idx ++];
+      ne = cont.n2;
+      for(int i=0 ; i<ne-1 ; i++){
+        double e1  = lib->rdata[idx  ].c2;
+        double e2  = lib->rdata[idx+1].c2;
+        if(e1 < ein && ein <= e2 ){
+          dtype = 2;
+          found = true;
+          break;
+        }
+        idx++;
+      }
+    }
+  }
+
+  /*** set pointer where angular distribution data are given */
+  if(!found) dataptr = 0;
+  else if(dtype == 1) dataptr =  idx;
+  else                dataptr = -idx; // for tabulated data case, set negative
+
+  return;
+}
+
+
+void findEnergyMF6(const double ein, ENDF *lib)
+{
+  Record head = lib->getENDFhead();
+  int    nk   = head.n1;
+  int    idx  = 0;
+
+  if(nk == 0) return;
+
+  Record cont = lib->rdata[idx ++];
+  int    law  = cont.l2;   // LAW, should be 2 or 3
+
+  bool found  = false;
+  int  dtype  = 0;
+
+  if(law == 3){
+    dataptr = 0; // isotropic case
+    return;
+  }
+  else if(law == 2){
+    Record cont = lib->rdata[idx ++];
+    double e0  = lib->rdata[idx].c2;
+    int    ne  = cont.n2;
+
+    /*** check the lowest energy first */
+    if(ein < e0){
+      dataptr = 0; // set to isotropic
+      return;
+    }
+
+    for(int i=0 ; i<ne-1 ; i++){
+      double e1  = lib->rdata[idx  ].c2;
+      double e2  = lib->rdata[idx+1].c2;
+      if(e1 < ein && ein <= e2 ){
+        dtype = (lib->rdata[idx].l1 == 0) ? 1 : 2;
+        found = true;
+        break;
+      }
+      idx ++;
+    }
+  }
+  else{
+    cerr << "cannot handle LAW = " << law << " in MF6" << endl; exit(-1);
+  }
+
+  if(!found) dataptr = 0;
+  else if(dtype == 1) dataptr =  idx;
+  else{
+    cerr << "tabulated angular distribution in MF6 not yet implemented" << endl; exit(-1);
+  }
+
+  return;
 }
 
 
@@ -252,66 +394,6 @@ void calcAngDistLEG(const double ein, const int nt, double *x, ENDF *lib)
 
 
 /**********************************************************/
-/*      Locate Angular Distribution Data at Given Energy  */
-/**********************************************************/
-void findEnergy(const double ein, ENDF *lib)
-{
-  Record head = lib->getENDFhead();
-  int    ltt  = head.l2;   // 0: isotropic, 1: Legendre, 2: tabulated
-  int    idx  = 0;
-  Record cont = lib->rdata[idx ++];
-  int    li   = cont.l1;   // 0: non-isotropic, 1: isotropic
-
-  bool found = false;
-  int  dtype = 0;
-
-  if(li == 1){
-    dataptr = 0; // isotropic case
-    return;
-  }
-  else{
-    /*** find two energy points Ein lies in between  */
-    Record cont = lib->rdata[idx ++];
-    int    ne = cont.n2;
-    for(int i=0 ; i<ne-1 ; i++){
-      double e1  = lib->rdata[idx  ].c2;
-      double e2  = lib->rdata[idx+1].c2;
-      if(e1 < ein && ein <= e2 ){
-        dtype = (ltt == 3) ? 1 : ltt;;
-        found = true;
-        break;
-      }
-      idx ++;
-    }
-
-    /*** when LTT = 3, and Ein is higher than the first energy region */
-    if(!found && (ltt == 3)){
-      idx ++;
-      cont = lib->rdata[idx ++];
-      ne = cont.n2;
-      for(int i=0 ; i<ne-1 ; i++){
-        double e1  = lib->rdata[idx  ].c2;
-        double e2  = lib->rdata[idx+1].c2;
-        if(e1 < ein && ein <= e2 ){
-          dtype = 2;
-          found = true;
-          break;
-        }
-        idx++;
-      }
-    }
-  }
-
-  /*** set pointer where angular distribution data are given */
-  if(!found) dataptr = 0;
-  else if(dtype == 1) dataptr =  idx;
-  else                dataptr = -idx; // for tabulated data case, set negative
-
-  return;
-}
-
-
-/**********************************************************/
 /*      Print Differential Scattering Cross Section       */
 /**********************************************************/
 void printAngDist(const int nt, const double ein, const double sigma)
@@ -326,15 +408,6 @@ void printAngDist(const int nt, const double ein, const double sigma)
     cout << setw(14) << ydat[j] * sigma / (2.0*M_PI) << endl;
   }
   cout << endl;
-}
-
-
-/**********************************************************/
-/*      Linear Interpolation                              */
-/**********************************************************/
-inline double interpolation(double x1, double x2, double y1, double y2, double x)
-{
-  return( (y2-y1)/(x2-x1) * (x-x1) + y1 );
 }
 
 
@@ -365,3 +438,22 @@ double legendre(int n, double t)
 }
 
 
+/**********************************************************/
+/*     Help                                               */
+/**********************************************************/
+void usage()
+{
+  cout <<
+    "usage\n"
+    " % deceangdist [-e energy] ... ENDF_file\n"
+    "      ENDF_file : input ENDF-6 formatted file\n"
+    "      -e energy : calculate angular distribution at energy [eV]\n"
+    "      -a        : angular distributions at built-in energy grid\n"
+    "                  -e option will be ignored\n"
+    "      -t MT     : MTnumber for inelastic scattering, 51 - 90\n"
+    "                  when not given, MT=4 (elastic scattering) assumed\n"
+    "      -h        : this help\n"
+    "\n";
+  cout << endl;
+  exit(0);
+}
