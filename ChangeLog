@@ -1,3 +1,8 @@
+2024-04-27  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/deceangdist.cpp: updated
+	angular distribution from MF3 and 4 is constructed at a given energy
+
 2024-04-25  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/deceoperation.cpp (DeceOperationREADRADIOACTIVE): new function

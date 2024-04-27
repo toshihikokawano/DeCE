@@ -89,7 +89,7 @@ void DeceResonanceAngularDistribution(ENDFDict *dict, ENDF *lib[], int np)
   Record *cont  = new Record [npmax];
 
   /*** when all the data are Legendre coefficients */
-  if(ltt == 1){
+  if(ltt == 1 || ltt == 3){
     /*** highest L for memory allocation */
     int nlmax = 0;
     for(int i=0 ; i<ne ; i++){
