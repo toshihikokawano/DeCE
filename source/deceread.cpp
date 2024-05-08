@@ -17,7 +17,7 @@ static void   DeceReadMF1   (ENDFDict *, ENDF *, const int, char *, const int);
 static void   DeceReadMF3   (ENDFDict *, ENDF *, const int, char *, const int, const int);
 static void   DeceReadMF8   (ENDFDict *, ENDF *, const int, const int, char *, const int);
 static void   DeceReadMF9   (ENDFDict *, ENDF *, const int, const int, char *, const int);
-static struct Qval qvalues (const int, const int, const int, const int, const double, const double);
+static struct Qval qvalues  (const int, const int, const int, const int, const double, const double);
 static double findBoundary  (ENDF *);
 
 static double *cx, *cy, *xdat;
@@ -170,6 +170,9 @@ void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
       WarningMessage();
     }
   }
+
+  /*** cross sections given by resonances */
+  if( (mt == 1) || (mt == 2) || (mt == 102) ) q.et = 0.0;
 
   /*** generate floating point data */
   int np = nc;
