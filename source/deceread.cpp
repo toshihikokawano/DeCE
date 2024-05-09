@@ -184,13 +184,7 @@ void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
   }
   else if(readflag == 2) np = geneCSdata(nc,cx,cy,-1.0,0.0,xdat);
   else{
-    /*** cross sections given by resonances */
-    if( (mt == 1) || (mt == 2) || (mt == 102) ){
-      np = geneCSdata(nc,cx,cy,0.0,dict->emaxRe,xdat);
-    }
-    else{
-      np = geneCSdata(nc,cx,cy,q.et,dict->emaxRe,xdat);
-    }
+    np = geneCSdata(nc,cx,cy,q.et,dict->emaxRe,xdat);
   }
 
   if(np > 1){
@@ -380,10 +374,13 @@ struct Qval qvalues(const int za, const int proj, const int targ, const int mt, 
   double qm = mass_qvalue(proj,targ,mt);
   double qi = qm + elis - el;
   double et = mass_threshold((int)za,qi);
-   
+
+  /*** for exothermic reaction, there is no threshold */
+  if(et < 0.0) et = 0.0;
+
   struct Qval q = {qm,qi,et};
 
-  message << "target excitation: " << elis << " residual excitation: " << el << " Q(mass): " << q.qm << " Q(level): " << q.qi << " threshold energy: " << q.et;
+  message << "Q-values for MT = " << mt << "  Ex(target): " << elis << "  Ex(residual): " << el << "  Q(mass): " << q.qm << "  Q(level): " << q.qi << "  Threshold: " << q.et;
   Notice("DeceRead:qvalues");
 
   return q;
