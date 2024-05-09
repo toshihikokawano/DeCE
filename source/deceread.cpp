@@ -171,9 +171,6 @@ void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
     }
   }
 
-  /*** cross sections given by resonances */
-  if( (mt == 1) || (mt == 2) || (mt == 102) ) q.et = 0.0;
-
   /*** generate floating point data */
   int np = nc;
   if(readflag == 1){
@@ -186,7 +183,15 @@ void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
     else np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->rdata[0].n2,lib->xptr[0]);
   }
   else if(readflag == 2) np = geneCSdata(nc,cx,cy,-1.0,0.0,xdat);
-  else                   np = geneCSdata(nc,cx,cy,q.et,dict->emaxRe,xdat);
+  else{
+    /*** cross sections given by resonances */
+    if( (mt == 1) || (mt == 2) || (mt == 102) ){
+      np = geneCSdata(nc,cx,cy,0.0,dict->emaxRe,xdat);
+    }
+    else{
+      np = geneCSdata(nc,cx,cy,q.et,dict->emaxRe,xdat);
+    }
+  }
 
   if(np > 1){
     /*** make TAB1 */
