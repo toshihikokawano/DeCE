@@ -152,8 +152,6 @@ int main(int argc, char *argv[])
 /**********************************************************/
 void tabulateAngDist(const double ein, const double eres, const double step, ENDF *libcs, ENDF *libad)
 {
-  const double eps = 1.0e-10;
-
   if(mf == 4) findEnergyMF4(ein,libad);
   else        findEnergyMF6(ein,libad);
 
@@ -166,7 +164,7 @@ void tabulateAngDist(const double ein, const double eres, const double step, END
   double sigma = ENDFInterpolation(libcs,ex,false,0);
 
   /*** print results */
-  if(sigma > eps) printAngDist(nt,ein,sigma);
+  printAngDist(nt,ein,sigma);
 }
 
 
