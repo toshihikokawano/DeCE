@@ -319,7 +319,7 @@ class System{
 class ChannelWaveFunc{
  public:
   complex<double> H;       // Hanlel function, G+iF
-  complex<double> D;       // derivative Hanlel function, G'+iF'
+  complex<double> D;       // derivative Hankel function, G'+iF'
   complex<double> L;       // L-function, (G'+iF')/(G+iF) * rho
   complex<double> phase;   // hard-sphare phase, exp(-phi)
   complex<double> phase2;  // 2 x phase, exp(-2 phi)
