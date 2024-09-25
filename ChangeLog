@@ -1,3 +1,8 @@
+2024-09-25  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/gfrcs7.cpp (RMLStorePhaseShift): updated
+	radius from effective to true in calculating L function changed
+
 2024-04-27  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* tools/deceangdist.cpp: updated

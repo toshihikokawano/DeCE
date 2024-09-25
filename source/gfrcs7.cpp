@@ -648,9 +648,9 @@ void RMLStorePhaseShift(RMLParameter *r, RMLChannel *chn, ChannelWaveFunc *wf)
       /*** C0 = G + iF, C1 = G' + iF' */
       complex<double> C0, C1;
       coulomb(r->l[c],chn[c].alpha_true,chn[c].coulomb,&C0,&C1);
-      wf[c].setData(chn[c].alpha_effective,C0,C1);
+      wf[c].setData(chn[c].alpha_true,C0,C1);
 
-      /*** hard-sphase phase */
+      /*** hard-sphere phase */
       coulomb(r->l[c],chn[c].alpha_effective,chn[c].coulomb,&C0,&C1);
       wf[c].setPhase(C0);
 
