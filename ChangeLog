@@ -1,3 +1,14 @@
+2025-01-08  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/decetable8.cpp (DeceTableMF8MT457): updated
+	rearrange the output
+	print more information on decay data
+
+2024-10-08  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/decetable6.cpp (DeceTableMF6): updated
+	include multiplicity distribution for fission case
+
 2024-09-25  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/gfrcs7.cpp (RMLStorePhaseShift): updated
