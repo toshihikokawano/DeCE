@@ -15,6 +15,12 @@ static void DeceTableMF8Other(ENDF *);
 static void DeceTableMF8MT454(ENDF *);
 static void DeceTableMF8MT457(ENDF *);
 
+static const string spectype[12] = {
+"gamma-ray           ","beta-ray            ","EC, positoron       ",
+"                    ","alpha-particle      ","neutron             ",
+"spontaneous fission ","proton              ","discrete electron   ",
+"X-ray               ","anti-neutrino       ","neutrino            "};
+
 
 /**********************************************************/
 /*      Process MF=8                                      */
@@ -89,13 +95,16 @@ void DeceTableMF8MT457(ENDF *lib)
   Record head = lib->getENDFhead();
   int    lis  = head.l1;   // level number
   int    liso = head.l2;   // isomeric state number
-  int    nst  = head.n2;   // stability flag
+  int    nst  = head.n1;   // stability flag
   int    nsp  = head.n2;   // number of radiation types
 
   cout << "#          LIS" << setw(14) << lis  << "  target level" << endl;
   cout << "#         LISO" << setw(14) << liso << "  isomeric state number" << endl;
   cout << "#          NST" << setw(14) << nst  << "  0:radioactive 1:stable" << endl;
   cout << "#          NSP" << setw(14) << nsp  << "  total number of STYP for which spectra are given" << endl;
+  cout << endl;
+
+  if(nst == 1) return; // return if stable
 
   int idx = 0;
   double t12  = lib->rdata[idx].c1;      // half-life
@@ -141,6 +150,7 @@ void DeceTableMF8MT457(ENDF *lib)
     }
     cout << s << " energy and unc. [eV]" << endl;
   }
+  cout << endl;
   idx++;
 
 
@@ -151,41 +161,45 @@ void DeceTableMF8MT457(ENDF *lib)
   cout << "#          SPI"; outVal(spi); cout << "  spin of the nuclide in its LIS state" << endl;
   cout << "#          PAR"; outVal(par); cout << "  parity of the nuclide" << endl;
   cout << "#          NKD" << setw(14) << nkd << "  total number of decay modes" << endl;
+  cout << endl;
 
-  cout << "# RTYP          RFS (g/m)    Q             BR"<< endl;
+  cout << "# RTYP          RFS (g/m)    Q [eV]        dQ [eV]       BR            dBR"<< endl;
+  double sumbr = 0.0;
   for(int n=0 ; n<nkd ; n++){
     int j = 6*n;
-    outVal(lib->xptr[idx][j  ]); outVal(lib->xptr[idx][j+1]);
-    outVal(lib->xptr[idx][j+2]); outVal(lib->xptr[idx][j+4]); cout << " data" << endl;
-    cout <<"                            ";
-    outVal(lib->xptr[idx][j+3]); outVal(lib->xptr[idx][j+5]); cout << " unc." << endl;
+    for(int k=0 ; k<6; k++) outVal(lib->xptr[idx][j+k]);
+    cout << endl;
+    sumbr += lib->xptr[idx][j+4];
   }
+  cout << "# ----------------------------------------------------------------------------------" << endl;
+  cout << "                                                 sum BR "; outVal(sumbr); cout << endl;
+
+  cout << endl;
   idx++;
 
 
   for(int n=0 ; n<nsp ; n++){
-    double styp = lib->rdata[idx].c2; // decay radiation type
-    int    lcon = lib->rdata[idx].l1; // discrete and/or continuum
-    int    ner  = lib->rdata[idx].n2;
+    int styp = (int)lib->rdata[idx].c2; // decay radiation type
+    int lcon = lib->rdata[idx].l1;      // discrete and/or continuum
+    int ner  = lib->rdata[idx].n2;      // number of energies
 
     cout << "#    Radiation" << setw(14) << n << endl;
-    cout << "#         STYP" << setw(14) << (int)styp << "  decay radiation type (0:g, 1:b-, 2:EC,b+, 4:alpha, 5:n, 6:SF, 7:p, 8:e-" << endl;
+    cout << "#         STYP" << setw(14) << styp << "  radiation type: " << spectype[styp] << endl;
     cout << "#         LCON" << setw(14) << lcon << "  0: no continuum, 1: only continuum, 2: both discrete and continuum" << endl;
     cout << "#          NER" << setw(14) << ner << "  total number of discrete energies" << endl;
-
+    cout << endl;
 
     double fd = lib->xptr[idx][0];
     double fc = lib->xptr[idx][4];
 
-    cout << "# FD            ER            FC"<< endl;
-    outVal(lib->xptr[idx][0]); outVal(lib->xptr[idx][2]); outVal(lib->xptr[idx][4]); cout << " data" << endl;
-    outVal(lib->xptr[idx][1]); outVal(lib->xptr[idx][3]); outVal(lib->xptr[idx][5]); cout << " unc." << endl;
+    cout << "# FD            dFD           FC            dFC           ER [eV]       dER [eV]"<< endl;
+    outVal(lib->xptr[idx][0]); outVal(lib->xptr[idx][1]); 
+    outVal(lib->xptr[idx][4]); outVal(lib->xptr[idx][5]); 
+    outVal(lib->xptr[idx][2]); outVal(lib->xptr[idx][3]); cout << endl;
     cout << endl;
     idx++;
 
     /*** discrete spectrum */
-
-
     if( (lcon == 0) || (lcon == 2) ){
 
       int ntmax = 0;
@@ -194,6 +208,7 @@ void DeceTableMF8MT457(ENDF *lib)
         if(nt > ntmax) ntmax = nt;
       }
 
+      cout << "# discrete energy spectrum for " << spectype[styp] << endl;
       cout << "# disc E [eV]   dE [eV]       RTYP          TYPE        ";
       if(ntmax >  2) cout << "  RI            dRI         ";
       if(ntmax >  4) cout <<"  RIS           dRIS         ";
@@ -202,7 +217,7 @@ void DeceTableMF8MT457(ENDF *lib)
       if(ntmax > 10) cout << " RICL          dRICL";
       cout << endl;
 
-      double sri = 0.0;
+      double sumri = 0.0;
       for(int k=0 ; k<ner ; k++){
 
         outVal(lib->rdata[idx].c1); outVal(lib->rdata[idx].c2);
@@ -214,42 +229,59 @@ void DeceTableMF8MT457(ENDF *lib)
         }
         cout << endl;
 
-        sri += lib->xptr[idx][2]; // sum of RI
+        sumri += lib->xptr[idx][2]; // sum of RI
 
         idx++;
       }
       cout << "# ----------------------------------------------------------------------" << endl;
-      cout << "#                                           sum RI x FD "; outVal(sri * fd); cout << endl;
+      cout << "#                                           sum RI x FD "; outVal(sumri * fd); cout << endl;
     }
+    cout << endl;
 
     /*** continuum spectrum */
     if( (lcon == 1) || (lcon == 2) ){
+      int nr = lib->rdata[idx].n1;
       int np = lib->rdata[idx].n2;
 
+      cout << "# continuous energy spectrum for " << spectype[styp] << endl;
       cout << "#         RTYP"; outVal(lib->rdata[idx].c1); cout << "  decay mode" << endl;
-      cout << "#           NR" << setw(14) << np << "  number of energies" << endl;
+      cout << "#           NR" << setw(14) << nr << "  number of interpolation range" << endl;
+      cout << "# cont E [eV]   RP [1/eV]" << endl;
 
-      for(int ip=0 ; ip<np ; ip++){
-        outVal(lib->xptr[idx][2*ip  ]);
-        outVal(lib->xptr[idx][2*ip+1]);
-        cout << endl;
-      }
+      double sumrp = 0.0;
+      int i=0;
+      for(int ir=0 ; ir<nr ; ir++){
+        int interpol = lib->iptr[idx][2*ir+1];
 
-      double srp = 0.0;
-      for(int ip=0 ; ip<np-1 ; ip++){
-        double de = lib->xptr[idx][2*(ip+1)] - lib->xptr[idx][2*ip];
-        srp += de * lib->xptr[idx][2*ip+1];
+        cout << "#           NP" << setw(14) << np << "  number of energies" << endl;
+
+        for(int ip=i ; ip<lib->iptr[idx][2*ir] ; ip++){
+          outVal(lib->xptr[idx][2*ip  ]);
+          outVal(lib->xptr[idx][2*ip+1]);
+          cout << endl;
+        }
+
+        for(int ip=i ; ip<lib->iptr[idx][2*ir]-1 ; ip++){
+          double de = lib->xptr[idx][2*(ip+1)] - lib->xptr[idx][2*ip];
+          if(interpol == 1) sumrp += de *  lib->xptr[idx][2*ip+1]; // histogram
+          else              sumrp += de * (lib->xptr[idx][2*ip+1] + lib->xptr[idx][2*ip+3]) / 2.0;
+        }
+
+        i = lib->idata[2*ir]-1;
+        if(ir < nr-1){
+          cout << endl;
+        }
       }
 
       cout << "# ------------" << endl;
-      cout << "# sum RP x FC "; outVal(srp * fd); cout << endl;
+      cout << "# sum RP x FC "; outVal(sumrp * fc); cout << endl;
       cout << endl;
 
       idx++;
     }
+    cout << endl;
   }
 }
-
 
 
 /**********************************************************/

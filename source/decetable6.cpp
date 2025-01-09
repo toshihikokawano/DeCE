@@ -32,47 +32,127 @@ void DeceTableMF6(ENDF *lib3, ENDF *lib6)
 {
   Record head = lib6->getENDFhead();
   int    nk   = head.n1;
+  int    jp   = head.l1;
   int    lct  = head.l2;
   int    idx  = 0;
 
   cout << "# Energy and angle distribution" << endl;
   cout << "#           NK" << setw(14) << nk << "  number of subsections" << endl;
-  cout << "#          LCT" << setw(14) << lct << " 1:LAB, 2:CMS, 3:CMS for particle and LAB for recoil, 4:CMS for initial and LAB for subsequent breakup" << endl;
+  cout << "#          LCT" << setw(14) << lct << "  1:LAB, 2:CMS, 3:CMS for particle and LAB for recoil, 4:CMS for initial and LAB for subsequent breakup" << endl;
   cout << endl;
 
-  /*** for each sub block, make lib for (E,yield) */
-  for(int ik=0 ; ik<nk ; ik++){
-    Record cont = lib6->rdata[idx];
-    int    zap  = (int)cont.c1;
-    double awp  = cont.c2;
-    int    lip  = cont.l1;
-    int    law  = cont.l2;
-    int    np   = cont.n2;
+  /*** usual cases */
+  if(jp == 0){
+
+    /*** for each sub block, make lib for (E,yield) */
+    for(int ik=0 ; ik<nk ; ik++){
+      Record cont = lib6->rdata[idx];
+      int    zap  = (int)cont.c1;
+      double awp  = cont.c2;
+      int    lip  = cont.l1;
+      int    law  = cont.l2;
+      int    np   = cont.n2;
  
-    cout << "#   Subsection" << setw(14) << ik << endl;
-    cout << "#          ZAP" << setw(14) << zap << endl;
-    cout << "#          AWP"; outVal(awp); cout << endl;
-    cout << "#          LIP" << setw(14) << lip << "  product modifier" << endl;
-    cout << "#          LAW" << setw(14) << law << "  distribution law" << endl;
-    cout << "#           NP" << setw(14) << np  << "  yield energy points" << endl;
-    cout << "#   Energy[eV]  CrossSec [b]  Multiplicity  CrossSec x M"<< endl;
-    for(int i=0 ; i<np ; i++){
-      double x  = lib6->xptr[idx][i*2  ];
-      double y6 = lib6->xptr[idx][i*2+1];
-      double y3 = ENDFInterpolation(lib3,x,false,0);
-      outVal(x); outVal(y3); outVal(y6); outVal(y3*y6);
+      cout << "#   Subsection" << setw(14) << ik << endl;
+      cout << "#          ZAP" << setw(14) << zap << endl;
+      cout << "#          AWP"; outVal(awp); cout << endl;
+      cout << "#          LIP" << setw(14) << lip << "  product modifier" << endl;
+      cout << "#          LAW" << setw(14) << law << "  distribution law" << endl;
+      cout << "#           NP" << setw(14) << np  << "  yield energy points" << endl;
+
+      cout << "#   Energy[eV]  CrossSec [b]  Multiplicity  CrossSec x M"<< endl;
+      for(int i=0 ; i<np ; i++){
+        double x  = lib6->xptr[idx][i*2  ];
+        double y6 = lib6->xptr[idx][i*2+1];
+        double y3 = ENDFInterpolation(lib3,x,false,0);
+        outVal(x); outVal(y3); outVal(y6); outVal(y3*y6);
+        cout << endl;
+      }
       cout << endl;
+      cout << endl;
+
+      /*** increment index */
+      idx++;
+
+      if(     law == 1) idx = DeceTableMF6Law1(lib6,idx);
+      else if(law == 2) idx = DeceTableMF6Law2(lib6,idx);
+      else if(law == 5) idx = DeceTableMF6Law5(lib6,idx);
+      else if(law == 6) idx = DeceTableMF6Law6(lib6,idx);
+      else if(law == 7) idx = DeceTableMF6Law7(lib6,idx);
     }
-    cout << endl;
+  }
+
+  /*** fission case */
+  else{
+    int jpp = jp / 10;
+    int jpn = jp - jpp*10;
+
+    cout << "#           JP" << setw(14) << jp << "  10 x JPP(photon) + JPN(neutron)" << endl;
+    cout << "#          JPN" << setw(14) << jpn << "  neutron 1:probability, or 2:probability+spectra" << endl;
+    cout << "#          JPP" << setw(14) << jpp << "  photon  1:probability, or 2:probability+spectra" << endl;
+
+    /*** count neutron or photon subsections */
+    int nkn = 0, nkp = 0;
+    for(int ik=0 ; ik<nk ; ik++){
+      Record cont = lib6->rdata[idx + ik];
+      if( (int)cont.c1 == 0 ) nkp ++;
+      else nkn ++;
+    }
+    cout << "#          NKN" << setw(14) << nkn << "  number of subsections for neutron" << endl;
+    cout << "#          NKP" << setw(14) << nkp << "  number of subsections for photon" << endl;
     cout << endl;
 
-    /*** increment index */
-    idx++;
-    if(     law == 1) idx = DeceTableMF6Law1(lib6,idx);
-    else if(law == 2) idx = DeceTableMF6Law2(lib6,idx);
-    else if(law == 5) idx = DeceTableMF6Law5(lib6,idx);
-    else if(law == 6) idx = DeceTableMF6Law6(lib6,idx);
-    else if(law == 7) idx = DeceTableMF6Law7(lib6,idx);
+
+    double *ysum;
+
+    for(int ik=0 ; ik<nk ; ik++){
+      Record cont = lib6->rdata[idx];
+      int    zap  = (int)cont.c1;
+      double awp  = cont.c2;
+      int    lip  = cont.l1;
+      int    law  = cont.l2;
+      int    np   = cont.n2;
+
+      cout << "#   Subsection" << setw(14) << ik << endl;
+      cout << "#          ZAP" << setw(14) << zap << endl;
+      cout << "#          AWP"; outVal(awp); cout << endl;
+      cout << "#          LIP" << setw(14) << lip << "  particle multiplicity" << endl;
+      cout << "#          LAW" << setw(14) << law << "  distribution law" << endl;
+      cout << "#           NP" << setw(14) << np  << "  yield energy points" << endl;
+
+      /*** for nu = 0 */
+      if(lip == 0){
+        ysum = new double [np];
+        for(int i=0 ; i<np ; i++) ysum[i] = 0.0;
+      }
+      cout << "#   Energy[eV]  P(" << lip << ",E)/nu(E)  sum(nu x P)"<< endl;
+
+      for(int i=0 ; i<np ; i++){
+        double x  = lib6->xptr[idx][i*2  ];
+        double y6 = lib6->xptr[idx][i*2+1];
+
+        if(lip > 0) ysum[i] += lip * y6;
+
+        outVal(x); outVal(y6); outVal(ysum[i]);
+        cout << endl;
+
+      }
+      cout << endl;
+      cout << endl;
+
+      /*** increment index */
+      idx++;
+
+      if( (jpn == 2) || (jpp == 2) ){
+        if(     law == 1) idx = DeceTableMF6Law1(lib6,idx);
+        else if(law == 2) idx = DeceTableMF6Law2(lib6,idx);
+        else if(law == 5) idx = DeceTableMF6Law5(lib6,idx);
+        else if(law == 6) idx = DeceTableMF6Law6(lib6,idx);
+        else if(law == 7) idx = DeceTableMF6Law7(lib6,idx);
+      }
+    }
+
+    delete [] ysum;
   }
 }
 
