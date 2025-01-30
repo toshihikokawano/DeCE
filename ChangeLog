@@ -1,3 +1,8 @@
+2025-01-30  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* tools/decemf6.cpp: bug fixed
+	number of total energy spectra was less
+
 2025-01-08  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/decetable8.cpp (DeceTableMF8MT457): updated
