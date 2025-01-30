@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
 
   /*** command line options */
   int p = 0;
-  while((p=getopt(argc,argv,"e:f:t:"))!=-1){
+  while((p = getopt(argc,argv,"e:f:t:h")) != -1){
     switch(p){
     case 'e':
       eclname = optarg;
@@ -73,6 +73,9 @@ int main(int argc, char *argv[])
     case 't':
       mt = atoi(optarg);
       break;
+    case 'h':
+      cerr << "usage: decemf6 -t MTnumber -e CoHSpectrum.dat -f ENDF.dat" << endl;
+      exit(-1);
     default:
       break;
     }
@@ -109,26 +112,26 @@ int main(int argc, char *argv[])
   fpin.close();
 
   /*** data arrays */
-  elab   = new double [ne + 1];
-  gyield = new double [ne + 1];
+  elab   = new double [ne];
+  gyield = new double [ne];
 
-  ng     = new int [ne + 1];
+  ng     = new int [ne];
   ns     = new int * [NPAR];
   nl     = new int * [NPAR];
   spc    = new double ** [NPAR];
   for(int p=0 ; p<NPAR ; p++){
-    ns[p]  = new int [ne + 1];
-    nl[p]  = new int [ne + 1];
-    spc[p] = new double * [ne + 1];
-    for(int n=0 ; n<ne+1 ; n++) spc[p][n] = new double [NDAT];
+    ns[p]  = new int [ne];
+    nl[p]  = new int [ne];
+    spc[p] = new double * [ne];
+    for(int n=0 ; n<ne ; n++) spc[p][n] = new double [NDAT];
   }
 
-  for(int n=0 ; n<ne+1 ; n++){
+  for(int n=0 ; n<ne ; n++){
     ng[n] = 0;
     elab[n] = gyield [n] = 0.0;
   }
   for(int p=0 ; p<NPAR ; p++){
-    for(int n=0 ; n<ne+1 ; n++) ns[p][n] = nl[p][n] = 0;
+    for(int n=0 ; n<ne ; n++) ns[p][n] = nl[p][n] = 0;
   }
 
   fpin.open(eclname.c_str());
@@ -141,7 +144,7 @@ int main(int argc, char *argv[])
   delete [] gyield;
 
   for(int p=0 ; p<NPAR ; p++){
-    for(int n=0 ; n<ne+1 ; n++) delete [] spc[p][n];
+    for(int n=0 ; n<ne ; n++) delete [] spc[p][n];
     delete [] ns[p];
     delete [] nl[p];
     delete [] spc[p];
@@ -390,7 +393,7 @@ int prescan(ifstream *fp)
     }
   }
 
-  return(m);
+  return(m+1);
 }
 
 
