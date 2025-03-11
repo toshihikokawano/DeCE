@@ -1,3 +1,10 @@
+2025-03-11  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/decepoint.cpp (DecePoint): updated
+	* source/command.cpp (CmdExtractArgument): 
+	* source/deceoperation.cpp (DeceOperation):
+	multiaddpoint (addpoint to multi MT sections) added
+
 2025-01-30  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* tools/decemf6.cpp: bug fixed

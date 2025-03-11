@@ -98,7 +98,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   }
 
   /*** ADDPOINT, DELPOINT: add / remove a point in TAB1 record */
-  else if( (ope == "addpoint") || (ope == "delpoint")  || (ope == "modpoint") ){
+  else if( (ope == "addpoint") || (ope == "delpoint")  || (ope == "modpoint") || (ope == "multiaddpoint") || (ope == "multidelpoint")  || (ope == "multimodpoint") ){
     DeceOperationPOINT(dict,lib);
   }
 
@@ -431,12 +431,26 @@ void DeceOperationEXTRACT(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
 /* delpoint MF MT Xdata                                   */
 /* delpoint MF MT Xmin Xmax                               */
 /* modpoint MF MT Xdata Ydata                             */
+/* multiaddpoint MF MTstart MTend Xdata Ydata             */
+/* multidelpoint MF MTstart MTend Xdata                   */
+/* multidelpoint MF MTstart MTend Xmin Xmax               */
+/* multimodpoint MF MTstart MTend Xdata Ydata             */
 /**********************************************************/
 void DeceOperationPOINT(ENDFDict *dict, ENDF *lib[])
 {
   string ope = CmdGetOperation();
-  DeceCheckMT(cmd.mt);
-  DecePoint(dict,lib,cmd.mf,cmd.mt,cmd.x,cmd.y,ope);
+
+  if( (ope == "addpoint") || (ope == "delpoint")  || (ope == "modpoint") ){
+    DeceCheckMT(cmd.mt);
+    DecePoint(dict,lib,cmd.mf,cmd.mt,cmd.x,cmd.y,ope);
+  }
+  else{
+    for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
+      if(dict->getID(cmd.mf,mt) >= 0){
+        DecePoint(dict,lib,cmd.mf,mt,cmd.x,cmd.y,ope);
+      }
+    }
+  }
 }
 
 

@@ -112,6 +112,13 @@ string CmdExtractArgument(void)
     cmd.x     =      getval(d1);
     cmd.y     =      getval(d1);
   }
+  else if(ope == "multiaddpoint" || ope == "multidelpoint" || ope == "multimodpoint"){
+    cmd.mf    = (int)getval(d1);
+    cmd.mt    = (int)getval(d1);
+    cmd.mtend = (int)getval(d1);
+    cmd.x     =      getval(d1);
+    cmd.y     =      getval(d1);
+  }
   else if(ope == "factor"){
     cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);

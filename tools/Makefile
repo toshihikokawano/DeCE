@@ -7,7 +7,7 @@ RM      	= rm
 LIBOBJS		= endflib.o endfio.o
 
 PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf12.o decemacs.o decephoto.o deceangdist.o deceheader.o
-PROG		= decemf4 decemf5 decemf6 decemf12 decemf15 decemacs decephoto deceangdist deceheader
+PROG		= decemf4 decemf5 decemf6 decemf12 decemf15 decemacs decephoto deceangdist deceheader decemergemf4
 
 all:		$(PROG)
 
@@ -38,6 +38,9 @@ decephoto:	$(LIBOBJS) decephoto.o
 deceheader:	$(LIBOBJS) deceheader.o
 		$(CPP) deceheader.o $(LIBOBJS) $(LDFLAGS) -o deceheader
 
+decemergemf4:	$(LIBOBJS) decemergemf4.o
+		$(CPP) decemergeangdist.o $(LIBOBJS) $(LDFLAGS) -o decemergemf4
+
 clean:
 		$(RM) -f $(LIBOBJS) $(PRGOBJS) $(PROG)
 
@@ -50,6 +53,7 @@ decemacs.o:	../source/endflib.h
 deceangdist.o:	../source/endflib.h
 decephoto.o:	../source/endflib.h
 deceheader.o:	../source/endflib.h deceheader.h
+decemergemf4.o	../source/endflib.h
 endflib.o:	../source/endflib.cpp ../source/endflib.h
 		$(CPP) $(CPPFLAGS) ../source/endflib.cpp -c
 endfio.o:	../source/endfio.cpp ../source/endflib.h
