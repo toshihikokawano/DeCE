@@ -171,8 +171,9 @@ string CmdExtractArgument(void)
     cmd.x     =      getval(d1);
     cmd.y     =      getval(d1);
   }
-  else if(ope == "boundcorrect"){
+  else if(ope == "boundcorrect" || ope == "multiboundcorrect"){
     cmd.mt    = (int)getval(d1);
+    cmd.mtend = (int)getval(d1);
   }
   else if(ope == "genprod"){
     cmd.mt    = (int)getval(d1);

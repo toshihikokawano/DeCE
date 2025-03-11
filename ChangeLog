@@ -3,7 +3,14 @@
 	* source/decepoint.cpp (DecePoint): updated
 	* source/command.cpp (CmdExtractArgument): 
 	* source/deceoperation.cpp (DeceOperation):
-	multiaddpoint (addpoint to multi MT sections) added
+	multiaddpoint (addpoint to multiple MT sections) added
+	multiboundcorrect (fix highest energy in MF6 in multiple MT sections) added
+
+
+2025-03-10  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/decemergemf4.cpp: new file
+	merge low energy Legendre data and high energy tabulated data in MF4/MT2
 
 2025-01-30  Toshihiko Kawano  <kawano@lanl.gov>
 

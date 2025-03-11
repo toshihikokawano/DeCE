@@ -86,7 +86,7 @@ $dece $deceoption -o $workfile $template < $deceinput
 #  Make MF6 section
 #
 
-echo "produce MF6, and store in $work6"
+echo "produce MF6, and store in $workmf6"
 
 cat /dev/null > $workmf6
 if [ $chargediscrete = "true" ]; then

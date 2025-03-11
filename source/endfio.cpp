@@ -1391,7 +1391,7 @@ void ENDFPrint1Dim(ENDF *lib, const int idx, string xname, string yname)
   int nr = lib->rdata[idx].n1;
   cout << "#           NR" << setw(14) << nr << "  number of interpolation range" << endl;
 
-  int i=0;
+  int i = 0;
   for(int ir=0 ; ir<nr ; ir++){
     cout << "#           NP" << setw(14) << lib->iptr[idx][2*ir];
     cout << setw(9) << intscheme(lib->iptr[idx][2*ir+1]).c_str();

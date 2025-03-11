@@ -176,7 +176,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   //  MF6 manipulations
 
   /*** BOUNDCORRECT: correct energy boundary in continuum in MF6 */
-  else if(ope == "boundcorrect"){
+  else if( (ope == "boundcorrect") || (ope == "multiboundcorrect") ){
     DeceOperationBOUNDCORRECT(dict,lib);
   }
   /*** GENPROD: generate production cross section from MF6 MT5 */
@@ -549,12 +549,23 @@ void DeceOperationNUTOTAL(ENDFDict *dict, ENDF *lib[])
 /**********************************************************/
 /* BOUNDCORRECT                                           */
 /*      fix boundary energies in MF6                      */
-/* boundcorrect                                           */
+/* boundcorrect MT                                        */
+/* multiboundcorrect MTstart MTend                        */
 /**********************************************************/
 void DeceOperationBOUNDCORRECT(ENDFDict *dict, ENDF *lib[])
 {
-  DeceCheckMT(cmd.mt);
-  DeceBoundCorrect(dict,lib,cmd.mt);
+  string ope = CmdGetOperation();
+  if(ope == "boundcorrect"){
+    DeceCheckMT(cmd.mt);
+    DeceBoundCorrect(dict,lib,cmd.mt);
+  }
+  else{
+    for(int mt=cmd.mt ; mt <= cmd.mtend ; mt++){
+      if(dict->getID(6,mt) >= 0){
+        DeceBoundCorrect(dict,lib,mt);
+      }
+    }
+  }
 }
 
 
