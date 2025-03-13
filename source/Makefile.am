@@ -24,6 +24,7 @@ dece_SOURCES = \
 	decepoint.cpp \
 	deceprocgroup.cpp \
 	deceprocpointwise.cpp \
+	deceqvalue.cpp \
 	deceread.cpp \
 	decereadfile.cpp \
 	decereadjust.cpp \
@@ -47,7 +48,7 @@ dece_SOURCES = \
 	decetable7.cpp \
 	decetable8.cpp \
 	decetable9.cpp \
-	deceqvalue.cpp \
+	decewestcottfactor.cpp \
 	endfio.cpp \
 	endflib.cpp \
 	gfr.cpp \

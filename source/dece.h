@@ -95,6 +95,9 @@ void   DeceGeneratePointwise (ENDFDict *, ENDF **);
 /*** deceprocgroup.cpp */
 void   DeceGenerateGroup (ENDFDict *, ENDF **, const int,  const int, string);
 
+/*** decewestcottfactor.cpp */
+void   DeceWestcottFactor (ENDFDict *, ENDF **, const double);
+
 /*** decescanindex.cpp */
 void   DeceScanIndex    (ENDFDict *);
 

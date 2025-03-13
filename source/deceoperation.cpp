@@ -36,6 +36,7 @@ static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
 static void DeceOperationRESONANCEANGDIST(ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
 static void DeceOperationGROUP           (ENDFDict *, ENDF **);
+static void DeceOperationWESTCOTTFACTOR  (ENDFDict *, ENDF **);
 
 static void DeceOutputRedirectFile       (void);
 static void DeceOutputResume             (void);
@@ -215,6 +216,11 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   /*** GROUP: create group cross section */
   else if(ope == "group"){
     DeceOperationGROUP(dict,lib);
+  }
+
+  /*** WESTCOTTFACTOR: calculate Westcott factor */
+  else if(ope == "westcottfactor"){
+    DeceOperationWESTCOTTFACTOR(dict,lib);
   }
 
   //--------------------------------------------------------
@@ -663,6 +669,17 @@ void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
   DeceOutputRedirectFile();
   DeceGenerateGroup(dict,lib,cmd.opt1,cmd.opt2,cmd.text);
   DeceOutputResume();
+}
+
+
+/**********************************************************/
+/* WESTCOTTFACTOR                                         */
+/*      calculate Westcott factor                         */
+/**********************************************************/
+void DeceOperationWESTCOTTFACTOR(ENDFDict *dict, ENDF *lib[])
+{
+  if(!generatepointwise) DeceOperationPOINTWISE(dict,lib);
+  DeceWestcottFactor(dict,lib,cmd.x);
 }
 
 
