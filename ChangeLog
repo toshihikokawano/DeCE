@@ -1,3 +1,8 @@
+2025-03-13  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/decewestcottfactor.cpp: new file
+	calculate Westcott's g-factor
+
 2025-03-11  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/decepoint.cpp (DecePoint): updated
@@ -5,7 +10,6 @@
 	* source/deceoperation.cpp (DeceOperation):
 	multiaddpoint (addpoint to multiple MT sections) added
 	multiboundcorrect (fix highest energy in MF6 in multiple MT sections) added
-
 
 2025-03-10  KAWANO Toshihiko  <kawano@lanl.gov>
 

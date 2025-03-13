@@ -199,6 +199,9 @@ string CmdExtractArgument(void)
   else if(ope == "resonanceangdist"){
     cmd.opt1  = (int)getval(d1);
   }
+  else if(ope == "westcottfactor"){
+    cmd.x     =      getval(d1);
+  }
   else if(ope == "group"){
     cmd.opt1  = (int)getval(d1);
     cmd.opt2  = (int)getval(d1);
