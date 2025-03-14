@@ -13,12 +13,12 @@ using namespace std;
 #include "decetable.h"
 #include "terminate.h"
 
-static int DeceTableMF2RRR(ENDF *, int, int);
-static int DeceTableMF2RR7(ENDF *, int);
-static int DeceTableMF2URA(ENDF *, int);
-static int DeceTableMF2URB(ENDF *, int);
-static int DeceTableMF2URC(ENDF *, int);
-static int DeceTableMF2AP(ENDF *, int);
+static int DeceTableMF2RRR (ENDF *, int, int);
+static int DeceTableMF2RR7 (ENDF *, int);
+static int DeceTableMF2URA (ENDF *, int);
+static int DeceTableMF2URB (ENDF *, int);
+static int DeceTableMF2URC (ENDF *, int);
+static int DeceTableMF2AP (ENDF *, int);
 
 
 /**********************************************************/

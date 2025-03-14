@@ -12,9 +12,9 @@ using namespace std;
 #include "decetable.h"
 #include "global.h"
 
-static void DeceTableMF7MT2c(ENDF *);
-static void DeceTableMF7MT2i(ENDF *);
-static void DeceTableMF7MT4i(ENDF *);
+static void DeceTableMF7MT2c (ENDF *);
+static void DeceTableMF7MT2i (ENDF *);
+static void DeceTableMF7MT4i (ENDF *);
 
 
 /**********************************************************/

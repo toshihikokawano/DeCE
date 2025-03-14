@@ -66,6 +66,15 @@ extract 3 16
 </pre>
 
 
+<h2><a name="multiaddpoint">multiaddpoint (add one data point in multiple MT sections)</a></h2>
+
+<pre id="syn">
+   multiaddpoint  <i>MFnumber</i> <i>MTstart</i> <i>MTlast</i> <i>X-data</i> <i>Y-data</i>
+</pre>
+
+<p>Same as the <code>addpoint</code> but for multiple MT sections.</p>
+
+
 <h2><a name="delpont">delpoint (delete one data point, multiple points)</a></h2>
 
 <pre id="syn">
@@ -254,6 +263,13 @@ Or sometimes you may want to use a slightly different Q-value from DeCE's result
 <p>This fixes the energy boundary in MF=6 by the value given in MF=3.
 It adjusts the lowerst and highest energies only, and no interpolation
 will be made.</p>
+
+
+<h2><a name="multiboundcorrect"> multiboundcorrect (fix boundary energy in multiple MT sections) </a></h2>
+
+<pre id="syn">
+   multiboundcorrect <i>MTstart</i> <i>MTlast</i>
+</pre>
 
 
 <h2><a name="genprod"> genprod (generate particle production cross section in MF3) </a></h2>

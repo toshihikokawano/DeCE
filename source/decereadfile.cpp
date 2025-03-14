@@ -306,6 +306,7 @@ struct Prod readMShead(char *file, const int mt, int ofset)
   istringstream s0(&line[13]);  // skip heading "# Nuclide Ex "
   int za = 0;
   double ex[3];
+  for(int i=0 ; i<3 ; i++) ex[i] = 0.0;
   for(int i=0 ; i<ofset ; i++){
     s0 >> s; za    = atoi(s.c_str());
     s0 >> s; ex[1] = atof(s.c_str());

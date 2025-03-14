@@ -36,7 +36,7 @@ static void DeceOperationRECONSTRUCT     (ENDFDict *, ENDF **);
 static void DeceOperationRESONANCEANGDIST(ENDFDict *, ENDF **);
 static void DeceOperationPOINTWISE       (ENDFDict *, ENDF **);
 static void DeceOperationGROUP           (ENDFDict *, ENDF **);
-static void DeceOperationWESTCOTTFACTOR  (ENDFDict *, ENDF **);
+static void DeceOperationMAXWELLIAN      (ENDFDict *, ENDF **);
 
 static void DeceOutputRedirectFile       (void);
 static void DeceOutputResume             (void);
@@ -219,8 +219,8 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   }
 
   /*** WESTCOTTFACTOR: calculate Westcott factor */
-  else if(ope == "westcottfactor"){
-    DeceOperationWESTCOTTFACTOR(dict,lib);
+  else if( (ope == "macs") || (ope == "westcottfactor") ){
+    DeceOperationMAXWELLIAN(dict,lib);
   }
 
   //--------------------------------------------------------
@@ -660,7 +660,7 @@ void DeceOperationPOINTWISE(ENDFDict *dict, ENDF *lib[])
 
 
 /**********************************************************/
-/* Group                                                  */
+/* GROUP                                                  */
 /*      group cross sections                              */
 /**********************************************************/
 void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
@@ -673,13 +673,14 @@ void DeceOperationGROUP(ENDFDict *dict, ENDF *lib[])
 
 
 /**********************************************************/
-/* WESTCOTTFACTOR                                         */
-/*      calculate Westcott factor                         */
+/* MACS / WESTCOTTFACTOR                                  */
+/*      calculate Maxwellian Average or Westcott factor   */
 /**********************************************************/
-void DeceOperationWESTCOTTFACTOR(ENDFDict *dict, ENDF *lib[])
+void DeceOperationMAXWELLIAN(ENDFDict *dict, ENDF *lib[])
 {
   if(!generatepointwise) DeceOperationPOINTWISE(dict,lib);
-  DeceWestcottFactor(dict,lib,cmd.x);
+  string ope = CmdGetOperation();
+  DeceMaxwellian(dict,lib,cmd.x,ope);
 }
 
 

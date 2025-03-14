@@ -15,14 +15,14 @@ using namespace std;
 #include "constant.h"
 #include "kalbach.h"
 
-static int DeceTableMF6Law1(ENDF *, int);
+static int DeceTableMF6Law1 (ENDF *, int);
 static void DeceTableMF6Law1Lang1  (ENDF *, int);
 static void DeceTableMF6Law1Lang2  (ENDF *, int);
 static void DeceTableMF6Law1Lang11 (ENDF *, int, const int);
-static int DeceTableMF6Law2(ENDF *, int);
-static int DeceTableMF6Law5(ENDF *, int);
-static int DeceTableMF6Law6(ENDF *, int);
-static int DeceTableMF6Law7(ENDF *, int);
+static int DeceTableMF6Law2 (ENDF *, int);
+static int DeceTableMF6Law5 (ENDF *, int);
+static int DeceTableMF6Law6 (ENDF *, int);
+static int DeceTableMF6Law7 (ENDF *, int);
 
 
 /**********************************************************/
@@ -103,7 +103,7 @@ void DeceTableMF6(ENDF *lib3, ENDF *lib6)
     cout << endl;
 
 
-    double *ysum;
+    double *ysum = nullptr;
 
     for(int ik=0 ; ik<nk ; ik++){
       Record cont = lib6->rdata[idx];

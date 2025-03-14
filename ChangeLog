@@ -1,7 +1,7 @@
-2025-03-13  Toshihiko Kawano  <kawano@lanl.gov>
+2025-03-13  KAWANO Toshihiko  <kawano@lanl.gov>
 
-	* source/decewestcottfactor.cpp: new file
-	calculate Westcott's g-factor
+	* source/decemaxwellian.cpp: new file
+	calculate Westcott's g-factor or Maxwellian average cross section
 
 2025-03-11  Toshihiko Kawano  <kawano@lanl.gov>
 

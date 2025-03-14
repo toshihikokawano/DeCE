@@ -15,6 +15,7 @@ dece_SOURCES = \
 	deceglobaloption.cpp \
 	deceheader.cpp \
 	decelibread.cpp \
+	decemaxwellian.cpp \
 	decememory.cpp \
 	decemisc.cpp \
 	decemod4.cpp \
@@ -48,7 +49,6 @@ dece_SOURCES = \
 	decetable7.cpp \
 	decetable8.cpp \
 	decetable9.cpp \
-	decewestcottfactor.cpp \
 	endfio.cpp \
 	endflib.cpp \
 	gfr.cpp \

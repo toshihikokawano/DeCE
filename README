@@ -62,6 +62,7 @@ Files:
         deceglobaloption.cpp  set/unset global options
         deceheader.cpp        manipulate header part in MF1
         decelibread.cpp       import a subsection from external ENDF file
+        decemaxwellian.cpp    calculate Maxwellian average or Westcott's g-factor
         decememory.cpp        print internal memory usage
         decemisc.cpp          some mathematical functions
         decemod4.cpp          manipulate sections in MF4
@@ -156,6 +157,7 @@ Files:
         deceheader.cpp        patch text data in the header part
         decemacs.cpp          calculate Maxwellian average cross section
         decephoto.cpp         create neutron production cross section for photo-reactions
+        decemergemf4.cpp      merge angular distributions in two energy regions
 
    example/
         example1.cpp          read/write ENDF-6 using endflib

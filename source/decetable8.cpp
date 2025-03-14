@@ -11,9 +11,9 @@ using namespace std;
 #include "dece.h"
 #include "decetable.h"
 
-static void DeceTableMF8Other(ENDF *);
-static void DeceTableMF8MT454(ENDF *);
-static void DeceTableMF8MT457(ENDF *);
+static void DeceTableMF8Other (ENDF *);
+static void DeceTableMF8MT454 (ENDF *);
+static void DeceTableMF8MT457 (ENDF *);
 
 static const string spectype[12] = {
 "gamma-ray           ","beta-ray            ","EC, positoron       ",
