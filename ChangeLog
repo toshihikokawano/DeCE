@@ -1,3 +1,8 @@
+2025-03-18  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/gfrcsurr.cpp (gfrCrossSectionURR): bug fixed
+	indexing bug when URR has an energy-dependent radius (NRO = 1) fixed
+
 2025-03-15  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceread.cpp (DeceReadMF1MT455): updated

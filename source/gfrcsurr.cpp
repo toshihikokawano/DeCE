@@ -281,7 +281,7 @@ Pcross gfrCrossSectionURR(int km, int ke, int ner, System *sys, URResonance *res
   int apidx = 0;
   double ap_pen = 0.0, ap_phi = 0.0;
 
-  if(sys->nro[ner] == 1) apidx = sys->idx[ner] - 1;
+  if(sys->nro[ner] == 1) apidx = sys->idx[ner] + 1;
 
   if(sys->nro[ner] == 0){
     ap_pen = (sys->naps[ner] == 0) ? gfrENDFChannelRadius(sys->target_A) : sys->radius;
