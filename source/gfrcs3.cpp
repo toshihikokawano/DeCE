@@ -12,6 +12,7 @@ using namespace std;
 #include "endflib.h"
 #include "gfr.h"
 #include "constant.h"
+#include "terminate.h"
 
 static Pcross RMMainCalc (const double, System *);
 static int    RMLoadResonances (int, System *, ENDF *);
@@ -150,7 +151,10 @@ int RMLoadResonances(int idx, System *sys, ENDF *lib)
       res[k].gf2 = lib->xptr[idx][j+5];
       
       k++;
-      if(k > MAX_RESONANCE) return(0);
+      if(k > MAX_RESONANCE){
+        message << "too many resonances";
+        TerminateCode("RMLoadResonances");
+      }
     }
     idx++;
   }

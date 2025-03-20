@@ -44,7 +44,7 @@ void MatrixPrint(const int m, complex<double> *u)
 
 int MatrixInverse(const int m, complex<double> *a)
 {
-  int c=  MatrixInverseCholeski(m,a);
+  int c = MatrixInverseCholeski(m,a);
   if(c < 0){
     cerr << "pivot zero" << endl;
   }

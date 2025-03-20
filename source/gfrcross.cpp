@@ -5,6 +5,7 @@
 #include <complex>
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 
 using namespace std;
 
@@ -204,6 +205,19 @@ void gfrPenetrability(const int l, const double a, ChannelWaveFunc *wfn)
 
   wfn->setData(a,h,d);
   wfn->setPhase(h);
+
+  /*** fix P if round-off error happens */
+  if(wfn->P() < 0.0){
+    double p = 0.0;
+    switch(l){
+    case 0: p = a; break;
+    case 1: p = pow(a,3) / (  1.0 +      a*a); break;
+    case 2: p = pow(a,5) / (  9.0 +  3.0*a*a +     pow(a,4)); break;
+    case 3: p = pow(a,7) / (225.0 + 45.0*a*a + 6.0*pow(a,4) + pow(a,6)); break;
+    default: break;
+    }                             
+    wfn->fixP(p);
+  }
 }
 
 

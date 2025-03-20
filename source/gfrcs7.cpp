@@ -173,6 +173,9 @@ void RMLMainCalc(const double elab, System *sys, GFRcross *sig)
     /*** R and S-matrices */
     int nch = res[j].nchannel;
     int mch = nch - 1;  // capture eliminated total channels
+
+    if(nch == 0) continue; // strange case for Sr88
+
     RMLMatrices(elab,mch,&res[j],pen[j],wf,mtid,dptr,sm,xm,phi0,phiC);
 
     /*** cross section */
