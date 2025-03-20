@@ -1,3 +1,11 @@
+2025-03-15  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (DeceReadMF1MT455): updated
+	* source/decereadfile.cpp (readNUDdata): 
+	* source/decetable1.cpp (DeceTableMF1MT455):
+	* source/dececalc.cpp (DeceCalc452): 
+	read/write energy-dependent decay constant cases (LDG = 1) for delayed neutrons
+
 2025-03-13  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/decemaxwellian.cpp: new file

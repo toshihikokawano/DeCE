@@ -116,6 +116,40 @@ is for the 2nd level (MF=52), and so forth.</p>
 </pre>
 
 
+<p> In the case of the delayed neutrons (MF=1/MT=455), the data format
+is different from a simple table, since the decay constants must be
+provided as well. The first column is the incident energy, DeCE
+skips <i>ofset</i> columns, then start reading the <i>ofset+1</i>
+column for the first group decay constant, +2 for the decay group
+abundance, etc. The total number of column is 14 when no ofset is
+given. </p>
+
+<pre id="dat">
+ 1.000000e-11  6.498993e-03 1.245546e-02  ...  3.994429e+00 1.356387e-04
+ 5.000000e-01  6.561050e-03 1.245546e-02  ...  4.017426e+00 1.401663e-04
+ 1.000000e+00  6.609461e-03 1.245546e-02  ...  4.039624e+00 1.436805e-04
+ 2.000000e+00  6.751820e-03 1.245546e-02  ...  4.064702e+00 1.523794e-04
+ ...
+</pre>
+
+<p> When the decay constants are energy-independent, they are given in the
+first line only. The total column will be 8.</p>
+
+<pre id="dat">
+ 1.000000e-11  6.498993e-03 1.245546e-02 3.467566e-02 ...  3.994429e+00 
+ 5.000000e-01  6.561050e-03
+ 1.000000e+00  6.609461e-03
+ 2.000000e+00  6.751820e-03
+ ...
+</pre>
+
+<p> As a special case, users may want to keep the decay constant, but just
+replace the delayed neutron yields. This can be done by <code>replaceread</code>.
+
+<pre id="syn">
+   replaceread  1 455 "file_name" [<i>offset</i>]
+</pre>
+
 
 <h2><a name="mergeread">mergeread (read cross sections from file and merge with existing data)</a></h2>
 
@@ -129,6 +163,9 @@ the <code>read</code> command may overwrite the background.
 <code>mergeread</code> replaces the cross sections above the resonance
 region only, and maintain the background cross section in the
 resonance region.</p>
+
+
+<p> 
 
 
 

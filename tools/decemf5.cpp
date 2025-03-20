@@ -17,10 +17,9 @@ int main(int, char *[]);
 
 static const int NEIN   =   100; // max number of incident energies
 static const int NDAT   =  2000; // max number of floating point data
-static const int WFIELD =    14; // data field width
 /*
   In this program, the spectrum data in a file are assumed 
-  in the following format, with the constant data field width of WFIELD.
+  in the following format.
 
 #               1.000000e-05   // start with #-line, energy in 
   0.000000e+00  0.000000e+00   // secondary energy, spectrum data
@@ -43,8 +42,8 @@ static const int WFIELD =    14; // data field width
  */
 
 int    dataread   (ifstream *);
+void   processMF4 (int, ENDF *);
 void   processMF5 (int, ENDF *);
-inline double coltodbl   (string, int);
 
 static double **xtab;
 static Record  *ctab;
@@ -147,45 +146,34 @@ void processMF5(int ne, ENDF *lib)
 
 int dataread(ifstream *fp)
 {
-  int ne = -1, k = 0;
-  string line;
+  int ne = 0, k = 0;
+  string line, dummy;
 
-  while(1){
-    getline(*fp,line);
-    if(fp->eof() != 0) break;
+  while(getline(*fp,line)){
 
-    /*** data start with #-line, with the incident energy
-         in the second column. */
-    if(line.substr(0,1) == "#"){
-      ne++;
-      if(ne >= NEIN) return(0);
-      ctab[ne].c2 = coltodbl(line,1);
+    if(line[0] == '#'){
+      istringstream ss(line);
+      ss >> dummy >> ctab[ne].c2;
       continue;
     }
-    /*** data end at the first blank line,
-         set number of outgoing energy points */
-    else if( line.length() ==0 ){
+    else if(line.length() == 0){
       if(k != 0){
         ctab[ne].n1 = 1; // NR
         ctab[ne].n2 = k; // NF
+        ne ++;
         k = 0;
       }
       continue;
     }
     /*** secondary energy and spectrum data */
-    xtab[ne][2*k  ] = coltodbl(line,0);
-    xtab[ne][2*k+1] = coltodbl(line,1);
+    istringstream ss(line);
+    double x1, x2;
+    ss >> x1 >> x2;
+    xtab[ne][2*k  ] = x1;
+    xtab[ne][2*k+1] = x2;
     k++;
   }
 
-  return(ne+1);
+  return(ne);
 }
 
-
-inline double coltodbl(string c, int k)
-{
-  char d[WFIELD+1];
-  for(int j=0 ; j<WFIELD ; j++) d[j] = c[k*WFIELD + j];
-  d[WFIELD] = '\0';
-  return (atof(d));
-}

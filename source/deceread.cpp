@@ -13,12 +13,13 @@ using namespace std;
 #include "terminate.h"
 #include "masstable.h"
 
-static void   DeceReadMF1   (ENDFDict *, ENDF *, const int, char *, const int);
-static void   DeceReadMF3   (ENDFDict *, ENDF *, const int, char *, const int, const int);
-static void   DeceReadMF8   (ENDFDict *, ENDF *, const int, const int, char *, const int);
-static void   DeceReadMF9   (ENDFDict *, ENDF *, const int, const int, char *, const int);
-static struct Qval qvalues  (const int, const int, const int, const int, const double, const double);
-static double findBoundary  (ENDF *);
+static void   DeceReadMF1MT455 (ENDFDict *, ENDF *, char *, const int, const int);
+static void   DeceReadMF1MT456 (ENDFDict *, ENDF *, char *, const int);
+static void   DeceReadMF3 (ENDFDict *, ENDF *, const int, char *, const int, const int);
+static void   DeceReadMF8 (ENDFDict *, ENDF *, const int, const int, char *, const int);
+static void   DeceReadMF9 (ENDFDict *, ENDF *, const int, const int, char *, const int);
+static struct Qval qvalues (const int, const int, const int, const int, const double, const double);
+static double findBoundary (ENDF *);
 
 static double *cx, *cy, *xdat;
 
@@ -43,7 +44,10 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
   xdat = new double [MAX_DBLDATA*2];
 
   /*** for each MF case */
-  if(mf == 1) DeceReadMF1(dict,lib,mt,datafile,ofset);
+  if(mf == 1){
+    if(mt == 455) DeceReadMF1MT455(dict,lib,datafile,ofset,readflag);
+    else          DeceReadMF1MT456(dict,lib,datafile,ofset);
+  }
   else        DeceReadMF3(dict,lib,mt,datafile,ofset,readflag);
 //ENDFWrite(lib);
 
@@ -88,14 +92,119 @@ void DeceReadRadioactive(ENDFDict *dict, ENDF *lib8, ENDF *lib9, const int mf, c
 
 
 /**********************************************************/
-/*      Read External File in MF 1                        */
+/*      Read External File in MF 1 MT 455                 */
 /**********************************************************/
-void DeceReadMF1(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const int ofset)
+void DeceReadMF1MT455(ENDFDict *dict, ENDF *lib, char *datafile, const int ofset, const int readflag)
 {
-  const int mf = 1;
+  const int mf = 1, mt = 455;
+  const int nnf = 6;
+
+  /*** allocate data array */
+  double **lambda = new double * [MAX_DBLDATA];
+  double **dyield = new double * [MAX_DBLDATA];
+  for(int i=0 ; i<MAX_DBLDATA ; i++){
+    lambda[i] = new double [nnf*2];
+    for(int j=0 ; j<nnf*2 ; j++) lambda[i][j] = 0.0;
+  }
 
   /*** number of prompt/delayed neutrons, MT=455, 456 */
-  int np = readNUdata(datafile,ofset,cx,cy);
+  int np = readNUDdata(datafile,ofset,cx,cy,lambda,nnf);
+
+  if(np == 0){
+    message << "no nu data to be added from " << datafile << " for MT = " << mt;
+    WarningMessage();
+
+    DeceDelete(dict,mf,mt);
+    return;
+  }
+
+  for(int i=0 ; i<np ; i++){
+    xdat[2*i  ] = cx[i];
+    xdat[2*i+1] = cy[i];
+  }
+
+  /*** keep old decay constants */
+  if(readflag == 2){
+    if(lib->getENDFhead().l1 != 0){
+      message << "energy-dependent decay constants given in the old library, cannot merge MT = " << mt;
+      WarningMessage();
+      return;
+    }
+    if(lib->rdata[0].n1 != nnf){
+      message << "existing data have NNF = " << lib->rdata[0].n1 << ", not 6";
+      WarningMessage();
+      return;
+    }
+    for(int j=0 ; j<nnf ; j++) lambda[0][j] = lib->xdata[j];
+  }
+
+  /*** make TAB1 / TAB2 */
+  Record cont, *cdat;
+  int    idat[2];
+  double **xptr;
+
+  /*** Make HEAD and CONT */
+  int ldg = (lambda[1][0] == 0.0) ? 0 : 1; // energy-[in]dependent decay constant
+  int lnu = 2; // tabulated nu case
+
+  lib->setENDFhead(dict->getZA(),dict->getAWR(),ldg,lnu,0,0);
+  lib->setENDFmat(dict->getMAT());
+  lib->setENDFmf(mf);
+  lib->setENDFmt(mt);
+
+  /*** energy-independent decay constant */
+  if(ldg == 0){
+    cont.setRecord(0.0,0.0,0,0,nnf,0);
+    ENDFPackLIST(cont,lambda[0],lib);
+  }
+  /*** energy-dependent decay constant */
+  else{
+    cdat = new Record [np];
+    xptr = new double * [np];
+    for(int i=0 ; i<np ; i++) xptr[i] = new double [nnf*2];
+
+    for(int i=0 ; i<np ; i++){
+      cdat[i].setRecord(0.0,cx[i],0,0,nnf*2,0);
+      for(int j=0 ; j<nnf*2 ; j++) xptr[i][j] = lambda[i][j];
+    }
+
+    cont.setRecord(0.0,0.0,0,0,1,np);
+    idat[0] = np;
+    idat[1] = 2;
+    ENDFPackTAB2(cont,cdat,idat,xptr,lib);
+
+    for(int i=0 ; i<np ; i++) delete [] xptr[i];
+    delete [] cdat;
+    delete [] xptr;
+  }
+  cont.setRecord(0.0,0.0,0,0,1,np);
+  idat[0] = np;
+  idat[1] = 2;
+  ENDFPackTAB1(cont,idat,xdat,lib);
+
+  message << "number of points added " << np << " in MF:" << mf << " MT:" << mt;
+  Notice("DeceRead:DeceReadMF1MT455");
+
+  for(int i=0 ; i<nnf ; i++){
+    delete [] lambda[i];
+    delete [] dyield[i];
+  }
+  delete [] lambda;
+  delete [] dyield;
+
+  return;
+}
+
+
+/**********************************************************/
+/*      Read External File in MF 1 MT 456                 */
+/**********************************************************/
+void DeceReadMF1MT456(ENDFDict *dict, ENDF *lib, char *datafile, const int ofset)
+{
+  const int mf = 1, mt = 456;
+
+  /*** number of prompt/delayed neutrons, MT=456 */
+  int np = readNUPdata(datafile,ofset,cx,cy);
 
   if(np == 0){
     message << "no nu data to be added from " << datafile << " for MT = " << mt;
@@ -118,7 +227,7 @@ void DeceReadMF1(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
   int lnu = 2; // tabulated nu case
   lib->setENDFhead(dict->getZA(),dict->getAWR(),0,lnu,0,0);
   lib->setENDFmat(dict->getMAT());
-  lib->setENDFmf(1);
+  lib->setENDFmf(mf);
   lib->setENDFmt(mt);
 
   cont.setRecord(0.0,0.0,0,0,1,np);
@@ -128,7 +237,7 @@ void DeceReadMF1(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
   ENDFPackTAB1(cont,idat,xdat,lib);
 
   message << "number of points added " << np << " in MF:" << mf << " MT:" << mt;
-  Notice("DeceRead:DeceReadMF1");
+  Notice("DeceRead:DeceReadMF1MT456");
 
   return;
 }
