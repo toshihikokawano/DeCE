@@ -20,8 +20,7 @@ static const int NDAT   = 10000; // max number of floating point data
 static const int WFIELD =    14; // data field width
 
 /*
-  In this program, the spectrum data in a file are assumed 
-  in the following format, with the constant data field width of WFIELD.
+  The spectrum data in a file are assumed in the following format.
 
 #               0.000000e+00  7.916936e+00     // first energy and multiplicity
   0.000000e+00  1.711458e-01
@@ -46,7 +45,6 @@ void   processMF14 (const int,            ENDF *);
 void   processMF15 (           const int, ENDF *);
 int    dataread    (ifstream *);
 int    datadummy   (int);
-inline double coltodbl (string, int);
 
 static double **xtab;
 static Record  *ctab;
@@ -199,45 +197,54 @@ void processMF15(const int ne, ENDF *lib)
 
 int dataread(ifstream *fp)
 {
-  int ne = -1, k = 0;
-  string line;
+  int i = 0, j = 0;
+  string line, dummy;
+  double x,y;
 
-  while(1){
-    getline(*fp,line);
-    if(fp->eof() != 0) break;
-
+  while(getline(*fp,line)){
     /*** data start with #-line, with the incident energy
          in the second column. */
-    if(line.substr(0,1) == "#"){
-      ne++;
-      if(ne >= NEIN) return(0);
-      double e = coltodbl(line,1) * 1e+6;
-      double y = coltodbl(line,2);
-      
-      if(e == 0.0) e = 1e-5;
+    if(line[0] == '#'){
+      istringstream ss(line);
+      ss >> dummy >> x >> y;
+ 
+      if(x == 0.0) x = 1e-11;
 
-      ctab[ne].c2  = e;
-      ydat[2*ne  ] = e;
-      ydat[2*ne+1] = y;
+      ctab[i].c2  = x * 1e+6;
+      ydat[2*i  ] = x * 1e+6;
+      ydat[2*i+1] = y;
       continue;
     }
     /*** data end at the first blank line,
          set number of outgoing energy points */
     else if( line.length() == 0 ){
-      if(k != 0){
-        ctab[ne].n1 = 1; // NR
-        ctab[ne].n2 = k; // NP
-        k = 0;
+      if(j != 0){
+        ctab[i].n1 = 1; // NR
+        ctab[i].n2 = j; // NP
+        i ++;
+        j = 0;
       }
       continue;
     }
-    /*** secondary energy and spectrum data */
-    xtab[ne][2*k  ] = coltodbl(line,0) * 1e+6;
-    xtab[ne][2*k+1] = coltodbl(line,1) * 1e-6;
-    k++;
-  }
 
-  return(ne+1);
+    /*** secondary energy and spectrum data */
+    istringstream ss(line);
+    ss >> x >> y;
+    xtab[i][2*j  ] = x * 1e+6;
+    xtab[i][2*j+1] = y * 1e-6;
+    j++;
+  }
+  int ne = i;
+
+  // for(int i=0 ; i<ne ; i++){
+  //   cout << "### " << ctab[i].n2 << " " <<  ydat[2*i] << " " << ydat[2*i+1] << endl;
+    // for(int j=0 ; j<ctab[i].n2 ; j++){
+    //     cout << " " <<  xtab[i][2*j] << " " << xtab[i][2*j+1] << endl;;
+    // }
+    // cout << endl;
+ //  }
+
+  return(ne);
 }
 
 
@@ -260,11 +267,3 @@ int datadummy(int ne)
   return(ne+1);
 }
 
-
-inline double coltodbl(string c, int k)
-{
-  char d[WFIELD+1];
-  for(int j=0 ; j<WFIELD ; j++) d[j] = c[k*WFIELD + j];
-  d[WFIELD] = '\0';
-  return (atof(d));
-}
