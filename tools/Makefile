@@ -5,7 +5,7 @@ CXX		= g++
 CPP		= $(CXX)
 RM      	= rm
 LIBOBJS		= endflib.o endfio.o
-PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf12.o decemacs.o decephoto.o deceangdist.o deceheader.o decemergemf4.o
+PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf12.o decemf15.o decemacs.o decephoto.o deceangdist.o deceheader.o decemergemf4.o
 PROG		= decemf4 decemf5 decemf6 decemf12 decemf15 decemacs decephoto deceangdist deceheader decemergemf4
 
 all:		$(PROG)

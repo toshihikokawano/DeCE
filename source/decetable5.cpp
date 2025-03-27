@@ -41,20 +41,27 @@ void DeceTableMF5(ENDF *lib)
       outVal(lib->xptr[idx][2*i+1]);
       cout << endl;
     }
+
+    int fracptr = idx;
+
     idx ++;
+
+    cout << endl;
 
     if(lf == 1){
       int ne = lib->rdata[idx++].n2;
       for(int i=0 ; i<ne ; i++){
         double e  = lib->rdata[idx].c2;
         int    nf = lib->rdata[idx].n2;
+        double f  = ENDFInterpolation(lib,e,false,fracptr);
 
         cout << "#            E"; outVal(e); cout << endl;
         cout << "#           NF" << setw(14) << nf << endl;
-        cout << "# Energy       Probability" << endl;
+        cout << "# Energy       Probability   Prob x Fract" << endl;
         for(int j=0 ; j<nf ; j++){
           outVal(lib->xptr[idx][2*j  ]);
           outVal(lib->xptr[idx][2*j+1]);
+          outVal(lib->xptr[idx][2*j+1] * f);
           cout << endl;
         }
         idx++;
