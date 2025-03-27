@@ -200,15 +200,63 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
 
 
 /**********************************************************/
-/*      Read in Nu-p, Nu-d Data                           */
+/*      Read in Nu-d                                      */
 /**********************************************************/
-int readNUdata(char *file, int ofset, double *x, double *y)
+int readNUDdata(char *file, int ofset, double *x, double *y, double **lambda, const int ng)
 {
   ifstream fp;
   string   line;
 
   fp.open(file);
-  if(!fp){ message << "cannot open data file " << file; TerminateCode("readNUdata"); }
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readNUDdata"); }
+
+  if(ofset == 0) ofset = 1;
+
+  /* data format
+     En  ...[ofset] nu-d  lambda1 yield1 lambda2 yield2 .. lambda6 yield6 
+     in the case of energy-independent, lambda's are given only in the first line
+     0.0 ...[ofset] nu-d  lambda1 lambda2 ... lambda6
+  */
+  int nc = 0;
+  while(getline(fp,line)){
+    if(line[0] == '#') continue;
+    if(line.length() == 0) continue;
+
+    istringstream ss(line);
+    ss >> x[nc];
+    for(int i=0 ; i<ofset ; i++) ss >> y[nc];
+    for(int i=0 ; i<ng*2 ; i++){
+      ss >> lambda[nc][i];
+    }
+
+    if(x[nc] == 0.0) continue;
+    x[nc] *= opt.ReadXdataConversion;
+    if(DeceCheckReadRange(x[nc])) continue;
+
+    nc++;
+    if(nc >= MAX_DBLDATA){ message << "too many energy points, " << nc; TerminateCode("readNUdata"); }
+  }
+  fp.close();
+
+  if(nc >= 1){
+    message << "MF1:MT455 " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
+    Notice("DeceRead:readNUDdata");
+  }
+
+  return nc;
+}
+
+
+/**********************************************************/
+/*      Read in Nu-p                                      */
+/**********************************************************/
+int readNUPdata(char *file, int ofset, double *x, double *y)
+{
+  ifstream fp;
+  string   line;
+
+  fp.open(file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readNUpdata"); }
 
   if(ofset == 0) ofset = 1;
 
@@ -231,8 +279,8 @@ int readNUdata(char *file, int ofset, double *x, double *y)
   fp.close();
 
   if(nc >= 1){
-    message << "MF3:MT455(6) " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
-    Notice("DeceRead:readNUdata");
+    message << "MF1:MT456 " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
+    Notice("DeceRead:readNUPdata");
   }
 
   return nc;

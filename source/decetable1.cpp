@@ -81,23 +81,51 @@ void  DeceTableMF1MT455(ENDF *lib)
   int nnf = lib->rdata[0].n1;
   cout << "# Delayed neutron decay constants" << endl;
   cout << "#          LDG" << setw(14) << ldg << "  energy dependent delayed-groups" << endl;
-  cout << "#          NNF" << setw(14) << nnf << "  number of precursor families"  << endl;
-  cout << "#   lambda grp   decay const" << endl;
-  ENDFPrintLIST(lib,0,"Lambda Group","Decay Const");
-  cout << endl;
-  cout << endl;
 
-  /*** given by polynomials */
+  int idx = 0;
+  if(ldg == 0){
+    cout << "#          NNF" << setw(14) << nnf << "  number of precursor families"  << endl;
+    ENDFPrintLIST(lib,idx,"Lambda Group","Decay Const");
+    idx ++;
+  }
+  else{
+    Record cont = lib->rdata[idx ++];
+    int    ne   = cont.n2;
+
+    cout << "#           NE" << setw(14) << ne << "  number of incident energy points" << endl;
+
+    for(int i=0 ; i<ne ; i++){
+      double e  = lib->rdata[idx].c2;
+      int    nnf= lib->rdata[idx].n1 / 2;
+
+      cout << "#          NNF" << setw(14) << nnf << "  number of precursor families"  << endl;
+      cout << "# Energy      "; outVal(e); cout << endl;
+      cout << "# Lambda Group Decay Const   Yield" << endl;
+      for(int j=0 ; j<nnf ; j++){
+        outVal(j+1);
+        outVal(lib->xptr[idx][2*j]  );
+        outVal(lib->xptr[idx][2*j]+1);
+        cout << endl;
+      }
+      cout << endl;
+      idx++;
+    }
+    cout << endl;
+  }
+
   cout << "# Delayed neutron yields" << endl;
+  /*** given by polynomials */
   if(lnu == 1){
-    int nc = lib->rdata[1].n1;
+    int nc = lib->rdata[idx].n1;
     cout << "#           NC" << setw(14) << nc << "  number of polynomial terms" << endl;
-    ENDFPrintLIST(lib,1);
+    ENDFPrintLIST(lib,idx);
   }
   /*** tabulated */
   else if(lnu == 2){
-    ENDFPrint1Dim(lib,1,"Energy","Nu_delayed");
+    ENDFPrint1Dim(lib,idx,"Energy","Nu_delayed");
   }
+  cout << endl;
+  cout << endl;
 }
 
 

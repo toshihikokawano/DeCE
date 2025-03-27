@@ -136,7 +136,6 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
     np = gfrAutoEnergyURR(lib[kres],elab,dict->emaxRR,dict->emaxUR);
 
-    sys.FirstCall();
     for(int i=0 ; i<np ; i++){
 
       /*** unresolved resonance cross sections */
@@ -154,6 +153,8 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
       /*** print cross section */
       gfrPrintCrossSection(elab[i],crs);
     }
+    sys.LastCall();
+    gfrCrossSection(0,0.0,&sys,lib[kres]);
   }
   /*** equidistant energy grid case */
   else{
@@ -164,18 +165,16 @@ void gfrPtCross(ENDFDict *dict, ENDF *lib[], double emin, double emax, double de
 
       /*** resonance cross sections */
       crs = gfrCrossSection(0,elab[i],&sys,lib[kres]);
-      if(elab[i] < dict->emaxUR){
-        /*** background cross section in MF3 */
-        cbg = gfrBackGround(dict,lib,elab[i],true);
-        crs = crs + cbg;
-      }
+
+      /*** background cross section in MF3 */
+      cbg = gfrBackGround(dict,lib,elab[i],true);
+      crs = crs + cbg;
 
       /*** print cross section */
       gfrPrintCrossSection(elab[i],crs);
     }
     sys.LastCall();
     gfrCrossSection(0,0.0,&sys,lib[kres]);
-
   }
 
   delete [] elab;

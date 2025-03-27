@@ -108,18 +108,28 @@ void DeceCalc452(ENDFDict *dict, ENDF *lib[])
   lib455.setENDFmf(mf);
   lib455.setENDFmt(455);
   lib455.setENDFhead(hd);
-  lib455.rdata[0] = lib[k1]->rdata[1]; // in order to skip LIST
+
+  int idx = 0;
+  if(hd.l1 == 0){
+    idx ++;
+    lib455.rdata[0] = lib[k1]->rdata[idx]; // in order to skip LIST
+  }
+  else{ // LDG = 1: energy-dependent lambda case
+    Record cont = lib[k1]->rdata[idx ++];
+    idx += cont.n2;
+    lib455.rdata[0] = lib[k1]->rdata[idx];
+  }
 
   lib455.checkDataSize(lib455.rdata[0].n1,lib455.rdata[0].n2);
 
   for(int i=0 ; i<lib455.rdata[0].n1 ; i++){
-    lib455.idata[i*2  ] = lib[k1]->iptr[1][i*2  ];
-    lib455.idata[i*2+1] = lib[k1]->iptr[1][i*2+1];
+    lib455.idata[i*2  ] = lib[k1]->iptr[idx][i*2  ];
+    lib455.idata[i*2+1] = lib[k1]->iptr[idx][i*2+1];
   }
 
   for(int i=0 ; i<lib455.rdata[0].n2 ; i++){
-    lib455.xdata[i*2  ] = lib[k1]->xptr[1][i*2  ];
-    lib455.xdata[i*2+1] = lib[k1]->xptr[1][i*2+1];
+    lib455.xdata[i*2  ] = lib[k1]->xptr[idx][i*2  ];
+    lib455.xdata[i*2+1] = lib[k1]->xptr[idx][i*2+1];
   }
 
   /*** add 455(delayed) to 452(total) */

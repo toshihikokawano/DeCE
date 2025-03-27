@@ -262,6 +262,7 @@ int DeceCopyHighEnergyCrossSection(ENDFDict *dict, ENDF *lib[], int np0, double 
 /**********************************************************/
 void DeceCheckNegativeCrossSection(const int np, double **xdat)
 {
+  const double tiny = 1.0e-99;
   double x, y;
 
   for(int i=0 ; i<np ; i++){
@@ -273,8 +274,9 @@ void DeceCheckNegativeCrossSection(const int np, double **xdat)
         y = xdat[j][i2+1];
 
         if(y < 0.0){
-          message << "negative section " << y << " detected at " << x << " in MT " << mtr[j];
+          message << "negative cross section " << y << " detected at " << x << " in MT " << mtr[j] << " changed into " << tiny;
           WarningMessage();
+          xdat[j][i2+1] = tiny;
         }
       }
     }

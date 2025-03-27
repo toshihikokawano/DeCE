@@ -86,15 +86,27 @@ int ENDFReadMF1(ifstream *fp, ENDF *lib, const int mt)
 
   lib->resetPOS();
   Record head = lib->getENDFhead();
+  int    ldg  = head.l1;
   int    lnu  = head.l2;
 
   /*** for delayed neutron, read precursor decay constants */
   if(mt == 455){
-    ENDFReadLIST(fp,lib);
-    /*** given by polynomials */
-    if(lnu==1) ENDFReadLIST(fp,lib);
-    /*** tabulated */
-    else       ENDFReadTAB1(fp,lib);
+    /*** energy independent lambda */
+    if(ldg == 0){
+      ENDFReadLIST(fp,lib);
+      /*** given by polynomials */
+      if(lnu==1) ENDFReadLIST(fp,lib);
+      /*** tabulated */
+      else       ENDFReadTAB1(fp,lib);
+    }
+    /*** energy dependent lambda */
+    else{
+      ENDFReadTAB2(fp,lib);
+      /*** given by polynomials */
+      if(lnu==1) ENDFReadLIST(fp,lib);
+      /*** tabulated */
+      else       ENDFReadTAB1(fp,lib);
+    }
   }
   /*** prompt neutron or total neutron */
   else if( (mt == 452) || (mt == 456) ){
@@ -128,14 +140,22 @@ void ENDFWriteMF1(ENDF *lib)
 {
   int    mt   = lib->getENDFmt();
   Record head = lib->getENDFhead();
+  int    ldg  = head.l1;
   int    lnu  = head.l2;
 
   ENDFWriteHEAD(lib);
 
   if(mt==455){
-    ENDFWriteLIST(lib);
-    if(lnu==1)  ENDFWriteLIST(lib);
-    else        ENDFWriteTAB1(lib);
+    if(ldg == 0){
+      ENDFWriteLIST(lib);
+      if(lnu==1)  ENDFWriteLIST(lib);
+      else        ENDFWriteTAB1(lib);
+    }
+    else{
+      ENDFWriteTAB2(lib);
+      if(lnu==1)  ENDFWriteLIST(lib);
+      else        ENDFWriteTAB1(lib);
+    }
   }
   else if( (mt == 452) || (mt == 456) ){
     if(lnu==1)  ENDFWriteLIST(lib);

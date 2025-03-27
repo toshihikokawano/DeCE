@@ -14,12 +14,12 @@ static inline double gfrENDFChannelRadius(int a)
 
 
 
-const int MAX_RESONANCE = 5000;
-const int NRANGE        =   10;
-const int LMAX          =    5;
-const int MAX_PAIRS     =   10;
-const int MAX_XSEC      =  100;
-const int MAX_ANGLE     =  360;
+const int MAX_RESONANCE = 10000;
+const int NRANGE        =    10;
+const int LMAX          =     5;
+const int MAX_PAIRS     =    10;
+const int MAX_XSEC      =   100;
+const int MAX_ANGLE     =   360;
 
 
 /**************************************/
@@ -363,6 +363,8 @@ class ChannelWaveFunc{
   /*** get penetrabilitiy and shift factor */
   double P(){ return L.imag(); }
   double S(){ return L.real(); }
+
+  void fixP(double p){ L = complex<double>(L.real(),p); }
 };
 
 

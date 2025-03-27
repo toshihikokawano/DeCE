@@ -57,10 +57,6 @@ Pcross gfrCrossSectionURR(const int ner, const double elab, System *sys, ENDF *l
   /*** case A: energy independent parameter, no fission */
   if(lrf == 1){
     if(sys->avefission_flag == 0){
-
-      message << "LRF = 0, LFW = 1 case never tested";
-      WarningMessage();
-
       int idx = sys->idx[ner] + 1;
       if(sys->nro[ner] == 1) idx ++;
 
@@ -113,11 +109,12 @@ int gfrURetrieveParameterA(const int nl, int idx, ENDF *lib, URResonance *res)
 {
   int p = 0; // index for a given (L,J) pair
 
+  idx ++;
+
   /*** for all L partial waves */
   for(int l=0 ; l<nl ; l++){
     /*** CONT */
-    int njs = lib->rdata[idx].n1;
-    idx ++;
+    int njs = lib->rdata[idx].n2;
 
     for(int j=0 ; j<njs ; j++){
       /*** LIST */
@@ -133,15 +130,13 @@ int gfrURetrieveParameterA(const int nl, int idx, ENDF *lib, URResonance *res)
 
       res[p].ne  = 1;   // one energy point
       res[p].dfg = 0.0; // gamma d.o.f
-
       p ++;
-      idx ++;
-
       if(p >= MAX_URESONANCE){
         cerr << "too many L,J groups in URR" << endl;
         return(0);
       }
     }
+    idx ++;
   }
   return(p);
 }

@@ -1,7 +1,31 @@
+2025-03-20  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceprocpointwise.cpp (DeceCheckNegativeCrossSection): updated
+	replace if negative number emerges by a tiny number
+
+	* source/gfrcs7.cpp (RMLMainCalc): updated
+	special case when the number of channel is zero
+
+	* source/gfrcsurr.cpp (gfrURetrieveParameterA): updated
+	case A of URR finally implemented
+
+2025-03-19  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/gfrcross.cpp (gfrPenetrability): updated
+	penetration calculation became negative due to round-off error, fixed
+
 2025-03-18  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/gfrcsurr.cpp (gfrCrossSectionURR): bug fixed
 	indexing bug when URR has an energy-dependent radius (NRO = 1) fixed
+
+2025-03-15  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (DeceReadMF1MT455): updated
+	* source/decereadfile.cpp (readNUDdata): 
+	* source/decetable1.cpp (DeceTableMF1MT455):
+	* source/dececalc.cpp (DeceCalc452): 
+	read/write energy-dependent decay constant cases (LDG = 1) for delayed neutrons
 
 2025-03-13  KAWANO Toshihiko  <kawano@lanl.gov>
 

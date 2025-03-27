@@ -329,7 +329,7 @@ void DeceOperationDELETE(ENDFDict *dict)
 
 /**********************************************************/
 /* READ                                                   */
-/*      read MF3 data from external file                  */
+/*      read MF1/3 data from external file                */
 /*      mergeread replace a part of existing data         */
 /* read MF MT "datafile"                                  */
 /* meargeread MF MT "datafile"                            */
