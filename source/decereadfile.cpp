@@ -288,6 +288,46 @@ int readNUPdata(char *file, int ofset, double *x, double *y)
 
 
 /**********************************************************/
+/*      Read in Fission Energies                          */
+/**********************************************************/
+int readFissionEnergy(char *file, const int nfc, double *x, double **y)
+{
+  ifstream fp;
+  string   line;
+
+  fp.open(file);
+  if(!fp){ message << "cannot open data file " << file; TerminateCode("readNUpdata"); }
+
+  int nc = 0;
+  while(getline(fp,line)){
+    if(line[0] == '#') continue;
+    if(line.length() == 0) continue;
+
+    istringstream ss(line);
+    ss >> x[nc];
+    for(int i=0 ; i<nfc ; i++) ss >> y[nc][i];
+
+    if(x[nc] == 0.0) continue;
+    x[nc] *= opt.ReadXdataConversion;
+    if(DeceCheckReadRange(x[nc])) continue;
+
+    for(int i=0 ; i<nfc ; i++) y[nc][i] *= opt.ReadXdataConversion; // because data are all energies
+
+    nc++;
+    if(nc >= MAX_DBLDATA){ message << "too many energy points, " << nc; TerminateCode("readNUdata"); }
+  }
+  fp.close();
+
+  if(nc >= 1){
+    message << "MF1:MT458 " << nc << " points from (" << x[0] << "," << y[0][0] << ") to (" << x[nc-1] << "," << y[nc-1][0] << ") imported from " << file;
+    Notice("DeceRead:readFissionEnergy");
+  }
+
+  return nc;
+}
+
+
+/**********************************************************/
 /*      Read in Radioactive Nuclide Data                  */
 /**********************************************************/
 struct Prod readMShead(char *file, const int mt, int ofset)

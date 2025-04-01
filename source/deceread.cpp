@@ -15,6 +15,7 @@ using namespace std;
 
 static void   DeceReadMF1MT455 (ENDFDict *, ENDF *, char *, const int, const int);
 static void   DeceReadMF1MT456 (ENDFDict *, ENDF *, char *, const int);
+static void   DeceReadMF1MT458 (ENDFDict *, ENDF *, char *);
 static void   DeceReadMF3 (ENDFDict *, ENDF *, const int, char *, const int, const int);
 static void   DeceReadMF8 (ENDFDict *, ENDF *, const int, const int, char *, const int);
 static void   DeceReadMF9 (ENDFDict *, ENDF *, const int, const int, char *, const int);
@@ -45,8 +46,14 @@ void DeceRead(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dataf
 
   /*** for each MF case */
   if(mf == 1){
-    if(mt == 455) DeceReadMF1MT455(dict,lib,datafile,ofset,readflag);
-    else          DeceReadMF1MT456(dict,lib,datafile,ofset);
+    if(     mt == 455) DeceReadMF1MT455(dict,lib,datafile,ofset,readflag);
+    else if(mt == 456) DeceReadMF1MT456(dict,lib,datafile,ofset);
+    else if(mt == 458) DeceReadMF1MT458(dict,lib,datafile);
+    else{
+      message << "reading MF" << mf << " MT" << mt << " not implemented";
+      WarningMessage();
+      return;
+    }
   }
   else        DeceReadMF3(dict,lib,mt,datafile,ofset,readflag);
 //ENDFWrite(lib);
@@ -238,6 +245,77 @@ void DeceReadMF1MT456(ENDFDict *dict, ENDF *lib, char *datafile, const int ofset
 
   message << "number of points added " << np << " in MF:" << mf << " MT:" << mt;
   Notice("DeceRead:DeceReadMF1MT456");
+
+  return;
+}
+
+
+/**********************************************************/
+/*      Read External File in MF 1 MT 458                 */
+/**********************************************************/
+void DeceReadMF1MT458(ENDFDict *dict, ENDF *lib, char *datafile)
+{
+  const int mf = 1, mt = 458;
+  const int lfc  = 1; // tabulated energy dependent data
+  const int nfc  = 9; // number of TAB1 records
+  const int ldrv = 2; // LDRV=1: derived data, 2: primary evaluation
+
+  double **pe = new double * [MAX_DBLDATA];
+  for(int i=0 ; i<MAX_DBLDATA ; i++){
+    pe[i] = new double [nfc];
+    for(int j=0 ; j<nfc ; j++) pe[i][j] = 0.0;
+  }
+
+  /*** each of energy components */
+  int np = readFissionEnergy(datafile,nfc,cx,pe);
+
+  if(np == 0){
+    message << "no energy data to be added from " << datafile << " for MT = " << mt;
+    WarningMessage();
+
+    DeceDelete(dict,mf,mt);
+    return;
+  }
+
+  /*** Make HEAD and CONT */
+  lib->setENDFhead(dict->getZA(),dict->getAWR(),0,lfc,0,nfc);
+  lib->setENDFmat(dict->getMAT());
+  lib->setENDFmf(mf);
+  lib->setENDFmt(mt);
+
+  Record cont;
+  int    idat[2];
+
+  /*** first LIST block */
+  for(int n=0 ; n<nfc ; n++){
+    cy[2*n  ] = pe[0][n];
+    cy[2*n+1] = 0.0;
+  }
+  cont.setRecord(0.0,0.0,0,0,2*nfc,nfc);
+  ENDFPackLIST(cont,cy,lib);
+
+  /*** TAB1 for each of energy components */
+  for(int ifc=0 ; ifc<nfc ; ifc++){
+
+    cont.setRecord(0.0,0.0,ldrv,ifc+1,1,np);
+    idat[0] = np;
+    idat[1] = 2;
+
+    for(int i=0 ; i<np ; i++){
+      xdat[2*i  ] = cx[i];
+      xdat[2*i+1] = pe[i][ifc];
+    }
+
+    ENDFPackTAB1(cont,idat,xdat,lib);
+  }
+
+  message << "number of points added " << np << " in MF:" << mf << " MT:" << mt;
+  Notice("DeceRead:DeceReadMF1MT458");
+
+  for(int i=0 ; i<nfc ; i++){
+    delete [] pe[i];
+  }
+  delete [] pe;
 
   return;
 }

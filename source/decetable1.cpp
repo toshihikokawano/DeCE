@@ -191,6 +191,8 @@ void  DeceTableMF1MT458(ENDF *lib)
     int id =  0;
     cout << "#  EFR           dEFR        fragment kinetic energy" << endl;
     outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    cout << endl;
+    cout << endl;
     for(int k=1 ; k<=nfc ; k++){
       int ifc = lib->rdata[k].l2 - 1;
       if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
@@ -201,6 +203,8 @@ void  DeceTableMF1MT458(ENDF *lib)
 
     cout << "#  ENP           dENP        kinetic energy of prompt fission neutrons" << endl;
     outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    cout << endl;
+    cout << endl;
     for(int k=1 ; k<=nfc ; k++){
       int ifc = lib->rdata[k].l2 - 1;
       if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
@@ -210,6 +214,8 @@ void  DeceTableMF1MT458(ENDF *lib)
 
     cout << "#  END           dEND        kinetic energy of delayed fission neutrons" << endl;
     outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    cout << endl;
+    cout << endl;
     for(int k=1 ; k<=nfc ; k++){
       int ifc = lib->rdata[k].l2 - 1;
       if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
@@ -219,6 +225,8 @@ void  DeceTableMF1MT458(ENDF *lib)
 
     cout << "#  EGP           dEGP        total energy release by prompt fission gammas" << endl;
     outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    cout << endl;
+    cout << endl;
     for(int k=1 ; k<=nfc ; k++){
       int ifc = lib->rdata[k].l2 - 1;
       if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
@@ -228,6 +236,8 @@ void  DeceTableMF1MT458(ENDF *lib)
 
     cout << "#  EGD           dEGD        total energy release by delayed fission gammas" << endl;
     outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    cout << endl;
+    cout << endl;
     for(int k=1 ; k<=nfc ; k++){
       int ifc = lib->rdata[k].l2 - 1;
       if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
@@ -237,6 +247,8 @@ void  DeceTableMF1MT458(ENDF *lib)
 
     cout << "#  EB            dEB         total energy release by delayed betas" << endl;
     outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    cout << endl;
+    cout << endl;
     for(int k=1 ; k<=nfc ; k++){
       int ifc = lib->rdata[k].l2 - 1;
       if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
@@ -246,6 +258,8 @@ void  DeceTableMF1MT458(ENDF *lib)
 
     cout << "#  ENU           dENU        energy carried away by neutrinos" << endl;
     outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    cout << endl;
+    cout << endl;
     for(int k=1 ; k<=nfc ; k++){
       int ifc = lib->rdata[k].l2 - 1;
       if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
@@ -255,6 +269,8 @@ void  DeceTableMF1MT458(ENDF *lib)
 
     cout << "#  ER            dER         ET - ENU = pseudo-Q value" << endl;
     outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    cout << endl;
+    cout << endl;
     for(int k=1 ; k<=nfc ; k++){
       int ifc = lib->rdata[k].l2 - 1;
       if(id == ifc){ ENDFPrint1Dim(lib,k); break; }
@@ -264,6 +280,8 @@ void  DeceTableMF1MT458(ENDF *lib)
 
     cout << "#  ET            dET         total energy" << endl;
     outVal(lib->xdata[2*id]); outVal(lib->xdata[2*id + 1]); cout << endl;
+    cout << endl;
+    cout << endl;
     for(int k=1 ; k<=nfc ; k++){
       int ifc = lib->rdata[k].l2 - 1;
       if(id == ifc){ ENDFPrint1Dim(lib,k); break; }

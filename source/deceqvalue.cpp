@@ -23,6 +23,11 @@ void DeceChangeQvalue(ENDFDict *dict, ENDF *lib[], const int mt, double qm, doub
 
   lib[k]->rdata[0].c1 = qm;
   lib[k]->rdata[0].c2 = qi;
+
+  message << "MF3:MT" << mt << " set Qvalues"; 
+  message << " Qm = " << setw(13) << setprecision(6) << qm << ",";
+  message << " Qi = " << setw(13) << setprecision(6) << qi;
+  Notice("DecePChangeQvalue");
 }
 
 

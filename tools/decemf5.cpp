@@ -18,7 +18,7 @@ using namespace std;
   In this program, the prompt / delayed spectrum data in a file are assumed 
   in the following format.
 
-#               1.000000e-05   // start with #-line, energy in 
+# 1.000000e-05   // start with #-line, energy in 
   0.000000e+00  0.000000e+00   // secondary energy, spectrum data
   1.000000e+01  1.964834e-09
   ...           ...
@@ -107,9 +107,10 @@ int main(int argc, char *argv[])
     for(int i=0 ; i<NEIN ; i++) xdat[k][i] = new double [NDAT];
   }
 
-  /*** read data an process them*/
+  /*** read data and process them */
   int ne = dataread(&fpin,nk,ndat,xdat,pdat);
-  if(ne > 0) processMF5(ne,nk,&lib,ndat,xdat,pdat);
+
+  if(ne > 0) processMF5(nk,ne,&lib,ndat,xdat,pdat);
 
   /*** output */
   ENDFWriteMF5(&lib);
@@ -128,7 +129,7 @@ int main(int argc, char *argv[])
 }
 
 
-void processMF5(const int ne, const int nk, ENDF *lib, int **ndat, double ***xdat, double **pdat)
+void processMF5(const int nk, const int ne, ENDF *lib, int **ndat, double ***xdat, double **pdat)
 {
   Record cont = lib->getENDFhead();
   int    lf   = 1;   // arbitrary tabulated function
@@ -193,7 +194,6 @@ void processMF5(const int ne, const int nk, ENDF *lib, int **ndat, double ***xda
     for(int i=0 ; i<ne ; i++) itab[i] = new int [2];
 
     if(nk == 1){
-
       double emin = pdat[0][0];
       double emax = pdat[0][2*ne-2];
 

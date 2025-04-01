@@ -31,6 +31,7 @@ int    readCSdata (char *, int, const int, double *, double *);
 int    readISdata (char *, int, const int, double *, double *, double *);
 int    readNUDdata (char *, int, double *, double *, double **, const int);
 int    readNUPdata (char *, int, double *, double *);
+int    readFissionEnergy (char *, const int, double *, double **);
 struct Prod readMShead (char *, const int, int);
 int    readMSdata (char *, const int, const int, double *, double *);
 int    geneCSdata  (int, double *, double *, double, double, double *);
