@@ -31,7 +31,7 @@ void DeceTableMF5(ENDF *lib)
     int lf  = cont.l2;
     int nek = lib->rdata[idx].n2;
 
-    cout << "#   Subsection" << setw(14) << n << endl;
+    cout << "#   Subsection" << setw(14) << n+1 << endl;
     cout << "#           NE" << setw(14) << nek << endl;
     cout << "#           LF" << setw(14) << lf << "  1: tabulated, 5,9: evaporation, 7: Maxwellian, 11: Watt, 12: Madland-Nix" << endl;
 

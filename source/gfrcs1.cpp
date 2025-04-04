@@ -106,15 +106,32 @@ Pcross BWMainCalc(const double elab,  const int lrf, System *sys)
       for(int jj=jmin ; jj<=jmax ; jj+=2){
         double x3 = (jj + 1.0) * x1;
 
-        if(lrf == 1) z = gfrSLBreitWigner(kmax,l,jj,elab,&wfn,res);
-        else         z = gfrMLBreitWignerENDF(kmax,l,ss-smin-1,jj,elab,&wfn,res);
-//      else         z = gfrMLBreitWigner(kmax,l,jj,elab,&wfn,res);
+        if(lrf == 1){
+          z = gfrSLBreitWigner(kmax,l,jj,elab,&wfn,res);
 
-        sig.total    += x3*z.total;
-        sig.elastic  += x3*z.elastic;
-        sig.capture  += x3*z.capture;
-        sig.fission  += x3*z.fission;
-        sig.other    += x3*z.other;
+          z.elastic *= x3;
+          z.elastic += 4.0*x1*(2*l + 1.0) * imag(wfn.phase)*imag(wfn.phase);
+          z.capture *= x3;
+          z.fission *= x3;
+          z.other   *= x3;
+          z.setTotal();
+
+          sig.elastic  += z.elastic;
+          sig.capture  += z.capture;
+          sig.fission  += z.fission;
+          sig.other    += z.other;
+          sig.total    += z.total;
+        }
+        else{
+          z = gfrMLBreitWignerENDF(kmax,l,ss-smin-1,jj,elab,&wfn,res);
+//        z = gfrMLBreitWigner(kmax,l,jj,elab,&wfn,res);
+
+          sig.total    += x3*z.total;
+          sig.elastic  += x3*z.elastic;
+          sig.capture  += x3*z.capture;
+          sig.fission  += x3*z.fission;
+          sig.other    += x3*z.other;
+        }
 
         Smat.inclIndex();
       }
