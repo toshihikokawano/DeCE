@@ -88,13 +88,13 @@ void DeceMaxwellian(ENDFDict *dict, ENDF *lib[], const double temperature, strin
       double de = 1e+4;
 
       double ex = e0;
-      for(int i=0 ; ; i++){
+      do{
         double macs = specaverage(n,x,y,ex,sig0,kcms,westcott);
         cout << setw(15) << ex << setw(15) << macs << endl;
         if(ex >= e1) break;
         if(ex >= e2) de = 5e+4;
         ex += de;
-      }
+      }while(1);
     }
   }
   /*** MACS or Westcott g-factor at given Maxwellian temperature */

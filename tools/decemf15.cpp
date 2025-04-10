@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cstdlib>
 #include <iomanip>
 
@@ -356,7 +357,8 @@ int dataread(ifstream *fp, const int ncol, int **ndat, double ***xdat, double **
 
   int i = 0, j = 0;
   string line, dummy;
-  double x, y[3*ncol];
+  double x;
+  double *y = new double [3*ncol];
 
   while(getline(*fp,line)){
     if(line[0] == '#'){
@@ -425,6 +427,9 @@ int dataread(ifstream *fp, const int ncol, int **ndat, double ***xdat, double **
     cout << endl;
   }
 */
+
+  delete [] y;
+
   return(ne);
 }
 

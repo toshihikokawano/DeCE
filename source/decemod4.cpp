@@ -229,7 +229,7 @@ void smoothedlegendre(ENDFDict *dict, ENDF *lib[], const int np, const int psize
   // }
 
   double width = dict->emaxRR / (np - 1); // Gaussian averaging width = Delta E
-  double y[psize];
+  double *y = new double [psize];
 
   /*** at each energy point, calculate Gaussian average */
   for(int i=1 ; i<np ; i++){
@@ -250,6 +250,8 @@ void smoothedlegendre(ENDFDict *dict, ENDF *lib[], const int np, const int psize
     }
     for(int l=0 ; l<psize ; l++) pave[i][l] = (x > 0.0) ? y[l] / x : 0.0;
   }
+  
+  delete [] y;
 
   /*** isotropic at zero energy */
   eave[0] = edat[0];

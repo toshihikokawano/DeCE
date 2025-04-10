@@ -383,7 +383,7 @@ Pcross gfrBreitWignerURR(int ke, double gj, double elab, double alpha, ChannelWa
 double gfrMoldauer(int n, double *tc, double *nu, double *wfc)
 {
   double ts = 0.0;
-  double w[2*MAX_GAUSS20];
+  double *w = new double [2*MAX_GAUSS20];
 
   for(int i=0 ; i<2*MAX_GAUSS20 ; i++) w[i] = 1.0;
 
@@ -428,6 +428,8 @@ double gfrMoldauer(int n, double *tc, double *nu, double *wfc)
   }
 
   wfc[0] *= 1.0 + 2.0/df0;
+
+  delete [] w;
 
   return(ts);
 }

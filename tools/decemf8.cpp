@@ -178,11 +178,13 @@ int dataread(ifstream *fp, const int n, unsigned int *id, double *en, double *xi
       en[n] *= 1.0e+6;
       continue;
     }
-    else if( (line.length() == 0) && (i != 0) ){
-      k = i;
-      break;
+    else if( line.length() == 0 ){
+      if(i != 0){
+        k = i;
+        break;
+      }
+      continue;
     }
-
     istringstream ss(line);
     ss >> z >> a >> m >> xi[i] >> xc[i];
 
