@@ -113,6 +113,9 @@ void DeceEditHeader(ENDFDict *dict, string parameter, const double x)
     message << "header parameter [ " << parameter << " ] not defined";
     WarningMessage();
   }
+
+  message << "header parameter " << parameter << " changed, set to " << x;
+  Notice("DeceEditHeader");
 }
 
 

@@ -5,8 +5,8 @@ CXX		= g++
 CPP		= $(CXX)
 RM      	= rm
 LIBOBJS		= endflib.o endfio.o
-PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf12.o decemf15.o decemacs.o decephoto.o deceangdist.o deceheader.o decemergemf4.o
-PROG		= decemf4 decemf5 decemf6 decemf12 decemf15 decemacs decephoto deceangdist deceheader decemergemf4
+PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf8.o decemf12.o decemf15.o decemacs.o decephoto.o deceangdist.o deceheader.o decemergemf4.o
+PROG		= decemf4 decemf5 decemf6 decemf8 decemf12 decemf15 decemacs decephoto deceangdist deceheader decemergemf4
 
 all:		$(PROG)
 
@@ -18,6 +18,9 @@ decemf5:	$(LIBOBJS) decemf5.o
 
 decemf6:	$(LIBOBJS) decemf6.o
 		$(CPP) decemf6.o $(LIBOBJS) $(LDFLAGS) -o decemf6
+
+decemf8:	$(LIBOBJS) decemf8.o
+		$(CPP) decemf8.o $(LIBOBJS) $(LDFLAGS) -o decemf8
 
 decemf12:	$(LIBOBJS) decemf12.o
 		$(CPP) decemf12.o $(LIBOBJS) $(LDFLAGS) -o decemf12
@@ -46,6 +49,7 @@ clean:
 decemf4.o:	../source/endflib.h
 decemf5.o:	../source/endflib.h
 decemf6.o:	../source/endflib.h
+decemf8.o:	../source/endflib.h
 decemf12.o:	../source/endflib.h
 decemf15.o:	../source/endflib.h
 decemacs.o:	../source/endflib.h

@@ -18,7 +18,7 @@ using namespace std;
   In this program, the prompt / delayed spectrum data in a file are assumed 
   in the following format.
 
-# 1.000000e-05   // start with #-line, energy in 
+# 1.000000e-05   // start with #-line followed by the incident energy
   0.000000e+00  0.000000e+00   // secondary energy, spectrum data
   1.000000e+01  1.964834e-09
   ...           ...
@@ -109,6 +109,7 @@ int main(int argc, char *argv[])
 
   /*** read data and process them */
   int ne = dataread(&fpin,nk,ndat,xdat,pdat);
+  fpin.close();
 
   if(ne > 0) processMF5(nk,ne,&lib,ndat,xdat,pdat);
 
