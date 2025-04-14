@@ -198,24 +198,26 @@ void processMF5(const int nk, const int ne, ENDF *lib, int **ndat, double ***xda
     if(nk == 1){
       double emin = pdat[0][0];
       double emax = pdat[0][2*ne-2];
+      double xdum[4];
 
       /*** TAB1 for spectrum fraction.
            fraction = 1.0 in the [emin,emax] range */
       cont.setRecord(0.0, 0.0, 0, lf, 1, 2);
       idat[0] = 2;             // there will be two points
       idat[1] = 2;             // lin-lin interpolation
-      pdat[0][0] = emin;       // min incident energy
-      pdat[0][1] = 1.0;        // fraction = 1.0
-      pdat[0][2] = emax;       // max incident energy
-      pdat[0][3] = 1.0;        // fraction = 1.0
+      xdum[0] = emin;          // min incident energy
+      xdum[1] = 1.0;           // fraction = 1.0
+      xdum[2] = emax;          // max incident energy
+      xdum[3] = 1.0;           // fraction = 1.0
+      ENDFPackTAB1(cont,idat,xdum,lib);  // make a TAB1 for fractions
     }
     else{
       /*** TAB1 for spectrum fraction */
       cont.setRecord(0.0, 0.0, 0, lf, 1, ne);
       idat[0] = ne;            // there are NE energy points
       idat[1] = 2;             // lin-lin interpolation
+      ENDFPackTAB1(cont,idat,pdat[k],lib);  // make a TAB1 for fractions
     }
-    ENDFPackTAB1(cont,idat,pdat[k],lib);  // make a TAB1 for fractions
 
     /*** TAB2 for the spectrun data */
     cont.setRecord(0.0, 0.0, 0, 0, 1, ne);

@@ -5,8 +5,8 @@ CXX		= g++
 CPP		= $(CXX)
 RM      	= rm
 LIBOBJS		= endflib.o endfio.o
-PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf8.o decemf12.o decemf15.o decemacs.o decephoto.o deceangdist.o deceheader.o decemergemf4.o
-PROG		= decemf4 decemf5 decemf6 decemf8 decemf12 decemf15 decemacs decephoto deceangdist deceheader decemergemf4
+PRGOBJS		= decemf4.o decemf5.o decemf6.o decemf8.o decemf12.o decemf15.o decephoto.o deceangdist.o deceheader.o decemergemf4.o decemakehead.o
+PROG		= decemf4 decemf5 decemf6 decemf8 decemf12 decemf15 decephoto deceangdist deceheader decemergemf4 decemakehead
 
 all:		$(PROG)
 
@@ -28,9 +28,6 @@ decemf12:	$(LIBOBJS) decemf12.o
 decemf15:	$(LIBOBJS) decemf15.o
 		$(CPP) decemf15.o $(LIBOBJS) $(LDFLAGS) -o decemf15
 
-decemacs:	$(LIBOBJS) decemacs.o
-		$(CPP) decemacs.o $(LIBOBJS) $(LDFLAGS) -o decemacs
-
 deceangdist:	$(LIBOBJS) deceangdist.o
 		$(CPP) deceangdist.o $(LIBOBJS) $(LDFLAGS) -o deceangdist
 
@@ -42,6 +39,9 @@ deceheader:	$(LIBOBJS) deceheader.o
 
 decemergemf4:	$(LIBOBJS) decemergemf4.o
 		$(CPP) decemergemf4.o $(LIBOBJS) $(LDFLAGS) -o decemergemf4
+
+decemakehead:	$(LIBOBJS) decemakehead.o
+		$(CPP) decemakehead.o $(LIBOBJS) $(LDFLAGS) -o decemakehead
 
 clean:
 		$(RM) -f $(LIBOBJS) $(PRGOBJS) $(PROG)
@@ -57,6 +57,7 @@ deceangdist.o:	../source/endflib.h
 decephoto.o:	../source/endflib.h
 deceheader.o:	../source/endflib.h deceheader.h
 decemergemf4.o:	../source/endflib.h
+dececmakehead.o:	../source/masstable_audi2012_frdm2012.h
 endflib.o:	../source/endflib.cpp ../source/endflib.h
 		$(CPP) $(CPPFLAGS) ../source/endflib.cpp -c
 endfio.o:	../source/endfio.cpp ../source/endflib.h

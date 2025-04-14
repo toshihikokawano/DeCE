@@ -29,15 +29,27 @@ void DeceTableMF15(ENDF *lib)
     Record cont = lib->rdata[idx];
     int lf = cont.l2;
     ENDFPrint1Dim(lib,idx,"Energy","Fraction");
+
+    int fracptr = idx;
+
     idx ++;
 
     if(lf == 1){
       int ne = lib->rdata[idx++].n2;
       for(int i=0 ; i<ne ; i++){
         double e  = lib->rdata[idx].c2;
+        int    ne = lib->rdata[idx].n2;
+        double f  = ENDFInterpolation(lib,e,false,fracptr);
 
         cout << "#            E"; outVal(e); cout << endl;
-        ENDFPrint1Dim(lib,idx,"Energy","Probability");
+        cout << "#           NE" << setw(14) << ne << endl;
+        cout << "# Energy       Probability   Prob x Fract" << endl;
+        for(int j=0 ; j<ne ; j++){
+          outVal(lib->xptr[idx][2*j  ]);
+          outVal(lib->xptr[idx][2*j+1]);
+          outVal(lib->xptr[idx][2*j+1] * f);
+          cout << endl;
+        }
         idx++;
 
         cout << endl;
