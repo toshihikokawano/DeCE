@@ -108,7 +108,6 @@ void DeceReadMF1MT455(ENDFDict *dict, ENDF *lib, char *datafile, const int ofset
 
   /*** allocate data array */
   double **lambda = new double * [MAX_DBLDATA];
-  double **dyield = new double * [MAX_DBLDATA];
   for(int i=0 ; i<MAX_DBLDATA ; i++){
     lambda[i] = new double [nnf*2];
     for(int j=0 ; j<nnf*2 ; j++) lambda[i][j] = 0.0;
@@ -194,10 +193,8 @@ void DeceReadMF1MT455(ENDFDict *dict, ENDF *lib, char *datafile, const int ofset
 
   for(int i=0 ; i<nnf ; i++){
     delete [] lambda[i];
-    delete [] dyield[i];
   }
   delete [] lambda;
-  delete [] dyield;
 
   return;
 }
