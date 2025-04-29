@@ -323,6 +323,7 @@ void RMLMatrices(const double elab, const int mch, RMLParameter *r, double **p, 
 #endif
 
 #ifdef DEBUG_MATRIX
+  cout << mch << endl;
   cout << setprecision(12);
   for(int i0=0 ; i0<mch ; i0++){
     for(int i1=0 ; i1<=i0 ; i1++){
@@ -406,7 +407,7 @@ int RMLArrangeMatrix(const int k, RMLParameter *r, double **p, ChannelWaveFunc *
     }
   }
 
-  /*** other channels */
+  /*** other channels, except for capture */
   for(int c=0 ; c<r->nchannel ; c++){
     if((ppr[r->pidx[c]].mt == 2) || (ppr[r->pidx[c]].mt == 102)) continue;
     int i = (idx+2)*(idx+1)/2 - 1;
@@ -430,6 +431,7 @@ int RMLArrangeMatrix(const int k, RMLParameter *r, double **p, ChannelWaveFunc *
       idx ++;
     }
   }
+
   int nch = idx;
 
   /*** off-diagonal elements */
@@ -454,6 +456,7 @@ int RMLArrangeMatrix(const int k, RMLParameter *r, double **p, ChannelWaveFunc *
 
 #ifdef DEBUG_WIDTH
   double gt = 0.0; // total width
+  cout << setw(4) << k << endl;
   for(int i=0 ; i<nch ; i++){
     int di = (i+2)*(i+1)/2 - 1;
     cout << setprecision(3);
@@ -462,6 +465,7 @@ int RMLArrangeMatrix(const int k, RMLParameter *r, double **p, ChannelWaveFunc *
     cout << endl;
     gt += gm[di];
   }
+  cout << setw(11) << gt << endl;
 #endif
 
   return nch;
@@ -632,34 +636,39 @@ void RMLStorePhaseShift(RMLParameter *r, RMLChannel *chn, ChannelWaveFunc *wf)
 
     int idx = r->pidx[c];
 
-    if(ppr[idx].mt == 18 || ppr[idx].mt == 102) continue;
-
-    /*** open neutron channel, wf includes G'+iF' in wf.d */
-    if(chn[c].coulomb == 0.0 && chn[c].open){
-      ChannelWaveFunc tmp;
-      /*** penetrability calculated with the true radius */
-      gfrPenetrability(r->l[c],chn[c].alpha_true,&wf[c]);
-
-      /*** hard-sphare phase by the effective radius */
-      gfrPenetrability(r->l[c],chn[c].alpha_effective,&tmp);
-      wf[c].setPhase(tmp.H);
+    if(ppr[idx].mt == 18 || ppr[idx].mt == 102){
+      wf[c].setData(1.0, complex<double>(1.0,0.0), complex<double>(0.0,1.0) );
+      wf[c].setPhase(complex<double>(0.0,0.0));
       wf[c].setCoulombPhase(0.0);
     }
-
-    /*** charged particle or closed neutron channel case */
     else{
-      /*** C0 = G + iF, C1 = G' + iF' */
-      complex<double> C0, C1;
-      coulomb(r->l[c],chn[c].alpha_true,chn[c].coulomb,&C0,&C1);
-      wf[c].setData(chn[c].alpha_true,C0,C1);
+      /*** open neutron channel, wf includes G'+iF' in wf.d */
+      if(chn[c].coulomb == 0.0 && chn[c].open){
+        ChannelWaveFunc tmp;
+        /*** penetrability calculated with the true radius */
+        gfrPenetrability(r->l[c],chn[c].alpha_true,&wf[c]);
 
-      /*** hard-sphere phase */
-      coulomb(r->l[c],chn[c].alpha_effective,chn[c].coulomb,&C0,&C1);
-      wf[c].setPhase(C0);
+        /*** hard-sphare phase by the effective radius */
+        gfrPenetrability(r->l[c],chn[c].alpha_effective,&tmp);
+        wf[c].setPhase(tmp.H);
+        wf[c].setCoulombPhase(0.0);
+      }
 
-      /*** Coulomb phase */
-      if(chn[c].coulomb != 0.0) wf[c].setCoulombPhase(coulomb_phaseshift(r->l[c],chn[c].coulomb));
-      else wf[c].setCoulombPhase(0.0);
+      /*** charged particle or closed neutron channel case */
+      else{
+        /*** C0 = G + iF, C1 = G' + iF' */
+        complex<double> C0, C1;
+        coulomb(r->l[c],chn[c].alpha_true,chn[c].coulomb,&C0,&C1);
+        wf[c].setData(chn[c].alpha_true,C0,C1);
+
+        /*** hard-sphere phase */
+        coulomb(r->l[c],chn[c].alpha_effective,chn[c].coulomb,&C0,&C1);
+        wf[c].setPhase(C0);
+
+        /*** Coulomb phase */
+        if(chn[c].coulomb != 0.0) wf[c].setCoulombPhase(coulomb_phaseshift(r->l[c],chn[c].coulomb));
+        else wf[c].setCoulombPhase(0.0);
+      }
     }
 
 #ifdef DEBUG_PHASE
