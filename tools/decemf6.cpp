@@ -34,20 +34,21 @@ static const int WFIELD =    13; // data field width
 static int mat = 9999;           // MAT number
 static int mt  =    0;           // MT number
 
-int    prescan    (ifstream *);
-int    dataread   (ifstream *, string);
+int    prescan (ifstream *);
+int    dataread (ifstream *, string);
 int    datarecord (ifstream *, int, int, double);
 
 void   processMF6 (int, ENDF *);
-void   mf6spec    (int, int, double, ENDF *);
-void   mf6yield   (int, int, int, double, double, ENDF *);
+void   processMF6inclusive (int, ENDF *);
+void   mf6spec (int, int, double, ENDF *);
+void   mf6yield (int, int, int, double, double, ENDF *);
 string reactionMT (void);
 
-inline Record mf6head    (ENDF *);
-inline double coltodbl   (string, int);
-inline string coltostr   (string, int);
+inline Record mf6head (ENDF *);
+inline double coltodbl (string, int);
+inline string coltostr (string, int);
 
-static double *elab, *gyield, ***spc;
+static double *elab, *gyield, **pyield, ***spc;
 static int    *ng, **ns, **nl;
 
 
@@ -118,10 +119,12 @@ int main(int argc, char *argv[])
   ng     = new int [ne];
   ns     = new int * [NPAR];
   nl     = new int * [NPAR];
+  pyield = new double * [NPAR];
   spc    = new double ** [NPAR];
   for(int p=0 ; p<NPAR ; p++){
     ns[p]  = new int [ne];
     nl[p]  = new int [ne];
+    pyield[p] = new double [ne];
     spc[p] = new double * [ne];
     for(int n=0 ; n<ne ; n++) spc[p][n] = new double [NDAT];
   }
@@ -131,14 +134,20 @@ int main(int argc, char *argv[])
     elab[n] = gyield [n] = 0.0;
   }
   for(int p=0 ; p<NPAR ; p++){
-    for(int n=0 ; n<ne ; n++) ns[p][n] = nl[p][n] = 0;
+    for(int n=0 ; n<ne ; n++){
+      ns[p][n] = nl[p][n] = 0;
+      pyield[p][n] = 0.0;
+    }
   }
 
   fpin.open(eclname.c_str());
   dataread(&fpin,reacid);
   fpin.close();
 
-  if(ne > 0) processMF6(ne,&lib);
+  if(ne > 0){
+    if(mt == 3 || mt == 5) processMF6inclusive(ne,&lib);
+    else processMF6(ne,&lib);
+  }
 
   delete [] elab;
   delete [] gyield;
@@ -148,11 +157,13 @@ int main(int argc, char *argv[])
     delete [] ns[p];
     delete [] nl[p];
     delete [] spc[p];
+    delete [] pyield[p];
   }
   delete [] ng;
   delete [] ns;
   delete [] nl;
   delete [] spc;
+  delete [] pyield;
 
   return(0);
 }
@@ -177,8 +188,6 @@ void processMF6(int ne, ENDF *lib3)
     emin = elab[0]; // at zero energy
     emax = elab[ne-1];
   }
-
-  /*** particle emission case */
   else{
     emin = lib3->xdata[0];
     emax = elab[ne-1];
@@ -197,6 +206,49 @@ void processMF6(int ne, ENDF *lib3)
   /*** finally, gamma-rays */
   mf6yield(ne,0,0,emin,emax,&lib);
   mf6spec(ne,0,emin,&lib);
+
+  ENDFWriteMF6(&lib);
+}
+
+
+/**********************************************************/
+/*      Generate Subsection in MF6 for Inclusive Spec     */
+/**********************************************************/
+void processMF6inclusive(int ne, ENDF *lib3)
+{
+  double emin,emax;
+  ENDF   lib;
+
+  lib.setENDFmat(mat);
+  lib.setENDFmf(6);
+  lib.setENDFmt(mt);
+  lib.setENDFhead( mf6head(lib3) );
+
+  emin = lib3->xdata[0];
+  emax = elab[ne-1];
+
+  int subsec = 0;
+  for(int pid=1 ; pid<=NPAR-1 ; pid++){
+    bool given = false;
+    for(int i=0 ; i<ne ; i++){
+      if(ns[pid][i] > 0){ given = true; break; }
+    }
+
+    if(given){
+      mf6yield(ne,pid,1,emin,emax,&lib);
+      mf6spec(ne,pid,emin,&lib);
+      subsec ++;
+    }  
+  }
+
+  /*** finally, gamma-rays */
+  mf6yield(ne,0,0,emin,emax,&lib);
+  mf6spec(ne,0,emin,&lib);
+  subsec ++;
+
+  Record head = lib.getENDFhead();
+  head.n1 = subsec;
+  lib.setENDFhead(head);
 
   ENDFWriteMF6(&lib);
 }
@@ -255,17 +307,26 @@ void mf6yield(int nelab, int pid, int nyield, double emin, double emax, ENDF *li
     idat[0] = np;
   }
   else{
-    np  = 2;
-    yield = (double)nyield;
-    xdat[kx++] = emin;
-    xdat[kx++] = yield;
-    xdat[kx++] = emax;
-    xdat[kx++] = yield;
+    if(mt == 3 || mt == 5){
+      np  = nelab;
+      for(int i=0 ; i<nelab ; i++){
+        xdat[kx++] = elab[i];
+        xdat[kx++] = pyield[pid][i];
+      }
+    }
+    else{
+      np  = 2;
+      yield = (double)nyield;
+      xdat[kx++] = emin;
+      xdat[kx++] = yield;
+      xdat[kx++] = emax;
+      xdat[kx++] = yield;
+    }
   }
 
   Record cont(zap,awr,lip,law,nr,np);
   ENDFPackTAB1(cont,idat,xdat,lib);
-//ENDFPrint1Dim(lib,0);
+//ENDFWrite(lib);
 
   delete [] xdat;
 }
@@ -420,7 +481,8 @@ int dataread(ifstream *fp, string rid)
 
     /*** sub-section in the energy loop, particle emission identifier */
     else if(key == "# Nucleus    "){
-      rec  = (coltostr(line,1) == rid) ? true : false;
+      if(mt == 3 || mt == 5) rec = true;
+      else rec  = (coltostr(line,1) == rid) ? true : false;
       continue;
     }
 
@@ -485,6 +547,7 @@ int datarecord(ifstream *fp, int m, int pid, double yld)
 
   /*** other particles */
   else if(pid < NPAR){
+    pyield[pid][m] = yld;
 
     getline(*fp,line);
     ns[pid][m] = (int)coltodbl(line,1);
@@ -501,6 +564,7 @@ int datarecord(ifstream *fp, int m, int pid, double yld)
       }
     }
   }
+
   return(0);
 }
 
@@ -553,7 +617,7 @@ string reactionMT(void)
   case 749: p = " n0p0a0d0t1h0"; break;
   case 799: p = " n0p0a0d0t0h1"; break;
   case 849: p = " n0p0a1d0t0h0"; break;
-  default:  p = ""; break;
+  default:  p = "             "; break;
   }
 
   return (p);
