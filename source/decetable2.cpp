@@ -170,18 +170,19 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
 
   /*** for each pair */
   for(int ipp=0 ; ipp<npp ; ipp++){
-    double ma  = lib->xptr[idx][ipp*12];
-    double mb  = lib->xptr[idx][ipp*12+1];
-    double za  = lib->xptr[idx][ipp*12+2];
-    double zb  = lib->xptr[idx][ipp*12+3];
-    double ia  = lib->xptr[idx][ipp*12+4];
-    double ib  = lib->xptr[idx][ipp*12+5];
-    double q   = lib->xptr[idx][ipp*12+6];
-    double pnt = lib->xptr[idx][ipp*12+7];
-    double shf = lib->xptr[idx][ipp*12+8];
-    double mt  = lib->xptr[idx][ipp*12+9];
-    double pa  = lib->xptr[idx][ipp*12+10];
-    double pb  = lib->xptr[idx][ipp*12+11];
+    int ix = ipp * 12;
+    double ma  = lib->xptr[idx][ix ++];
+    double mb  = lib->xptr[idx][ix ++];
+    double za  = lib->xptr[idx][ix ++];
+    double zb  = lib->xptr[idx][ix ++];
+    double ia  = lib->xptr[idx][ix ++];
+    double ib  = lib->xptr[idx][ix ++];
+    double q   = lib->xptr[idx][ix ++];
+    double pnt = lib->xptr[idx][ix ++];
+    double shf = lib->xptr[idx][ix ++];
+    double mt  = lib->xptr[idx][ix ++];
+    double pa  = lib->xptr[idx][ix ++];
+    double pb  = lib->xptr[idx][ix];
 
     if(ia != 0.0) pa = (ia < 0.0) ? -1.0 : 1.0;
     if(ib != 0.0) pb = (ib < 0.0) ? -1.0 : 1.0;
@@ -209,6 +210,8 @@ int DeceTableMF2RR7(ENDF *lib, int idx)
     else if( (A == 3) && (Z == 2) ) strncpy(channel[ipp],"He-3      ",11);
     else if( (A == 4) && (Z == 2) ) strncpy(channel[ipp],"Alpha     ",11);
     else                            strncpy(channel[ipp],"unknown   ",11);
+    /*** special case */
+    if((int)mt == 18) strncpy(channel[ipp],"Fission   ",11);
   }
   idx++;
 
