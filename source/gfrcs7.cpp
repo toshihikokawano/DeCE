@@ -806,6 +806,13 @@ int RMLLoadResonanceParameters(int idx, System *sys, ENDF *lib)
   }
 
 #ifdef DEBUG_RESONANCE
+  // for(int j=0 ; j<sys->nj ; j++){
+  //   for(int i=0 ; i<res[j].nresonance ; i++){
+  //     int c = res[j].nchannel-1;
+  //     if(res[j].gamma[c][i] == 0.0) res[j].gamma[c][i] = 0.05;
+  //   }
+  // }
+
   for(int j=0 ; j<sys->nj ; j++){
     cout << "# J2 : " << setw(4) << res[j].j2 << setw(6) << res[j].nresonance << endl;
     cout << setprecision(3);

@@ -507,7 +507,8 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
     int np = geneCSdata(nc,cx,cy,q.et,0.0,xdat); // ignore resonance range
 
     /*** non-threshold reaction */
-    if(q.et <= 0.0){
+    /*** capture: always fix this, other reactions only the ground state */
+    if(q.et <= 0.0 && ( (mt == 102) || ((mt != 102 && is == 0)) )){
       /*** look for the first non-zero data */
       double cz = 0.0;
       int    nz = 0;
@@ -515,7 +516,6 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
         if(xdat[2*j+1] != 0.0){ cz = xdat[2*j+1]; nz = j; break; }
       }
       for(int j=0 ; j<nz ; j++) xdat[2*j+1] = cz;
-
     }
 
     /*** make TAB1 */

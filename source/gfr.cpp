@@ -19,6 +19,7 @@ using namespace std;
 double gcLorentzianWidth = 0.0, *fact;
 
 Smatrix Smat;
+bool    printSmat = false;
 
 static Pcross  gfrPtCrossFILE    (ifstream *, ENDFDict *, const double);
 static Pcross  gfrBackGroundFILE (ifstream *, ENDF *, const double, const bool);
@@ -441,6 +442,7 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, do
   elab = new double [MAX_DBLDATA/2];
 
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
+  printSmat = false;
 
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
@@ -461,34 +463,36 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, do
 
   gfrCrossSection(0,elab[0],&sys,lib[kres]);
 
-  cout <<"# Energy[eV] ";
-  for(int j=0 ; j<Smat.getIndex() ; j++){
-    Smat.getElement(j,&l,&j2,&s2);
-    cout << setw(3) << l;
-    cout << setw(3) << j2 << "/2                ";
-  }
-  if(sys.alpha > 0.0) cout <<" Hard-Sphere ";
-  cout << endl;
+  // cout <<"# Energy[eV] ";
+  // for(int j=0 ; j<Smat.getIndex() ; j++){
+  //   Smat.getElement(j,&l,&j2,&s2);
+  //   cout << setw(3) << l;
+  //   cout << setw(3) << j2 << "/2                ";
+  // }
+  // if(sys.alpha > 0.0) cout <<" Hard-Sphere ";
+  // cout << endl;
+
+  printSmat = true;
 
   for(int i=0 ; i<np ; i++){
 
     gfrCrossSection(0,elab[i],&sys,lib[kres]);
 
-    cout << setw(13) << elab[i];
-    for(int j=0 ; j<Smat.getIndex() ; j++){
-      cout << setw(12) << Smat.getElement(j).real();
-      cout << setw(12) << Smat.getElement(j).imag();
-    }
+    // cout << setw(13) << elab[i];
+    // for(int j=0 ; j<Smat.getIndex() ; j++){
+    //   cout << setw(12) << Smat.getElement(j).real();
+    //   cout << setw(12) << Smat.getElement(j).imag();
+    // }
 
-    if(sys.alpha > 0.0){ // avoid RML case
-      for(l=0 ; l<sys.nl ; l++){
-        gfrPenetrability(l,sys.alpha,&wfn);
-        cout << setw(12) <<  wfn.phase2.real();
-        cout << setw(12) <<  wfn.phase2.imag();
-      }
-    }
+    // if(sys.alpha > 0.0){ // avoid RML case
+    //   for(l=0 ; l<sys.nl ; l++){
+    //     gfrPenetrability(l,sys.alpha,&wfn);
+    //     cout << setw(12) <<  wfn.phase2.real();
+    //     cout << setw(12) <<  wfn.phase2.imag();
+    //   }
+    // }
 
-    cout << endl;
+    // cout << endl;
   }
 
   Smat.memfree();

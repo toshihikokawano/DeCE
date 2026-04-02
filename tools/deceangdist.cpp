@@ -31,8 +31,9 @@ inline double interpolation(double x1, double x2, double y1, double y2, double x
 
 static const double DEFAULT_ANGSTEP  =  1.0;  // default calculation angle increment
 static const int    MAX_ANGLE        =  360;  // max number of angular points
-static const int    MAX_EGRID        =   52;
+static const int    MAX_EGRID        =   61;
 static double default_egrid[MAX_EGRID] = {
+  0.01, 0.02, 0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09,
   0.1,  0.2,  0.3,  0.4,  0.5,  0.6,  0.7,  0.8,  0.9,  1.0,
  1.25,  1.5, 1.75,  2.0, 2.25,  2.5, 2.75,  3.0,  3.5,  4.0,
   4.5,  5.0,  5.5,  6.0,  6.5,  7.0,  7.5,  8.0,  8.5,  9.0,

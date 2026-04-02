@@ -21,6 +21,7 @@ void DeceTable(ENDFDict *dict, ENDF *lib[], ifstream *fp, const int mf, const in
   if( (mf <=  5) ||
       (mf ==  7) ||
       (mf ==  8) ||
+      (mf ==  9) ||
       (mf == 10) ||
       (mf == 12) ||
       (mf == 13) ||
