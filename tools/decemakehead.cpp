@@ -28,20 +28,46 @@ int    main(int, char *[]);
 int main(int argc, char *argv[])
 {
   int anum = 0, znum = 0, mat = 0;
-  string elem = "";
-
-  if(argc <= 4){
-    cerr << "usage: decemakehead Element Znumber Anumber MATnumber" << endl;
-  }
+  string elem = "", pinc = "";
 
   /*** command line options */
-  elem = argv[1];
-  znum = atoi(argv[2]);
-  anum = atoi(argv[3]);
-  mat  = atoi(argv[4]);
+  if(argc == 1){
+    cin >> elem >> znum >> anum >> mat >> pinc;
+  }
+  else{
+    int p = 0;
+    while((p = getopt(argc,argv,"e:z:a:m:p:h")) != -1){
+      switch(p){
+      case 'e':
+        elem = optarg;
+        break;
+      case 'z':
+        znum = atoi(optarg);
+        break;
+      case 'a':
+        anum = atoi(optarg);
+        break;
+      case 'm':
+        mat = atoi(optarg);
+        break;
+      case 'p':
+        pinc = optarg;
+        break;
+      case 'h':
+        cerr << "usage: decemakehead -e Element -z Znumber -a Anumber -m MATnumber -p incident(n,g,p,d,a)" << endl;
+        exit(-1);
+      default:
+        break;
+      }
+    }
+  }
 
   if(znum < 2 || znum > 100){ cerr << "Z number " << znum << " out of range" << endl; exit(-1); }
   if(anum < 2 || anum > 300){ cerr << "A number " << anum << " out of range" << endl; exit(-1); }
+  if(pinc != "n" && pinc != "g" && pinc != "p" && pinc != "d" && pinc != "a"){
+    cerr << "incident particle " << pinc << " not recognized" << endl;
+    exit(-1);
+  }
 
   unsigned int zanum = znum * 1000 + anum;
   double mass  = 0.0;
@@ -59,7 +85,7 @@ int main(int argc, char *argv[])
 
   double za   = (double)zanum;
   double awr  = (mass / AMUNIT + anum) / MNEUTRON;
-  int    lrp  = 1;
+  int    lrp  = 1;    if(pinc != "n") lrp = -1;  // no resonance parameters
   int    lfi  = 0;
   int    nlib = 0;
   int    nmod = 1;
@@ -89,6 +115,23 @@ int main(int argc, char *argv[])
   int    lrel = 0;
   int    nsub = 10;
   int    nver = 1;
+
+  if(     pinc == "g"){
+    awi  = 0.0;
+    nsub = 0;
+  }
+  else if(pinc == "p"){
+    awi = 1.0;
+    nsub = 10010;
+  }
+  else if(pinc == "d"){
+    awi = 2.0;
+    nsub = 10020;
+  }
+  else if(pinc == "a"){
+    awi = 4.0;
+    nsub = 200410;
+  }
   cont.setRecord(awi, emax, lrel, 0, nsub, nver);
   ENDFPackCONT(cont,&lib);
   ENDFWriteCONT(&lib);
@@ -104,7 +147,13 @@ int main(int argc, char *argv[])
   cout << setw(3) << znum << '-' << setw(2) << elem << '-' << setw(3) << anum << endl;
   cout << endl;
   cout << "----" << endl;
-  cout << "-----INCIDENT NEUTRON DATA" << endl;
+
+  if(     pinc == "n") cout << "-----INCIDENT NEUTRON DATA" << endl;
+  else if(pinc == "g") cout << "-----PHOTONUCLEAR DATA" << endl;
+  else if(pinc == "p") cout << "-----INCIDENT PROTON DATA" << endl;
+  else if(pinc == "d") cout << "-----INCIDENT DEUTERON DATA" << endl;
+  else if(pinc == "a") cout << "-----INCIDENT ALPHA DATA" << endl;
+
   cout << "------ENDF-6 FORMAT" << endl;
 
   ENDFWriteSEND(&lib);

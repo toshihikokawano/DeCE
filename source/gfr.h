@@ -678,7 +678,7 @@ Pcross  gfrSLBreitWigner          (const int, const int, const int, const double
 Pcross  gfrMLBreitWignerENDF      (const int, const int, const int, const int, const double, ChannelWaveFunc *, BWResonance *);
 Pcross  gfrMLBreitWigner          (const int, const int, const int, const double, ChannelWaveFunc *, BWResonance *);
 
-Pcross  gfrBreitWignerUmatrix     (const int, const int, const int, const int, const double, ChannelWaveFunc *, BWResonance *, const int);
+Pcross  gfrMLBreitWignerUmatrix   (const int, const int, const int, const int, const double, ChannelWaveFunc *, BWResonance *);
 Pcross  gfrReichMoore             (const int, const int, const int, const int, const int, const double, ChannelWaveFunc *, RMResonance *);
 
 

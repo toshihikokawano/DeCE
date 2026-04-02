@@ -1,3 +1,7 @@
+void MatrixStoK           (const int, complex<double> * , complex<double> * );
+void MatrixStoK           (const int, complex<double> **, complex<double> **);
+void MatrixKtoS           (const int, complex<double> * , complex<double> * );
+void MatrixKtoS           (const int, complex<double> **, complex<double> **);
 void MatrixPrint          (const int, complex<double> **);
 void MatrixPrint          (const int, complex<double> *);
 int  MatrixInverse        (const int, complex<double> *);

@@ -19,6 +19,7 @@ using namespace std;
 double gcLorentzianWidth = 0.0, *fact;
 
 Smatrix Smat;
+bool    printSmat = false;
 
 static Pcross  gfrPtCrossFILE    (ifstream *, ENDFDict *, const double);
 static Pcross  gfrBackGroundFILE (ifstream *, ENDF *, const double, const bool);
@@ -441,6 +442,7 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, do
   elab = new double [MAX_DBLDATA/2];
 
   Smat.memalloc(2*(LMAX+1)*(LMAX+1)-1);
+  printSmat = false;
 
   int kres = dict->getID(2,151);
   gfrReadHEADData(&sys,lib[kres]);
@@ -469,6 +471,8 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, do
   }
   if(sys.alpha > 0.0) cout <<" Hard-Sphere ";
   cout << endl;
+
+  printSmat = true;
 
   for(int i=0 ; i<np ; i++){
 

@@ -19,6 +19,7 @@ static void   BWScatteringRadius (const int, System *, const double, ENDF *);
 static void   BWResonancePenetrability (const int, System *, ENDF *);
 
 extern Smatrix Smat;
+extern bool    printSmat;
 
 static double ap_pen = 0.0, ap_phi = 0.0;
 static int kmax = 0;
@@ -123,7 +124,8 @@ Pcross BWMainCalc(const double elab,  const int lrf, System *sys)
           sig.total    += z.total;
         }
         else{
-          z = gfrMLBreitWignerENDF(kmax,l,ss-smin-1,jj,elab,&wfn,res);
+          if(printSmat) z = gfrMLBreitWignerUmatrix(kmax,l,ss-smin-1,jj,elab,&wfn,res);
+          else          z = gfrMLBreitWignerENDF(kmax,l,ss-smin-1,jj,elab,&wfn,res);
 //        z = gfrMLBreitWigner(kmax,l,jj,elab,&wfn,res);
 
           sig.total    += x3*z.total;

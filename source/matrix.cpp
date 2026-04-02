@@ -17,6 +17,136 @@ static int MatrixLUDecomposition(const int, complex<double> **);
 static int MatrixInverseCalc2   (const int, complex<double> **, complex<double> *);
 
 
+void MatrixStoK(const int m, complex<double> *S, complex<double> *K)
+{
+  complex<double> *X;
+  X = new complex<double> [m*(m+1)/2];
+
+  for(int k1=0 ; k1<m ; k1++){
+    for(int k2=0 ; k2<=k1 ; k2++){
+      int k = k1*(k1+1)/2 + k2;
+      X[k] = S[k];
+      if(k1 == k2) X[k] += complex<double>(1.0,0.0);
+    }
+  }
+  MatrixInverse(m,X);
+
+  for(int k1=0 ; k1<m ; k1++){
+    for(int k2=0 ; k2<=k1 ; k2++){
+      int k = k1*(k1+1)/2 + k2;
+      
+      K[k] = complex<double>(0.0,0.0);
+      for(int l=0 ; l<m ; l++){
+        int l1 = (k1>l) ? k1*(k1+1)/2 + l :  l*(l+1)/2 + k1;
+        int l2 = (k2>l) ? k2*(k2+1)/2 + l :  l*(l+1)/2 + k2;
+
+        complex<double> z = (l == k1) ? complex<double>(1.0,0.0) - S[l1] : -S[l1];
+        z *= complex<double>(0.0,-1.0);
+        K[k] += z*X[l2];
+      }
+    }
+  }
+
+  delete [] X;
+}
+
+
+void MatrixStoK(const int m, complex<double> **S, complex<double> **K)
+{
+  complex<double> *X;
+  X = new complex<double> [m*(m+1)/2];
+
+  for(int k1=0 ; k1<m ; k1++){
+    for(int k2=0 ; k2<=k1 ; k2++){
+      int k = k1*(k1+1)/2 + k2;
+      X[k] = S[k1][k2];
+      if(k1 == k2) X[k] += complex<double>(1.0,0.0);
+    }
+  }
+  MatrixInverse(m,X);
+
+  for(int k1=0 ; k1<m ; k1++){
+    for(int k2=0 ; k2<m ; k2++){
+      
+      K[k1][k2] = complex<double>(0.0,0.0);
+      for(int l=0 ; l<m ; l++){
+        int l2 = (k2>l) ? k2*(k2+1)/2 + l :  l*(l+1)/2 + k2;
+
+        complex<double> z = (l == k1) ? complex<double>(1.0,0.0) - S[k1][l] : -S[k1][l];
+        z *= complex<double>(0.0,-1.0);
+        K[k1][k2] += z*X[l2];
+      }
+    }
+  }
+
+  delete [] X;
+}
+
+
+void MatrixKtoS(const int m, complex<double> *K, complex<double> *S)
+{
+  complex<double> *X;
+  X = new complex<double> [m*(m+1)/2];
+
+  for(int k1=0 ; k1<m ; k1++){
+    for(int k2=0 ; k2<=k1 ; k2++){
+      int k = k1*(k1+1)/2 + k2;
+      X[k] = complex<double>(0.0,1.0) * K[k];
+      if(k1 == k2) X[k] += complex<double>(1.0,0.0);
+    }
+  }
+  MatrixInverse(m,X);
+
+  for(int k1=0 ; k1<m ; k1++){
+    for(int k2=0 ; k2<=k1 ; k2++){
+      int k = k1*(k1+1)/2 + k2;
+      
+      S[k] = complex<double>(0.0,0.0);
+      for(int l=0 ; l<m ; l++){
+        int l1 = (k1>l) ? k1*(k1+1)/2 + l :  l*(l+1)/2 + k1;
+        int l2 = (k2>l) ? k2*(k2+1)/2 + l :  l*(l+1)/2 + k2;
+
+        complex<double> z = complex<double>(0.0,1.0) * K[l1];
+        z = (l == k1) ? complex<double>(1.0,0.0) - z : -z;
+        S[k] += z*X[l2];
+      }
+    }
+  }
+  delete [] X;
+}
+
+
+void MatrixKtoS(const int m, complex<double> **K, complex<double> **S)
+{
+  complex<double> *X;
+  X = new complex<double> [m*(m+1)/2];
+
+  for(int k1=0 ; k1<m ; k1++){
+    for(int k2=0 ; k2<=k1 ; k2++){
+      int k = k1*(k1+1)/2 + k2;
+      X[k] = complex<double>(0.0,1.0) * K[k1][k2];
+      if(k1 == k2) X[k] += complex<double>(1.0,0.0);
+    }
+  }
+  MatrixInverse(m,X);
+
+  for(int k1=0 ; k1<m ; k1++){
+    for(int k2=0 ; k2<m ; k2++){
+      
+      S[k1][k2] = complex<double>(0.0,0.0);
+      for(int l=0 ; l<m ; l++){
+        int l2 = (k2>l) ? k2*(k2+1)/2 + l :  l*(l+1)/2 + k2;
+
+        complex<double> z = complex<double>(0.0,1.0) * K[k1][l];
+        z = (l == k1) ? complex<double>(1.0,0.0) - z : -z;
+        S[k1][k2] += z*X[l2];
+      }
+    }
+  }
+  delete [] X;
+}
+
+
 void MatrixPrint(const int m, complex<double> **u)
 {
   for(int i=0 ; i<m ; i++){

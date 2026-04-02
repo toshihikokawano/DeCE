@@ -18,6 +18,7 @@ static inline void            invert_matrix         (complex<double> *);
 
 extern double gcLorentzianWidth;
 extern Smatrix Smat;
+extern bool printSmat;
 
 /**********************************************************/
 /*      Single Level Breit-Wigner                         */
@@ -260,7 +261,7 @@ Pcross gfrReichMoore(const int kmax, const int l, const int s2, const int j2, co
 /**********************************************************/
 /*      Collision Matrix for MLBW                         */
 /**********************************************************/
-Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)
+Pcross gfrMLBreitWignerUmatrix(const int kmax, const int l, const int s2, const int j2, const double e, ChannelWaveFunc *wfn, BWResonance *res)
 {
   const int msize = 10;
   complex<double> w, tmat[msize], smat[msize];
@@ -277,12 +278,12 @@ Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const in
   }
 
   /*** S-matrix elements */
-  for(int i=0 ; i<msize ; i++) if(i==0 || i==2 || i==5 || i==9) tmat[i] += 1.0;
-
-  smat[0] = wfn->phase2 * tmat[0];
-  smat[1] = wfn->phase  * tmat[1];
-  smat[3] = wfn->phase  * tmat[3];
-  smat[6] = wfn->phase  * tmat[6];
+  for(int i=0 ; i<msize ; i++){
+    if(i==0 || i==2 || i==5 || i==9) tmat[i] += complex<double>(1.0,0.0);
+    smat[i] = tmat[i];
+    if(     i == 0) smat[i] *= wfn->phase2;
+    else if( (i == 1) || (i == 3) || (i == 6)) smat[i] *= wfn->phase;
+  }
 
   /*** copy S-matrix element for elastic */
   Smat.setElement(l,j2,s2,smat[0]);
@@ -295,6 +296,34 @@ Pcross gfrBreitWignerUmatrix(const int kmax, const int l, const int s2, const in
   z.fission  = real(smat[1])*real(smat[1]) + imag(smat[1])*imag(smat[1]);
   z.capture  = real(smat[3])*real(smat[3]) + imag(smat[3])*imag(smat[3]);
   z.other    = real(smat[6])*real(smat[6]) + imag(smat[6])*imag(smat[6]);
+
+  if(l == 0){
+
+    complex<double> *w = new complex<double> [msize];
+
+    for(int i0=0 ; i0<4 ; i0++){
+      for(int i1=0 ; i1<=i0 ; i1++){
+        int k = i0*(i0+1)/2 + i1;
+        w[k] = complex<double>(0.0,0.0);
+        for(int i2=0 ; i2<4 ; i2++){
+          int k0 = (i2 <= i0) ? i0*(i0+1)/2+i2 : i2*(i2+1)/2+i0;
+          int k1 = (i2 <= i1) ? i1*(i1+1)/2+i2 : i2*(i2+1)/2+i1;
+          w[k] += smat[k0] * conj(smat[k1]);
+        }
+      }
+    }
+    cout << setw(14) << e;
+    cout << setw(14) << smat[0].real() << setw(14) << smat[0].imag();
+    cout << setw(14) << smat[3].real() << setw(14) << smat[3].imag();
+    cout << setw(14) << smat[5].real() << setw(14) << smat[5].imag() << endl;
+
+    /*** unitarity check */
+    // cout << setw(14) << w[0].real() << setw(14) << w[0].imag();
+    // cout << setw(14) << w[3].real() << setw(14) << w[3].imag();
+    // cout << setw(14) << w[5].real() << setw(14) << w[5].imag() << endl;
+
+    delete [] w;
+  }
 
   return(z);
 }
