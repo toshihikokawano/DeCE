@@ -317,6 +317,7 @@ Pcross gfrMLBreitWignerUmatrix(const int kmax, const int l, const int s2, const 
     cout << setw(14) << smat[3].real() << setw(14) << smat[3].imag();
     cout << setw(14) << smat[5].real() << setw(14) << smat[5].imag() << endl;
 
+    /*** unitarity check */
     // cout << setw(14) << w[0].real() << setw(14) << w[0].imag();
     // cout << setw(14) << w[3].real() << setw(14) << w[3].imag();
     // cout << setw(14) << w[5].real() << setw(14) << w[5].imag() << endl;

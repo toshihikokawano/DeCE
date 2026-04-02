@@ -474,6 +474,8 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, do
 
   printSmat = true;
 
+  printSmat = true;
+
   for(int i=0 ; i<np ; i++){
 
     gfrCrossSection(0,elab[i],&sys,lib[kres]);

@@ -53,6 +53,7 @@ void DeceShowHeaders(ENDFDict *dict)
 {
   if(!dict->getSTDHeader()) return;
 
+  cout << "header: MAT   " << setw(13) << dict->getMAT() << endl;
   cout << "header: ZA    " << setw(13) << dict->getZA() << endl;
   cout << "header: AWR   " << setw(13) << dict->getAWR() << endl;
   cout << "header: AWI   " << setw(13) << dict->getAWI() << endl;

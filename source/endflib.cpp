@@ -1403,6 +1403,7 @@ void ENDFMF2boundary(ENDFDict *dict, ENDF *lib)
     int    lru  = lib->rdata[idx  ].l1;
     int    lrf  = lib->rdata[idx  ].l2;
     int    nro  = lib->rdata[idx++].n1;
+    if(nro == 1) idx++;
 
     int    lssf = lib->rdata[idx  ].l1;
     int    nls  = lib->rdata[idx++].n1;
