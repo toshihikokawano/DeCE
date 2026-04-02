@@ -87,8 +87,8 @@ int main(int argc, char *argv[])
     string dummy, line;
     getline(fpin,line);
     istringstream ss(line);
-    double d0, d1;
-    ss >> dummy >> d0 >> d1; 
+    double d0 = 0.0, d1 = 0.0;
+    ss >> dummy >> d0 >> d1;
     if(d1 > 0.0) mt = 455;
     else         mt =  18;
 

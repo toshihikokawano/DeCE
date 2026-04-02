@@ -27,16 +27,18 @@ int    main(int, char *[]);
 
 int main(int argc, char *argv[])
 {
-  int anum = 0, znum = 0, mat = 0;
+  int anum = 0, znum = 0, mat = 0, sta = 0, lis = 0, liso = 0;
+  int lfi = 0;
+  double elis = 0.0;
   string elem = "", pinc = "";
 
   /*** command line options */
   if(argc == 1){
-    cin >> elem >> znum >> anum >> mat >> pinc;
+    cin >> mat >> elem >> znum >> anum >> sta >> lis >> liso >> elis >> lfi >> pinc;
   }
   else{
     int p = 0;
-    while((p = getopt(argc,argv,"e:z:a:m:p:h")) != -1){
+    while((p = getopt(argc,argv,"e:z:a:m:n:sfp:h")) != -1){
       switch(p){
       case 'e':
         elem = optarg;
@@ -50,11 +52,17 @@ int main(int argc, char *argv[])
       case 'm':
         mat = atoi(optarg);
         break;
+      case 'f':
+        lfi = 1;
+        break;
+      case 's':
+        sta = 1;
+        break;
       case 'p':
         pinc = optarg;
         break;
       case 'h':
-        cerr << "usage: decemakehead -e Element -z Znumber -a Anumber -m MATnumber -p incident(n,g,p,d,a)" << endl;
+        cerr << "usage: decemakehead -e Element -z Znumber -a Anumber -m MATnumber -p incident(n,g,p,d,a) -f(if fission) -s(if unstable)" << endl;
         exit(-1);
       default:
         break;
@@ -86,7 +94,6 @@ int main(int argc, char *argv[])
   double za   = (double)zanum;
   double awr  = (mass / AMUNIT + anum) / MNEUTRON;
   int    lrp  = 1;    if(pinc != "n") lrp = -1;  // no resonance parameters
-  int    lfi  = 0;
   int    nlib = 0;
   int    nmod = 1;
   Record head(za, awr, lrp, lfi, nlib, nmod);
@@ -101,10 +108,6 @@ int main(int argc, char *argv[])
 
   ENDFWriteHEAD(&lib);
 
-  double elis = 0.0;
-  double sta  = 0.0;
-  int lis  = 0;
-  int liso = 0;
   int nfor = 6;
   Record cont(elis, sta, lis, liso, 0, nfor);
   ENDFPackCONT(cont,&lib);
