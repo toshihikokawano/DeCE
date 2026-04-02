@@ -463,16 +463,14 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, do
 
   gfrCrossSection(0,elab[0],&sys,lib[kres]);
 
-  // cout <<"# Energy[eV] ";
-  // for(int j=0 ; j<Smat.getIndex() ; j++){
-  //   Smat.getElement(j,&l,&j2,&s2);
-  //   cout << setw(3) << l;
-  //   cout << setw(3) << j2 << "/2                ";
-  // }
-  // if(sys.alpha > 0.0) cout <<" Hard-Sphere ";
-  // cout << endl;
-
-  printSmat = true;
+  cout <<"# Energy[eV] ";
+  for(int j=0 ; j<Smat.getIndex() ; j++){
+    Smat.getElement(j,&l,&j2,&s2);
+    cout << setw(3) << l;
+    cout << setw(3) << j2 << "/2                ";
+  }
+  if(sys.alpha > 0.0) cout <<" Hard-Sphere ";
+  cout << endl;
 
   printSmat = true;
 
