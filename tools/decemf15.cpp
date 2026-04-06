@@ -88,12 +88,12 @@ int main(int argc, char *argv[])
     cerr << "data file cannot open" << endl;  exit(-1);
   }
   else{
-    /*** determine if MF = 18 (prompt) or 460 (delayed photon) */
+    /*** determine if MF = 18 (prompt) or 460 (delayed photon) by number of columns */
     string dummy, line;
     getline(fpin,line);
     istringstream ss(line);
-    double d0, d1, d2;
-    ss >> dummy >> d0 >> d1 >> d2; 
+    double d0 = 0.0, d1 = 0.0, d2 = 0.0;
+    ss >> dummy >> d0 >> d1 >> d2;
     if(d2 > 0.0) mt = 460;
     else         mt =  18;
 

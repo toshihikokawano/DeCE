@@ -83,13 +83,13 @@ int main(int argc, char *argv[])
     cerr << "data file cannot open" << endl;  exit(-1);
   }
   else{
-    /*** determine if MF = 18 (prompt) or 455 (delayed) */
+    /*** determine if MF = 18 (prompt) or 455 (delayed) by number of columns */
     string dummy, line;
     getline(fpin,line);
     istringstream ss(line);
-    double d0 = 0.0, d1 = 0.0;
-    ss >> dummy >> d0 >> d1;
-    if(d1 > 0.0) mt = 455;
+    double d0 = 0.0, d1 = 0.0, d2 = 0.0;
+    ss >> dummy >> d0 >> d1 >> d2;
+    if(d2 > 0.0) mt = 455;
     else         mt =  18;
 
     fpin.seekg(0,ios_base::beg);

@@ -118,6 +118,18 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
     Notice("DeceRead:readCSdata");
   }
 
+  /*** check if all zero */
+  bool allzero = true;
+  for(int i=0 ; i<nc ; i++){
+    if(y[i] != 0.0){ allzero = false; break; }
+  }
+  if(allzero){
+    message << "MF3:MT" << mt << " all data are zero, ignored";
+    Notice("DeceRead:readCSdata");
+    nc = 0;
+  }
+
+
   return nc;
 }
 
