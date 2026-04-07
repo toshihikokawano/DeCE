@@ -129,7 +129,6 @@ int readCSdata(char *file, int ofset, const int mt, double *x, double *y)
     nc = 0;
   }
 
-
   return nc;
 }
 
@@ -193,14 +192,18 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   fp.close();
 
   /*** check non-zero data */
-  bool zero = true;
+  bool allzero = true;
   for(int i=0 ; i<nc ; i++){
     if(y[i] > 0.0){
-      zero = false;
+      allzero = false;
       break;
     }
   }
-  if(zero) nc = 0;
+  if(allzero){
+    message << "MF3:MT" << mt << " all data are zero, ignored";
+    Notice("DeceRead:readISdata");
+    nc = 0;
+  }
 
   if(nc >= 1){
     message << "MF3:MT" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
@@ -394,8 +397,9 @@ struct Prod readMShead(char *file, const int mt, int ofset)
     fp.close();
 
     if(!found){
-      message << "MF8:MT" << mt << " cannot read from " << file << " because ofset is not given";
-      TerminateCode("readMShead"); }
+      message << "MF8:MT" << mt << " not found in " << file << " or ofset not provided" << endl;
+      return prd;
+    }
   }
 
 
@@ -458,7 +462,7 @@ struct Prod readMShead(char *file, const int mt, int ofset)
 /**********************************************************/
 /*      Read in Radioactive Production Data               */
 /**********************************************************/
-int readMSdata(char *file, const int mf, const int ofset, double *x, double *y)
+int readMSdata(char *file, const int mf, const int mt, const int ofset, double *x, double *y)
 {
   ifstream fp;
   string   line;
@@ -485,8 +489,22 @@ int readMSdata(char *file, const int mf, const int ofset, double *x, double *y)
   }
   fp.close();
 
+  /*** check non-zero data */
+  bool allzero = true;
+  for(int i=0 ; i<nc ; i++){
+    if(y[i] > 0.0){
+      allzero = false;
+      break;
+    }
+  }
+  if(allzero){
+    message << "MF:" << mf << "MT:" << mt << " all data are zero, ignored";
+    Notice("DeceRead:readMSdata");
+    nc = 0;
+  }
+
   if(nc >= 1){
-    message << "MF:" << mf << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
+    message << "MF:" << mf << "MT:" << mt << " " << nc << " points from (" << x[0] << "," << y[0] << ") to (" << x[nc-1] << "," << y[nc-1] << ") imported from " << file << " at column " << ofset;
     Notice("DeceRead:readMSdata");
   }
 

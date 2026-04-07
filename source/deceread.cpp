@@ -17,8 +17,8 @@ static void   DeceReadMF1MT455 (ENDFDict *, ENDF *, char *, const int, const int
 static void   DeceReadMF1MT456 (ENDFDict *, ENDF *, char *, const int);
 static void   DeceReadMF1MT458 (ENDFDict *, ENDF *, char *);
 static void   DeceReadMF3 (ENDFDict *, ENDF *, const int, char *, const int, const int);
-static void   DeceReadMF8 (ENDFDict *, ENDF *, const int, const int, char *, const int);
-static void   DeceReadMF9 (ENDFDict *, ENDF *, const int, const int, char *, const int);
+static int    DeceReadMF8 (ENDFDict *, ENDF *, const int, const int, char *, const int);
+static int    DeceReadMF9 (ENDFDict *, ENDF *, const int, const int, char *, const int);
 static struct Qval qvalues (const int, const int, const int, const int, const double, const double);
 static double findBoundary (ENDF *);
 
@@ -84,11 +84,17 @@ void DeceReadRadioactive(ENDFDict *dict, ENDF *lib8, ENDF *lib9, const int mf, c
   xdat = new double [MAX_DBLDATA*2];
 
   /*** create MF8 first */
-  DeceReadMF8(dict,lib8,mf,mt,datafile,ofset);
-//ENDFWrite(lib8);
+  if(DeceReadMF8(dict,lib8,mf,mt,datafile,ofset) == 0){
 
-  /*** create MF9 or 10 */
-  DeceReadMF9(dict,lib9,mf,mt,datafile,ofset);
+    /*** create MF9 or 10 */
+    DeceReadMF9(dict,lib9,mf,mt,datafile,ofset);
+  }
+  else{
+    DeceDelete(dict,mf,mt);
+    DeceDelete(dict,8,mt);
+  }
+
+//ENDFWrite(lib8);
 //ENDFWrite(lib9);
 
   /*** Clean all */
@@ -419,13 +425,14 @@ void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
 /**********************************************************/
 /*      Read External File in MF 8                        */
 /**********************************************************/
-void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int lmf, const int mt, char *datafile, int ofset)
+int DeceReadMF8(ENDFDict *dict, ENDF *lib, const int lmf, const int mt, char *datafile, int ofset)
 {
   const int mf = 8;
   const int no = 1; // decay chain not given here
   const int maxlevel = 3; // default number of max levels, gs, m1, and m2
 
   struct Prod prd = readMShead(datafile,mt,ofset);
+  if(prd.za == 0) return 1;
 
   /*** number of states to be included (for T1/2 > 0) */
   int ns = 0;
@@ -448,17 +455,20 @@ void DeceReadMF8(ENDFDict *dict, ENDF *lib, const int lmf, const int mt, char *d
     message << "radioactive state in " << prd.za << " excitation energy:" << prd.ex[is] << " LFS:" << prd.nx[is];
     Notice("DeceRead:DeceReadMF8");
   }
+
+  return 0;
 }
 
 
 /**********************************************************/
 /*      Read External File in MF 9                        */
 /**********************************************************/
-void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, const int ofset)
+int DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *datafile, const int ofset)
 {
   const int maxlevel = 3;
 
   struct Prod prd = readMShead(datafile,mt,ofset);
+
   double *cy0  = new double [MAX_DBLDATA];
   double *cy1  = new double [MAX_DBLDATA];
   double *cy2  = new double [MAX_DBLDATA];
@@ -472,9 +482,9 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
   lib->setENDFmf(mf);
   lib->setENDFmt(mt);
 
-  int nc = readMSdata(datafile,mf,3*prd.col-2,cx,cy0); // ground state
-           readMSdata(datafile,mf,3*prd.col-1,cx,cy1); // first meta
-           readMSdata(datafile,mf,3*prd.col  ,cx,cy2); // second meta
+  int nc = readMSdata(datafile,mf,mt,3*prd.col-2,cx,cy0); // ground state
+           readMSdata(datafile,mf,mt,3*prd.col-1,cx,cy1); // first meta
+           readMSdata(datafile,mf,mt,3*prd.col  ,cx,cy2); // second meta
 
   int ntotal = 0;
   for(int is=0 ; is<maxlevel ; is++){
@@ -545,7 +555,7 @@ void DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *da
   delete [] cy1;
   delete [] cy2;
 
-  return;
+  return 0;
 }
 
 
