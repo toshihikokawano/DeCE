@@ -16,7 +16,7 @@ using namespace std;
 static void   DeceReadMF1MT455 (ENDFDict *, ENDF *, char *, const int, const int);
 static void   DeceReadMF1MT456 (ENDFDict *, ENDF *, char *, const int);
 static void   DeceReadMF1MT458 (ENDFDict *, ENDF *, char *);
-static void   DeceReadMF3 (ENDFDict *, ENDF *, const int, char *, const int, const int);
+static void   DeceReadMF3 (ENDFDict *, ENDF *, const int, char *, const int, int);
 static int    DeceReadMF8 (ENDFDict *, ENDF *, const int, const int, char *, const int);
 static int    DeceReadMF9 (ENDFDict *, ENDF *, const int, const int, char *, const int);
 static struct Qval qvalues (const int, const int, const int, const int, const double, const double);
@@ -327,7 +327,7 @@ void DeceReadMF1MT458(ENDFDict *dict, ENDF *lib, char *datafile)
 /**********************************************************/
 /*      Read External File in MF 3                       */
 /**********************************************************/
-void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const int ofset, const int readflag)
+void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const int ofset, int readflag)
 {
   const int mf = 3;
   double elev = 0.0;
@@ -366,9 +366,10 @@ void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
   if(readflag == 1){
     /*** check if b.g. is given */
     if(lib->rdata[0].n2 == 0){
-      message << "no background cross section is given for MT = " << mt;
+      message << "no background cross section is given for MT = " << mt << " changed into normal reading mode";
       WarningMessage();
-      np = 0;
+      np = geneCSdata(nc,cx,cy,q.et,dict->emaxRe,xdat);
+      readflag = 0;
     }
     else np = mergeCSdata(nc,cx,cy,dict->emaxRe,xdat,lib->rdata[0].n2,lib->xptr[0]);
   }
@@ -499,7 +500,7 @@ int DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dat
           else if(is == 1) cy[j] = cy1[j] / ctot;
           else             cy[j] = cy2[j] / ctot;
         }
-        else cy[j] = 0.0;
+        else cy[j] = 1.0;
       }
     }
     /*** production cross section data */
@@ -526,6 +527,12 @@ int DeceReadMF9(ENDFDict *dict, ENDF *lib, const int mf, const int mt, char *dat
         if(xdat[2*j+1] != 0.0){ cz = xdat[2*j+1]; nz = j; break; }
       }
       for(int j=0 ; j<nz ; j++) xdat[2*j+1] = cz;
+    }
+
+    /*** special cases */
+    /*** MF=9, and threshold reactions */
+    if( (mf == 9) && (q.et > 0.0) ){
+      if(xdat[1] == 0.0 && xdat[3] == 1.0) xdat[1] = 1.0;
     }
 
     /*** make TAB1 */

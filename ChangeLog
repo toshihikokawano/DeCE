@@ -1,3 +1,15 @@
+2026-04-19  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (DeceReadMF3): modified
+	when readflag=1 (mergeread) is given, but the BG section is not found,
+	change the readnig mode to normal (readflag=0)
+
+2026-04-17  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* source/deceread.cpp (DeceReadMF9): modified
+	for threshold reactions, the first point of production ratio 
+	is set to 1.0 in MF9
+
 2026-04-06  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceread.cpp (DeceReadRadioactive): updated
