@@ -184,7 +184,7 @@ void DeceOperation(ENDFDict *dict, ENDF *lib[], ifstream *fpin)
   else if(ope == "genprod"){
     DeceOperationGENPROD(dict,lib);
   }
-  /*** ISOANGDIST: produce isotropic angular distribution section in MF6 */
+  /*** ISOANGDIST: produce isotropic angular distribution section in MF4 or 6 */
   else if(ope == "isoangdist"){
     DeceOperationISOANGDIST(dict,lib);
   }
@@ -589,14 +589,14 @@ void DeceOperationGENPROD(ENDFDict *dict, ENDF *lib[])
 
 /**********************************************************/
 /* ISOANGDIST                                             */
-/*      produce isotropic angular distribution in MF6     */
-/* isoangdist MT                                          */
+/*      produce isotropic angular distribution in MF4/6   */
+/* isoangdist MF MT                                       */
 /**********************************************************/
 void DeceOperationISOANGDIST(ENDFDict *dict, ENDF *lib[])
 {
   DeceCheckMT(cmd.mt);
-  DeceCreateLib(dict,6,cmd.mt);
-  DeceIsotropicAngularDistribution(dict,lib,cmd.mt);
+  DeceCreateLib(dict,cmd.mf,cmd.mt);
+  DeceIsotropicAngularDistribution(dict,lib,cmd.mf,cmd.mt);
 }
 
 

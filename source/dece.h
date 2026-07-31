@@ -78,7 +78,7 @@ void   DeceResonanceAngularDistribution(ENDFDict *, ENDF **, int);
 void   DeceBoundCorrect (ENDFDict *, ENDF **, const int);
 void   DeceDuplicatePoint (ENDFDict *, ENDF **, const int, double);
 void   DeceGenProdCS    (ENDFDict *, ENDF **, const int, const int);
-void   DeceIsotropicAngularDistribution (ENDFDict *, ENDF **, const int);
+void   DeceIsotropicAngularDistribution (ENDFDict *, ENDF **, const int, const int);
 void   DeceAddDiscreteGamma (ENDFDict *, ENDF **, const int, char *);
 
 /*** gfr.cpp */

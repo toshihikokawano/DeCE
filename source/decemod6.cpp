@@ -282,37 +282,62 @@ void DeceGenProdCS(ENDFDict *dict, ENDF *lib[], const int mt1, const int zap1)
 /**********************************************************/
 /*      Produce Isotropic Angular Distribution            */
 /**********************************************************/
-void DeceIsotropicAngularDistribution(ENDFDict *dict, ENDF *lib[], const int mt)
+void DeceIsotropicAngularDistribution(ENDFDict *dict, ENDF *lib[], const int mf, const int mt)
 {
+  if( (mf != 4) && (mf != 6) ){ message << "MF number " << mf << " should be 4 or 6"; TerminateCode("DeceIsotropicAngularDistribution"); }
+
   int k3 = dict->getID(3,mt);
-  int k6 = dict->getID(6,mt);
-
-  if(k3 < 0){ message << "MT number " << mt << " in MF3 not found"; TerminateCode("DeceIsotropicAngularDistribution"); }
-  if(k6 < 0){ message << "MT number " << mt << " in MF6 not found"; TerminateCode("DeceIsotropicAngularDistribution"); }
-
+  if(k3 < 0){ message << "MT number " << mt << " in MF3 not found"; TerminateCode("DeceIsotropicAngularDistribution6"); }
 
   Record head = lib[k3]->getENDFhead();
-  head.l1 = 0;
-  head.l2 = 2; // LCT = 2 : CMS
-  head.n1 = 1; // NK = 1
-  head.n2 = 0;
 
-  lib[k6]->setENDFhead(head);
+  if(mf == 6){
+    int k6 = dict->getID(6,mt);
+    if(k6 < 0){ message << "MT number " << mt << " in MF6 not found"; TerminateCode("DeceIsotropicAngularDistribution"); }
 
-  int    idat[2];
-  double xdat[4];
+    head.l1 = 0;
+    head.l2 = 2; // LCT = 2 : CMS
+    head.n1 = 1; // NK = 1
+    head.n2 = 0;
 
-  idat[0] = 2;
-  idat[1] = 2;
-  xdat[0] = 1.0;
-  xdat[1] = 1.0;
-  xdat[2] = 1.0;
-  xdat[3] = 1.0;
+    lib[k6]->setENDFhead(head);
 
-  Record cont(0.0,0.0,0,3,1,2);
-  ENDFPackTAB1(cont,idat,xdat,lib[k6]);
+    int    idat[2];
+    double xdat[4];
 
-  ENDFWriteHEAD(lib[k6]);
-  ENDFWriteTAB1(lib[k6]);
-  ENDFWriteSEND(lib[k6]);
+    idat[0] = 2;
+    idat[1] = 2;
+    xdat[0] = 1.0;
+    xdat[1] = 1.0;
+    xdat[2] = 1.0;
+    xdat[3] = 1.0;
+
+    Record cont(0.0,0.0,0,3,1,2);
+    ENDFPackTAB1(cont,idat,xdat,lib[k6]);
+
+    // ENDFWriteHEAD(lib[k6]);
+    // ENDFWriteTAB1(lib[k6]);
+    // ENDFWriteSEND(lib[k6]);
+  }
+  else{
+    int k4 = dict->getID(4,mt);
+    if(k4 < 0){ message << "MT number " << mt << " in MF4 not found"; TerminateCode("DeceIsotropicAngularDistribution"); }
+
+    head.l1 = 0;
+    head.l2 = 0; // LTT = 0 : isotropic
+    head.n1 = 0;
+    head.n2 = 0;
+
+    lib[k4]->setENDFhead(head);
+
+    int li  = 1; // all isotropic
+    int lct = 2; // CMS
+
+    Record cont(0.0,head.c2,li,lct,0,0);
+    ENDFPackCONT(cont,lib[k4]);
+
+    // ENDFWriteHEAD(lib[k4]);
+    // ENDFWriteCONT(lib[k4]);
+    // ENDFWriteSEND(lib[k4]);
+  }
 }

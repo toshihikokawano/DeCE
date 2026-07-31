@@ -180,6 +180,7 @@ string CmdExtractArgument(void)
     cmd.opt1  = (int)getval(d1);
   }
   else if(ope == "isoangdist"){
+    cmd.mf    = (int)getval(d1);
     cmd.mt    = (int)getval(d1);
   }
   else if(ope == "editheader"){
