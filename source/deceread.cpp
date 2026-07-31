@@ -350,8 +350,6 @@ void DeceReadMF3(ENDFDict *dict, ENDF *lib, const int mt, char *datafile, const 
   }
 
   /*** calculate Qm and Qi */
-  cout << dict->getZA() << " " << dict->getProj() << endl;
-
   struct Qval q = qvalues((int)dict->getZA(),dict->getProj(),(int)dict->getZA(),mt,dict->getELIS(),elev);
 
   /*** check resonance boundary, when data will be merged */
