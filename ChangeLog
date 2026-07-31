@@ -1,3 +1,14 @@
+2026-07-30  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* tools/decemf15.cpp (main): modified
+	unify the number of energy points for all the incident energies, and use INT=22
+
+2026-05-06  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* source/decereadfile.cpp (readISdata): modified
+	method to skip zeros at low energies changed,
+	because cross section could be zero too above 20 MeV
+
 2026-04-19  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* source/deceread.cpp (DeceReadMF3): modified
