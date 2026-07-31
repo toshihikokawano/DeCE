@@ -478,21 +478,21 @@ void gfrSmatrixElement(ENDFDict *dict, ENDF *lib[], double emin, double emax, do
 
     gfrCrossSection(0,elab[i],&sys,lib[kres]);
 
-    // cout << setw(13) << elab[i];
-    // for(int j=0 ; j<Smat.getIndex() ; j++){
-    //   cout << setw(12) << Smat.getElement(j).real();
-    //   cout << setw(12) << Smat.getElement(j).imag();
-    // }
+    cout << setw(13) << elab[i];
+    for(int j=0 ; j<Smat.getIndex() ; j++){
+      cout << setw(12) << Smat.getElement(j).real();
+      cout << setw(12) << Smat.getElement(j).imag();
+    }
 
-    // if(sys.alpha > 0.0){ // avoid RML case
-    //   for(l=0 ; l<sys.nl ; l++){
-    //     gfrPenetrability(l,sys.alpha,&wfn);
-    //     cout << setw(12) <<  wfn.phase2.real();
-    //     cout << setw(12) <<  wfn.phase2.imag();
-    //   }
-    // }
+    if(sys.alpha > 0.0){ // avoid RML case
+      for(l=0 ; l<sys.nl ; l++){
+        gfrPenetrability(l,sys.alpha,&wfn);
+        cout << setw(12) <<  wfn.phase2.real();
+        cout << setw(12) <<  wfn.phase2.imag();
+      }
+    }
 
-    // cout << endl;
+    cout << endl;
   }
 
   Smat.memfree();

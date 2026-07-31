@@ -192,6 +192,8 @@ void RMLMainCalc(const double elab, System *sys, GFRcross *sig)
     for(int i=0 ; i<mch ; i++){
       if(mtid[i] == 2){
         int ss = (int)abs(res[j].s2[dptr[i]]) - sys->target_spin2;
+        if(sys->target_spin2 == 0) ss = -1; // special indexing for the I=0 case
+
         Smat.setElement(res[j].l[dptr[i]], res[j].j2, ss, sm[(i+2)*(i+1)/2-1]);
         Smat.inclIndex();
       }

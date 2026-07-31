@@ -174,6 +174,7 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
   *elev = eth * opt.ReadXdataConversion;
 
   int nc = 0;
+  bool skipzero = true;
   while(getline(fp,line)){
     if(line.length() == 0) continue;
 
@@ -186,7 +187,11 @@ int readISdata(char *file, int ofset, const int mt, double *x, double *y, double
     y[nc] *= opt.ReadYdataConversion;
     if(DeceCheckReadRange(x[nc])) continue;
 
-    if( (mt >= 600) || (y[nc] > 0.0) ) nc++;
+    if(y[nc] != 0.0) skipzero = false;
+    if(skipzero) continue;
+
+    nc ++;
+
     if(nc >= MAX_DBLDATA){ message << "too many energy points, " << nc; TerminateCode("readISdata"); }
   }
   fp.close();

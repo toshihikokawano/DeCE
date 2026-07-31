@@ -164,6 +164,26 @@ int main(int argc, char *argv[])
       ndat[k][i] = nj;
     }
 
+    /*** largest number of secondary energy points */
+    int mp = 0;
+    int mi = 0;
+    for(int i=0 ; i<ne ; i++){
+      if(ndat[k][i] > mp){
+        mp = ndat[k][i];
+        mi = i;
+      }
+    }
+
+    /*** unify the data size, assuming the X-data points are the same for all the incident energies */
+    for(int i=0 ; i<ne ; i++){
+      if(i == mi) continue;
+      for(int j=ndat[k][i] ; j<mp ; j++){
+        xdat[k][i][j*2  ] = xdat[k][mi][j*2];
+        xdat[k][i][j*2+1] = 0.0;
+      }
+      ndat[k][i] = mp;
+    }
+
     /*** re-normalize spectrum */
     for(int i=0 ; i<ne ; i++){
 
@@ -337,7 +357,7 @@ void processMF15(const int mt, const int nk, const int ne, ENDF *lib, int **ndat
 
     for(int i=0 ; i<ne ; i++){
       itab[i][0] = ndat[k][i];            // number of outgoing energies
-      itab[i][1] = 2;                     // lin-lin interpolation
+      itab[i][1] = 22;                    // unit-base lin-lin interpolation
     }
     for(int i=0 ; i<ne ; i++) ctab[i].setRecord(0.0, pdat[k][i*2], 0, 0, 1, ndat[k][i]);
     ENDFPackTAB21(cont,ctab,idat,itab,xdat[k],lib);  // make a TAB2 for spectrum
