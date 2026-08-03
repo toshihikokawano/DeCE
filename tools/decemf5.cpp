@@ -222,6 +222,9 @@ void processMF5(const int nk, const int ne, ENDF *lib, int **ndat, double ***xda
     /*** TAB2 for the spectrun data */
     cont.setRecord(0.0, 0.0, 0, 0, 1, ne);
 
+    idat[0] = ne; // there are NE energy points
+    idat[1] = 2;  // lin-lin interpolation
+
     for(int i=0 ; i<ne ; i++){
       itab[i][0] = ndat[k][i];            // number of outgoing energies
       itab[i][1] = 2;                     // lin-lin interpolation

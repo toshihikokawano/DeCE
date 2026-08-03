@@ -1,3 +1,8 @@
+2026-08-03  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* tools/decemf5.cpp (processMF5): bug fixed
+	number of energy points in TAB2 block fixed
+
 2026-07-31  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* source/deceoperation.cpp (DeceOperationISOANGDIST): modified
