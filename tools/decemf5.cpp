@@ -247,20 +247,22 @@ int dataread(ifstream *fp, const int ncol, int **ndat, double ***xdat, double **
   int i = 0, j = 0;
   string line, dummy;
   double x;
-  double *y = new double [ncol];
+  double *y = new double [3*ncol];
 
   while(getline(*fp,line)){
     if(line[0] == '#'){
       istringstream ss(line);
       ss >> dummy >> x;
       if(ncol > 1){
-        for(int k=0 ; k<ncol ; k++) ss >> y[k];
+        for(int k=0 ; k<3*ncol ; k++) ss >> y[k];
+        for(int k=0 ; k<ncol ; k++){
+          pdat[k][2*i  ] = x * 1.0e+6;      // incident energy, MeV assumed
+          pdat[k][2*i+1] = y[ncol + 2*k+1]; // fraction
+        }
       }
-      else y[0] = 1.0;
-
-      for(int k=0 ; k<ncol ; k++){
-        pdat[k][2*i  ] = x * 1.0e+6;  // incident energy, MeV assumed
-        pdat[k][2*i+1] = y[k];        // fractions
+      else{
+        pdat[0][2*i  ] = x * 1.0e+6;  // incident energy, MeV assumed
+        pdat[0][2*i+1] = 1.0;         // fractions
       }
       continue;
     }

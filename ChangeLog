@@ -1,3 +1,8 @@
+2026-08-04  Toshihiko Kawano  <kawano@lanl.gov>
+
+	* tools/decemf15.cpp: updated
+	delayed photon spectrum updated
+
 2026-08-03  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* tools/decemf5.cpp (processMF5): bug fixed

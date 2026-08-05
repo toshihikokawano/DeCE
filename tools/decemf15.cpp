@@ -79,9 +79,9 @@ int main(int argc, char *argv[])
   fpin.close();
 
   /*** copy MAT number */
-  lib12.setENDFmat(lib1.getENDFmat());
-  lib14.setENDFmat(lib1.getENDFmat());
-  lib15.setENDFmat(lib1.getENDFmat());
+  lib12.setENDFmat(lib1.getENDFmat()); lib12.setENDFhead(lib1.getENDFhead());
+  lib14.setENDFmat(lib1.getENDFmat()); lib14.setENDFhead(lib1.getENDFhead());
+  lib15.setENDFmat(lib1.getENDFmat()); lib15.setENDFhead(lib1.getENDFhead());
 
   fpin.open(datname.c_str());
   if(!fpin){
@@ -354,6 +354,9 @@ void processMF15(const int mt, const int nk, const int ne, ENDF *lib, int **ndat
 
     /*** TAB2 for the spectrun data */
     cont.setRecord(0.0, 0.0, 0, 0, 1, ne);
+
+    idat[0] = ne; // there are NE energy points
+    idat[1] = 2;  // lin-lin interpolation
 
     for(int i=0 ; i<ne ; i++){
       itab[i][0] = ndat[k][i];            // number of outgoing energies
