@@ -50,7 +50,7 @@ inline string coltostr (string, int);
 
 static double *elab, *gyield, **pyield, ***spc;
 static int    *ng, **ns, **nl;
-
+static bool   inclusive = false;
 
 /**********************************************************/
 /*      DeCE MF6 Main Program                             */
@@ -103,6 +103,8 @@ int main(int argc, char *argv[])
 
   mat = lib.getENDFmat();
 
+  if(mt == 3 || mt == 5) inclusive = true; // inclusive spectrum for photonuclear
+
   /*** open CoH energy spectrum file */
   fpin.open(eclname.c_str());
   if(!fpin){
@@ -140,14 +142,13 @@ int main(int argc, char *argv[])
     }
   }
 
+  /*** read spectrum data */
   fpin.open(eclname.c_str());
   dataread(&fpin,reacid);
   fpin.close();
 
-  if(ne > 0){
-    if(mt == 3 || mt == 5) processMF6inclusive(ne,&lib);
-    else processMF6(ne,&lib);
-  }
+  if(inclusive) processMF6inclusive(ne,&lib);
+  else          processMF6(ne,&lib);
 
   delete [] elab;
   delete [] gyield;
@@ -307,7 +308,7 @@ void mf6yield(int nelab, int pid, int nyield, double emin, double emax, ENDF *li
     idat[0] = np;
   }
   else{
-    if(mt == 3 || mt == 5){
+    if(inclusive){
       np  = nelab;
       for(int i=0 ; i<nelab ; i++){
         xdat[kx++] = elab[i];
@@ -342,7 +343,7 @@ void mf6spec(int nelab, int pid, double emin, ENDF *lib)
   int      idat[2], lang = 1, lep = 2, nr = 1, ne = 1;
   int      na, nd, nw, np;
 
-  /*** count number of block for a real NE */
+  /*** count number of blocks for a real NE */
   ne = 1;
   for(int i=0 ; i<nelab ; i++){
     if(elab[i] > emin) ne++;
@@ -481,7 +482,7 @@ int dataread(ifstream *fp, string rid)
 
     /*** sub-section in the energy loop, particle emission identifier */
     else if(key == "# Nucleus    "){
-      if(mt == 3 || mt == 5) rec = true;
+      if(inclusive) rec = true;
       else rec  = (coltostr(line,1) == rid) ? true : false;
       continue;
     }

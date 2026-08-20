@@ -1,3 +1,8 @@
+2026-08-19  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/decemf6.cpp: updated
+	process inclusive energy spectrum for ENDF
+
 2026-08-04  Toshihiko Kawano  <kawano@lanl.gov>
 
 	* tools/decemf15.cpp: updated
