@@ -314,6 +314,7 @@ void mf6yield(int nelab, int pid, int nyield, double emin, double emax, ENDF *li
         xdat[kx++] = elab[i];
         xdat[kx++] = pyield[pid][i];
       }
+      idat[0] = nelab;
     }
     else{
       np  = 2;
