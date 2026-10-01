@@ -86,6 +86,9 @@ void  DeceTableMF1MT455(ENDF *lib)
   if(ldg == 0){
     cout << "#          NNF" << setw(14) << nnf << "  number of precursor families"  << endl;
     ENDFPrintLIST(lib,idx,"Lambda Group","Decay Const");
+    cout << endl;
+    cout << endl;
+
     idx ++;
   }
   else{
