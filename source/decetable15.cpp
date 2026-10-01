@@ -35,8 +35,8 @@ void DeceTableMF15(ENDF *lib)
     idx ++;
 
     if(lf == 1){
-      int ne = lib->rdata[idx++].n2;
-      for(int i=0 ; i<ne ; i++){
+      int n = lib->rdata[idx++].n2;
+      for(int i=0 ; i<n ; i++){
         double e  = lib->rdata[idx].c2;
         int    ne = lib->rdata[idx].n2;
         double f  = ENDFInterpolation(lib,e,false,fracptr);

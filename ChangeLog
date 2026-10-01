@@ -1,3 +1,8 @@
+2026-08-28  KAWANO Toshihiko  <kawano@lanl.gov>
+
+	* tools/decemf6.cpp (mf6yield): bug fixed
+	number of data points for MF6 yield data for inclusive spectrum case
+
 2026-08-19  KAWANO Toshihiko  <kawano@lanl.gov>
 
 	* tools/decemf6.cpp: updated
