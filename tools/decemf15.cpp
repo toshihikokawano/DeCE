@@ -17,15 +17,15 @@ using namespace std;
 /*
   The spectrum data in a file are assumed in the following format.
 
-# 0.000000e+00  7.916936e+00                   // first energy and multiplicity
+# 0.000000e+00  7.916936e+00     // first energy and multiplicity
   0.000000e+00  1.711458e-01
   5.000000e-03  6.622625e-01
   1.500000e-02  6.802960e-01
   ...           ...
   3.945000e+01  7.237446e-27
-  3.955000e+01  0.000000e+00                   // data end by a blank line
+  3.955000e+01  0.000000e+00     // data end by a blank line
 
-#               1.000000e+00  7.946835e+00     // second energy
+# 1.000000e+00  7.946835e+00     // second energy
   0.000000e+00  1.669042e-01
   5.000000e-03  6.758213e-01
   ...           ...
@@ -51,6 +51,8 @@ static int mt = 18; // default MT number is fission
 
 int    main(int, char *[]);
 int    dataread (ifstream *, const int, int **, double ***, double **, double **);
+void   datarearrange (const int, int *, double **);
+
 int    datadummy   (int);
 void   processMF1  (const int, const int, ENDF *, double *);
 void   processMF12 (const int, const int, const int, ENDF *, double **);
@@ -128,76 +130,8 @@ int main(int argc, char *argv[])
     }
   }
 
-
-  /*** for each of subsections */
-  for(int k=0 ; k<nk ; k++){
-
-    /*** if the first point is not zero, insert it */
-    for(int i=0 ; i<ne ; i++){
-      if(xdat[k][i][0] != 0.0){
-        /*** shift data */
-        for(int j=ndat[k][i]-1 ; j>=0 ; j--){
-          xdat[k][i][j*2+2] = xdat[k][i][j*2  ];
-          xdat[k][i][j*2+3] = xdat[k][i][j*2+1];
-        }
-        xdat[k][i][0] = 0.0;
-        xdat[k][i][1] = 0.0;
-        ndat[k][i] ++;
-      }
-    }
-
-    /*** if the lastt point is not zero, set it zero */
-    for(int i=0 ; i<ne ; i++){
-      if(xdat[k][i][(ndat[k][i]-1)*2+1] != 0.0) xdat[k][i][(ndat[k][i]-1)*2+1] = 0.0;
-    }
-
-    /*** eliminate zeros in the spectrum */
-    for(int i=0 ; i<ne ; i++){
-
-      int nj = ndat[k][i];
-      for(int j=ndat[k][i]-2 ; j>=0 ; j--){
-        if(xdat[k][i][j*2+1] != 0.0){
-          nj = j + 2;
-          break;
-        }
-      }
-      ndat[k][i] = nj;
-    }
-
-    /*** largest number of secondary energy points */
-    int mp = 0;
-    int mi = 0;
-    for(int i=0 ; i<ne ; i++){
-      if(ndat[k][i] > mp){
-        mp = ndat[k][i];
-        mi = i;
-      }
-    }
-
-    /*** unify the data size, assuming the X-data points are the same for all the incident energies */
-    for(int i=0 ; i<ne ; i++){
-      if(i == mi) continue;
-      for(int j=ndat[k][i] ; j<mp ; j++){
-        xdat[k][i][j*2  ] = xdat[k][mi][j*2];
-        xdat[k][i][j*2+1] = 0.0;
-      }
-      ndat[k][i] = mp;
-    }
-
-    /*** re-normalize spectrum */
-    for(int i=0 ; i<ne ; i++){
-
-      double sum = 0.0;
-      for(int j=1 ; j<ndat[k][i] ; j++){
-        sum += (xdat[k][i][j*2  ] - xdat[k][i][j*2-2]) * (xdat[k][i][j*2+1] + xdat[k][i][j*2-1]) * 0.5;
-      }
-
-      if(sum != 0.0){
-        sum = 1.0 / sum;
-        for(int j=0 ; j<ndat[k][i] ; j++) xdat[k][i][2*j+1] *= sum;
-      }
-    }
-  }
+  /*** for each of subsections, rearrange data to store in 2 dim array*/
+  for(int k=0 ; k<nk ; k++) datarearrange(ne, ndat[k], xdat[k]);
 
   if(ne > 0){
     if(mt == 460){
@@ -457,4 +391,123 @@ int dataread(ifstream *fp, const int ncol, int **ndat, double ***xdat, double **
 }
 
 
+void datarearrange(const int ne, int *ndat, double **xdat)
+{
+  /*** if the first point is not zero, insert it */
+  for(int i=0 ; i<ne ; i++){
+    if(xdat[i][0] != 0.0){
+      /*** shift data */
+      for(int j=ndat[i]-1 ; j>=0 ; j--){
+        xdat[i][j*2+2] = xdat[i][j*2  ];
+        xdat[i][j*2+3] = xdat[i][j*2+1];
+      }
+      xdat[i][0] = 0.0;
+      xdat[i][1] = 0.0;
+      ndat[i] ++;
+    }
+  }
+
+  /*** if the lastt point is not zero, set it zero */
+  for(int i=0 ; i<ne ; i++){
+    if(xdat[i][(ndat[i]-1)*2+1] != 0.0) xdat[i][(ndat[i]-1)*2+1] = 0.0;
+  }
+
+  /*** eliminate zeros in the spectrum */
+  for(int i=0 ; i<ne ; i++){
+
+    int nj = ndat[i];
+    for(int j=ndat[i]-2 ; j>=0 ; j--){
+      if(xdat[i][j*2+1] != 0.0){
+        nj = j + 2;
+        break;
+      }
+    }
+    ndat[i] = nj;
+  }
+
+  /*** union of X-data points */
+  double *xbase = new double [NDAT * ne];
+  double *ybase = new double [NDAT * ne];
+  int mbase = ndat[0];
+  for(int j=0 ; j<mbase ; j++) xbase[j] = xdat[0][j*2];
+
+  for(int i=1 ; i<ne ; i++){
+    for(int j0=0 ; j0<ndat[i] ; j0++){
+      double x0 = xdat[i][j0*2];
+      bool found = false;
+      for(int j1=0 ; j1<mbase ; j1++){
+        if(xbase[j1] == x0){ found = true; break; }
+      }
+      if(!found) xbase[mbase++] = x0; // append energy point if not found in union
+    }
+  }
+
+  /*** quick sort */
+  for(int j=0 ; j<mbase ; j++){
+    int k = j;
+    for(int i=j ; i<mbase ; i++){
+      if(xbase[i] < xbase[k]) k = i;
+    }
+    double x = xbase[j];  xbase[j] = xbase[k];  xbase[k] = x;
+  }
+
+  /*** interpolate if X not given */
+  for(int i=0 ; i<ne ; i++){
+    for(int j1=0 ; j1<mbase ; j1++){
+      bool found = false;
+      for(int j0=0 ; j0<ndat[i]-1 ; j0++){
+        double x0 = xdat[i][j0*2    ];
+        double y0 = xdat[i][j0*2 + 1];
+        double x1 = xdat[i][j0*2 + 2];
+        double y1 = xdat[i][j0*2 + 3];
+
+        if(xbase[j1] == x0){
+          ybase[j1] = y0;
+          found = true;
+          break;
+        }
+        else if(xbase[j1] == x1){ 
+          ybase[j1] = y1;
+          found = true;
+          break;
+        }
+        else if((x0 < xbase[j1]) && (xbase[j1] < x1)){
+          ybase[j1] = (y1 - y0)/(x1 - x0)*(xbase[j1] - x0) + y0;
+          found = true;
+          break;
+        }
+      }
+      if(!found) ybase[j1] = 0.0;  // X data outside range
+    }
+
+    /*** unify the data size */
+    ndat[i] = mbase;
+    for(int j=0 ; j<ndat[i] ; j++){
+      xdat[i][j*2  ] = xbase[j];
+      xdat[i][j*2+1] = ybase[j];
+    }
+  }
+  delete [] xbase;
+  delete [] ybase;
+
+  /*** re-normalize spectrum */
+  for(int i=0 ; i<ne ; i++){
+
+    double sum = 0.0;
+    for(int j=1 ; j<ndat[i] ; j++){
+      sum += (xdat[i][j*2  ] - xdat[i][j*2-2]) * (xdat[i][j*2+1] + xdat[i][j*2-1]) * 0.5;
+    }
+
+    if(sum != 0.0){
+      sum = 1.0 / sum;
+      for(int j=0 ; j<ndat[i] ; j++) xdat[i][2*j+1] *= sum;
+    }
+  }
+
+  // for(int j=0 ; j<mbase ; j++){
+  //   cout << xdat[0][j*2];
+  //   for(int i=0 ; i<ne ; i++) cout << " " << xdat[i][j*2+1];
+  //   cout << endl;
+  // }
+}
 
