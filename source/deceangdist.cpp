@@ -528,15 +528,15 @@ int discretegammaspec(const int mt, const int mt0, const int pid, double *x, dou
   int n = 0;
   for(int k=nlev ; k>=0 ; k--){
     for(int g=0 ; g<ng[k] ; g++){
-      double eg = ex[k] - ex[ fs[k][g] ];  // gamma-ray energy
-      double dp = br[k][g] * gp[k][g];     // emission probability
-      lpop[ fs[k][g] ] += dp;              // increment population of the final state
+      double eg = ex[k] - ex[ fs[k][g] ];        // gamma-ray energy
+      double dp = br[k][g] * gp[k][g] * lpop[k]; // emission probability
+      lpop[ fs[k][g] ] += dp;                    // increment population of the final state
 
       /*** discrete gamma spectrum */
       double p = dp * lpop[k];
       if(p > pcut){
         x[n] = eg;
-        y[n] = dp * lpop[k];
+        y[n] = p;
         n++;
         if(n >= ntot) break;
       }
